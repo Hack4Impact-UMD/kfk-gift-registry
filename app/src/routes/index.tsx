@@ -1,8 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import type { TestType } from "common";
-
-// Verify common package resolution
-export type { TestType };
 import {
   Zap,
   Server,
