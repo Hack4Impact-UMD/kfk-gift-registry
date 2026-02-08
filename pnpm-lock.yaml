@@ -52,6 +52,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      common:
+        specifier: workspace:*
+        version: link:../common
       lucide-react:
         specifier: ^0.561.0
         version: 0.561.0(react@19.2.4)
@@ -114,10 +117,17 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0
 
-  common: {}
+  common:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   functions:
     dependencies:
+      common:
+        specifier: workspace:*
+        version: link:../common
       firebase-admin:
         specifier: ^13.6.0
         version: 13.6.1

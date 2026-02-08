@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "pnpm -r run build",
+    "dev": "firebase emulators:start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
