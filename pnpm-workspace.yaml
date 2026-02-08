@@ -3,5 +3,8 @@ packages:
   - common
   - functions
 
-ignoredBuiltDependencies:
+onlyBuiltDependencies:
   - esbuild
+  - '@firebase/util'
+  - protobufjs
+  - unrs-resolver
