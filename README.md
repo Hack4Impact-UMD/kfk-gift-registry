@@ -50,5 +50,26 @@ kfk-gift-registry/
    This launches the Firebase emulators (Auth, Firestore, Functions, Storage) and the TanStack Start dev server via the App Hosting emulator. The app will be available at `http://localhost:5002` and the Firebase Emulator UI at `http://localhost:4000`.
 
 ## Team
+### Product Managers
+- Vishesh Khare  
+- Tarun Kommuri  
 
+### Tech Leads
+- Ramy Kaddouri  
+- Arnav Gupta  
+
+### Designers
+- Zayneb Omer  
+- Najma Karissa Arfa  
+
+### Engineers
+- Akhila Pasupunuri  
+- Dennis Huynh  
+- Edward Song 
+- Maggie McAndrew
+- Nadia Meyerovich
+- Ori Marx  
+- Nazeer Ahmed  
+
+---
 ## Points of Contact
