@@ -57,10 +57,12 @@ kfk-gift-registry/
     <td align="center" width="160">
       <img src="assets/team/vishesh-khare.jpg" width="110" style="border-radius:10%;"/><br/>
       <b>Vishesh Khare</b><br/>
+      <img src="https://img.shields.io/badge/👩‍💼_product_manager-007ACC?style=flat-square"/>
     </td>
     <td align="center" width="160">
       <img src="assets/team/tarun-kommuri.jpg" width="110" style="border-radius:10%;"/><br/>
       <b>Tarun Kommuri</b><br/>
+      <img src="https://img.shields.io/badge/👩‍💼_product_manager-007ACC?style=flat-square"/>
     </td>
   </tr>
 </table>
@@ -71,10 +73,12 @@ kfk-gift-registry/
     <td align="center" width="160">
       <img src="assets/team/arnav-gupta.jpeg" width="110" style="border-radius:10%;"/><br/>
       <b>Arnav Gupta</b><br/>
+      <img src="https://img.shields.io/badge/🛠️_technical_lead-FF5733?style=flat-square"/>
     </td>
     <td align="center" width="160">
       <img src="assets/team/ramy-kaddouri.jpg" width="110" style="border-radius:10%;"/><br/>
       <b>Ramy Kaddouri</b><br/>
+      <img src="https://img.shields.io/badge/🛠️_technical_lead-FF5733?style=flat-square"/>
     </td>
   </tr>
 </table>
@@ -85,10 +89,12 @@ kfk-gift-registry/
     <td align="center" width="160">
       <img src="assets/team/zayneb-omer.jpg" width="110" style="border-radius:10%;"/><br/>
       <b>Zayneb Omer</b><br/>
+      <img src="https://img.shields.io/badge/🎨_designer-9B59B6?style=flat-square"/>
     </td>
     <td align="center" width="160">
       <img src="assets/team/najma-a.jpg" width="110" style="border-radius:10%;"/><br/>
       <b>Najma Karissa Arfa</b><br/>
+      <img src="https://img.shields.io/badge/🎨_designer-9B59B6?style=flat-square"/>
     </td>
   </tr>
 </table>
@@ -99,31 +105,38 @@ kfk-gift-registry/
     <td align="center" width="160">
       <img src="assets/team/akhila.jpg" width="110" style="border-radius:10%;"/><br/>
       <b>Akhila Pasupunuri</b><br/>
+      <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
     <td align="center" width="160">
       <img src="assets/team/dennis-huynh.jpg" width="110" style="border-radius:10%;"/><br/>
       <b>Dennis Huynh</b><br/>
+      <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
     <td align="center" width="160">
       <img src="assets/team/eddie.jpg" width="110" style="border-radius:10%;"/><br/>
       <b>Edward Song </b><br/>
+      <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
   </tr>
   <tr>
     <td align="center" width="160">
       <img src="assets/team/maggie-mcandrew.jpg" width="110" style="border-radius:10%;"/><br/>
       <b>Maggie McAndrew</b><br/>
+      <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
     <td align="center" width="160">
       <img src="assets/team/nadia-meyerovich.jpg" width="110" style="border-radius:10%;"/><br/>
       <b>Nadia Meyerovich</b><br/>
+      <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
     <td align="center" width="160">
       <img src="assets/team/ori-marx.jpg" width="110" style="border-radius:10%;"/><br/>
       <b>Ori Marx</b><br/>
+      <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
   </tr>
 </table>
 
 ---
+
 ## Points of Contact
