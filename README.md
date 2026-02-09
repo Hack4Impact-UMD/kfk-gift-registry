@@ -76,9 +76,11 @@ kfk-gift-registry/
       <img src="https://img.shields.io/badge/🛠️_technical_lead-FF5733?style=flat-square"/>
     </td>
     <td align="center" width="160">
-      <img src="assets/team/ramy-kaddouri.jpg" width="110" style="border-radius:10%;"/><br/>
-      <b>Ramy Kaddouri</b><br/>
-      <img src="https://img.shields.io/badge/🛠️_technical_lead-FF5733?style=flat-square"/>
+      <a href="https://github.com/rk234" target="_blank" rel="noreferrer noopener">
+        <img src="assets/team/ramy-kaddouri.jpg" width="110" style="border-radius:10%;"/><br/>
+        <b>Ramy Kaddouri</b><br/>
+        <img src="https://img.shields.io/badge/🛠️_technical_lead-FF5733?style=flat-square"/>
+      </a>
     </td>
   </tr>
 </table>
