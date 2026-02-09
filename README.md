@@ -140,3 +140,8 @@ kfk-gift-registry/
 ---
 
 ## Points of Contact
+
+| Name          | Role            | Email                     |
+| ------------- | --------------- | ------------------------- |
+| Ramy Kaddouri | Tech Lead       | rkaddour@terpmail.umd.edu |
+| Arnav Gupta   | Tech Lead       | agupta67@terpmail.umd.edu |
