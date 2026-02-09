@@ -49,27 +49,81 @@ kfk-gift-registry/
 
    This launches the Firebase emulators (Auth, Firestore, Functions, Storage) and the TanStack Start dev server via the App Hosting emulator. The app will be available at `http://localhost:5002` and the Firebase Emulator UI at `http://localhost:4000`.
 
-## Team
-### Product Managers
-- Vishesh Khare  
-- Tarun Kommuri  
+## Meet the Team
 
-### Tech Leads
-- Ramy Kaddouri  
-- Arnav Gupta  
+### 🧭 Product Managers
+<table align="center">
+  <tr>
+    <td align="center" width="160">
+      <img src="assets/team/vishesh-khare.jpg" width="110" style="border-radius:10%;"/><br/>
+      <b>Vishesh Khare</b><br/>
+    </td>
+    <td align="center" width="160">
+      <img src="assets/team/tarun-kommuri.jpg" width="110" style="border-radius:10%;"/><br/>
+      <b>Tarun Kommuri</b><br/>
+    </td>
+  </tr>
+</table>
 
-### Designers
-- Zayneb Omer  
-- Najma Karissa Arfa  
+### 🛠 Tech Leads
+<table align="center">
+  <tr>
+    <td align="center" width="160">
+      <img src="assets/team/arnav-gupta.jpeg" width="110" style="border-radius:10%;"/><br/>
+      <b>Arnav Gupta</b><br/>
+    </td>
+    <td align="center" width="160">
+      <img src="assets/team/ramy-kaddouri.jpg" width="110" style="border-radius:10%;"/><br/>
+      <b>Ramy Kaddouri</b><br/>
+    </td>
+  </tr>
+</table>
 
-### Engineers
-- Akhila Pasupunuri  
-- Dennis Huynh  
-- Edward Song 
-- Maggie McAndrew
-- Nadia Meyerovich
-- Ori Marx  
-- Nazeer Ahmed  
+### 🎨 Designers
+<table align="center">
+  <tr>
+    <td align="center" width="160">
+      <img src="assets/team/zayneb-omer.jpg" width="110" style="border-radius:10%;"/><br/>
+      <b>Zayneb Omer</b><br/>
+    </td>
+    <td align="center" width="160">
+      <img src="assets/team/najma-a.jpg" width="110" style="border-radius:10%;"/><br/>
+      <b>Najma Karissa Arfa</b><br/>
+    </td>
+  </tr>
+</table>
+
+### 💻 Engineers
+<table align="center">
+  <tr>
+    <td align="center" width="160">
+      <img src="assets/team/akhila.jpg" width="110" style="border-radius:10%;"/><br/>
+      <b>Akhila Pasupunuri</b><br/>
+    </td>
+    <td align="center" width="160">
+      <img src="assets/team/dennis-huynh.jpg" width="110" style="border-radius:10%;"/><br/>
+      <b>Dennis Huynh</b><br/>
+    </td>
+    <td align="center" width="160">
+      <img src="assets/team/eddie.jpg" width="110" style="border-radius:10%;"/><br/>
+      <b>Edward Song </b><br/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="160">
+      <img src="assets/team/maggie-mcandrew.jpg" width="110" style="border-radius:10%;"/><br/>
+      <b>Maggie McAndrew</b><br/>
+    </td>
+    <td align="center" width="160">
+      <img src="assets/team/nadia-meyerovich.jpg" width="110" style="border-radius:10%;"/><br/>
+      <b>Nadia Meyerovich</b><br/>
+    </td>
+    <td align="center" width="160">
+      <img src="assets/team/ori-marx.jpg" width="110" style="border-radius:10%;"/><br/>
+      <b>Ori Marx</b><br/>
+    </td>
+  </tr>
+</table>
 
 ---
 ## Points of Contact
