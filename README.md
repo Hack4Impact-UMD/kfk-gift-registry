@@ -137,7 +137,7 @@ kfk-gift-registry/
   </tr>
   <tr>
     <td align="center" width="160">
-      <img src="assets/team/nazeer-ahmed.png" width="110" style="border-radius:10%;"/><br/>
+      <img src="assets/team/nazeer-ahmed.PNG" width="110" style="border-radius:10%;"/><br/>
       <b>
         <a href="https://www.linkedin.com/in/syednahm">
           Nazeer Ahmed
