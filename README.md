@@ -135,6 +135,17 @@ kfk-gift-registry/
       <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
   </tr>
+  <tr>
+    <td align="center" width="160">
+      <img src="assets/team/nazeer-ahmed.png" width="110" style="border-radius:10%;"/><br/>
+      <b>
+        <a href="https://www.linkedin.com/in/syednahm">
+          Nazeer Ahmed
+        </a>
+      </b><br/>
+      <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
+    </td>
+  </tr>
 </table>
 
 ---
