@@ -134,9 +134,11 @@ kfk-gift-registry/
       </a>
     </td>
     <td align="center" width="160">
-      <img src="assets/team/ori-marx.jpg" width="110" style="border-radius:10%;"/><br/>
-      <b>Ori Marx</b><br/>
-      <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
+      <a href="https://github.com/orimcoding" target="_blank" rel="noreferrer noopener">
+        <img src="assets/team/ori-marx.png" width="110" style="border-radius:10%;"/><br/>
+        <b>Ori Marx</b><br/>
+        <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
+      </a>
     </td>
   </tr>
 </table>
