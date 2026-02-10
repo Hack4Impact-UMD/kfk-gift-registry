@@ -127,9 +127,11 @@ kfk-gift-registry/
       <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
     <td align="center" width="160">
-      <img src="assets/team/nadia-meyerovich.jpg" width="110" style="border-radius:10%;"/><br/>
-      <b>Nadia Meyerovich</b><br/>
-      <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
+      <a href="https://www.linkedin.com/in/nadia-meyerovich-4a30a9215/" target="_blank" rel="noreferrer noopener">
+        <img src="assets/team/nadia-meyerovich.JPEG" width="110" style="border-radius:10%;"/><br/>
+        <b>Nadia Meyerovich</b><br/>
+        <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
+      </a>
     </td>
     <td align="center" width="160">
       <img src="assets/team/ori-marx.jpg" width="110" style="border-radius:10%;"/><br/>
