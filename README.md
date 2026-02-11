@@ -4,13 +4,13 @@ This repository contains the source code for the Kisses for Kyle Gift registry p
 
 ## Tech Stack
 
-- **Framework:** [Tanstack Start + React](https://tanstack.com/start/latest)
+- **Framework:** [TanStack Start + React](https://tanstack.com/start/latest)
 - **Build Tool:** [Vite](https://vitejs.dev/)
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 - **UI Components:** [shadcn/ui](https://ui.shadcn.com/), [Radix UI](https://www.radix-ui.com/)
 - **Data Fetching:** [TanStack Query](https://tanstack.com/query/latest)
-- **Routing:** [Tanstack Router](https://tanstack.com/router/latest)
+- **Routing:** [TanStack Router](https://tanstack.com/router/latest)
 - **Schema Validation:** [Zod](https://zod.dev/)
 
 ## Directory Structure
