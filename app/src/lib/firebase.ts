@@ -8,7 +8,7 @@ import { getAuth } from "firebase/auth";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCraHRWoXuc5FotA6IGvWk-D-iPrwGRMWk",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "kfk-gift-registry.firebaseapp.com",
   projectId: "kfk-gift-registry",
   storageBucket: "kfk-gift-registry.firebasestorage.app",
