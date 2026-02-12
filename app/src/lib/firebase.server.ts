@@ -6,7 +6,7 @@ if (!admin.apps.length || admin.apps.length === 0) {
 }
 
 let auth: admin.auth.Auth | null = null;
-let db: admin.firestore.Firestore | null;
+let db: admin.firestore.Firestore | null = null;
 
 export const getServerAuth = createServerOnlyFn(() => {
   if (auth) return auth;
