@@ -17,5 +17,8 @@
   "packageManager": "pnpm@10.29.1",
   "devDependencies": {
     "prettier": "^3.8.1"
+  },
+  "dependencies": {
+    "punycode": "^2.3.1"
   }
 }
