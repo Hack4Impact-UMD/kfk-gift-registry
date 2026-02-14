@@ -6,7 +6,10 @@ export const Route = createFileRoute('/_authenticated')({
     try {
       const user = await verifySession();
       return {
-        auth: user
+        auth: {
+          isAuthenticated: true,
+          authUser: user
+        }
       }
     } catch (err) {
       console.error("_authenticated beforeLoad error:");
@@ -20,7 +23,6 @@ export const Route = createFileRoute('/_authenticated')({
     }
   },
   component: () => <RouteComponent />,
-  ssr: false,
 })
 
 function RouteComponent() {

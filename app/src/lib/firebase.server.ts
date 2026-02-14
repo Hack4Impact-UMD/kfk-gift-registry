@@ -1,21 +1,21 @@
 import { createServerOnlyFn } from "@tanstack/react-start";
-import * as admin from 'firebase-admin'
+import admin from "firebase-admin";
 
 let auth: admin.auth.Auth | null = null;
 let db: admin.firestore.Firestore | null = null;
 
 const initApp = () => {
-  if (!admin.apps?.length || admin.apps.length === 0) {
-    admin.initializeApp()
+  if (!admin.apps?.length) {
+    admin.initializeApp();
   }
-}
+};
 
 export const getServerAuth = createServerOnlyFn(() => {
   initApp();
   if (auth) return auth;
   auth = admin.auth();
   return auth;
-})
+});
 
 export const getServerDB = createServerOnlyFn(() => {
   initApp();
@@ -23,4 +23,4 @@ export const getServerDB = createServerOnlyFn(() => {
 
   db = admin.firestore();
   return db;
-})
+});

@@ -13,9 +13,11 @@ import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
+import { AuthContext, verifySession } from "@/server/auth";
 
 interface MyRouterContext {
   queryClient: QueryClient;
+  auth: AuthContext
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -39,7 +41,25 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
   }),
+  beforeLoad: async () => {
+    try {
+      const authUser = await verifySession();
 
+      return {
+        auth: {
+          isAuthed: true,
+          authUser
+        }
+      }
+    } catch {
+      return {
+        auth: {
+          isAuthed: true,
+          authUser: null
+        }
+      }
+    }
+  },
   shellComponent: RootDocument,
 });
 

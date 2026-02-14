@@ -1,9 +1,23 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { logout } from "@/server/auth";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useCallback } from "react";
 
-export const Route = createFileRoute('/_authenticated/hello')({
+export const Route = createFileRoute("/_authenticated/hello")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
-  return <div>Hello "/_authenticated/hello"!</div>
+  const { auth } = Route.useRouteContext();
+  const router = useRouter();
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+    router.invalidate();
+  }, [router]);
+  return (
+    <div>
+      <p>Hello, {auth.authUser.displayName}!</p>
+      <button onClick={handleLogout}>Logout</button>
+    </div>
+  );
 }
