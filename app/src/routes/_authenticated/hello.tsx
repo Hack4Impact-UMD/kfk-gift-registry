@@ -1,6 +1,6 @@
-import { logout } from "@/server/auth";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useCallback } from "react";
+import { logout } from "@/server/auth";
 
 export const Route = createFileRoute("/_authenticated/hello")({
   component: RouteComponent,
@@ -15,7 +15,7 @@ function RouteComponent() {
     router.invalidate();
   }, [router]);
   return (
-    <div>
+    <div className="p-2">
       <p>Hello, {auth.authUser.displayName}!</p>
       <button onClick={handleLogout}>Logout</button>
     </div>

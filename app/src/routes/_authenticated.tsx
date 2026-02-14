@@ -1,5 +1,5 @@
+import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 import { verifySession } from '@/server/auth'
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location }) => {
@@ -11,9 +11,8 @@ export const Route = createFileRoute('/_authenticated')({
           authUser: user
         }
       }
-    } catch (err) {
-      console.error("_authenticated beforeLoad error:");
-      console.error(err);
+    } catch {
+      console.log("_authenticated session verification failed!");
       throw redirect({
         to: "/login",
         search: {

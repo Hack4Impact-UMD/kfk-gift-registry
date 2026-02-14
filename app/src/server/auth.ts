@@ -1,10 +1,11 @@
-import { getServerAuth } from "@/lib/firebase.server";
 import { createServerFn } from "@tanstack/react-start";
 import { getCookies, setCookie } from "@tanstack/react-start/server";
 import z from "zod";
-import axios, { AxiosError } from "axios";
-import { UserRecord } from "node_modules/firebase-admin/lib/auth/user-record";
+import axios from "axios";
 import { authMiddleware } from "./middleware/authMiddleware";
+import type { AxiosError } from "axios";
+import type { UserRecord } from "node_modules/firebase-admin/lib/auth/user-record";
+import { getServerAuth } from "@/lib/firebase.server";
 
 export type AuthUser = {
   uid: string;
@@ -42,7 +43,7 @@ const loginSchema = z.object({
 });
 
 const SESSION_COOKIE_NAME = "__session";
-const MAX_SESSION_AGE = 60 * 60 * 24 * 14 * 1000; //14 days
+const MAX_SESSION_AGE = 60 * 60 * 24 * 14 * 1000; // 14 days
 
 async function loginWithEmailPassowrd(email: string, password: string) {
   const url =
@@ -80,6 +81,8 @@ export const verifySession = createServerFn({
   try {
     const cookies = getCookies();
     const sessionCookie = cookies["__session"];
+    if (!sessionCookie) throw new Error("No session cookie found");
+
     const auth = getServerAuth();
 
     const result = await auth.verifySessionCookie(sessionCookie, true);
@@ -133,7 +136,7 @@ export const login = createServerFn({
     } catch (err) {
       console.error(err);
       const msg = (err as AxiosError<{ error: { message: string } }>).response
-        ?.data?.error?.message as string | undefined;
+        ?.data?.error?.message;
       console.error("Login failed");
       console.error("Message: " + msg);
 
