@@ -110,7 +110,8 @@ kfk-gift-registry/
       <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
     <td align="center" width="160">
-      <img src="assets/team/dennis-huynh.jpg" width="110" style="border-radius:10%;"/><br/>
+      <img src="assets/team/dennis-huynh.jpeg" alt="Dennis Huynh" width="110" 
+        style="border-radius:10%;"/><br/>
       <b>Dennis Huynh</b><br/>
       <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
