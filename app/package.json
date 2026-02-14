@@ -10,7 +10,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@eslint/js": "^10.0.1",
     "@faker-js/faker": "^10.0.0",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/match-sorter-utils": "^8.19.4",
@@ -49,6 +48,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "@eslint/js": "^10.0.1",
     "eslint": "^9.0.0",
     "eslint-config-xo": "^0.50.0",
     "eslint-plugin-react-hooks": "^7.0.1",

@@ -1,6 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useCallback } from "react";
 import { logout } from "@/server/auth";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/hello")({
   component: RouteComponent,
@@ -16,8 +17,8 @@ function RouteComponent() {
   }, [router]);
   return (
     <div className="p-2">
-      <p>Hello, {auth.authUser.displayName}!</p>
-      <button onClick={handleLogout}>Logout</button>
+      <p>Hello, {auth.authUser.displayName ?? "Unnamed User"}!</p>
+      <Button onClick={handleLogout}>Logout</Button>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import z from "zod";
 import axios from "axios";
 import { authMiddleware } from "./middleware/authMiddleware";
 import type { AxiosError } from "axios";
-import type { UserRecord } from "node_modules/firebase-admin/lib/auth/user-record";
+import type { UserRecord } from "firebase-admin/auth";
 import { getServerAuth } from "@/lib/firebase.server";
 
 export type AuthUser = {
@@ -38,14 +38,14 @@ const toAuthUser = (user: UserRecord): AuthUser => ({
 });
 
 const loginSchema = z.object({
-  email: z.email().nonempty(),
+  email: z.email(),
   password: z.string().nonempty(),
 });
 
 const SESSION_COOKIE_NAME = "__session";
 const MAX_SESSION_AGE = 60 * 60 * 24 * 14 * 1000; // 14 days
 
-async function loginWithEmailPassowrd(email: string, password: string) {
+async function loginWithEmailPassword(email: string, password: string) {
   const url =
     process.env.NODE_ENV === "production"
       ? "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
@@ -80,7 +80,7 @@ export const verifySession = createServerFn({
 }).handler(async () => {
   try {
     const cookies = getCookies();
-    const sessionCookie = cookies["__session"];
+    const sessionCookie = cookies[SESSION_COOKIE_NAME];
     if (!sessionCookie) throw new Error("No session cookie found");
 
     const auth = getServerAuth();
@@ -107,9 +107,10 @@ export const createSession = createServerFn({
       expiresIn: MAX_SESSION_AGE,
     });
 
-    setCookie("__session", sessionCookie, {
+    setCookie(SESSION_COOKIE_NAME, sessionCookie, {
       httpOnly: true,
       sameSite: "lax",
+      path: "/",
       secure: process.env.NODE_ENV === "production",
       maxAge: MAX_SESSION_AGE,
     });
@@ -123,7 +124,7 @@ export const login = createServerFn({
     const { email, password } = data;
 
     try {
-      const result = await loginWithEmailPassowrd(email, password);
+      const result = await loginWithEmailPassword(email, password);
 
       const auth = getServerAuth();
       const user = await auth.getUser(result.localId);
@@ -142,10 +143,9 @@ export const login = createServerFn({
 
       if (
         msg === "EMAIL_NOT_FOUND" ||
-        msg === "INVALID_PASSWORD" ||
-        msg === "INVALID_LOGIN_CREDENTIALS"
+        msg === "INVALID_PASSWORD"
       ) {
-        throw new Error("Bad email/password");
+        throw new Error("Bad email or password");
       } else if (msg === "USER_DISABLED") {
         throw new Error("Account disabled");
       } else {

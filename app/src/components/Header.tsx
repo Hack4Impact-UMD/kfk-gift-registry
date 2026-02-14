@@ -62,8 +62,6 @@ export default function Header() {
             <span className="font-medium">Home</span>
           </Link>
 
-          {/* Demo Links Start */}
-
           <Link
             to="/login"
             onClick={() => setIsOpen(false)}

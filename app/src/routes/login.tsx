@@ -20,14 +20,24 @@ function RouteComponent() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [err, setErr] = useState<string | undefined>();
 
   const handleLogin = useCallback(async () => {
-    await login({
-      data: {
-        email: email,
-        password: password
+    setErr(undefined);
+    try {
+      await login({
+        data: {
+          email: email,
+          password: password
+        }
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        setErr(error.message);
+      } else {
+        setErr("Login failed");
       }
-    })
+    }
 
     await navigate({
       to: search.redirect
@@ -45,6 +55,7 @@ function RouteComponent() {
       <Button type="submit">
         Login
       </Button>
+      {err && <p className='text-sm text-red-600'>{err}</p>}
     </form>
   </div>
 }
