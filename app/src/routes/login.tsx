@@ -6,7 +6,12 @@ import { Input } from '@/components/ui/input'
 import { login } from '@/server/auth'
 
 const searchSchema = z.object({
-  redirect: z.string().optional().default("/hello")
+  redirect: z.string()
+    .optional()
+    .default("/hello")
+    .refine((val) => val.startsWith("/") && !val.startsWith("//"), {
+      message: "Invalid redirect path",
+    }),
 })
 
 export const Route = createFileRoute('/login')({
