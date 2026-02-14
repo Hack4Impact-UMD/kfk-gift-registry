@@ -105,7 +105,7 @@ kfk-gift-registry/
 <table align="center">
   <tr>
     <td align="center" width="160">
-      <img src="assets/team/akhila.jpg" width="110" style="border-radius:10%;"/><br/>
+      <img src="assets/team/akhila.JPEG" width="110" style="border-radius:10%;"/><br/>
       <b>Akhila Pasupunuri</b><br/>
       <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
