@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { login } from '@/server/auth'
 
 const searchSchema = z.object({
-  redirect: z.string().optional().default("/")
+  redirect: z.string().optional().default("/hello")
 })
 
 export const Route = createFileRoute('/login')({
@@ -30,7 +30,7 @@ function RouteComponent() {
     })
 
     await navigate({
-      to: search.redirect ?? "/hello"
+      to: search.redirect
     })
   }, [navigate, email, password, search]);
 

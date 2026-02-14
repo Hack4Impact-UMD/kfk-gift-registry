@@ -135,8 +135,8 @@ export const login = createServerFn({
       return toAuthUser(user);
     } catch (err) {
       console.error(err);
-      const msg = (err as AxiosError<{ error: { message: string } }>).response
-        ?.data?.error?.message;
+      const msg = (err as AxiosError<{ error?: { message?: string } }>).response
+        ?.data.error?.message;
       console.error("Login failed");
       console.error("Message: " + msg);
 
