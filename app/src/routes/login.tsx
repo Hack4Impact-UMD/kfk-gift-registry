@@ -31,6 +31,10 @@ function RouteComponent() {
           password: password
         }
       })
+
+      await navigate({
+        to: search.redirect
+      })
     } catch (error) {
       if (error instanceof Error) {
         setErr(error.message);
@@ -38,10 +42,6 @@ function RouteComponent() {
         setErr("Login failed");
       }
     }
-
-    await navigate({
-      to: search.redirect
-    })
   }, [navigate, email, password, search]);
 
   return <div className='p-2 py-8 flex flex-col gap-2 items-center'>

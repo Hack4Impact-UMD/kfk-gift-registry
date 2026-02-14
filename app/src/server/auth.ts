@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getCookies, setCookie } from "@tanstack/react-start/server";
 import z from "zod";
 import axios from "axios";
+import { Duration } from "luxon"
 import { authMiddleware } from "./middleware/authMiddleware";
 import type { AxiosError } from "axios";
 import type { UserRecord } from "firebase-admin/auth";
@@ -43,7 +44,7 @@ const loginSchema = z.object({
 });
 
 const SESSION_COOKIE_NAME = "__session";
-const MAX_SESSION_AGE = 60 * 60 * 24 * 14 * 1000; // 14 days
+const MAX_SESSION_AGE = Duration.fromObject({ days: 14 });
 
 async function loginWithEmailPassword(email: string, password: string) {
   const url =
@@ -104,7 +105,7 @@ export const createSession = createServerFn({
     const token = data;
     const auth = getServerAuth();
     const sessionCookie = await auth.createSessionCookie(token, {
-      expiresIn: MAX_SESSION_AGE,
+      expiresIn: MAX_SESSION_AGE.toMillis(),
     });
 
     setCookie(SESSION_COOKIE_NAME, sessionCookie, {
@@ -112,7 +113,7 @@ export const createSession = createServerFn({
       sameSite: "lax",
       path: "/",
       secure: process.env.NODE_ENV === "production",
-      maxAge: MAX_SESSION_AGE,
+      maxAge: MAX_SESSION_AGE.as("seconds"),
     });
   });
 
@@ -143,6 +144,7 @@ export const login = createServerFn({
 
       if (
         msg === "EMAIL_NOT_FOUND" ||
+        msg === "INVALID_LOGIN_CREDENTIALS" ||
         msg === "INVALID_PASSWORD"
       ) {
         throw new Error("Bad email or password");
