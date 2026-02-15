@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_authenticated')({
       const user = await verifySession();
       return {
         auth: {
-          isAuthed: true,
+          isAuthed: true as const,
           authUser: user
         }
       }

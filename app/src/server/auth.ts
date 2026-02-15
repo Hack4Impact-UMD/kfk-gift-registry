@@ -8,12 +8,18 @@ import type { AxiosError } from "axios";
 import type { UserRecord } from "firebase-admin/auth";
 import { getServerAuth } from "@/lib/firebase.server";
 
+export enum UserRole {
+  Donor = "donor",
+  Admin = "admin"
+}
+
 export type AuthUser = {
   uid: string;
   displayName: string | undefined;
   disabled: boolean;
   email: string | undefined;
   emailVerified: boolean;
+  role: UserRole;
 };
 
 export type AuthContext =
@@ -36,6 +42,7 @@ const toAuthUser = (user: UserRecord): AuthUser => ({
   disabled: user.disabled,
   email: user.email,
   emailVerified: user.emailVerified,
+  role: user.customClaims?.role ?? UserRole.Donor
 });
 
 const loginSchema = z.object({

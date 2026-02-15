@@ -48,14 +48,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
       return {
         auth: {
-          isAuthed: true,
+          isAuthed: true as const,
           authUser
         }
       }
     } catch {
       return {
         auth: {
-          isAuthed: false,
+          isAuthed: false as const,
           authUser: null
         }
       }

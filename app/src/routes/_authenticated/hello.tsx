@@ -15,9 +15,11 @@ function RouteComponent() {
     await logout();
     router.invalidate();
   }, [router]);
+
   return (
     <div className="p-2">
       <p>Hello, {auth.authUser.displayName ?? "Unnamed User"}!</p>
+      <p>Role: {auth.authUser.role}</p>
       <Button onClick={handleLogout}>Logout</Button>
     </div>
   );
