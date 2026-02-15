@@ -7,6 +7,14 @@ export const Route = createFileRoute("/_authenticated/hello")({
   component: RouteComponent,
 });
 
+/**
+ * Route component that displays the authenticated user's name and role and provides a logout control.
+ *
+ * Renders a greeting using the current route auth context (falls back to "Unnamed User" if no display name),
+ * shows the user's role, and includes a Logout button that calls the server logout and invalidates the router when clicked.
+ *
+ * @returns The component's JSX containing the greeting, role line, and logout button.
+ */
 function RouteComponent() {
   const { auth } = Route.useRouteContext();
   const router = useRouter();

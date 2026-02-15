@@ -53,6 +53,17 @@ const loginSchema = z.object({
 const SESSION_COOKIE_NAME = "__session";
 const MAX_SESSION_AGE = Duration.fromObject({ days: 14 });
 
+/**
+ * Exchange an email and password for Firebase authentication credentials using the Identity Toolkit.
+ *
+ * @returns An object with the authentication response:
+ * - `idToken` — Firebase ID token
+ * - `email` — authenticated user's email
+ * - `refreshToken` — token used to refresh the ID token
+ * - `expiresIn` — token lifetime in seconds (string)
+ * - `localId` — Firebase user UID
+ * - `registered` — `true` if the account exists, `false` otherwise
+ */
 async function loginWithEmailPassword(email: string, password: string) {
   const url =
     process.env.NODE_ENV === "production"

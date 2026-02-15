@@ -18,6 +18,11 @@ export const Route = createFileRoute('/_authenticated')({
   component: () => <RouteComponent />,
 })
 
+/**
+ * Renders the matched child route content.
+ *
+ * @returns The element that renders the matched child route's content.
+ */
 function RouteComponent() {
   return <Outlet />
 }

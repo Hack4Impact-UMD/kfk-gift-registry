@@ -19,6 +19,14 @@ export const Route = createFileRoute('/login')({
   component: RouteComponent,
 })
 
+/**
+ * Render the login page and handle user authentication and post-login navigation.
+ *
+ * Renders a form with email and password inputs, a submit button, and an inline error message when authentication fails.
+ * When credentials are valid, navigates to the route specified by the validated search `redirect` parameter.
+ *
+ * @returns The JSX element for the login form UI
+ */
 function RouteComponent() {
   const navigate = useNavigate();
   const search = Route.useSearch();

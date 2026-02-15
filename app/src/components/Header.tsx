@@ -9,6 +9,13 @@ import {
   X,
 } from "lucide-react";
 
+/**
+ * Top navigation bar with a toggleable slide-out navigation panel.
+ *
+ * Renders a header containing a menu button and logo, and an aside that slides in from the left to show primary navigation links.
+ *
+ * @returns The header and slide-out navigation panel as JSX for rendering in the app layout.
+ */
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
 
