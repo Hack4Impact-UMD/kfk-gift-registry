@@ -10,6 +10,9 @@
   --color-kfk-yellow: #FFCA15;
   --color-kfk-blue: #0839B1;
   --color-kfk-green: #1BCE1B;
+  --color-kfk-muted-green: #83F481;
+  --color-kfk-muted-red: #FF9494;
+  --color-kfk-muted-yellow: #FFDE43;
 }
 
 body {
