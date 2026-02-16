@@ -1,11 +1,12 @@
 @import "tailwindcss";
-
+@import '@fontsource-variable/nunito';
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 
 @theme {
+  --font-sans: "Nunito Variable", sans-serif;
   --color-kfk-red: #FF0000;
   --color-kfk-yellow: #FFCA15;
   --color-kfk-blue: #0839B1;
@@ -16,10 +17,7 @@
 }
 
 body {
-  @apply m-0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
-    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  @apply m-0 font-sans;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
