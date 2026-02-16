@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { connectAuthEmulator, getAuth } from "firebase/auth";
 import { createClientOnlyFn } from "@tanstack/react-start";
-import type { Auth} from "firebase/auth";
+import type { Auth } from "firebase/auth";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -21,9 +21,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 let auth: Auth | null = null
 
+
 export const getClientAuth = createClientOnlyFn(() => {
   if (auth) return auth;
   auth = getAuth(app);
+  if (import.meta.env.DEV) {
+    console.log("Connecting auth emulator!")
+    connectAuthEmulator(auth, "http://localhost:9099");
+  }
   return auth;
 })
 

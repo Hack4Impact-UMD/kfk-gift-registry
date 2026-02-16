@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useCallback } from "react";
-import { logout } from "@/server/auth";
 import { Button } from "@/components/ui/button";
+import { logout } from "@/services/authService";
 
 export const Route = createFileRoute("/_authenticated/hello")({
   component: RouteComponent,

@@ -1,10 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getCookies, setCookie } from "@tanstack/react-start/server";
 import z from "zod";
-import axios from "axios";
 import { Duration } from "luxon"
 import { authMiddleware } from "./middleware/authMiddleware";
-import type { AxiosError } from "axios";
 import type { UserRecord } from "firebase-admin/auth";
 import { getServerAuth } from "@/lib/firebase.server";
 
@@ -46,42 +44,11 @@ const toAuthUser = (user: UserRecord): AuthUser => ({
 });
 
 const loginSchema = z.object({
-  email: z.email(),
-  password: z.string().nonempty(),
+  token: z.string().nonempty()
 });
 
 const SESSION_COOKIE_NAME = "__session";
 const MAX_SESSION_AGE = Duration.fromObject({ days: 14 });
-
-async function loginWithEmailPassword(email: string, password: string) {
-  const url =
-    process.env.NODE_ENV === "production"
-      ? "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
-      : "http://localhost:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword";
-
-  const resp = await axios.post<{
-    idToken: string;
-    email: string;
-    refreshToken: string;
-    expiresIn: string;
-    localId: string;
-    registered: boolean;
-  }>(
-    url,
-    {
-      email,
-      password,
-      returnSecureToken: true,
-    },
-    {
-      params: {
-        key: process.env.VITE_FIREBASE_API_KEY,
-      },
-    },
-  );
-
-  return resp.data;
-}
 
 export const verifySession = createServerFn({
   method: "GET",
@@ -124,46 +91,31 @@ export const createSession = createServerFn({
     });
   });
 
-export const login = createServerFn({
+export const loginWithToken = createServerFn({
   method: "POST",
 })
   .inputValidator(loginSchema)
   .handler(async ({ data }) => {
-    const { email, password } = data;
+    const { token } = data;
 
     try {
-      const result = await loginWithEmailPassword(email, password);
-
       const auth = getServerAuth();
-      const user = await auth.getUser(result.localId);
+      const result = await auth.verifyIdToken(token);
+      const user = await auth.getUser(result.uid);
 
       await createSession({
-        data: { token: result.idToken },
+        data: { token },
       });
 
       return toAuthUser(user);
     } catch (err) {
-      console.error(err);
-      const msg = (err as AxiosError<{ error?: { message?: string } }>).response
-        ?.data.error?.message;
       console.error("Login failed");
-      console.error("Message: " + msg);
-
-      if (
-        msg === "EMAIL_NOT_FOUND" ||
-        msg === "INVALID_LOGIN_CREDENTIALS" ||
-        msg === "INVALID_PASSWORD"
-      ) {
-        throw new Error("Bad email or password");
-      } else if (msg === "USER_DISABLED") {
-        throw new Error("Account disabled");
-      } else {
-        throw new Error("Failed to login");
-      }
+      console.error(err);
+      throw new Error("Failed to login");
     }
   });
 
-export const logout = createServerFn({
+export const logoutSession = createServerFn({
   method: "POST",
 })
   .middleware([authMiddleware])

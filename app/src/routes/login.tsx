@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
 import z from 'zod'
+import { AuthErrorCodes } from 'firebase/auth'
+import { FirebaseError } from 'firebase/app'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { login } from '@/server/auth'
+import { login } from '@/services/authService'
 
 const searchSchema = z.object({
   redirect: z.string()
@@ -30,18 +32,21 @@ function RouteComponent() {
   const handleLogin = useCallback(async () => {
     setErr(undefined);
     try {
-      await login({
-        data: {
-          email: email,
-          password: password
-        }
-      })
-
+      await login(email, password);
       await navigate({
         to: search.redirect
       })
     } catch (error) {
-      if (error instanceof Error) {
+      console.warn(error);
+      if (error instanceof FirebaseError) {
+        if (error.code === AuthErrorCodes.MFA_REQUIRED) {
+          setErr("MFA Required");
+        } else if (error.code === AuthErrorCodes.INVALID_LOGIN_CREDENTIALS || error.code === AuthErrorCodes.INVALID_PASSWORD || error.code === AuthErrorCodes.INVALID_EMAIL) {
+          setErr("Invalid email or password");
+        } else {
+          setErr("Login failed");
+        }
+      } else if (error instanceof Error) {
         setErr(error.message);
       } else {
         setErr("Login failed");
