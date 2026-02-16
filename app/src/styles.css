@@ -4,6 +4,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+
+@theme {
+  --color-kfk-red: #FF0000;
+  --color-kfk-yellow: #FFCA15;
+  --color-kfk-blue: #0839B1;
+  --color-kfk-green: #1BCE1B;
+}
+
 body {
   @apply m-0;
   font-family:
@@ -132,6 +140,7 @@ code {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
