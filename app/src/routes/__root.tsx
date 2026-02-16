@@ -43,16 +43,16 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
   }),
   beforeLoad: async () => {
-    try {
-      const authUser = await verifySession();
+    const authUser = await verifySession();
 
+    if (authUser) {
       return {
         auth: {
           isAuthed: true as const,
           authUser
         }
       }
-    } catch {
+    } else {
       return {
         auth: {
           isAuthed: false as const,

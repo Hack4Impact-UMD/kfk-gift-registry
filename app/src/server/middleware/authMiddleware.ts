@@ -3,9 +3,13 @@ import { verifySession } from "../auth";
 
 export const authMiddleware = createMiddleware({ type: "function" }).server(async ({ next }) => {
   const authUser = await verifySession();
-  return next({
-    context: {
-      authUser: authUser
-    }
-  })
+  if (authUser) {
+    return next({
+      context: {
+        authUser: authUser
+      }
+    })
+  } else {
+    throw new Error("[auth middleware]: Not authenticated");
+  }
 })
