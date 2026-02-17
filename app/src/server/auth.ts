@@ -8,6 +8,7 @@ import { getServerAuth } from "@/lib/firebase.server";
 
 export enum UserRole {
   Donor = "donor",
+  Volunteer = "volunteer",
   Admin = "admin"
 }
 
