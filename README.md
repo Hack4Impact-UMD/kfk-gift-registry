@@ -116,9 +116,11 @@ kfk-gift-registry/
       <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
     <td align="center" width="160">
-      <img src="assets/team/eddie.jpg" width="110" style="border-radius:10%;"/><br/>
-      <b>Edward Song </b><br/>
-      <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
+      <a href="https://www.linkedin.com/in/edwardrsong/" target="_blank" rel="noreferrer noopener">
+        <img src="assets/team/eddie-song.jpeg" width="110" style="border-radius:10%;"/><br/>
+        <b>Edward Song </b><br/>
+        <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
+      </a>
     </td>
   </tr>
   <tr>
