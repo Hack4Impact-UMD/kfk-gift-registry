@@ -117,7 +117,7 @@ kfk-gift-registry/
     </td>
     <td align="center" width="160">
       <a href="https://www.linkedin.com/in/edwardrsong/" target="_blank" rel="noreferrer noopener">
-      <img src="assets/team/eddie-song.jpg" width="110" style="border-radius:10%;"/><br/>
+      <img src="assets/team/eddie-song.jpeg" width="110" style="border-radius:10%;"/><br/>
       <b>Edward Song </b><br/>
       <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
