@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
 import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
 import { Route as AuthenticatedStaffHomeRouteImport } from './routes/_authenticated/staff/home'
+import { Route as AuthenticatedStaffApprovedRouteImport } from './routes/_authenticated/staff/approved'
 import { Route as AuthenticatedStaffVolunteerRouteRouteImport } from './routes/_authenticated/staff/volunteer/route'
 import { Route as AuthenticatedStaffAdminRouteRouteImport } from './routes/_authenticated/staff/admin/route'
 
@@ -47,6 +48,12 @@ const AuthenticatedStaffHomeRoute = AuthenticatedStaffHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthenticatedStaffRouteRoute,
 } as any)
+const AuthenticatedStaffApprovedRoute =
+  AuthenticatedStaffApprovedRouteImport.update({
+    id: '/approved',
+    path: '/approved',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
 const AuthenticatedStaffVolunteerRouteRoute =
   AuthenticatedStaffVolunteerRouteRouteImport.update({
     id: '/volunteer',
@@ -67,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/hello': typeof AuthenticatedHelloRoute
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
+  '/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
 }
 export interface FileRoutesByTo {
@@ -76,6 +84,7 @@ export interface FileRoutesByTo {
   '/hello': typeof AuthenticatedHelloRoute
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
+  '/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
 }
 export interface FileRoutesById {
@@ -87,6 +96,7 @@ export interface FileRoutesById {
   '/_authenticated/hello': typeof AuthenticatedHelloRoute
   '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
+  '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/_authenticated/staff/home': typeof AuthenticatedStaffHomeRoute
 }
 export interface FileRouteTypes {
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/hello'
     | '/staff/admin'
     | '/staff/volunteer'
+    | '/staff/approved'
     | '/staff/home'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/hello'
     | '/staff/admin'
     | '/staff/volunteer'
+    | '/staff/approved'
     | '/staff/home'
   id:
     | '__root__'
@@ -117,6 +129,7 @@ export interface FileRouteTypes {
     | '/_authenticated/hello'
     | '/_authenticated/staff/admin'
     | '/_authenticated/staff/volunteer'
+    | '/_authenticated/staff/approved'
     | '/_authenticated/staff/home'
   fileRoutesById: FileRoutesById
 }
@@ -170,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffHomeRouteImport
       parentRoute: typeof AuthenticatedStaffRouteRoute
     }
+    '/_authenticated/staff/approved': {
+      id: '/_authenticated/staff/approved'
+      path: '/approved'
+      fullPath: '/staff/approved'
+      preLoaderRoute: typeof AuthenticatedStaffApprovedRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
     '/_authenticated/staff/volunteer': {
       id: '/_authenticated/staff/volunteer'
       path: '/volunteer'
@@ -190,6 +210,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedStaffRouteRouteChildren {
   AuthenticatedStaffAdminRouteRoute: typeof AuthenticatedStaffAdminRouteRoute
   AuthenticatedStaffVolunteerRouteRoute: typeof AuthenticatedStaffVolunteerRouteRoute
+  AuthenticatedStaffApprovedRoute: typeof AuthenticatedStaffApprovedRoute
   AuthenticatedStaffHomeRoute: typeof AuthenticatedStaffHomeRoute
 }
 
@@ -198,6 +219,7 @@ const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren
     AuthenticatedStaffAdminRouteRoute: AuthenticatedStaffAdminRouteRoute,
     AuthenticatedStaffVolunteerRouteRoute:
       AuthenticatedStaffVolunteerRouteRoute,
+    AuthenticatedStaffApprovedRoute: AuthenticatedStaffApprovedRoute,
     AuthenticatedStaffHomeRoute: AuthenticatedStaffHomeRoute,
   }
 
