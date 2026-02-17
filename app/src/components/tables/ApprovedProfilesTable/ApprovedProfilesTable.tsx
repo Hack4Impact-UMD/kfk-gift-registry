@@ -1,4 +1,5 @@
 import { DataTable } from "../DataTable";
+import { columns } from "./columns";
 
 export type ApprovedProfileTableRow = {
   id: string;
@@ -17,5 +18,5 @@ interface ApprovedProfilesTableProps {
 }
 
 export function ApprovedProfilesTable({ data }: ApprovedProfilesTableProps) {
-  return <DataTable columns={[]} data={data} />;
+  return <DataTable columns={columns} data={data} />;
 }
