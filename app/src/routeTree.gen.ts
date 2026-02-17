@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as ListingsRouteImport } from './routes/listings'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
@@ -22,11 +21,6 @@ import { Route as AuthenticatedStaffAdminRouteRouteImport } from './routes/_auth
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ListingsRoute = ListingsRouteImport.update({
-  id: '/listings',
-  path: '/listings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -68,7 +62,6 @@ const AuthenticatedStaffAdminRouteRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/listings': typeof ListingsRoute
   '/login': typeof LoginRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
@@ -78,7 +71,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/listings': typeof ListingsRoute
   '/login': typeof LoginRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
@@ -90,7 +82,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/listings': typeof ListingsRoute
   '/login': typeof LoginRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/_authenticated/hello': typeof AuthenticatedHelloRoute
@@ -102,7 +93,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/listings'
     | '/login'
     | '/staff'
     | '/hello'
@@ -112,7 +102,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/listings'
     | '/login'
     | '/staff'
     | '/hello'
@@ -123,7 +112,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/listings'
     | '/login'
     | '/_authenticated/staff'
     | '/_authenticated/hello'
@@ -135,7 +123,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  ListingsRoute: typeof ListingsRoute
   LoginRoute: typeof LoginRoute
 }
 
@@ -146,13 +133,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/listings': {
-      id: '/listings'
-      path: '/listings'
-      fullPath: '/listings'
-      preLoaderRoute: typeof ListingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -243,7 +223,6 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  ListingsRoute: ListingsRoute,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport

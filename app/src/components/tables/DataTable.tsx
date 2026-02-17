@@ -25,7 +25,7 @@ interface DataTableProps<TData, TValue> {
   className?: string;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  options: Partial<TableOptions<TData>>;
+  options?: Partial<TableOptions<TData>>;
   rowsPerPage?: number;
   paginated?: boolean;
 }
@@ -93,15 +93,15 @@ export function DataTable<TData, TValue>({
   };
 
   return (
-    <div>
-      <div className={twMerge("rounded-md border", className)}>
+    <div className={twMerge("flex flex-col gap-3", className)}>
+      <div className="rounded-md border bg-white">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="bg-gray-50/70">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="font-semibold text-gray-600 text-sm">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -120,6 +120,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="hover:bg-gray-50/60 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -130,7 +131,7 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length} className="h-24 text-center text-gray-400">
                   No results.
                 </TableCell>
               </TableRow>
@@ -139,7 +140,7 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div>
+      <div className="flex items-center justify-between px-1">
         <span className="text-sm text-gray-500">
           {totalRows === 0
             ? "No results"
