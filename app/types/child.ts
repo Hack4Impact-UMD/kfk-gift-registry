@@ -11,7 +11,11 @@ export interface Child {
   category: ChildCategory;
   treatmentLevel: TreatmentLevel;
   familyId: string;
-  approved: boolean;
+  reviewStatus: {
+    approved: boolean;
+    lastReviewedAt?: string;
+  },
+  diagnosis: string;
   createdAt: string;
   hospital: string;
   childSocialWorker: string;
