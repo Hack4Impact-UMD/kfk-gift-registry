@@ -56,7 +56,7 @@ kfk-gift-registry/
 <table align="center">
   <tr>
     <td align="center" width="160">
-      <img src="assets/team/vishesh-khare.jpg" style="height:110px; border-radius:10%;"/><br/>
+      <img src="assets/team/vishesh.jpg" style="height:110px; border-radius:10%;"/><br/>
       <b>Vishesh Khare</b><br/>
       <img src="https://img.shields.io/badge/👩‍💼_product_manager-007ACC?style=flat-square"/>
     </td>
