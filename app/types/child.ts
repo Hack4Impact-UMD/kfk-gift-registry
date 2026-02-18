@@ -18,6 +18,7 @@ export interface Child {
   diagnosis: string;
   createdAt: string;
   hospital: string;
+  age: number,
   childSocialWorker: string;
   giftDrive: string;
   privateNotes?: string;
