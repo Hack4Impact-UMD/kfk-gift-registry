@@ -56,12 +56,12 @@ kfk-gift-registry/
 <table align="center">
   <tr>
     <td align="center" width="160">
-      <img src="assets/team/vishesh-khare.jpg" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+      <img src="assets/team/vishesh-khare.jpg" style="height:110px; border-radius:10%;"/><br/>
       <b>Vishesh Khare</b><br/>
       <img src="https://img.shields.io/badge/👩‍💼_product_manager-007ACC?style=flat-square"/>
     </td>
     <td align="center" width="160">
-      <img src="assets/team/tarun.jpg" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+      <img src="assets/team/tarun.jpg" style="height:110px; border-radius:10%;"/><br/>
       <b>Tarun Kommuri</b><br/>
       <img src="https://img.shields.io/badge/👩‍💼_product_manager-007ACC?style=flat-square"/>
     </td>
@@ -73,13 +73,13 @@ kfk-gift-registry/
 <table align="center">
   <tr>
     <td align="center" width="160">
-      <img src="assets/team/arnav-gupta.jpeg" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+      <img src="assets/team/arnav-gupta.jpeg" style="height:110px; border-radius:10%;"/><br/>
       <b>Arnav Gupta</b><br/>
       <img src="https://img.shields.io/badge/🛠️_technical_lead-FF5733?style=flat-square"/>
     </td>
     <td align="center" width="160">
       <a href="https://github.com/rk234" target="_blank" rel="noreferrer noopener">
-        <img src="assets/team/ramy-kaddouri.jpg" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+        <img src="assets/team/ramy-kaddouri.jpg" style="height:110px; border-radius:10%;"/><br/>
         <b>Ramy Kaddouri</b><br/>
         <img src="https://img.shields.io/badge/🛠️_technical_lead-FF5733?style=flat-square"/>
       </a>
@@ -92,12 +92,12 @@ kfk-gift-registry/
 <table align="center">
   <tr>
     <td align="center" width="160">
-      <img src="assets/team/zayneb.jpg" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+      <img src="assets/team/zayneb.jpg" style="height:110px; border-radius:10%;"/><br/>
       <b>Zayneb Omer</b><br/>
       <img src="https://img.shields.io/badge/🎨_designer-9B59B6?style=flat-square"/>
     </td>
     <td align="center" width="160">
-      <img src="assets/team/najma.jpeg" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+      <img src="assets/team/najma.jpeg" style="height:110px; border-radius:10%;"/><br/>
       <b>Najma Karissa Arfa</b><br/>
       <img src="https://img.shields.io/badge/🎨_designer-9B59B6?style=flat-square"/>
     </td>
@@ -109,18 +109,18 @@ kfk-gift-registry/
 <table align="center">
   <tr>
     <td align="center" width="160">
-      <img src="assets/team/akhila.JPEG" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+      <img src="assets/team/akhila.JPEG" style="height:110px; border-radius:10%;"/><br/>
       <b>Akhila Pasupunuri</b><br/>
       <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
     <td align="center" width="160">
-      <img src="assets/team/dennis-huynh.jpeg" alt="Dennis Huynh" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+      <img src="assets/team/dennis-huynh.jpeg" alt="Dennis Huynh" style="height:110px; border-radius:10%;"/><br/>
       <b>Dennis Huynh</b><br/>
       <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
     <td align="center" width="160">
       <a href="https://www.linkedin.com/in/edwardrsong/" target="_blank" rel="noreferrer noopener">
-        <img src="assets/team/eddie-song.jpeg" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+        <img src="assets/team/eddie-song.jpeg" style="height:110px; border-radius:10%;"/><br/>
         <b>Edward Song </b><br/>
         <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
       </a>
@@ -128,20 +128,20 @@ kfk-gift-registry/
   </tr>
   <tr>
     <td align="center" width="160">
-      <img src="assets/team/maggie-mcandrew.jpg" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+      <img src="assets/team/maggie-mcandrew.jpg" style="height:110px; border-radius:10%;"/><br/>
       <b>Maggie McAndrew</b><br/>
       <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
     </td>
     <td align="center" width="160">
       <a href="https://www.linkedin.com/in/nadia-meyerovich-4a30a9215/" target="_blank" rel="noreferrer noopener">
-        <img src="assets/team/nadia-meyerovich.JPEG" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+        <img src="assets/team/nadia-meyerovich.JPEG" style="height:110px; border-radius:10%;"/><br/>
         <b>Nadia Meyerovich</b><br/>
         <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
       </a>
     </td>
     <td align="center" width="160">
       <a href="https://github.com/orimcoding" target="_blank" rel="noreferrer noopener">
-        <img src="assets/team/ori-marx.png" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+        <img src="assets/team/ori-marx.png" style="height:110px; border-radius:10%;"/><br/>
         <b>Ori Marx</b><br/>
         <img src="https://img.shields.io/badge/💻_engineer-27AE60?style=flat-square"/>
       </a>
@@ -149,7 +149,7 @@ kfk-gift-registry/
   </tr>
   <tr>
     <td align="center" width="160">
-      <img src="assets/team/nazeer-ahmed.PNG" width="110" height="110" style="border-radius:10%; object-fit:cover; object-position:center;"/><br/>
+      <img src="assets/team/nazeer-ahmed.PNG" style="height:110px; border-radius:10%;"/><br/>
       <b>
         <a href="https://www.linkedin.com/in/syednahm">
           Nazeer Ahmed
