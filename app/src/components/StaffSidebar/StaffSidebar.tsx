@@ -7,53 +7,172 @@ import {
   SidebarMenu, 
   SidebarMenuItem, 
   SidebarMenuButton,
+  SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar"
+
+import { 
+    Select, 
+    SelectContent, 
+    SelectItem, 
+    SelectTrigger, 
+    SelectValue,
+} from "@/components/ui/select"
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
+import { Link } from '@tanstack/react-router'
+import KFKLogo from "@/assets/kfk-logo.png"
+import CurrentYearIcon from "@/assets/staff-sidebar/current-year-icon.png"
+import HomeIcon from "@/assets/staff-sidebar/home-icon.png"
+import ProfileApprovalIcon from "@/assets/staff-sidebar/profile-approval-icon.png"
+import ApprovedProfilesIcon from "@/assets/staff-sidebar/approved-profiles-icon.png"
+import UserManagementIcon from "@/assets/staff-sidebar/user-management-icon.png"
+import UserIcon from "@/assets/staff-sidebar/user-icon.png"
+import CloseSidebarIcon from "@/assets/staff-sidebar/close-sidebar-icon.png" 
+import OpenSidebarIcon from "@/assets/staff-sidebar/open-sidebar-icon.png"
+
+function SidebarToggle() {
+  const { state, toggleSidebar } = useSidebar()
+
+  return (
+    <SidebarTrigger onClick={toggleSidebar} className="absolute top-4 right-4">
+      <button className="absolute top-4 right-4">
+        <img
+            src={state === "expanded" ? CloseSidebarIcon : OpenSidebarIcon}
+            alt={state === "expanded" ? "Close" : "Open"}
+            className="h-8 w-8"
+        />
+      </button>
+    </SidebarTrigger>
+  )
+}
+
+// Tooltip wrapper for sidebar menu items to show labels only when collapsed
+function SidebarMenuButtonWithTooltip({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
+  const { state } = useSidebar()
+  const isCollapsed = state === "collapsed"
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      {isCollapsed && (
+        <TooltipContent side="right">
+          {label}
+        </TooltipContent>
+      )}
+    </Tooltip>
+  )
+}
  
 export function StaffSidebar() {
+
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b px-4 py-6">
-        <div className="flex items-center gap-3">
-          <img src="assets/kfk-logo.png" alt="Kisses For Kyle" className="h-8 w-8" />
-          
-            <span className="text-lg font-semibold">
-              Gift Registry
-            </span>
-            
+    <Sidebar collapsible="icon" className="duration-200">
+      <SidebarToggle />
+      <SidebarHeader className="border-b px-4 py-8 flex flex-col items-center gap-[15px]">
+        <img 
+          src={KFKLogo} 
+          alt="Kisses For Kyle" 
+          className="h-[51px] w-[205px] object-contain opacity-100 group-data-[collapsible=icon]:opacity-0" 
+        />
+
+        <div className="bg-black text-white flex items-center justify-center w-[205px] h-[48px] rounded-[10px] gap-[8px]
+                 opacity-100 group-data-[collapsible=icon]:opacity-0">
+            <span className="text-lg font-semibold text-center">Gift Registry</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup />
-            <SidebarMenu>
+        <SidebarGroup>
+          <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton>
-                Current Year
-              </SidebarMenuButton>
+              <SidebarMenuButtonWithTooltip label="Current Year">
+                <SidebarMenuButton>
+                    <Select defaultValue="2026">
+                    <SelectTrigger className="w-full flex items-center justify-start group-data-[collapsible=icon]:justify-center">
+                        <img 
+                        src={CurrentYearIcon} 
+                        alt="Current Year" 
+                        className="h-8 w-8" 
+                        />
+                        <SelectValue placeholder="Current Year" className="group-data-[collapsible=icon]:hidden"/>
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="2024">2024</SelectItem>
+                        <SelectItem value="2025">2025</SelectItem>
+                        <SelectItem value="2026">2026</SelectItem>
+                    </SelectContent>
+                    </Select>
+                </SidebarMenuButton>
+              </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton>
-                Home
-              </SidebarMenuButton>
+              <SidebarMenuButtonWithTooltip label="Home">
+                <SidebarMenuButton asChild>
+                    <Link to="/staff/home" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+                        <img src={HomeIcon} alt="" className="h-8 w-8" />
+                        <span className="group-data-[collapsible=icon]:hidden">Home</span>
+                    </Link>
+                </SidebarMenuButton>
+              </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton>
-                Profile Approval
-              </SidebarMenuButton>
+              <SidebarMenuButtonWithTooltip label="Profile Approval">
+                <SidebarMenuButton className="flex items-center gap-2 justify-start group-data-[collapsible=icon]:justify-center">
+                        
+                    <img src={ProfileApprovalIcon} alt="" className="h-8 w-8" />
+                    <span className="group-data-[collapsible=icon]:hidden">Profile Approval</span>
+                        
+                </SidebarMenuButton>
+              </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton>
-                Approved Profiles
-              </SidebarMenuButton>
+              <SidebarMenuButtonWithTooltip label="Approved Profiles">
+                    <SidebarMenuButton asChild>
+                        <Link to="/staff/approved" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+                            <img src={ApprovedProfilesIcon} alt="" className="h-8 w-8" />
+                            <span className="group-data-[collapsible=icon]:hidden">Approved Profiles</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton>
-                User Management
-              </SidebarMenuButton>
+              <SidebarMenuButtonWithTooltip label="User Management">
+                <SidebarMenuButton className="flex items-center gap-2 justify-start group-data-[collapsible=icon]:justify-center">
+                        
+                    <img src={UserManagementIcon} alt="" className="h-8 w-8" />
+                    <span className="group-data-[collapsible=icon]:hidden">User Management</span>
+                        
+                </SidebarMenuButton>
+              </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
           </SidebarMenu>
-        <SidebarGroup />
+        </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter className="px-6 py-4">
+        <div className="flex items-center gap-3">
+          <img
+            src={UserIcon}
+            alt="User Avatar"
+            className="h-8 w-8 flex-shrink-0"
+          />
+
+          <div className="flex flex-col opacity-100 group-data-[collapsible=icon]:hidden">
+            <span className="text-md font-medium">First Last Name</span>
+            <span className="text-sm text-gray-400">KFK Admin</span>
+          </div>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   )
 }
