@@ -1,4 +1,6 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { StaffSidebar } from '@/components/StaffSidebar/StaffSidebar'
 
 export const Route = createFileRoute('/_authenticated/staff')({
   component: RouteComponent,
@@ -6,7 +8,14 @@ export const Route = createFileRoute('/_authenticated/staff')({
 
 function RouteComponent() {
   return <div>
-    <p>navbar goes here</p>
-    <Outlet />
+    <SidebarProvider>
+      <div className="flex min-h-screen">
+        <StaffSidebar />
+
+        <main className="flex-1 p-6">
+          <Outlet />
+        </main>
+      </div>
+    </SidebarProvider>
   </div>
 }
