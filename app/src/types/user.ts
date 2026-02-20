@@ -1,6 +1,7 @@
 export enum UserRole {
   ADMIN = "ADMIN",
-  DONOR = "DONOR"
+  DONOR = "DONOR",
+  VOLUNTEER = "VOLUNTEER"
 };
 
 export interface User {
@@ -11,5 +12,5 @@ export interface User {
   role: UserRole;
   phone?: string;
   createdAt: string;
-
+  enabled: boolean;
 }

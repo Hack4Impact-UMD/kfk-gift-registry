@@ -12,7 +12,7 @@ export interface Gift {
   productUrl: string;
   listedPrice: number;
   status: GiftStatus;
-  claimedByDonor?: string;
+  claimedByDonorId?: string;
   createdAt: string;
   privateNotes?: string;
 }

@@ -5,11 +5,7 @@ import { Duration } from "luxon"
 import { authMiddleware } from "./middleware/authMiddleware";
 import type { UserRecord } from "firebase-admin/auth";
 import { getServerAuth } from "@/lib/firebase.server";
-
-export enum UserRole {
-  Donor = "donor",
-  Admin = "admin"
-}
+import { UserRole } from "@/types/user";
 
 export type AuthUser = {
   uid: string;

@@ -9,6 +9,8 @@ export interface Claim {
   trackingNumber?: string;
   deliveryConfirmed?: boolean;
   privateNotes?: string;
+  expectedDeliveryDate?: string;
+  active: boolean;
 }
 interface ClaimPurchaseConfirmation {
   date: string;
