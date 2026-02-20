@@ -5,14 +5,15 @@ export interface Claim {
   donorId: string;
   organizationName?: string;
   claimedAt: string;
-  purchaseConfirmedAt?: ClaimPurchaseConfirmation;
+  purchaseConfirmation?: ClaimPurchaseConfirmation;
   trackingNumber?: string;
   deliveryConfirmed?: boolean;
   privateNotes?: string;
   expectedDeliveryDate?: string;
   active: boolean;
 }
-interface ClaimPurchaseConfirmation {
+
+export interface ClaimPurchaseConfirmation {
   date: string;
   documentationUrl: string;
 }

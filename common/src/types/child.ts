@@ -1,6 +1,7 @@
 export type TreatmentLevel = number;
 
-export const treatmentLevelToLetter = (level: TreatmentLevel) => String.fromCharCode(65 + level);
+export const treatmentLevelToLetter = (level: TreatmentLevel) =>
+  String.fromCharCode(65 + level);
 
 export type ChildCategory = "warrior" | "super_sib";
 
@@ -15,13 +16,12 @@ export interface Child {
   reviewStatus: {
     approved: boolean;
     lastReviewedAt?: string;
-  },
+  };
   diagnosis: string;
   createdAt: string;
   hospital: string;
-  age: number,
+  age: number;
   childSocialWorker: string;
   giftDrive: string;
   staffPrivateNotes?: string;
 }
-

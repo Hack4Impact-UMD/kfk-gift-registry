@@ -1,8 +1,8 @@
 export enum UserRole {
   ADMIN = "ADMIN",
   DONOR = "DONOR",
-  VOLUNTEER = "VOLUNTEER"
-};
+  VOLUNTEER = "VOLUNTEER",
+}
 
 export interface User {
   id: string;
