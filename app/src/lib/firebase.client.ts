@@ -15,20 +15,18 @@ const firebaseConfig = {
   storageBucket: "kfk-gift-registry.firebasestorage.app",
   messagingSenderId: "1061530360755",
   appId: "1:1061530360755:web:8d972140ad02140e1149c6",
-  measurementId: "G-5W4T36409S"
+  measurementId: "G-5W4T36409S",
 };
 
 const app = initializeApp(firebaseConfig);
-let auth: Auth | null = null
-
+let auth: Auth | null = null;
 
 export const getClientAuth = createClientOnlyFn(() => {
   if (auth) return auth;
   auth = getAuth(app);
   if (import.meta.env.DEV) {
-    console.log("Connecting auth emulator!")
+    console.log("Connecting auth emulator!");
     connectAuthEmulator(auth, "http://localhost:9099");
   }
   return auth;
-})
-
+});

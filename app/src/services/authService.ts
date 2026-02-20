@@ -8,10 +8,9 @@ export async function login(email: string, password: string) {
 
   await loginWithToken({
     data: {
-      token: await result.user.getIdToken()
-    }
-  })
-
+      token: await result.user.getIdToken(),
+    },
+  });
 }
 
 export async function logout() {
