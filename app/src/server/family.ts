@@ -27,7 +27,7 @@ export const createFamily = createServerFn({ method: "POST" })
       createdAt: now,
     });
 
-    const token = randomBytes(32).toString("hex");
+    const token = randomBytes(16).toString("hex");
 
     await db.collection("familyAccessTokens").add({
       token,
