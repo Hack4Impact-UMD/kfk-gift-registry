@@ -2,10 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { getCookies, setCookie } from "@tanstack/react-start/server";
 import z from "zod";
 import { Duration } from "luxon"
+import { UserRole } from "common"
 import { authMiddleware } from "./middleware/authMiddleware";
 import type { UserRecord } from "firebase-admin/auth";
 import { getServerAuth } from "@/lib/firebase.server";
-import { UserRole } from "@/types/user";
 
 export type AuthUser = {
   uid: string;
@@ -36,7 +36,7 @@ const toAuthUser = (user: UserRecord): AuthUser => ({
   disabled: user.disabled,
   email: user.email,
   emailVerified: user.emailVerified,
-  role: user.customClaims?.role ?? UserRole.Donor
+  role: user.customClaims?.role ?? UserRole.DONOR
 });
 
 const loginSchema = z.object({

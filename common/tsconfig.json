@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "NodeNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "bundler",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -11,5 +11,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }
