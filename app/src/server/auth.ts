@@ -52,7 +52,7 @@ export const verifySession = createServerFn({
   try {
     const cookies = getCookies();
     const sessionCookie = cookies[SESSION_COOKIE_NAME];
-    if (!sessionCookie) throw new Error("No session cookie found");
+    if (!sessionCookie) return null;
 
     const auth = getServerAuth();
 
@@ -61,9 +61,8 @@ export const verifySession = createServerFn({
 
     return toAuthUser(user);
   } catch (err) {
-    console.error("Session verification failed!");
-    console.error(err);
-    throw new Error("Failed to verify session");
+    console.warn("Session verification failed! ");
+    return null;
   }
 });
 

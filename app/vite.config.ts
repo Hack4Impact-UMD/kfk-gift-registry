@@ -14,6 +14,13 @@ const config = defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  environments: {
+    nitro: {
+      resolve: {
+        external: ["@opentelemetry/api", "fast-xml-parser"],
+      },
+    },
+  },
   plugins: [
     devtools(),
     nitro(),

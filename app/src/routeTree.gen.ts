@@ -13,6 +13,12 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
+import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
+import { Route as AuthenticatedDonorRouteRouteImport } from './routes/_authenticated/donor/route'
+import { Route as AuthenticatedStaffHomeRouteImport } from './routes/_authenticated/staff/home'
+import { Route as AuthenticatedStaffApprovedRouteImport } from './routes/_authenticated/staff/approved'
+import { Route as AuthenticatedStaffVolunteerRouteRouteImport } from './routes/_authenticated/staff/volunteer/route'
+import { Route as AuthenticatedStaffAdminRouteRouteImport } from './routes/_authenticated/staff/admin/route'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -33,30 +39,110 @@ const AuthenticatedHelloRoute = AuthenticatedHelloRouteImport.update({
   path: '/hello',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedStaffRouteRoute = AuthenticatedStaffRouteRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedDonorRouteRoute = AuthenticatedDonorRouteRouteImport.update({
+  id: '/donor',
+  path: '/donor',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedStaffHomeRoute = AuthenticatedStaffHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => AuthenticatedStaffRouteRoute,
+} as any)
+const AuthenticatedStaffApprovedRoute =
+  AuthenticatedStaffApprovedRouteImport.update({
+    id: '/approved',
+    path: '/approved',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
+const AuthenticatedStaffVolunteerRouteRoute =
+  AuthenticatedStaffVolunteerRouteRouteImport.update({
+    id: '/volunteer',
+    path: '/volunteer',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
+const AuthenticatedStaffAdminRouteRoute =
+  AuthenticatedStaffAdminRouteRouteImport.update({
+    id: '/admin',
+    path: '/admin',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/donor': typeof AuthenticatedDonorRouteRoute
+  '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
+  '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
+  '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
+  '/staff/approved': typeof AuthenticatedStaffApprovedRoute
+  '/staff/home': typeof AuthenticatedStaffHomeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/donor': typeof AuthenticatedDonorRouteRoute
+  '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
+  '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
+  '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
+  '/staff/approved': typeof AuthenticatedStaffApprovedRoute
+  '/staff/home': typeof AuthenticatedStaffHomeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authenticated/donor': typeof AuthenticatedDonorRouteRoute
+  '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/_authenticated/hello': typeof AuthenticatedHelloRoute
+  '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
+  '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
+  '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
+  '/_authenticated/staff/home': typeof AuthenticatedStaffHomeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/hello'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/donor'
+    | '/staff'
+    | '/hello'
+    | '/staff/admin'
+    | '/staff/volunteer'
+    | '/staff/approved'
+    | '/staff/home'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/hello'
-  id: '__root__' | '/' | '/_authenticated' | '/login' | '/_authenticated/hello'
+  to:
+    | '/'
+    | '/login'
+    | '/donor'
+    | '/staff'
+    | '/hello'
+    | '/staff/admin'
+    | '/staff/volunteer'
+    | '/staff/approved'
+    | '/staff/home'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/login'
+    | '/_authenticated/donor'
+    | '/_authenticated/staff'
+    | '/_authenticated/hello'
+    | '/_authenticated/staff/admin'
+    | '/_authenticated/staff/volunteer'
+    | '/_authenticated/staff/approved'
+    | '/_authenticated/staff/home'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,14 +181,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHelloRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/staff': {
+      id: '/_authenticated/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof AuthenticatedStaffRouteRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/donor': {
+      id: '/_authenticated/donor'
+      path: '/donor'
+      fullPath: '/donor'
+      preLoaderRoute: typeof AuthenticatedDonorRouteRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/staff/home': {
+      id: '/_authenticated/staff/home'
+      path: '/home'
+      fullPath: '/staff/home'
+      preLoaderRoute: typeof AuthenticatedStaffHomeRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/staff/approved': {
+      id: '/_authenticated/staff/approved'
+      path: '/approved'
+      fullPath: '/staff/approved'
+      preLoaderRoute: typeof AuthenticatedStaffApprovedRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/staff/volunteer': {
+      id: '/_authenticated/staff/volunteer'
+      path: '/volunteer'
+      fullPath: '/staff/volunteer'
+      preLoaderRoute: typeof AuthenticatedStaffVolunteerRouteRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/staff/admin': {
+      id: '/_authenticated/staff/admin'
+      path: '/admin'
+      fullPath: '/staff/admin'
+      preLoaderRoute: typeof AuthenticatedStaffAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
   }
 }
 
+interface AuthenticatedStaffRouteRouteChildren {
+  AuthenticatedStaffAdminRouteRoute: typeof AuthenticatedStaffAdminRouteRoute
+  AuthenticatedStaffVolunteerRouteRoute: typeof AuthenticatedStaffVolunteerRouteRoute
+  AuthenticatedStaffApprovedRoute: typeof AuthenticatedStaffApprovedRoute
+  AuthenticatedStaffHomeRoute: typeof AuthenticatedStaffHomeRoute
+}
+
+const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren =
+  {
+    AuthenticatedStaffAdminRouteRoute: AuthenticatedStaffAdminRouteRoute,
+    AuthenticatedStaffVolunteerRouteRoute:
+      AuthenticatedStaffVolunteerRouteRoute,
+    AuthenticatedStaffApprovedRoute: AuthenticatedStaffApprovedRoute,
+    AuthenticatedStaffHomeRoute: AuthenticatedStaffHomeRoute,
+  }
+
+const AuthenticatedStaffRouteRouteWithChildren =
+  AuthenticatedStaffRouteRoute._addFileChildren(
+    AuthenticatedStaffRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
+  AuthenticatedDonorRouteRoute: typeof AuthenticatedDonorRouteRoute
+  AuthenticatedStaffRouteRoute: typeof AuthenticatedStaffRouteRouteWithChildren
   AuthenticatedHelloRoute: typeof AuthenticatedHelloRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDonorRouteRoute: AuthenticatedDonorRouteRoute,
+  AuthenticatedStaffRouteRoute: AuthenticatedStaffRouteRouteWithChildren,
   AuthenticatedHelloRoute: AuthenticatedHelloRoute,
 }
 
