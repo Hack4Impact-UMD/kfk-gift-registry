@@ -4,7 +4,7 @@ import type { Child, Claim, Family, FamilyLink, Gift, GiftDrive, StaffInvite, Us
 import { CHILD_COLLECTION, CLAIM_COLLECTION, FAMILY_COLLECTION, FAMILY_LINK_COLLECTION, GIFT_COLLECTION, GIFT_DRIVE_COLLECTION, INVITE_COLLECTION, USER_COLLECTION } from "@/data/collections";
 
 const converter = <T>() => ({
-  toFirestore: (data: T) => data,
+  toFirestore: (data: FirebaseFirestore.WithFieldValue<T>) => data as FirebaseFirestore.DocumentData,
   fromFirestore: (snap: FirebaseFirestore.QueryDocumentSnapshot) => snap.data() as T
 })
 
@@ -36,15 +36,18 @@ export const getServerAuth = createServerOnlyFn(() => {
 export const getServerDB = createServerOnlyFn(() => {
   if (db) return db;
   const firestore = admin.firestore();
+
+  const collection = <T>(path: string) => firestore.collection(path).withConverter(converter<T>());
+
   db = {
-    users: firestore.collection(USER_COLLECTION).withConverter(converter<UserProfile>()),
-    children: firestore.collection(CHILD_COLLECTION).withConverter(converter<Child>()),
-    claims: firestore.collection(CLAIM_COLLECTION).withConverter(converter<Claim>()),
-    families: firestore.collection(FAMILY_COLLECTION).withConverter(converter<Family>()),
-    familyLinks: firestore.collection(FAMILY_LINK_COLLECTION).withConverter(converter<FamilyLink>()),
-    gifts: firestore.collection(GIFT_COLLECTION).withConverter(converter<Gift>()),
-    giftDrives: firestore.collection(GIFT_DRIVE_COLLECTION).withConverter(converter<GiftDrive>()),
-    invites: firestore.collection(INVITE_COLLECTION).withConverter(converter<StaffInvite>()),
+    users: collection<UserProfile>(USER_COLLECTION),
+    children: collection<Child>(CHILD_COLLECTION),
+    claims: collection<Claim>(CLAIM_COLLECTION),
+    families: collection<Family>(FAMILY_COLLECTION),
+    familyLinks: collection<FamilyLink>(FAMILY_LINK_COLLECTION),
+    gifts: collection<Gift>(GIFT_COLLECTION),
+    giftDrives: collection<GiftDrive>(GIFT_DRIVE_COLLECTION),
+    invites: collection<StaffInvite>(INVITE_COLLECTION),
   }
   return db;
 });
