@@ -1,3 +1,18 @@
 /* TanStack Query Mutation for login pending check 
 https://tanstack.com/query/v4/docs/framework/react/guides/mutations */
-export function useLoginMutation(){};
+
+import { useMutation } from "@tanstack/react-query";
+import { login } from "@/services/authService";
+
+type LoginInput = {
+  email: string;
+  password: string;
+};
+
+export function useLoginMutation() {
+  return useMutation({
+    mutationFn: async ({ email, password }: LoginInput) => {
+      await login(email, password);
+    },
+  });
+}
