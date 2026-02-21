@@ -9,9 +9,7 @@ const converter = <T>() => ({
 })
 
 type Collection<T> = FirebaseFirestore.CollectionReference<T, FirebaseFirestore.DocumentData>
-
-let auth: admin.auth.Auth | null = null;
-let db: {
+type Database = {
   users: Collection<UserProfile>,
   families: Collection<Family>,
   children: Collection<Child>,
@@ -20,7 +18,10 @@ let db: {
   giftDrives: Collection<GiftDrive>,
   invites: Collection<StaffInvite>,
   familyLinks: Collection<FamilyLink>
-} | null = null;
+}
+
+let auth: admin.auth.Auth | null = null;
+let db: Database | null = null;
 
 if (!admin.apps.length) {
   admin.initializeApp();
