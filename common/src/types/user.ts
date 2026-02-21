@@ -4,7 +4,7 @@ export enum UserRole {
   VOLUNTEER = "VOLUNTEER",
 }
 
-export interface User {
+export interface UserProfile {
   id: string;
   email: string;
   firstName: string;
