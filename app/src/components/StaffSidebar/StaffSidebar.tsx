@@ -124,15 +124,9 @@ export function StaffSidebar() {
                     <Link to="/staff/home" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
                         <img src={HomeIcon} alt="" className="h-8 w-8" />
                         <span className="group-data-[collapsible=icon]:hidden">Home</span>
+
                     </Link>
                 </SidebarMenuButton>
-
-                {/* <SidebarMenuButton asChild size="lg" className="w-full group-data-[collapsible=icon]:justify-center group-data-[state=collapsed]:px-0 hover:text-red-500">
-                    <Link to="/staff/home" className="w-full flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-                      <img src={HomeIcon} alt="" className="h-8 w-8 shrink-0" />
-                      <span className="group-data-[collapsible=icon]:hidden">Home</span>
-                    </Link>
-                </SidebarMenuButton> */}
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
@@ -140,7 +134,7 @@ export function StaffSidebar() {
                 <SidebarMenuButton size="lg" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center hover:text-yellow-500">
                     <img src={ProfileApprovalIcon} alt="" className="h-8 w-8" />
                     <span className="group-data-[collapsible=icon]:hidden">Profile Approval</span>
-                        
+
                 </SidebarMenuButton>
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
@@ -150,6 +144,7 @@ export function StaffSidebar() {
                         <Link to="/staff/approved" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
                             <img src={ApprovedProfilesIcon} alt="" className="h-8 w-8" />
                             <span className="group-data-[collapsible=icon]:hidden">Approved Profiles</span>
+                            
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuButtonWithTooltip>
