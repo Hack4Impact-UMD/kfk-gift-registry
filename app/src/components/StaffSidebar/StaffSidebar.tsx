@@ -94,7 +94,7 @@ export function StaffSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarMenu>
+          <SidebarMenu className="flex-col gap-2">
             <SidebarMenuItem>
               <SidebarMenuButton asChild size="lg">
                   <Select defaultValue="2026">
@@ -118,7 +118,7 @@ export function StaffSidebar() {
                   </Select>
                   </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
+            <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="Home">
                 <SidebarMenuButton asChild size="lg" className="transition hover:text-red-500">
                     <Link to="/staff/home" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
@@ -126,18 +126,25 @@ export function StaffSidebar() {
                         <span className="group-data-[collapsible=icon]:hidden">Home</span>
                     </Link>
                 </SidebarMenuButton>
+
+                {/* <SidebarMenuButton asChild size="lg" className="w-full group-data-[collapsible=icon]:justify-center group-data-[state=collapsed]:px-0 hover:text-red-500">
+                    <Link to="/staff/home" className="w-full flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+                      <img src={HomeIcon} alt="" className="h-8 w-8 shrink-0" />
+                      <span className="group-data-[collapsible=icon]:hidden">Home</span>
+                    </Link>
+                </SidebarMenuButton> */}
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
-            <SidebarMenuItem>
+            <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="Profile Approval">
-                <SidebarMenuButton size="lg" className="flex items-center gap-2 justify-start group-data-[collapsible=icon]:justify-center hover:text-yellow-500">
+                <SidebarMenuButton size="lg" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center hover:text-yellow-500">
                     <img src={ProfileApprovalIcon} alt="" className="h-8 w-8" />
-                    <span className="group-data-[collapsible=icon]:hidden transition">Profile Approval</span>
+                    <span className="group-data-[collapsible=icon]:hidden">Profile Approval</span>
                         
                 </SidebarMenuButton>
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
-            <SidebarMenuItem>
+            <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="Approved Profiles">
                     <SidebarMenuButton asChild size="lg" className="transition hover:text-green-500">
                         <Link to="/staff/approved" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
@@ -147,10 +154,9 @@ export function StaffSidebar() {
                     </SidebarMenuButton>
                 </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
-            <SidebarMenuItem>
+            <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="User Management">
                 <SidebarMenuButton size="lg" className="flex items-center gap-2 justify-start group-data-[collapsible=icon]:justify-center transition hover:text-blue-800">
-                        
                     <img src={UserManagementIcon} alt="" className="h-8 w-8" />
                     <span className="group-data-[collapsible=icon]:hidden">User Management</span>
                         
