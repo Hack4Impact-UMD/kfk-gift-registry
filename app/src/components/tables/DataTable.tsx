@@ -28,9 +28,13 @@ interface DataTableProps<TData, TValue> {
   options?: Partial<TableOptions<TData>>;
   rowsPerPage?: number;
   paginated?: boolean;
+  globalSearch?: string;
+  onGlobalSearchChange?: (value: string) => void
 }
 
 export function DataTable<TData, TValue>({
+  globalSearch,
+  onGlobalSearchChange,
   columns,
   data,
   options = {},
@@ -41,6 +45,10 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    state: {
+      globalFilter: globalSearch,
+    },
+    onGlobalFilterChange: onGlobalSearchChange,
     getCoreRowModel: getCoreRowModel(), // These are here by default, should be able to override with options,
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
