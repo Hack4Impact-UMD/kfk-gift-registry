@@ -25,7 +25,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import { Link } from '@tanstack/react-router'
+import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger, 
+} from "@/components/ui/popover"
+
+
+import { Link, useRouteContext } from '@tanstack/react-router'
+import { logout } from "@/services/authService"
+import { useState } from "react"
 import KFKLogo from "@/assets/kfk-logo.png"
 import CurrentYearIcon from "@/assets/staff-sidebar/current-year-icon.png"
 import HomeIcon from "@/assets/staff-sidebar/home-icon.png"
@@ -80,6 +89,11 @@ function SidebarMenuButtonWithTooltip({
 }
  
 export function StaffSidebar() {
+  const { auth } = useRouteContext({ from: "/_authenticated/staff" })
+  const user = auth?.authUser
+  const { state } = useSidebar()
+  const collapsed = state === "collapsed"
+  const [year, setYear] = useState("2026")
 
   return (
     <Sidebar collapsible="icon" className="duration-200">
@@ -101,26 +115,28 @@ export function StaffSidebar() {
           <SidebarMenu className="flex-col gap-2">
             <SidebarMenuItem className="flex group-data-[collapsible=icon]:justify-center">
               <SidebarMenuButton asChild size="lg">
-                  <Select defaultValue="2026">
-                    <SidebarMenuButtonWithTooltip label="Current Year">
-                      <SelectTrigger className="w-full flex items-center justify-start gap-2 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[state=collapsed]:hidden">
-                        <img 
-                          src={CurrentYearIcon} 
-                          className="h-8 w-8 shrink-0" 
-                          alt="Logo"
-                        />
-                          <span className="truncate group-data-[collapsible=icon]:hidden">
-                            <SelectValue placeholder="Current Year" className="group-data-[collapsible=icon]:hidden"/>
-                          </span>
-                      </SelectTrigger>
-                    </SidebarMenuButtonWithTooltip>
-                    <SelectContent>
-                        <SelectItem value="2024">2024</SelectItem>
-                        <SelectItem value="2025">2025</SelectItem>
-                        <SelectItem value="2026">2026</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  </SidebarMenuButton>
+                <Select value={year} onValueChange={setYear}>
+                  <SidebarMenuButtonWithTooltip label={year}>
+                    <SelectTrigger className="w-full flex items-center justify-start gap-2 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[state=collapsed]:hidden">
+                      <img
+                        src={CurrentYearIcon}
+                        className="h-8 w-8 shrink-0"
+                        alt="Logo"
+                      />
+
+                      <span className="truncate group-data-[collapsible=icon]:hidden">
+                        <SelectValue />
+                      </span>
+                    </SelectTrigger>
+                  </SidebarMenuButtonWithTooltip>
+
+                  <SelectContent>
+                    <SelectItem value="2024">2024</SelectItem>
+                    <SelectItem value="2025">2025</SelectItem>
+                    <SelectItem value="2026">2026</SelectItem>
+                  </SelectContent>
+                </Select>
+              </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="Home">
@@ -166,18 +182,40 @@ export function StaffSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="px-6 py-4">
-        <div className="flex items-center gap-3">
-          <img
-            src={UserIcon}
-            alt="User Avatar"
-            className="h-8 w-8 flex-shrink-0"
-          />
+        <Popover>
+          <SidebarMenuButtonWithTooltip label={user?.displayName || "User"}>
+            <PopoverTrigger asChild>
+              <button className="flex items-center gap-3 w-full text-left">
+                <img
+                  src={UserIcon}
+                  alt="User Avatar"
+                  className="h-8 w-8 flex-shrink-0"
+                />
 
-          <div className="flex flex-col opacity-100 group-data-[collapsible=icon]:hidden">
-            <span className="text-md font-medium">First Last Name</span>
-            <span className="text-sm text-gray-400">KFK Admin</span>
-          </div>
-        </div>
+                <div className="flex flex-col opacity-100 group-data-[collapsible=icon]:hidden">
+                  <span className="text-md font-medium">
+                    {user?.displayName || "User Name"}
+                  </span>
+                  <span className="text-sm text-gray-400">
+                    {user?.role}
+                  </span>
+                </div>
+              </button>
+            </PopoverTrigger>
+          </SidebarMenuButtonWithTooltip>
+
+          <PopoverContent side={collapsed ? "right" : "top"} align="center" className="w-40">
+            <button
+              onClick={async () => {
+                await logout()
+                window.location.reload()
+              }}
+              className="w-full text-left text-sm hover:bg-muted px-2 py-1 rounded"
+            >
+              Logout
+            </button>
+          </PopoverContent>
+        </Popover>
       </SidebarFooter>
     </Sidebar>
   )
