@@ -31,7 +31,6 @@ export async function createFamilyLink(link: NoId<FamilyLink>) {
     id,
     ...link
   }
-
   await db.familyLinks.doc(id).set(linkDoc);
 }
 

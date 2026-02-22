@@ -17,7 +17,8 @@ type Database = {
   claims: Collection<Claim>,
   giftDrives: Collection<GiftDrive>,
   invites: Collection<StaffInvite>,
-  familyLinks: Collection<FamilyLink>
+  familyLinks: Collection<FamilyLink>,
+  _instance: FirebaseFirestore.Firestore
 }
 
 let auth: admin.auth.Auth | null = null;
@@ -48,6 +49,7 @@ export const getServerDB = createServerOnlyFn(() => {
     gifts: collection<Gift>(GIFT_COLLECTION),
     giftDrives: collection<GiftDrive>(GIFT_DRIVE_COLLECTION),
     invites: collection<StaffInvite>(INVITE_COLLECTION),
+    _instance: firestore
   }
   return db;
 });
