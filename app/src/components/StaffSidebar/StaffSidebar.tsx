@@ -66,8 +66,12 @@ function SidebarMenuButtonWithTooltip({
   return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
-      {isCollapsed && (
+      {isCollapsed ? (
         <TooltipContent side="right">
+          {label}
+        </TooltipContent>
+      ) : (
+        <TooltipContent side="right" className="hidden">
           {label}
         </TooltipContent>
       )}
@@ -95,17 +99,17 @@ export function StaffSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu className="flex-col gap-2">
-            <SidebarMenuItem>
+            <SidebarMenuItem className="flex group-data-[collapsible=icon]:justify-center">
               <SidebarMenuButton asChild size="lg">
                   <Select defaultValue="2026">
                     <SidebarMenuButtonWithTooltip label="Current Year">
-                      <SelectTrigger className="w-full flex items-center justify-start gap-2 group-data-[state=collapsed]:justify-center group-data-[state=collapsed]:p-0 [&>svg]:group-data-[state=collapsed]:hidden">
+                      <SelectTrigger className="w-full flex items-center justify-start gap-2 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[state=collapsed]:hidden">
                         <img 
                           src={CurrentYearIcon} 
                           className="h-8 w-8 shrink-0" 
                           alt="Logo"
                         />
-                          <span className="truncate group-data-[state=collapsed]:hidden">
+                          <span className="truncate group-data-[collapsible=icon]:hidden">
                             <SelectValue placeholder="Current Year" className="group-data-[collapsible=icon]:hidden"/>
                           </span>
                       </SelectTrigger>
@@ -144,7 +148,7 @@ export function StaffSidebar() {
                         <Link to="/staff/approved" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
                             <img src={ApprovedProfilesIcon} alt="" className="h-8 w-8" />
                             <span className="group-data-[collapsible=icon]:hidden">Approved Profiles</span>
-                            
+
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuButtonWithTooltip>
