@@ -22,6 +22,7 @@ export const columns: ColumnDef<ApprovedProfileTableRow>[] = [
   },
   {
     accessorKey: "childName",
+    enableGlobalFilter: true,
     header: ({ column }) => (
       <ColumnSortButton column={column}>
         Child Name
@@ -30,6 +31,7 @@ export const columns: ColumnDef<ApprovedProfileTableRow>[] = [
   },
   {
     accessorKey: "parentGuardian",
+    enableGlobalFilter: false,
     header: ({ column }) => (
       <ColumnSortButton column={column}>
         Parent/Guardian
@@ -38,6 +40,7 @@ export const columns: ColumnDef<ApprovedProfileTableRow>[] = [
   },
   {
     accessorKey: "email",
+    enableGlobalFilter: true,
     header: ({ column }) => (
       <ColumnSortButton column={column}>
         Email
@@ -46,6 +49,7 @@ export const columns: ColumnDef<ApprovedProfileTableRow>[] = [
   },
   {
     accessorKey: "age",
+    enableGlobalFilter: false,
     header: ({ column }) => (
       <ColumnSortButton column={column}>
         Age
@@ -54,6 +58,7 @@ export const columns: ColumnDef<ApprovedProfileTableRow>[] = [
   },
   {
     accessorKey: "diagnosis",
+    enableGlobalFilter: true,
     header: ({ column }) => (
       <ColumnSortButton column={column}>
         Diagnosis
@@ -62,19 +67,20 @@ export const columns: ColumnDef<ApprovedProfileTableRow>[] = [
   },
   {
     accessorKey: "type",
+    enableGlobalFilter: false,
     header: ({ column }) => (
       <ColumnSortButton column={column}>
-        Type
+        Warrior or Super Sib
       </ColumnSortButton>
     ),
     cell: ({ row }) => {
       const type = row.getValue("type") as "warrior" | "supersib";
       return (
         <span
-          className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+          className={`inline-flex items-center justify-center rounded-full min-w-[90px] py-1 text-sm font-semibold ${
             type === "warrior"
-              ? "bg-blue-100 text-blue-800"
-              : "bg-purple-100 text-purple-800"
+              ? "bg-yellow-100 text-yellow-800"
+              : "bg-blue-100 text-blue-800"
           }`}
         >
           {type === "warrior" ? "Warrior" : "SuperSib"}
@@ -84,6 +90,7 @@ export const columns: ColumnDef<ApprovedProfileTableRow>[] = [
   },
   {
     accessorKey: "giftsFulfilled",
+    enableGlobalFilter: false,
     header: ({ column }) => (
       <ColumnSortButton column={column}>
         Gift Fulfillment
@@ -92,7 +99,17 @@ export const columns: ColumnDef<ApprovedProfileTableRow>[] = [
     cell: ({ row }) => {
       const fulfilled = row.getValue("giftsFulfilled") as number;
       const total = row.original.giftsTotal;
-      return `${fulfilled}/${total} gifts`;
+      const dotColor = fulfilled === 0
+        ? "bg-red-300"
+        : fulfilled === 3
+          ? "bg-green-300"
+          : "bg-yellow-300"
+      return (
+        <div className="flex items-center gap-2">
+          <div className={`h-3 w-3 rounded-full ${dotColor}`}></div>
+          <div>{fulfilled}/{total} Gifts</div>
+        </div>
+      )
     },
   },
 ];
