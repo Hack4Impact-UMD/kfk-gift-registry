@@ -28,10 +28,15 @@ import {
 import { Link } from '@tanstack/react-router'
 import KFKLogo from "@/assets/kfk-logo.png"
 import CurrentYearIcon from "@/assets/staff-sidebar/current-year-icon.png"
+import CurrentYearIconHovered from "@/assets/staff-sidebar/current-year-icon-hovered.png"
 import HomeIcon from "@/assets/staff-sidebar/home-icon.png"
+import HomeIconHovered from "@/assets/staff-sidebar/home-icon-hovered.png"
 import ProfileApprovalIcon from "@/assets/staff-sidebar/profile-approval-icon.png"
+import ProfileApprovalIconHovered from "@/assets/staff-sidebar/profile-approval-icon-hovered.png"
 import ApprovedProfilesIcon from "@/assets/staff-sidebar/approved-profiles-icon.png"
+import ApprovedProfilesIconHovered from "@/assets/staff-sidebar/approved-profiles-icon-hovered.png"
 import UserManagementIcon from "@/assets/staff-sidebar/user-management-icon.png"
+import UserManagementIconHovered from "@/assets/staff-sidebar/user-management-icon-hovered.png"
 import UserIcon from "@/assets/staff-sidebar/user-icon.png"
 import CloseSidebarIcon from "@/assets/staff-sidebar/close-sidebar-icon.png" 
 import OpenSidebarIcon from "@/assets/staff-sidebar/open-sidebar-icon.png"
@@ -78,6 +83,31 @@ function SidebarMenuButtonWithTooltip({
     </Tooltip>
   )
 }
+
+const SidebarIcon = ({
+  defaultSrc,
+  hoverSrc,
+  alt
+}: {
+  defaultSrc:string,
+  hoverSrc:string,
+  alt:string
+}) => {
+  return (
+    <div className="relative h-8 w-8">
+      <img 
+        src={defaultSrc} 
+        alt={alt}
+        className="absolute h-full w-full object-cover transition-opacity duration-500 ease-in-out group-hover/button:opacity-0"
+      />
+      <img 
+        src={hoverSrc}
+        alt={alt}
+        className="absolute opacity-0 inset-0 h-full w-full object-cover transition-opacity duration-300 ease-in-out group-hover/button:opacity-80"
+      />
+    </div>
+  );
+};
  
 export function StaffSidebar() {
 
@@ -103,12 +133,9 @@ export function StaffSidebar() {
               <SidebarMenuButton asChild size="lg">
                   <Select defaultValue="2026">
                     <SidebarMenuButtonWithTooltip label="Current Year">
-                      <SelectTrigger className="w-full flex items-center justify-start gap-2 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[state=collapsed]:hidden">
-                        <img 
-                          src={CurrentYearIcon} 
-                          className="h-8 w-8 shrink-0" 
-                          alt="Logo"
-                        />
+                      <SelectTrigger className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[state=collapsed]:hidden">
+                          <SidebarIcon defaultSrc={CurrentYearIcon} hoverSrc={CurrentYearIconHovered} alt=""></SidebarIcon>
+
                           <span className="truncate group-data-[collapsible=icon]:hidden">
                             <SelectValue placeholder="Current Year" className="group-data-[collapsible=icon]:hidden"/>
                           </span>
@@ -125,8 +152,8 @@ export function StaffSidebar() {
             <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="Home">
                 <SidebarMenuButton asChild size="lg" className="transition hover:text-red-500">
-                    <Link to="/staff/home" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-                        <img src={HomeIcon} alt="" className="h-8 w-8" />
+                    <Link to="/staff/home" className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+                        <SidebarIcon defaultSrc={HomeIcon} hoverSrc={HomeIconHovered} alt=""></SidebarIcon>
                         <span className="group-data-[collapsible=icon]:hidden">Home</span>
 
                     </Link>
@@ -135,8 +162,8 @@ export function StaffSidebar() {
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="Profile Approval">
-                <SidebarMenuButton size="lg" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center hover:text-yellow-500">
-                    <img src={ProfileApprovalIcon} alt="" className="h-8 w-8" />
+                <SidebarMenuButton size="lg" className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center hover:text-yellow-500">
+                    <SidebarIcon defaultSrc={ProfileApprovalIcon} hoverSrc={ProfileApprovalIconHovered} alt=""></SidebarIcon>
                     <span className="group-data-[collapsible=icon]:hidden">Profile Approval</span>
 
                 </SidebarMenuButton>
@@ -144,9 +171,9 @@ export function StaffSidebar() {
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="Approved Profiles">
-                    <SidebarMenuButton asChild size="lg" className="transition hover:text-green-500">
+                    <SidebarMenuButton asChild size="lg" className="group/button transition hover:text-green-500">
                         <Link to="/staff/approved" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-                            <img src={ApprovedProfilesIcon} alt="" className="h-8 w-8" />
+                            <SidebarIcon defaultSrc={ApprovedProfilesIcon} hoverSrc={ApprovedProfilesIconHovered} alt=""></SidebarIcon>
                             <span className="group-data-[collapsible=icon]:hidden">Approved Profiles</span>
 
                         </Link>
@@ -155,8 +182,8 @@ export function StaffSidebar() {
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="User Management">
-                <SidebarMenuButton size="lg" className="flex items-center gap-2 justify-start group-data-[collapsible=icon]:justify-center transition hover:text-blue-800">
-                    <img src={UserManagementIcon} alt="" className="h-8 w-8" />
+                <SidebarMenuButton size="lg" className="group/button flex items-center gap-2 justify-start group-data-[collapsible=icon]:justify-center transition hover:text-blue-800">
+                    <SidebarIcon defaultSrc={UserManagementIcon} hoverSrc={UserManagementIconHovered} alt=""></SidebarIcon>
                     <span className="group-data-[collapsible=icon]:hidden">User Management</span>
                         
                 </SidebarMenuButton>
