@@ -4,19 +4,7 @@ import { DataTable } from "../DataTable";
 import { columns } from "./columns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-export type ApprovedProfileTableRow = {
-  id: string;
-  childName: string;
-  profilePictureUrl?: string;
-  parentGuardian: string;
-  email: string;
-  age: number;
-  diagnosis: string;
-  type: "warrior" | "supersib";
-  giftsFulfilled: number;
-  giftsTotal: number;
-};
+import type { ApprovedProfileTableRow } from "./types";
 
 interface ApprovedProfilesTableProps {
   data: Array<ApprovedProfileTableRow>;
@@ -26,7 +14,7 @@ export function ApprovedProfilesTable({ data }: ApprovedProfilesTableProps) {
   const [globalSearch, setGlobalSearch] = useState('')
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pt-6">
       <div className="flex items-center mt-6">
         <div className="relative flex items-center mr-auto ml-6 w-48">
           <Search className="absolute ml-2 h-4 w-4 text-gray-500" />

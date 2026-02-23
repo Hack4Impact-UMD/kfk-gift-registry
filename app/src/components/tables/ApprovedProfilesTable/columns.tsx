@@ -1,5 +1,5 @@
 import ColumnSortButton from "../ColumnSortButton";
-import type { ApprovedProfileTableRow } from "./ApprovedProfilesTable";
+import type { ApprovedProfileTableRow } from "./types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
