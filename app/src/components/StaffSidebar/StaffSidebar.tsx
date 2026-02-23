@@ -146,7 +146,7 @@ const SidebarMenuButtonWithHovering = ({
           <SidebarIcon 
           isPressed={isPressed} defaultSrc={defaultSrc} hoverSrc={hoverSrc} pressedSrc={pressedSrc} alt={alt}
           />
-          <span className={`group-data-[collapsible=icon]:hidden transition-text duration-150 ease-in-out ${isPressed && color}`}>{label}</span>
+          <span className={`group-data-[collapsible=icon]:hidden transition-text duration-150 ease-in-out ${isPressed ? color : ''}`}>{label}</span>
 
       </Link>
     </SidebarMenuButton>
@@ -187,7 +187,7 @@ export function StaffSidebar() {
                 <Select onOpenChange={setIsDropdownPressed} value={year} onValueChange={setYear}>
                   <SidebarMenuButtonWithTooltip label={year}>
                     <SelectTrigger 
-                      className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[state=collapsed]:hidden"
+                      className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[collapsible=icon]:hidden"
                     >
                       <SidebarIcon 
                         isPressed={isDropdownPressed}
@@ -226,7 +226,7 @@ export function StaffSidebar() {
             <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="Profile Approval">
                 <SidebarMenuButtonWithHovering
-                  link=""
+                  link="/staff/home" // Placeholder link
                   defaultSrc={ProfileApprovalIcon} 
                   hoverSrc={ProfileApprovalIconHovered}
                   pressedSrc={ProfileApprovalIconPressed}
@@ -254,7 +254,7 @@ export function StaffSidebar() {
             <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="User Management">
                 <SidebarMenuButtonWithHovering
-                  link=""
+                  link="/staff/home" // Placeholder link
                   defaultSrc={UserManagementIcon} 
                   hoverSrc={UserManagementIconHovered}
                   pressedSrc={UserManagementIconPressed}
