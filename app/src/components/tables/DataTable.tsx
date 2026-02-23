@@ -1,14 +1,19 @@
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  TableOptions,
   useReactTable,
 } from "@tanstack/react-table";
 
+import { twMerge } from "tailwind-merge";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "../ui/button";
+import type {
+  ColumnDef,
+  TableOptions
+} from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -17,14 +22,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { twMerge } from "tailwind-merge";
-import { Button } from "../ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   className?: string;
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+  columns: Array<ColumnDef<TData, TValue>>;
+  data: Array<TData>;
   options?: Partial<TableOptions<TData>>;
   rowsPerPage?: number;
   paginated?: boolean;
@@ -54,15 +56,15 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     ...(paginated
       ? {
-          getPaginationRowModel: getPaginationRowModel(),
-          initialState: {
-            pagination: {
-              pageSize: rowsPerPage,
-              pageIndex: 0,
-            },
+        getPaginationRowModel: getPaginationRowModel(),
+        initialState: {
+          pagination: {
+            pageSize: rowsPerPage,
+            pageIndex: 0,
           },
+        },
       }
-    : {}),
+      : {}),
     ...options,
   });
 
@@ -77,12 +79,12 @@ export function DataTable<TData, TValue>({
   const pageCount = table.getPageCount();
   const currentPage = pageIndex + 1;
 
-  const getPageNumbers = (): (number | "...")[] => {
-    if (pageCount <= 5){
+  const getPageNumbers = (): Array<number | "..."> => {
+    if (pageCount <= 5) {
       return Array.from({ length: pageCount }, (_, i) => i + 1);
     }
 
-    const pages: (number | "...")[] = [];
+    const pages: Array<number | "..."> = [];
     const addPage = (p: number) => {
       if (!pages.includes(p)) {
         pages.push(p);
@@ -113,9 +115,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
@@ -123,7 +125,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -186,7 +188,7 @@ export function DataTable<TData, TValue>({
                       ? "bg-blue-600 text-white hover:bg-blue-700"
                       : "text-gray-600 hover:bg-gray-100",
                   )}
-                  onClick={() => table.setPageIndex((page as number) - 1)}
+                  onClick={() => table.setPageIndex((page) - 1)}
                   aria-label={`Go to page ${page}`}
                   aria-current={page === currentPage ? "page" : undefined}
                 >

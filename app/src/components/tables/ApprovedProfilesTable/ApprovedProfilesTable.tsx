@@ -47,7 +47,7 @@ export function ApprovedProfilesTable({ data }: ApprovedProfilesTableProps) {
           </Button>
         </div>
       </div>
-      <DataTable columns={columns} data={data} globalSearch={globalSearch} onGlobalSearchChange={setGlobalSearch} />
+      <DataTable paginated={false} columns={columns} data={data} globalSearch={globalSearch} onGlobalSearchChange={setGlobalSearch} />
     </div>
   )
 }
