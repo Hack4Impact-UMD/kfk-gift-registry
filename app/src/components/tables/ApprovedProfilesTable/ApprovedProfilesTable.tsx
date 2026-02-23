@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 export type ApprovedProfileTableRow = {
   id: string;
   childName: string;
+  profilePictureUrl?: string;
   parentGuardian: string;
   email: string;
   age: number;

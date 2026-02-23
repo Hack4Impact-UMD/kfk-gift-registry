@@ -2,6 +2,7 @@ import ColumnSortButton from "../ColumnSortButton";
 import type { ApprovedProfileTableRow } from "./ApprovedProfilesTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const columns: Array<ColumnDef<ApprovedProfileTableRow>> = [
   {
@@ -28,7 +29,31 @@ export const columns: Array<ColumnDef<ApprovedProfileTableRow>> = [
         Child Name
       </ColumnSortButton>
     ),
+    cell: ({ row }) => {
+      const name = row.getValue("childName") as string;
+      const profilePictureUrl = row.original.profilePictureUrl;
+
+      const initials = name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+
+      return (
+        <div className="flex items-center gap-3">
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={profilePictureUrl} alt={name} />
+            <AvatarFallback className="bg-blue-100 text-blue-600 text-sm font-medium">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <span>{name}</span>
+        </div>
+      );
+    },
   },
+
   {
     accessorKey: "parentGuardian",
     enableGlobalFilter: false,
@@ -97,7 +122,7 @@ export const columns: Array<ColumnDef<ApprovedProfileTableRow>> = [
       </ColumnSortButton>
     ),
     cell: ({ row }) => {
-      const fulfilled = row.getValue("giftsFulfilled");
+      const fulfilled = row.getValue("giftsFulfilled") as number;
       const total = row.original.giftsTotal;
       const dotColor = fulfilled === 0
         ? "bg-red-300"
