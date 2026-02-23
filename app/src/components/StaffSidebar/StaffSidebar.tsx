@@ -48,23 +48,9 @@ import UserManagementIcon from "@/assets/staff-sidebar/user-management-icon.png"
 import UserManagementIconHovered from "@/assets/staff-sidebar/user-management-icon-hovered.png"
 import UserIcon from "@/assets/staff-sidebar/user-icon.png"
 import CloseSidebarIcon from "@/assets/staff-sidebar/close-sidebar-icon.png" 
+import CloseSidebarIconHovered from "@/assets/staff-sidebar/close-sidebar-icon.png" 
 import OpenSidebarIcon from "@/assets/staff-sidebar/open-sidebar-icon.png"
-
-function SidebarToggle() {
-  const { state, toggleSidebar } = useSidebar()
-
-  return (
-    <SidebarTrigger onClick={toggleSidebar} className="absolute top-4 right-4">
-      <button className="absolute top-4 right-4">
-        <img
-            src={state === "expanded" ? CloseSidebarIcon : OpenSidebarIcon}
-            alt={state === "expanded" ? "Close" : "Open"}
-            className="h-8 w-8"
-        />
-      </button>
-    </SidebarTrigger>
-  )
-}
+import OpenSidebarIconHovered from "@/assets/staff-sidebar/open-sidebar-icon.png"
 
 // Tooltip wrapper for sidebar menu items to show labels only when collapsed
 function SidebarMenuButtonWithTooltip({
@@ -127,8 +113,12 @@ export function StaffSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="duration-200">
-      <SidebarToggle />
-      <SidebarHeader className="border-b px-4 py-8 flex flex-col items-center gap-[15px]">
+      <SidebarTrigger
+        openIcon={<img src={OpenSidebarIcon} alt="Open" />}
+        closeIcon={<img src={CloseSidebarIcon} alt="Close" />}
+        className="absolute top-4 right-4 rounded transition-colors duration-200"
+      />
+      <SidebarHeader className="border-b px-4 py-8 mt-4 flex flex-col items-center gap-[15px]">
         <img 
           src={KFKLogo} 
           alt="Kisses For Kyle" 

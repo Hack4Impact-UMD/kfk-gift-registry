@@ -253,12 +253,21 @@ function Sidebar({
   )
 }
 
+interface SidebarTriggerProps extends React.ComponentProps<typeof Button> {
+  openIcon?: React.ReactNode
+  closeIcon?: React.ReactNode
+}
+
 function SidebarTrigger({
   className,
   onClick,
+  openIcon,
+  closeIcon,
   ...props
-}: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+}: SidebarTriggerProps) {
+  const { state, toggleSidebar } = useSidebar()
+
+  const Icon = state === "expanded" ? closeIcon : openIcon
 
   return (
     <Button
@@ -266,14 +275,14 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon"
-      className={cn("size-7", className)}
+      className={cn("size-10", className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
       }}
       {...props}
     >
-      <PanelLeftIcon />
+      {Icon ?? <PanelLeftIcon />}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )
