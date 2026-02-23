@@ -22,13 +22,13 @@ function RouteComponent() {
     <div className="p-2">
       <p>Hello, {auth.authUser.displayName ?? "Unnamed User"}!</p>
       <p>Role: {auth.authUser.role}</p>
-      {
-        isPending ?
-          <p>Profile pending...</p> :
-          error ?
-            <p>Profile error: {error.message}</p> :
-            <p>Profile ID: {profile.id}</p>
-      }
+      {isPending ? (
+        <p>Profile pending...</p>
+      ) : error ? (
+        <p>Profile error: {error.message}</p>
+      ) : (
+        <p>Profile ID: {profile.id}</p>
+      )}
       <Button onClick={handleLogout}>Logout</Button>
     </div>
   );

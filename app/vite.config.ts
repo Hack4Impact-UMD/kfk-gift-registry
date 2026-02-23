@@ -32,8 +32,8 @@ const config = defineConfig({
     tanstackStart({
       importProtection: {
         enabled: true,
-        behavior: "mock"
-      }
+        behavior: "mock",
+      },
     }),
     viteReact(),
   ],

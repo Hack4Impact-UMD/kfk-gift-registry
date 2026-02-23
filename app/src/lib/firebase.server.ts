@@ -1,25 +1,48 @@
 import { createServerOnlyFn } from "@tanstack/react-start";
 import admin from "firebase-admin";
-import type { Child, Claim, Family, FamilyLink, Gift, GiftDrive, StaffInvite, UserProfile } from "common";
-import { CHILD_COLLECTION, CLAIM_COLLECTION, FAMILY_COLLECTION, FAMILY_LINK_COLLECTION, GIFT_COLLECTION, GIFT_DRIVE_COLLECTION, INVITE_COLLECTION, USER_COLLECTION } from "@/data/collections";
+import type {
+  Child,
+  Claim,
+  Family,
+  FamilyLink,
+  Gift,
+  GiftDrive,
+  StaffInvite,
+  UserProfile,
+} from "common";
+import {
+  CHILD_COLLECTION,
+  CLAIM_COLLECTION,
+  FAMILY_COLLECTION,
+  FAMILY_LINK_COLLECTION,
+  GIFT_COLLECTION,
+  GIFT_DRIVE_COLLECTION,
+  INVITE_COLLECTION,
+  USER_COLLECTION,
+} from "@/data/collections";
 
 const converter = <T>() => ({
-  toFirestore: (data: FirebaseFirestore.WithFieldValue<T>) => data as FirebaseFirestore.DocumentData,
-  fromFirestore: (snap: FirebaseFirestore.QueryDocumentSnapshot) => snap.data() as T
-})
+  toFirestore: (data: FirebaseFirestore.WithFieldValue<T>) =>
+    data as FirebaseFirestore.DocumentData,
+  fromFirestore: (snap: FirebaseFirestore.QueryDocumentSnapshot) =>
+    snap.data() as T,
+});
 
-type Collection<T> = FirebaseFirestore.CollectionReference<T, FirebaseFirestore.DocumentData>
+type Collection<T> = FirebaseFirestore.CollectionReference<
+  T,
+  FirebaseFirestore.DocumentData
+>;
 type Database = {
-  users: Collection<UserProfile>,
-  families: Collection<Family>,
-  children: Collection<Child>,
-  gifts: Collection<Gift>,
-  claims: Collection<Claim>,
-  giftDrives: Collection<GiftDrive>,
-  invites: Collection<StaffInvite>,
-  familyLinks: Collection<FamilyLink>,
-  _instance: FirebaseFirestore.Firestore
-}
+  users: Collection<UserProfile>;
+  families: Collection<Family>;
+  children: Collection<Child>;
+  gifts: Collection<Gift>;
+  claims: Collection<Claim>;
+  giftDrives: Collection<GiftDrive>;
+  invites: Collection<StaffInvite>;
+  familyLinks: Collection<FamilyLink>;
+  _instance: FirebaseFirestore.Firestore;
+};
 
 let auth: admin.auth.Auth | null = null;
 let db: Database | null = null;
@@ -38,7 +61,8 @@ export const getServerDB = createServerOnlyFn(() => {
   if (db) return db;
   const firestore = admin.firestore();
 
-  const collection = <T>(path: string) => firestore.collection(path).withConverter(converter<T>());
+  const collection = <T>(path: string) =>
+    firestore.collection(path).withConverter(converter<T>());
 
   db = {
     users: collection<UserProfile>(USER_COLLECTION),
@@ -49,7 +73,7 @@ export const getServerDB = createServerOnlyFn(() => {
     gifts: collection<Gift>(GIFT_COLLECTION),
     giftDrives: collection<GiftDrive>(GIFT_DRIVE_COLLECTION),
     invites: collection<StaffInvite>(INVITE_COLLECTION),
-    _instance: firestore
-  }
+    _instance: firestore,
+  };
   return db;
 });

@@ -16,7 +16,10 @@ export async function getFamilyLinkById(id: string) {
   }
 }
 
-export async function updateFamilyLink(id: string, update: Partial<NoId<FamilyLink>>) {
+export async function updateFamilyLink(
+  id: string,
+  update: Partial<NoId<FamilyLink>>,
+) {
   const db = getServerDB();
   const doc = db.familyLinks.doc(id);
 
@@ -29,11 +32,11 @@ export async function createFamilyLink(link: NoId<FamilyLink>) {
 
   const linkDoc: FamilyLink = {
     id,
-    ...link
-  }
+    ...link,
+  };
   await db.familyLinks.doc(id).set(linkDoc);
 }
 
 export async function getFamilyLinkFromEmail(email: string) {
-// TODO: implement
+  // TODO: implement
 }

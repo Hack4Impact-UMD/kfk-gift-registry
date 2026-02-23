@@ -7,6 +7,6 @@ export function useUserProfile(uid: string) {
     queryFn: async () => {
       // TODO: Call getUserProfileById here
       throw new Error("Not Implemented");
-    }
-  })
+    },
+  });
 }

@@ -130,14 +130,14 @@ export const logoutSession = createServerFn({
   });
 
 export const getCurrentUserProfile = createServerFn({
-  method: "GET"
-}).middleware([authMiddleware])
+  method: "GET",
+})
+  .middleware([authMiddleware])
   .handler(async ({ context }) => {
     const db = getServerDB();
     const userDoc = await db.users.doc(context.authUser.uid).get();
 
     if (!userDoc.exists) throw new Error("User not found");
 
-
-    return userDoc.data()!
-  })
+    return userDoc.data()!;
+  });

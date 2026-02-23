@@ -1,5 +1,5 @@
 export type FamilyLink = {
-  id: string,
-  familyId: string,
-  active: boolean
-}
+  id: string;
+  familyId: string;
+  active: boolean;
+};

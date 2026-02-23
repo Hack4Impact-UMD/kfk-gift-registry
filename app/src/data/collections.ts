@@ -5,4 +5,4 @@ export const GIFT_COLLECTION = "gifts";
 export const CLAIM_COLLECTION = "claims";
 export const GIFT_DRIVE_COLLECTION = "gift-drives";
 export const INVITE_COLLECTION = "invites";
-export const FAMILY_LINK_COLLECTION = "family-links"
+export const FAMILY_LINK_COLLECTION = "family-links";
