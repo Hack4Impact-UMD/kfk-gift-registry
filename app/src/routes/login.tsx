@@ -5,7 +5,7 @@ import { AuthErrorCodes } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { login } from "@/services/authService";
+import { login } from "@/services/authService.client";
 
 const searchSchema = z.object({
   redirect: z

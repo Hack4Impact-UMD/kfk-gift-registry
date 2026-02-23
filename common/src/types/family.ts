@@ -6,6 +6,7 @@ export interface Family {
   address: Address;
   privateNotes?: string;
   giftDrive: string;
+  createdAt: string;
 }
 
 export type Address = {
