@@ -3,6 +3,7 @@ import type { ApprovedProfileTableRow } from "./types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CopyButton } from "@/components/ui/copybutton";
 
 export const columns: Array<ColumnDef<ApprovedProfileTableRow>> = [
   {
@@ -71,6 +72,15 @@ export const columns: Array<ColumnDef<ApprovedProfileTableRow>> = [
         Email
       </ColumnSortButton>
     ),
+    cell: ({ row }) => {
+      const email = row.getValue("email") as string;
+      return (
+        <div className="flex items-center justify-between gap-2">
+          <span>{email}</span>
+          <CopyButton text={email} />
+        </div>
+      )
+    },
   },
   {
     accessorKey: "age",
