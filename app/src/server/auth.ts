@@ -3,9 +3,10 @@ import { getCookies, setCookie } from "@tanstack/react-start/server";
 import z from "zod";
 import { Duration } from "luxon";
 import { UserRole } from "common";
+import { i } from "node_modules/vite/dist/node/chunks/moduleRunnerTransport";
 import { authMiddleware } from "./middleware/authMiddleware";
 import type { UserRecord } from "firebase-admin/auth";
-import { getServerAuth } from "@/lib/firebase.server";
+import { getServerAuth, getServerDB } from "@/lib/firebase.server";
 
 export type AuthUser = {
   uid: string;
@@ -127,3 +128,16 @@ export const logoutSession = createServerFn({
       maxAge: 0,
     });
   });
+
+export const getCurrentUserProfile = createServerFn({
+  method: "GET"
+}).middleware([authMiddleware])
+  .handler(async ({ context }) => {
+    const db = getServerDB();
+    const userDoc = await db.users.doc(context.authUser.uid).get();
+
+    if (!userDoc.exists) throw new Error("User not found");
+
+
+    return userDoc.data()!
+  })

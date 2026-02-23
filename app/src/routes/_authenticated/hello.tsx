@@ -2,6 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/services/authService.client";
+import { useCurrentUserProfile } from "@/hooks/queries/useCurrentUserProfile";
 
 export const Route = createFileRoute("/_authenticated/hello")({
   component: RouteComponent,
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/_authenticated/hello")({
 function RouteComponent() {
   const { auth } = Route.useRouteContext();
   const router = useRouter();
+  const { data: profile, isPending, error } = useCurrentUserProfile();
 
   const handleLogout = useCallback(async () => {
     await logout();
@@ -20,6 +22,13 @@ function RouteComponent() {
     <div className="p-2">
       <p>Hello, {auth.authUser.displayName ?? "Unnamed User"}!</p>
       <p>Role: {auth.authUser.role}</p>
+      {
+        isPending ?
+          <p>Profile pending...</p> :
+          error ?
+            <p>Profile error: {error.message}</p> :
+            <p>Profile ID: {profile.id}</p>
+      }
       <Button onClick={handleLogout}>Logout</Button>
     </div>
   );
