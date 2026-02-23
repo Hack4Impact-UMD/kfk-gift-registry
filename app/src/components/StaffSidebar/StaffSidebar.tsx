@@ -66,18 +66,14 @@ function SidebarMenuButtonWithTooltip({
   const { state } = useSidebar()
   const isCollapsed = state === "collapsed"
 
+  if (!isCollapsed) return children
+
   return (
     <Tooltip>
-      <TooltipTrigger asChild>{children}</TooltipTrigger>
-      {isCollapsed ? (
-        <TooltipContent side="right">
-          {label}
-        </TooltipContent>
-      ) : (
-        <TooltipContent side="right" className="hidden">
-          {label}
-        </TooltipContent>
-      )}
+      <TooltipTrigger asChild>
+        <div className="flex">{children}</div>
+      </TooltipTrigger>
+      <TooltipContent side="right">{label}</TooltipContent>
     </Tooltip>
   )
 }
@@ -142,7 +138,7 @@ const SidebarMenuButtonWithHovering = ({
       onMouseDown={() => setIsPressed(true)}
       onMouseLeave={() => setIsPressed(false)}
       isActive={isPressed} 
-      className={'group/button transition min-h-12 flex items-center gap-2 group-data-[collapsible=icon]:justify-center'}
+      className={'group/button transition min-h-12 min-w-12 flex items-center gap-2 group-data-[collapsible=icon]:justify-center'}
     >
       <Link to={link} className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
           <SidebarIcon 
