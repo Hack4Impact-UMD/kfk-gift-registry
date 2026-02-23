@@ -19,6 +19,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
+import '../../styles.css'
+
 import {
   Tooltip,
   TooltipContent,
@@ -216,7 +218,7 @@ export function StaffSidebar() {
                   pressedSrc={HomeIconPressed}
                   label="Home"
                   alt=""
-                  color="text-red-500"
+                  color="text-[var(--color-kfk-red)]"
                  />
 
               </SidebarMenuButtonWithTooltip>
@@ -230,7 +232,7 @@ export function StaffSidebar() {
                   pressedSrc={ProfileApprovalIconPressed}
                   label="Profile Approval"
                   alt=""
-                  color="text-yellow-500"
+                  color="text-[var(--color-kfk-yellow)]"
                  />
 
               </SidebarMenuButtonWithTooltip>
@@ -244,7 +246,7 @@ export function StaffSidebar() {
                     pressedSrc={ApprovedProfilesIconPressed}
                     label="Approved Profiles"
                     alt=""
-                    color="text-blue-500"
+                    color="text-[var(--color-kfk-blue)]"
                   />
 
                 </SidebarMenuButtonWithTooltip>
@@ -258,7 +260,7 @@ export function StaffSidebar() {
                   pressedSrc={UserManagementIconPressed}
                   label="User Management"
                   alt=""
-                  color="text-green-500"
+                  color="text-[var(--color-kfk-green)]"
                  />
 
               </SidebarMenuButtonWithTooltip>
