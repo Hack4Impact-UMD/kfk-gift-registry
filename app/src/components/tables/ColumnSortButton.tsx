@@ -1,17 +1,17 @@
 import { ChevronsDown, ChevronsUp, ChevronsUpDown } from "lucide-react";
-import { ReactNode } from "react";
+import type { Column } from "@tanstack/react-table";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { Column } from "@tanstack/react-table";
 
-type ColumnSortIconProps<T, V> = {
-  column: Column<T, V>;
+type ColumnSortIconProps<T, TValue> = {
+  column: Column<T, TValue>;
   children?: ReactNode;
 };
 
-export default function ColumnSortButton<T, V>({
+export default function ColumnSortButton<T, TValue>({
   children,
   column,
-}: ColumnSortIconProps<T, V>) {
+}: ColumnSortIconProps<T, TValue>) {
   return (
     <Button
       variant="ghost"

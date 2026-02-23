@@ -1,9 +1,9 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
 import ColumnSortButton from "../ColumnSortButton";
-import { ApprovedProfileTableRow } from "./ApprovedProfilesTable";
+import type { ApprovedProfileTableRow } from "./ApprovedProfilesTable";
+import type { ColumnDef } from "@tanstack/react-table";
+import { Checkbox } from "@/components/ui/checkbox";
 
-export const columns: ColumnDef<ApprovedProfileTableRow>[] = [
+export const columns: Array<ColumnDef<ApprovedProfileTableRow>> = [
   {
     id: "select",
     header: ({ table }) => (
@@ -74,7 +74,7 @@ export const columns: ColumnDef<ApprovedProfileTableRow>[] = [
       </ColumnSortButton>
     ),
     cell: ({ row }) => {
-      const type = row.getValue("type") as "warrior" | "supersib";
+      const type = row.getValue("type");
       return (
         <span
           className={`inline-flex items-center justify-center rounded-full min-w-[90px] py-1 text-sm font-semibold ${
@@ -97,7 +97,7 @@ export const columns: ColumnDef<ApprovedProfileTableRow>[] = [
       </ColumnSortButton>
     ),
     cell: ({ row }) => {
-      const fulfilled = row.getValue("giftsFulfilled") as number;
+      const fulfilled = row.getValue("giftsFulfilled");
       const total = row.original.giftsTotal;
       const dotColor = fulfilled === 0
         ? "bg-red-300"

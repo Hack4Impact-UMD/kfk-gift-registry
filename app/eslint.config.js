@@ -1,5 +1,5 @@
 import { tanstackConfig } from '@tanstack/eslint-config'
-import reactHooks from "eslint-plugin-react-hooks"
+import reactHooks, { rules } from "eslint-plugin-react-hooks"
 // import { defineConfig } from "eslint/config";
 
 export default [
