@@ -24,9 +24,13 @@ const loginSchema = z.object({
   email: z.string()
     .min(1, 'Email is required')
     .email('Email must be a valid email'),
-  password: z.string()
+  password: z.string() // honestly the min and regex here should apply to sign up rather than login
     .min(1, 'Password is required')
-    .min(8, 'Password must be at least 8 characters'),
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
 })
 
 export const Route = createFileRoute('/login')({
@@ -72,7 +76,7 @@ type LoginAsRole = 'staff' | 'donor'
 function RouteComponent() {
   const navigate = useNavigate()
   const router = useRouter()
-  Route.useSearch()
+  const { redirect } = Route.useSearch()
 
   const loginMutation = useLoginMutation()
   const [loginAs, setLoginAs] = useState<LoginAsRole>('staff')
@@ -99,11 +103,11 @@ function RouteComponent() {
         return
       }
 
-      if (auth.authUser.role === UserRole.Donor) {
-        await navigate({ to: '/donor' })
-      } else {
-        await navigate({ to: '/staff/home' })
-      }
+      await navigate({
+        to:
+          redirect ??
+          (auth.authUser.role === UserRole.Donor ? "/donor" : "/staff/home"),
+      })
     },
   })
 
