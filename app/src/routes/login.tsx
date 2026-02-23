@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useLoginMutation } from '@/hooks/mutations/loginMutation'
 import { UserRole } from '@/server/auth'
+import adminVolunteerLoginBg from '@assets/admin-volunteer-login-bg.png'
+import kfkFoundationLogo from '@assets/kfk-foundation-logo.png'
 
 const searchSchema = z.object({
   redirect: z.string()
@@ -121,7 +123,7 @@ function RouteComponent() {
           style={{
             backgroundImage: isDonor
               ? "url('/donor-login-bg.png')"
-              : "url('/admin-volunteer-login-bg.png')",
+              : `url(${adminVolunteerLoginBg})`,
           }}
           role="img"
           aria-label="Decorative background"
@@ -143,10 +145,10 @@ function RouteComponent() {
               <h1 className="text-[18px] font-semibold text-foreground text-center">
                 Welcome Back!
               </h1>
-              {/* Logo – app/public/kfk-foundation-logo.png */}
+              {/* Logo from assets */}
               <div className="flex justify-center">
                 <img
-                  src="/kfk-foundation-logo.png"
+                  src={kfkFoundationLogo}
                   alt="Kisses for Kyle Foundation"
                   className="w-[351px] h-[106px] object-contain"
                 />
