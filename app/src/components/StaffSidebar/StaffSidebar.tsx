@@ -38,14 +38,19 @@ import { useState } from "react"
 import KFKLogo from "@/assets/kfk-logo.png"
 import CurrentYearIcon from "@/assets/staff-sidebar/current-year-icon.png"
 import CurrentYearIconHovered from "@/assets/staff-sidebar/current-year-icon-hovered.png"
+import CurrentYearIconPressed from "@/assets/staff-sidebar/current-year-icon-pressed.png"
 import HomeIcon from "@/assets/staff-sidebar/home-icon.png"
 import HomeIconHovered from "@/assets/staff-sidebar/home-icon-hovered.png"
+import HomeIconPressed from "@/assets/staff-sidebar/home-icon-pressed.png"
 import ProfileApprovalIcon from "@/assets/staff-sidebar/profile-approval-icon.png"
 import ProfileApprovalIconHovered from "@/assets/staff-sidebar/profile-approval-icon-hovered.png"
+import ProfileApprovalIconPressed from "@/assets/staff-sidebar/profile-approval-icon-pressed.png"
 import ApprovedProfilesIcon from "@/assets/staff-sidebar/approved-profiles-icon.png"
 import ApprovedProfilesIconHovered from "@/assets/staff-sidebar/approved-profiles-icon-hovered.png"
+import ApprovedProfilesIconPressed from "@/assets/staff-sidebar/approved-profiles-icon-pressed.png"
 import UserManagementIcon from "@/assets/staff-sidebar/user-management-icon.png"
 import UserManagementIconHovered from "@/assets/staff-sidebar/user-management-icon-hovered.png"
+import UserManagementIconPressed from "@/assets/staff-sidebar/user-management-icon-pressed.png"
 import UserIcon from "@/assets/staff-sidebar/user-icon.png"
 import CloseSidebarIcon from "@/assets/staff-sidebar/close-sidebar-icon.png" 
 import CloseSidebarIconHovered from "@/assets/staff-sidebar/close-sidebar-icon.png" 
@@ -80,29 +85,76 @@ function SidebarMenuButtonWithTooltip({
 }
 
 const SidebarIcon = ({
+  isPressed,
   defaultSrc,
   hoverSrc,
+  pressedSrc,
   alt
 }: {
+  isPressed:boolean,
   defaultSrc:string,
   hoverSrc:string,
+  pressedSrc:string,
   alt:string
 }) => {
   return (
-    <div className="relative h-8 w-8">
-      <img 
-        src={defaultSrc} 
-        alt={alt}
-        className="absolute h-full w-full object-cover transition-opacity duration-500 ease-in-out group-hover/button:opacity-0"
-      />
-      <img 
-        src={hoverSrc}
-        alt={alt}
-        className="absolute opacity-0 inset-0 h-full w-full object-cover transition-opacity duration-300 ease-in-out group-hover/button:opacity-80"
-      />
-    </div>
-  );
-};
+<div className="relative h-8 w-8">
+    <img 
+      src={defaultSrc} 
+      alt={alt}
+      className="absolute h-full w-full object-cover transition-opacity duration-500 ease-in-out group-hover/button:opacity-0"
+    />
+    <img 
+      src={hoverSrc}
+      alt={alt}
+      className={`absolute opacity-0 inset-0 h-full w-full object-cover transition-opacity duration-500 ease-in-out ${isPressed ? 'group-hover/button:opacity-0' :'group-hover/button:opacity-80'}`}
+    />
+    <img 
+      src={pressedSrc}
+      alt={alt}
+      className={`absolute opacity-0 inset-0 h-full w-full object-cover transition-opacity duration-500 ease-in-out ${isPressed ? 'opacity-100' : 'opacity-0'}`}
+    />
+  </div>
+  )
+}
+
+const SidebarMenuButtonWithHovering = ({
+  link,
+  defaultSrc,
+  hoverSrc,
+  pressedSrc,
+  label,
+  alt,
+  color,
+}: {
+  link:string,
+  defaultSrc:string,
+  hoverSrc:string,
+  pressedSrc:string,
+  label:string,
+  alt:string,
+  color:string
+}) => {
+  const [isPressed, setIsPressed] = useState<boolean>(false) 
+
+  return (
+  <SidebarMenuButton
+      asChild
+      size={"lg"}
+      onMouseDown={() => setIsPressed(true)}
+      onMouseLeave={() => setIsPressed(false)}
+      isActive={isPressed} 
+      className={'group/button transition'}
+    >
+      <Link to={link} className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+          <SidebarIcon 
+          isPressed={isPressed} defaultSrc={defaultSrc} hoverSrc={hoverSrc} pressedSrc={pressedSrc} alt={alt}
+          />
+          <span className={`group-data-[collapsible=icon]:hidden transition-text duration-150 ease-in-out ${isPressed && color}`}>{label}</span>
+
+      </Link>
+    </SidebarMenuButton>
+)}
  
 export function StaffSidebar() {
   const { auth } = useRouteContext({ from: "/_authenticated/staff" })
@@ -110,6 +162,7 @@ export function StaffSidebar() {
   const { state } = useSidebar()
   const collapsed = state === "collapsed"
   const [year, setYear] = useState("2026")
+  const [isDropdownPressed, setIsDropdownPressed] = useState<boolean>(false);
 
   return (
     <Sidebar collapsible="icon" className="duration-200">
@@ -135,10 +188,17 @@ export function StaffSidebar() {
           <SidebarMenu className="flex-col gap-2">
             <SidebarMenuItem className="flex group-data-[collapsible=icon]:justify-center">
               <SidebarMenuButton asChild size="lg">
-                <Select value={year} onValueChange={setYear}>
+                <Select onOpenChange={setIsDropdownPressed} value={year} onValueChange={setYear}>
                   <SidebarMenuButtonWithTooltip label={year}>
-                    <SelectTrigger className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[state=collapsed]:hidden">
-                      <SidebarIcon defaultSrc={CurrentYearIcon} hoverSrc={CurrentYearIconHovered} alt=""></SidebarIcon>
+                    <SelectTrigger 
+                      className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[state=collapsed]:hidden"
+                    >
+                      <SidebarIcon 
+                        isPressed={isDropdownPressed}
+                        defaultSrc={CurrentYearIcon}
+                        hoverSrc={CurrentYearIconHovered}
+                        pressedSrc={CurrentYearIconPressed}
+                        alt=""/>
 
                       <span className="truncate group-data-[collapsible=icon]:hidden">
                         <SelectValue />
@@ -155,42 +215,58 @@ export function StaffSidebar() {
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="Home">
-                <SidebarMenuButton asChild size="lg" className="transition hover:text-red-500">
-                    <Link to="/staff/home" className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-                        <SidebarIcon defaultSrc={HomeIcon} hoverSrc={HomeIconHovered} alt=""></SidebarIcon>
-                        <span className="group-data-[collapsible=icon]:hidden">Home</span>
+                <SidebarMenuButtonWithHovering
+                  link={"/staff/home"}
+                  defaultSrc={HomeIcon} 
+                  hoverSrc={HomeIconHovered}
+                  pressedSrc={HomeIconPressed}
+                  label="Home"
+                  alt=""
+                  color="text-red-500"
+                 />
 
-                    </Link>
-                </SidebarMenuButton>
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="Profile Approval">
-                <SidebarMenuButton size="lg" className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center hover:text-yellow-500">
-                    <SidebarIcon defaultSrc={ProfileApprovalIcon} hoverSrc={ProfileApprovalIconHovered} alt=""></SidebarIcon>
-                    <span className="group-data-[collapsible=icon]:hidden">Profile Approval</span>
+                <SidebarMenuButtonWithHovering
+                  link=""
+                  defaultSrc={ProfileApprovalIcon} 
+                  hoverSrc={ProfileApprovalIconHovered}
+                  pressedSrc={ProfileApprovalIconPressed}
+                  label="Profile Approval"
+                  alt=""
+                  color="text-yellow-500"
+                 />
 
-                </SidebarMenuButton>
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="Approved Profiles">
-                    <SidebarMenuButton asChild size="lg" className="group/button transition hover:text-green-500">
-                        <Link to="/staff/approved" className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
-                            <SidebarIcon defaultSrc={ApprovedProfilesIcon} hoverSrc={ApprovedProfilesIconHovered} alt=""></SidebarIcon>
-                            <span className="group-data-[collapsible=icon]:hidden">Approved Profiles</span>
+                  <SidebarMenuButtonWithHovering
+                    link="/staff/approved"
+                    defaultSrc={ApprovedProfilesIcon} 
+                    hoverSrc={ApprovedProfilesIconHovered}
+                    pressedSrc={ApprovedProfilesIconPressed}
+                    label="Approved Profiles"
+                    alt=""
+                    color="text-blue-500"
+                  />
 
-                        </Link>
-                    </SidebarMenuButton>
                 </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
               <SidebarMenuButtonWithTooltip label="User Management">
-                <SidebarMenuButton size="lg" className="group/button flex items-center gap-2 justify-start group-data-[collapsible=icon]:justify-center transition hover:text-blue-800">
-                    <SidebarIcon defaultSrc={UserManagementIcon} hoverSrc={UserManagementIconHovered} alt=""></SidebarIcon>
-                    <span className="group-data-[collapsible=icon]:hidden">User Management</span>
-                        
-                </SidebarMenuButton>
+                <SidebarMenuButtonWithHovering
+                  link=""
+                  defaultSrc={UserManagementIcon} 
+                  hoverSrc={UserManagementIconHovered}
+                  pressedSrc={UserManagementIconPressed}
+                  label="User Management"
+                  alt=""
+                  color="text-green-500"
+                 />
+
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
           </SidebarMenu>
