@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
+import { Route as AuthenticatedDonorRouteImport } from './routes/_authenticated/donor'
 import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
 import { Route as AuthenticatedStaffHomeRouteImport } from './routes/_authenticated/staff/home'
 import { Route as AuthenticatedStaffApprovedRouteImport } from './routes/_authenticated/staff/approved'
@@ -36,6 +37,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedHelloRoute = AuthenticatedHelloRouteImport.update({
   id: '/hello',
   path: '/hello',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedDonorRoute = AuthenticatedDonorRouteImport.update({
+  id: '/donor',
+  path: '/donor',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedStaffRouteRoute = AuthenticatedStaffRouteRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
+  '/donor': typeof AuthenticatedDonorRoute
   '/hello': typeof AuthenticatedHelloRoute
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
+  '/donor': typeof AuthenticatedDonorRoute
   '/hello': typeof AuthenticatedHelloRoute
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
+  '/_authenticated/donor': typeof AuthenticatedDonorRoute
   '/_authenticated/hello': typeof AuthenticatedHelloRoute
   '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/staff'
+    | '/donor'
     | '/hello'
     | '/staff/admin'
     | '/staff/volunteer'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/staff'
+    | '/donor'
     | '/hello'
     | '/staff/admin'
     | '/staff/volunteer'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/_authenticated/staff'
+    | '/_authenticated/donor'
     | '/_authenticated/hello'
     | '/_authenticated/staff/admin'
     | '/_authenticated/staff/volunteer'
@@ -167,6 +179,13 @@ declare module '@tanstack/react-router' {
       path: '/hello'
       fullPath: '/hello'
       preLoaderRoute: typeof AuthenticatedHelloRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/donor': {
+      id: '/_authenticated/donor'
+      path: '/donor'
+      fullPath: '/donor'
+      preLoaderRoute: typeof AuthenticatedDonorRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/staff': {
@@ -230,11 +249,13 @@ const AuthenticatedStaffRouteRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedStaffRouteRoute: typeof AuthenticatedStaffRouteRouteWithChildren
+  AuthenticatedDonorRoute: typeof AuthenticatedDonorRoute
   AuthenticatedHelloRoute: typeof AuthenticatedHelloRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedStaffRouteRoute: AuthenticatedStaffRouteRouteWithChildren,
+  AuthenticatedDonorRoute: AuthenticatedDonorRoute,
   AuthenticatedHelloRoute: AuthenticatedHelloRoute,
 }
 
