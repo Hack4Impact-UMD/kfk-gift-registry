@@ -1,21 +1,26 @@
-import { useState } from 'react';
-import { ExternalLink, Search, Undo2 } from 'lucide-react';
+import { useState } from "react";
+import { ExternalLink, Search, Undo2 } from "lucide-react";
 import { DataTable } from "../DataTable";
 import { columns } from "./columns";
+import type { ApprovedProfileTableRow } from "./types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { ApprovedProfileTableRow } from "./types";
+import { cn } from "@/lib/utils";
 
 interface ApprovedProfilesTableProps {
   data: Array<ApprovedProfileTableRow>;
+  className?: string;
 }
 
-export function ApprovedProfilesTable({ data }: ApprovedProfilesTableProps) {
-  const [globalSearch, setGlobalSearch] = useState('')
+export function ApprovedProfilesTable({
+  data,
+  className = "",
+}: ApprovedProfilesTableProps) {
+  const [globalSearch, setGlobalSearch] = useState("");
 
   return (
-    <div className="flex flex-col gap-4 pt-6">
-      <div className="flex items-center mt-6">
+    <div className={cn("flex flex-col gap-4 pt-6", className)}>
+      <div className="flex items-center">
         <div className="relative flex items-center mr-auto ml-6 w-48">
           <Search className="absolute ml-2 h-4 w-4 text-gray-500" />
           <Input
@@ -36,7 +41,12 @@ export function ApprovedProfilesTable({ data }: ApprovedProfilesTableProps) {
           </Button>
         </div>
       </div>
-      <DataTable columns={columns} data={data} globalSearch={globalSearch} onGlobalSearchChange={setGlobalSearch} />
+      <DataTable
+        columns={columns}
+        data={data}
+        globalSearch={globalSearch}
+        onGlobalSearchChange={setGlobalSearch}
+      />
     </div>
-  )
+  );
 }

@@ -1,12 +1,15 @@
+import { createColumnHelper } from "@tanstack/react-table";
 import ColumnSortButton from "../ColumnSortButton";
-import type { ApprovedProfileTableRow } from "./types";
 import type { ColumnDef } from "@tanstack/react-table";
+import type { ApprovedProfileTableRow } from "./types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CopyButton } from "@/components/ui/copybutton";
 
-export const columns: Array<ColumnDef<ApprovedProfileTableRow>> = [
-  {
+const helper = createColumnHelper<ApprovedProfileTableRow>();
+
+export const columns = [
+  helper.display({
     id: "select",
     header: ({ table }) => (
       <Checkbox
@@ -21,17 +24,14 @@ export const columns: Array<ColumnDef<ApprovedProfileTableRow>> = [
       />
     ),
     enableSorting: false,
-  },
-  {
-    accessorKey: "childName",
+  }),
+  helper.accessor("childName", {
     enableGlobalFilter: true,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>
-        Child Name
-      </ColumnSortButton>
+      <ColumnSortButton column={column}>Child Name</ColumnSortButton>
     ),
-    cell: ({ row }) => {
-      const name = row.getValue("childName") as string;
+    cell: ({ getValue, row }) => {
+      const name = getValue();
       const profilePictureUrl = row.original.profilePictureUrl;
 
       const initials = name
@@ -53,66 +53,50 @@ export const columns: Array<ColumnDef<ApprovedProfileTableRow>> = [
         </div>
       );
     },
-  },
-
-  {
-    accessorKey: "parentGuardian",
+  }),
+  helper.accessor("parentGuardian", {
     enableGlobalFilter: false,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>
-        Parent/Guardian
-      </ColumnSortButton>
+      <ColumnSortButton column={column}>Parent/Guardian</ColumnSortButton>
     ),
-  },
-  {
-    accessorKey: "email",
+  }),
+  helper.accessor("email", {
     enableGlobalFilter: true,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>
-        Email
-      </ColumnSortButton>
+      <ColumnSortButton column={column}>Email</ColumnSortButton>
     ),
-    cell: ({ row }) => {
-      const email = row.getValue("email") as string;
+    cell: ({ getValue }) => {
+      const email = getValue();
       return (
         <div className="flex items-center justify-between gap-2">
           <span>{email}</span>
           <CopyButton text={email} />
         </div>
-      )
+      );
     },
-  },
-  {
-    accessorKey: "age",
+  }),
+  helper.accessor("age", {
     enableGlobalFilter: false,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>
-        Age
-      </ColumnSortButton>
+      <ColumnSortButton column={column}>Age</ColumnSortButton>
     ),
-  },
-  {
-    accessorKey: "diagnosis",
+  }),
+  helper.accessor("diagnosis", {
     enableGlobalFilter: true,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>
-        Diagnosis
-      </ColumnSortButton>
+      <ColumnSortButton column={column}>Diagnosis</ColumnSortButton>
     ),
-  },
-  {
-    accessorKey: "type",
+  }),
+  helper.accessor("type", {
     enableGlobalFilter: false,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>
-        Warrior or Super Sib
-      </ColumnSortButton>
+      <ColumnSortButton column={column}>Warrior or Super Sib</ColumnSortButton>
     ),
-    cell: ({ row }) => {
-      const type = row.getValue("type");
+    cell: ({ getValue }) => {
+      const type = getValue();
       return (
         <span
-          className={`inline-flex items-center justify-center rounded-full min-w-[90px] py-1 text-sm font-semibold ${
+          className={`inline-flex items-center justify-center rounded-full min-w-22.5 py-1 text-sm font-semibold ${
             type === "warrior"
               ? "bg-yellow-100 text-yellow-800"
               : "bg-blue-100 text-blue-800"
@@ -122,29 +106,29 @@ export const columns: Array<ColumnDef<ApprovedProfileTableRow>> = [
         </span>
       );
     },
-  },
-  {
-    accessorKey: "giftsFulfilled",
+  }),
+  helper.accessor("giftsFulfilled", {
     enableGlobalFilter: false,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>
-        Gift Fulfillment
-      </ColumnSortButton>
+      <ColumnSortButton column={column}>Gift Fulfillment</ColumnSortButton>
     ),
-    cell: ({ row }) => {
-      const fulfilled = row.getValue("giftsFulfilled") as number;
+    cell: ({ getValue, row }) => {
+      const fulfilled = getValue();
       const total = row.original.giftsTotal;
-      const dotColor = fulfilled === 0
-        ? "bg-red-300"
-        : fulfilled === 3
-          ? "bg-green-300"
-          : "bg-yellow-300"
+      const dotColor =
+        fulfilled === 0
+          ? "bg-red-300"
+          : fulfilled === total
+            ? "bg-green-300"
+            : "bg-yellow-300";
       return (
         <div className="flex items-center gap-2">
           <div className={`h-3 w-3 rounded-full ${dotColor}`}></div>
-          <div>{fulfilled}/{total} Gifts</div>
+          <div>
+            {fulfilled}/{total} Gifts
+          </div>
         </div>
-      )
+      );
     },
-  },
-];
+  }),
+] as Array<ColumnDef<ApprovedProfileTableRow>>;

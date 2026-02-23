@@ -10,10 +10,7 @@ import {
 import { twMerge } from "tailwind-merge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../ui/button";
-import type {
-  ColumnDef,
-  TableOptions
-} from "@tanstack/react-table";
+import type { ColumnDef, TableOptions } from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -31,7 +28,7 @@ interface DataTableProps<TData, TValue> {
   rowsPerPage?: number;
   paginated?: boolean;
   globalSearch?: string;
-  onGlobalSearchChange?: (value: string) => void
+  onGlobalSearchChange?: (value: string) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -56,14 +53,14 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     ...(paginated
       ? {
-        getPaginationRowModel: getPaginationRowModel(),
-        initialState: {
-          pagination: {
-            pageSize: rowsPerPage,
-            pageIndex: 0,
+          getPaginationRowModel: getPaginationRowModel(),
+          initialState: {
+            pagination: {
+              pageSize: rowsPerPage,
+              pageIndex: 0,
+            },
           },
-        },
-      }
+        }
       : {}),
     ...options,
   });
@@ -111,13 +108,16 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id} className="bg-gray-50/70">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="font-semibold text-gray-600 text-sm">
+                    <TableHead
+                      key={header.id}
+                      className="font-semibold text-gray-600 text-sm"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
                   );
                 })}
@@ -134,14 +134,20 @@ export function DataTable<TData, TValue>({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-gray-400">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-gray-400"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -188,7 +194,7 @@ export function DataTable<TData, TValue>({
                       ? "bg-blue-600 text-white hover:bg-blue-700"
                       : "text-gray-600 hover:bg-gray-100",
                   )}
-                  onClick={() => table.setPageIndex((page) - 1)}
+                  onClick={() => table.setPageIndex(page - 1)}
                   aria-label={`Go to page ${page}`}
                   aria-current={page === currentPage ? "page" : undefined}
                 >
