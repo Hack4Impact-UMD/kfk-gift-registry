@@ -53,9 +53,7 @@ import UserManagementIconHovered from "@/assets/staff-sidebar/user-management-ic
 import UserManagementIconPressed from "@/assets/staff-sidebar/user-management-icon-pressed.png"
 import UserIcon from "@/assets/staff-sidebar/user-icon.png"
 import CloseSidebarIcon from "@/assets/staff-sidebar/close-sidebar-icon.png" 
-import CloseSidebarIconHovered from "@/assets/staff-sidebar/close-sidebar-icon.png" 
 import OpenSidebarIcon from "@/assets/staff-sidebar/open-sidebar-icon.png"
-import OpenSidebarIconHovered from "@/assets/staff-sidebar/open-sidebar-icon.png"
 
 // Tooltip wrapper for sidebar menu items to show labels only when collapsed
 function SidebarMenuButtonWithTooltip({
@@ -144,7 +142,7 @@ const SidebarMenuButtonWithHovering = ({
       onMouseDown={() => setIsPressed(true)}
       onMouseLeave={() => setIsPressed(false)}
       isActive={isPressed} 
-      className={'group/button transition'}
+      className={'group/button transition min-h-12 flex items-center gap-2 group-data-[collapsible=icon]:justify-center'}
     >
       <Link to={link} className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
           <SidebarIcon 
