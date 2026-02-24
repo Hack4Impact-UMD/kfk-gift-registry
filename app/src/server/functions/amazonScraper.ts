@@ -23,7 +23,7 @@ const SELECTORS = {
 /**
  * Scrapes the product details from the given Cheerio object.
  */
-export const extractProductDetails = ($: CheerioAPI): ProductDetails => {
+export const extractProductDetails = ($: CheerioAPI | any): ProductDetails => {
     const title = $(SELECTORS.TITLE).text().trim();
     const price = parseNumberFromSelector($, SELECTORS.PRICE);
     const source = "Amazon";
