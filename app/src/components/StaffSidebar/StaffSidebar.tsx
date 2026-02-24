@@ -38,21 +38,7 @@ import { Link, useRouteContext } from '@tanstack/react-router'
 import { logout } from "@/services/authService"
 import { useState } from "react"
 import KFKLogo from "@/assets/kfk-logo.png"
-import CurrentYearIcon from "@/assets/staff-sidebar/current-year-icon.png"
-import CurrentYearIconHovered from "@/assets/staff-sidebar/current-year-icon-hovered.png"
-import CurrentYearIconPressed from "@/assets/staff-sidebar/current-year-icon-pressed.png"
-import HomeIcon from "@/assets/staff-sidebar/home-icon.png"
-import HomeIconHovered from "@/assets/staff-sidebar/home-icon-hovered.png"
-import HomeIconPressed from "@/assets/staff-sidebar/home-icon-pressed.png"
-import ProfileApprovalIcon from "@/assets/staff-sidebar/profile-approval-icon.png"
-import ProfileApprovalIconHovered from "@/assets/staff-sidebar/profile-approval-icon-hovered.png"
-import ProfileApprovalIconPressed from "@/assets/staff-sidebar/profile-approval-icon-pressed.png"
-import ApprovedProfilesIcon from "@/assets/staff-sidebar/approved-profiles-icon.png"
-import ApprovedProfilesIconHovered from "@/assets/staff-sidebar/approved-profiles-icon-hovered.png"
-import ApprovedProfilesIconPressed from "@/assets/staff-sidebar/approved-profiles-icon-pressed.png"
-import UserManagementIcon from "@/assets/staff-sidebar/user-management-icon.png"
-import UserManagementIconHovered from "@/assets/staff-sidebar/user-management-icon-hovered.png"
-import UserManagementIconPressed from "@/assets/staff-sidebar/user-management-icon-pressed.png"
+
 import UserIcon from "@/assets/staff-sidebar/user-icon.png"
 import CloseSidebarIcon from "@/assets/staff-sidebar/close-sidebar-icon.png" 
 import OpenSidebarIcon from "@/assets/staff-sidebar/open-sidebar-icon.png"
@@ -82,54 +68,38 @@ function SidebarMenuButtonWithTooltip({
 
 const SidebarIcon = ({
   isPressed,
-  defaultSrc,
-  hoverSrc,
-  pressedSrc,
-  alt
+  xmlns,
+  pressedColor,
+  d
 }: {
   isPressed:boolean,
-  defaultSrc:string,
-  hoverSrc:string,
-  pressedSrc:string,
-  alt:string
+  xmlns:string,
+  pressedColor:string,
+  d:string
 }) => {
   return (
-<div className="relative h-8 w-8">
-    <img 
-      src={defaultSrc} 
-      alt={alt}
-      className="absolute h-full w-full object-cover transition-opacity duration-500 ease-in-out group-hover/button:opacity-0"
-    />
-    <img 
-      src={hoverSrc}
-      alt={alt}
-      className={`absolute opacity-0 inset-0 h-full w-full object-cover transition-opacity duration-500 ease-in-out ${isPressed ? 'group-hover/button:opacity-0' :'group-hover/button:opacity-80'}`}
-    />
-    <img 
-      src={pressedSrc}
-      alt={alt}
-      className={`absolute opacity-0 inset-0 h-full w-full object-cover transition-opacity duration-500 ease-in-out ${isPressed ? 'opacity-100' : 'opacity-0'}`}
-    />
+<div className="relative">
+
+    <svg xmlns={xmlns} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={`transition-text duration-500 ease-in-out ${isPressed ? pressedColor : 'text-gray-500 group-hover/button:text-black'} size-6`}>
+  <path strokeLinecap="round" strokeLinejoin="round" d={d} />
+</svg>
+
   </div>
   )
 }
 
 const SidebarMenuButtonWithHovering = ({
   link,
-  defaultSrc,
-  hoverSrc,
-  pressedSrc,
+  xmlns,
   label,
-  alt,
   color,
+  d
 }: {
   link:string,
-  defaultSrc:string,
-  hoverSrc:string,
-  pressedSrc:string,
+  xmlns:string,
   label:string,
-  alt:string,
-  color:string
+  color:string,
+  d:string
 }) => {
   const [isPressed, setIsPressed] = useState<boolean>(false) 
 
@@ -144,9 +114,9 @@ const SidebarMenuButtonWithHovering = ({
     >
       <Link to={link} className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
           <SidebarIcon 
-          isPressed={isPressed} defaultSrc={defaultSrc} hoverSrc={hoverSrc} pressedSrc={pressedSrc} alt={alt}
+          isPressed={isPressed} xmlns={xmlns} pressedColor={color} d={d}
           />
-          <span className={`group-data-[collapsible=icon]:hidden transition-text duration-150 ease-in-out ${isPressed ? color : ''}`}>{label}</span>
+          <span className={`group-data-[collapsible=icon]:hidden transition-text duration-500 ease-in-out ${isPressed ? color : ''}`}>{label}</span>
 
       </Link>
     </SidebarMenuButton>
@@ -187,14 +157,14 @@ export function StaffSidebar() {
                 <Select onOpenChange={setIsDropdownPressed} value={year} onValueChange={setYear}>
                   <SidebarMenuButtonWithTooltip label={year}>
                     <SelectTrigger 
-                      className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[collapsible=icon]:hidden"
+                      className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:min-w-12 min-h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[collapsible=icon]:hidden"
                     >
                       <SidebarIcon 
                         isPressed={isDropdownPressed}
-                        defaultSrc={CurrentYearIcon}
-                        hoverSrc={CurrentYearIconHovered}
-                        pressedSrc={CurrentYearIconPressed}
-                        alt=""/>
+                        xmlns="http://www.w3.org/2000/svg" 
+                        pressedColor="text-[var(--color-kfk-blue)]"
+                        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+                      />
 
                       <span className="truncate group-data-[collapsible=icon]:hidden">
                         <SelectValue />
@@ -213,12 +183,10 @@ export function StaffSidebar() {
               <SidebarMenuButtonWithTooltip label="Home">
                 <SidebarMenuButtonWithHovering
                   link={"/staff/home"}
-                  defaultSrc={HomeIcon} 
-                  hoverSrc={HomeIconHovered}
-                  pressedSrc={HomeIconPressed}
                   label="Home"
-                  alt=""
                   color="text-[var(--color-kfk-red)]"
+                  xmlns="http://www.w3.org/2000/svg"
+                  d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
                  />
 
               </SidebarMenuButtonWithTooltip>
@@ -227,12 +195,10 @@ export function StaffSidebar() {
               <SidebarMenuButtonWithTooltip label="Profile Approval">
                 <SidebarMenuButtonWithHovering
                   link="/staff/home" // Placeholder link
-                  defaultSrc={ProfileApprovalIcon} 
-                  hoverSrc={ProfileApprovalIconHovered}
-                  pressedSrc={ProfileApprovalIconPressed}
+                  xmlns="http://www.w3.org/2000/svg"
                   label="Profile Approval"
-                  alt=""
                   color="text-[var(--color-kfk-yellow)]"
+                  d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z"
                  />
 
               </SidebarMenuButtonWithTooltip>
@@ -241,12 +207,10 @@ export function StaffSidebar() {
               <SidebarMenuButtonWithTooltip label="Approved Profiles">
                   <SidebarMenuButtonWithHovering
                     link="/staff/approved"
-                    defaultSrc={ApprovedProfilesIcon} 
-                    hoverSrc={ApprovedProfilesIconHovered}
-                    pressedSrc={ApprovedProfilesIconPressed}
+                    xmlns="http://www.w3.org/2000/svg"
                     label="Approved Profiles"
-                    alt=""
                     color="text-[var(--color-kfk-blue)]"
+                    d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75"
                   />
 
                 </SidebarMenuButtonWithTooltip>
@@ -255,12 +219,10 @@ export function StaffSidebar() {
               <SidebarMenuButtonWithTooltip label="User Management">
                 <SidebarMenuButtonWithHovering
                   link="/staff/home" // Placeholder link
-                  defaultSrc={UserManagementIcon} 
-                  hoverSrc={UserManagementIconHovered}
-                  pressedSrc={UserManagementIconPressed}
+                  xmlns="http://www.w3.org/2000/svg"
                   label="User Management"
-                  alt=""
                   color="text-[var(--color-kfk-green)]"
+                  d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"
                  />
 
               </SidebarMenuButtonWithTooltip>
