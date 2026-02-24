@@ -87,10 +87,10 @@ const SidebarIcon = ({
   );
 };
 
-interface Props {
+interface SidebarMenuButtonProps {
   children: React.ReactNode;
 }
-const SidebarMenuButtonWithHovering = ({ children }: Props) => {
+const SidebarMenuButtonWithHovering = ({ children }: SidebarMenuButtonProps) => {
 
   return (
     <SidebarMenuButton
