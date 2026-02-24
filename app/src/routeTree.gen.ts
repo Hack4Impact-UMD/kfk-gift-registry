@@ -9,9 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as DataRouteImport } from './routes/data'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FamilyTokenRouteImport } from './routes/family/$token'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
 import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
 import { Route as AuthenticatedDonorRouteRouteImport } from './routes/_authenticated/donor/route'
@@ -20,9 +23,19 @@ import { Route as AuthenticatedStaffApprovedRouteImport } from './routes/_authen
 import { Route as AuthenticatedStaffVolunteerRouteRouteImport } from './routes/_authenticated/staff/volunteer/route'
 import { Route as AuthenticatedStaffAdminRouteRouteImport } from './routes/_authenticated/staff/admin/route'
 
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataRoute = DataRouteImport.update({
+  id: '/data',
+  path: '/data',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -32,6 +45,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamilyTokenRoute = FamilyTokenRouteImport.update({
+  id: '/family/$token',
+  path: '/family/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedHelloRoute = AuthenticatedHelloRouteImport.update({
@@ -75,10 +93,13 @@ const AuthenticatedStaffAdminRouteRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/data': typeof DataRoute
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/donor': typeof AuthenticatedDonorRouteRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
+  '/family/$token': typeof FamilyTokenRoute
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
@@ -86,10 +107,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/data': typeof DataRoute
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/donor': typeof AuthenticatedDonorRouteRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
+  '/family/$token': typeof FamilyTokenRoute
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
@@ -99,10 +123,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/data': typeof DataRoute
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/_authenticated/donor': typeof AuthenticatedDonorRouteRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/_authenticated/hello': typeof AuthenticatedHelloRoute
+  '/family/$token': typeof FamilyTokenRoute
   '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
@@ -112,10 +139,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/data'
     | '/login'
+    | '/register'
     | '/donor'
     | '/staff'
     | '/hello'
+    | '/family/$token'
     | '/staff/admin'
     | '/staff/volunteer'
     | '/staff/approved'
@@ -123,10 +153,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/data'
     | '/login'
+    | '/register'
     | '/donor'
     | '/staff'
     | '/hello'
+    | '/family/$token'
     | '/staff/admin'
     | '/staff/volunteer'
     | '/staff/approved'
@@ -135,10 +168,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/data'
     | '/login'
+    | '/register'
     | '/_authenticated/donor'
     | '/_authenticated/staff'
     | '/_authenticated/hello'
+    | '/family/$token'
     | '/_authenticated/staff/admin'
     | '/_authenticated/staff/volunteer'
     | '/_authenticated/staff/approved'
@@ -148,16 +184,33 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  DataRoute: typeof DataRoute
   LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
+  FamilyTokenRoute: typeof FamilyTokenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data': {
+      id: '/data'
+      path: '/data'
+      fullPath: '/data'
+      preLoaderRoute: typeof DataRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -172,6 +225,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/family/$token': {
+      id: '/family/$token'
+      path: '/family/$token'
+      fullPath: '/family/$token'
+      preLoaderRoute: typeof FamilyTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/hello': {
@@ -266,7 +326,10 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  DataRoute: DataRoute,
   LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
+  FamilyTokenRoute: FamilyTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
