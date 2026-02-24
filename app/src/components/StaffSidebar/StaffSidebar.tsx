@@ -311,7 +311,7 @@ export function StaffSidebar() {
         <Popover>
           <SidebarMenuButtonWithTooltip label={user?.displayName || "User"}>
             <PopoverTrigger asChild>
-              <button className="flex items-center gap-3 w-full text-left">
+              <button className="flex items-center gap-3 w-full text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
                 <SidebarIcon active={true} size="size-10" activeColor="text-black">
                   <path
                     strokeLinecap="round"
