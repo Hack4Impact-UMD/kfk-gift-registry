@@ -6,8 +6,7 @@ export interface Claim {
   organizationName?: string;
   claimedAt: string;
   purchaseConfirmation?: ClaimPurchaseConfirmation;
-  trackingNumber?: string;
-  deliveryConfirmed?: boolean;
+  deliveryConfirmed?: DeliveryConfirmation;
   privateNotes?: string;
   expectedDeliveryDate?: string;
   active: boolean;
@@ -16,4 +15,12 @@ export interface Claim {
 export interface ClaimPurchaseConfirmation {
   date: string;
   documentationUrl: string;
+  verified: boolean; // whether the confirmation has been verified by admin
+  trackingNumber?: string;
+}
+
+export interface DeliveryConfirmation {
+  date: string,
+  documentationUrl: string,
+  verified: boolean
 }
