@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useRouteContext } from "@tanstack/react-router";
+import { Link, useRouteContext, useMatchRoute } from "@tanstack/react-router";
 import { logout } from "@/services/authService.client";
 import KFKLogo from "@/assets/kfk-logo.png";
 
@@ -61,7 +61,7 @@ function SidebarMenuButtonWithTooltip({
 
 const SidebarIcon = ({
   isPressed,
-  pressedColor,
+  activeColor,
   size,
   children,
   ...props
@@ -69,7 +69,7 @@ const SidebarIcon = ({
   isPressed: boolean;
   size?: string;
   children: React.ReactNode;
-  pressedColor: string;
+  activeColor: string;
 }) => {
   return (
     <div className="relative">
@@ -79,7 +79,7 @@ const SidebarIcon = ({
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className={`transition-text duration-500 ease-in-out ${isPressed ? pressedColor : "text-gray-500 group-hover/button:text-black"} ${size || "size-6"}`}
+        className={`transition-colors duration-500 text-gray-500 group-hover/button:text-black group-data-[status=active]/button:${activeColor} ${size || "size-6"}`}
       >
         {children}
       </svg>
@@ -121,7 +121,7 @@ export function StaffSidebar() {
     <Sidebar collapsible="icon" className="duration-200">
       <SidebarTrigger
         openIcon={
-          <SidebarIcon isPressed={false} pressedColor="text-black">
+          <SidebarIcon isPressed={false} activeColor="text-black">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -130,7 +130,7 @@ export function StaffSidebar() {
           </SidebarIcon>
         }
         closeIcon={
-          <SidebarIcon isPressed={false} pressedColor="text-black">
+          <SidebarIcon isPressed={false} activeColor="text-black">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -170,7 +170,7 @@ export function StaffSidebar() {
                     <SelectTrigger className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:min-w-12 min-h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[collapsible=icon]:hidden">
                       <SidebarIcon
                         isPressed={isDropdownPressed}
-                        pressedColor="text-[var(--color-kfk-blue)]"
+                        activeColor="text-[var(--color-kfk-blue)]"
                       >
                         <path
                           strokeLinecap="round"
@@ -179,7 +179,7 @@ export function StaffSidebar() {
                         />
                       </SidebarIcon>
 
-                      <span className="truncate group-data-[collapsible=icon]:hidden">
+                      <span className="truncate group-data-[collapsible=icon]:hidden group-data-[status=active]/button:text-[var(--color-kfk-blue)]">
                         <SelectValue />
                       </span>
                     </SelectTrigger>
@@ -199,10 +199,13 @@ export function StaffSidebar() {
                     <Link
                       to="/staff/home"
                       className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                      activeProps={{
+                        className: "group/button flex items-center gap-2 text-[var(--color-kfk-red)]",
+                      }}
                     >
                       <SidebarIcon
                         isPressed={isPressed}
-                        pressedColor="text-[var(--color-kfk-red)]"
+                        activeColor="text-[var(--color-kfk-red)]"
                       >
                         <path
                           strokeLinecap="round"
@@ -211,7 +214,7 @@ export function StaffSidebar() {
                         />
                       </SidebarIcon>
                       <span
-                        className={`group-data-[collapsible=icon]:hidden transition-text duration-500 ease-in-out ${isPressed ? "text-[var(--color-kfk-red)]" : ""}`}
+                        className={`group-data-[collapsible=icon]:hidden transition-colors duration-500 group-data-[status=active]/button:text-[var(--color-kfk-red)]`}
                       >
                         Home
                       </span>
@@ -227,12 +230,15 @@ export function StaffSidebar() {
                     <Link
                       to="/staff/home"
                       className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                      activeProps={{
+                        className: "group/button flex items-center gap-2 text-[var(--color-kfk-yellow)]",
+                      }}
                     >
                       {" "}
                       {/* Placeholder Link */}
                       <SidebarIcon
                         isPressed={isPressed}
-                        pressedColor="text-[var(--color-kfk-yellow)]"
+                        activeColor="text-[var(--color-kfk-yellow)]"
                       >
                         <path
                           strokeLinecap="round"
@@ -241,7 +247,7 @@ export function StaffSidebar() {
                         />
                       </SidebarIcon>
                       <span
-                        className={`group-data-[collapsible=icon]:hidden transition-text duration-500 ease-in-out ${isPressed ? "text-[var(--color-kfk-yellow)]" : ""}`}
+                        className={`group-data-[collapsible=icon]:hidden transition-colors duration-500 ease-in-out group-data-[status=active]/button:text-[var(--color-kfk-yellow)]`}
                       >
                         Profile Approval
                       </span>
@@ -257,10 +263,13 @@ export function StaffSidebar() {
                     <Link
                       to="/staff/approved"
                       className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                      activeProps={{
+                        className: "group/button flex items-center gap-2 text-[var(--color-kfk-blue)]",
+                      }}
                     >
                       <SidebarIcon
                         isPressed={isPressed}
-                        pressedColor="text-[var(--color-kfk-blue)]"
+                        activeColor="text-[var(--color-kfk-blue)]"
                       >
                         <path
                           strokeLinecap="round"
@@ -269,7 +278,7 @@ export function StaffSidebar() {
                         />
                       </SidebarIcon>
                       <span
-                        className={`group-data-[collapsible=icon]:hidden transition-text duration-500 ease-in-out ${isPressed ? "text-[var(--color-kfk-blue)]" : ""}`}
+                        className={`group-data-[collapsible=icon]:hidden transition-colors duration-500 ease-in-out group-data-[status=active]/button:text-[var(--color-kfk-blue)]`}
                       >
                         Approved Profiles
                       </span>
@@ -285,12 +294,15 @@ export function StaffSidebar() {
                     <Link
                       to="/staff/home"
                       className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                      activeProps={{
+                        className: "group/button flex items-center gap-2 text-[var(--color-kfk-green)]",
+                      }}
                     >
                       {" "}
                       {/* Placeholder Link */}
                       <SidebarIcon
                         isPressed={isPressed}
-                        pressedColor="text-[var(--color-kfk-green)]"
+                        activeColor="text-[var(--color-kfk-green)]"
                       >
                         <path
                           strokeLinecap="round"
@@ -299,7 +311,7 @@ export function StaffSidebar() {
                         />
                       </SidebarIcon>
                       <span
-                        className={`group-data-[collapsible=icon]:hidden transition-text duration-500 ease-in-out ${isPressed ? "text-[var(--color-kfk-green)]" : ""}`}
+                        className={`group-data-[collapsible=icon]:hidden transition-colors duration-500 ease-in-out group-data-[status=active]/button:text-[var(--color-kfk-green)]`}
                       >
                         User Management
                       </span>
@@ -316,7 +328,7 @@ export function StaffSidebar() {
           <SidebarMenuButtonWithTooltip label={user?.displayName || "User"}>
             <PopoverTrigger asChild>
               <button className="flex items-center gap-3 w-full text-left">
-                <SidebarIcon isPressed={true} size="size-10" pressedColor="text-black">
+                <SidebarIcon isPressed={true} size="size-10" activeColor="text-black">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
