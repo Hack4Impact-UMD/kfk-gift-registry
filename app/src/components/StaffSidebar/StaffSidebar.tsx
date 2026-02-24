@@ -79,7 +79,8 @@ const SidebarIcon = ({
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className={`transition-colors duration-500 text-gray-500 group-hover/button:text-black group-data-[status=active]/button:${activeColor} ${size || "size-6"}`}
+        // className={`transition-colors duration-500 text-gray-500 group-hover/button:text-black group-data-[status=active]/button:${activeColor} ${size || "size-6"}`}
+        className={`transition-colors duration-500 ${isPressed ? activeColor : 'text-gray-500'} group-data-[status=active]/button:${activeColor} group-hover/button:text-black ${size || "size-6"}`}
       >
         {children}
       </svg>
