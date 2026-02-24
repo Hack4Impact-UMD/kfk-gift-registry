@@ -1,10 +1,10 @@
 /* 
 - Copied and pasted the scraper from https://crawlee.dev/blog/how-to-scrape-amazon
-- Functions are imported from giftLinks.ts
+- Functions are imported from amazonHelperFunctions for clean file structure.
  */
 
 import { CheerioAPI } from 'cheerio';
-//import { parseNumberFromSelector } from './giftLinks.ts';
+import { parseNumberFromSelector } from './amazonHelperFunctions.ts';
 
 type ProductAttribute = {
     label: string;
@@ -69,7 +69,7 @@ const extractProductAttributes = ($: CheerioAPI): ProductAttribute[] => {
 /**
  * Scrapes the product details from the given Cheerio object.
  */
-/*export const extractProductDetails = ($: CheerioAPI): ProductDetails => {
+export const extractProductDetails = ($: CheerioAPI): ProductDetails => {
     const title = $(SELECTORS.TITLE).text().trim();
 
     const price = parseNumberFromSelector($, SELECTORS.PRICE);
@@ -81,4 +81,4 @@ const extractProductAttributes = ($: CheerioAPI): ProductAttribute[] => {
     const attributes = extractProductAttributes($);
 
     return { title, price, listPrice, reviewRating, reviewCount, imageUrls, attributes };
-};*/
+};
