@@ -2,7 +2,7 @@ export type GiftStatus =
   | "AVAILABLE"
   | "CLAIMED"
   | "PURCHASED"
-  | "SHIPPED"
+  | "DELIVERED"
   | "RECEIVED";
 
 export interface Gift {
