@@ -36,6 +36,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+// Remove these later
 import UserIcon from "@/assets/staff-sidebar/user-icon.png"
 import CloseSidebarIcon from "@/assets/staff-sidebar/close-sidebar-icon.png" 
 import OpenSidebarIcon from "@/assets/staff-sidebar/open-sidebar-icon.png"
