@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouteContext } from "@tanstack/react-router";
-import { logout } from "@/services/authService";
+import { logout } from "@/services/authService.client";
 import KFKLogo from "@/assets/kfk-logo.png";
 
 import {
@@ -23,8 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import "../../styles.css";
 
 import {
   Tooltip,
