@@ -14,10 +14,15 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FamilyFormRouteImport } from './routes/family/form'
 import { Route as FamilyTokenRouteImport } from './routes/family/$token'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
 import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
 import { Route as AuthenticatedDonorRouteRouteImport } from './routes/_authenticated/donor/route'
+import { Route as FamilyFormGiftDetailsRouteImport } from './routes/family/form/gift-details'
+import { Route as FamilyFormGeneralInfoRouteImport } from './routes/family/form/general-info'
+import { Route as FamilyFormConsentRouteImport } from './routes/family/form/consent'
+import { Route as FamilyFormChildrenRouteImport } from './routes/family/form/children'
 import { Route as AuthenticatedStaffHomeRouteImport } from './routes/_authenticated/staff/home'
 import { Route as AuthenticatedStaffApprovedRouteImport } from './routes/_authenticated/staff/approved'
 import { Route as AuthenticatedStaffVolunteerRouteRouteImport } from './routes/_authenticated/staff/volunteer/route'
@@ -47,6 +52,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FamilyFormRoute = FamilyFormRouteImport.update({
+  id: '/family/form',
+  path: '/family/form',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FamilyTokenRoute = FamilyTokenRouteImport.update({
   id: '/family/$token',
   path: '/family/$token',
@@ -66,6 +76,26 @@ const AuthenticatedDonorRouteRoute = AuthenticatedDonorRouteRouteImport.update({
   id: '/donor',
   path: '/donor',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const FamilyFormGiftDetailsRoute = FamilyFormGiftDetailsRouteImport.update({
+  id: '/gift-details',
+  path: '/gift-details',
+  getParentRoute: () => FamilyFormRoute,
+} as any)
+const FamilyFormGeneralInfoRoute = FamilyFormGeneralInfoRouteImport.update({
+  id: '/general-info',
+  path: '/general-info',
+  getParentRoute: () => FamilyFormRoute,
+} as any)
+const FamilyFormConsentRoute = FamilyFormConsentRouteImport.update({
+  id: '/consent',
+  path: '/consent',
+  getParentRoute: () => FamilyFormRoute,
+} as any)
+const FamilyFormChildrenRoute = FamilyFormChildrenRouteImport.update({
+  id: '/children',
+  path: '/children',
+  getParentRoute: () => FamilyFormRoute,
 } as any)
 const AuthenticatedStaffHomeRoute = AuthenticatedStaffHomeRouteImport.update({
   id: '/home',
@@ -100,10 +130,15 @@ export interface FileRoutesByFullPath {
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
   '/family/$token': typeof FamilyTokenRoute
+  '/family/form': typeof FamilyFormRouteWithChildren
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
+  '/family/form/children': typeof FamilyFormChildrenRoute
+  '/family/form/consent': typeof FamilyFormConsentRoute
+  '/family/form/general-info': typeof FamilyFormGeneralInfoRoute
+  '/family/form/gift-details': typeof FamilyFormGiftDetailsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -114,10 +149,15 @@ export interface FileRoutesByTo {
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
   '/family/$token': typeof FamilyTokenRoute
+  '/family/form': typeof FamilyFormRouteWithChildren
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
+  '/family/form/children': typeof FamilyFormChildrenRoute
+  '/family/form/consent': typeof FamilyFormConsentRoute
+  '/family/form/general-info': typeof FamilyFormGeneralInfoRoute
+  '/family/form/gift-details': typeof FamilyFormGiftDetailsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -130,10 +170,15 @@ export interface FileRoutesById {
   '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/_authenticated/hello': typeof AuthenticatedHelloRoute
   '/family/$token': typeof FamilyTokenRoute
+  '/family/form': typeof FamilyFormRouteWithChildren
   '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
   '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/_authenticated/staff/home': typeof AuthenticatedStaffHomeRoute
+  '/family/form/children': typeof FamilyFormChildrenRoute
+  '/family/form/consent': typeof FamilyFormConsentRoute
+  '/family/form/general-info': typeof FamilyFormGeneralInfoRoute
+  '/family/form/gift-details': typeof FamilyFormGiftDetailsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -146,10 +191,15 @@ export interface FileRouteTypes {
     | '/staff'
     | '/hello'
     | '/family/$token'
+    | '/family/form'
     | '/staff/admin'
     | '/staff/volunteer'
     | '/staff/approved'
     | '/staff/home'
+    | '/family/form/children'
+    | '/family/form/consent'
+    | '/family/form/general-info'
+    | '/family/form/gift-details'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -160,10 +210,15 @@ export interface FileRouteTypes {
     | '/staff'
     | '/hello'
     | '/family/$token'
+    | '/family/form'
     | '/staff/admin'
     | '/staff/volunteer'
     | '/staff/approved'
     | '/staff/home'
+    | '/family/form/children'
+    | '/family/form/consent'
+    | '/family/form/general-info'
+    | '/family/form/gift-details'
   id:
     | '__root__'
     | '/'
@@ -175,10 +230,15 @@ export interface FileRouteTypes {
     | '/_authenticated/staff'
     | '/_authenticated/hello'
     | '/family/$token'
+    | '/family/form'
     | '/_authenticated/staff/admin'
     | '/_authenticated/staff/volunteer'
     | '/_authenticated/staff/approved'
     | '/_authenticated/staff/home'
+    | '/family/form/children'
+    | '/family/form/consent'
+    | '/family/form/general-info'
+    | '/family/form/gift-details'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -188,6 +248,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   FamilyTokenRoute: typeof FamilyTokenRoute
+  FamilyFormRoute: typeof FamilyFormRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -227,6 +288,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/family/form': {
+      id: '/family/form'
+      path: '/family/form'
+      fullPath: '/family/form'
+      preLoaderRoute: typeof FamilyFormRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/family/$token': {
       id: '/family/$token'
       path: '/family/$token'
@@ -254,6 +322,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/donor'
       preLoaderRoute: typeof AuthenticatedDonorRouteRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/family/form/gift-details': {
+      id: '/family/form/gift-details'
+      path: '/gift-details'
+      fullPath: '/family/form/gift-details'
+      preLoaderRoute: typeof FamilyFormGiftDetailsRouteImport
+      parentRoute: typeof FamilyFormRoute
+    }
+    '/family/form/general-info': {
+      id: '/family/form/general-info'
+      path: '/general-info'
+      fullPath: '/family/form/general-info'
+      preLoaderRoute: typeof FamilyFormGeneralInfoRouteImport
+      parentRoute: typeof FamilyFormRoute
+    }
+    '/family/form/consent': {
+      id: '/family/form/consent'
+      path: '/consent'
+      fullPath: '/family/form/consent'
+      preLoaderRoute: typeof FamilyFormConsentRouteImport
+      parentRoute: typeof FamilyFormRoute
+    }
+    '/family/form/children': {
+      id: '/family/form/children'
+      path: '/children'
+      fullPath: '/family/form/children'
+      preLoaderRoute: typeof FamilyFormChildrenRouteImport
+      parentRoute: typeof FamilyFormRoute
     }
     '/_authenticated/staff/home': {
       id: '/_authenticated/staff/home'
@@ -323,6 +419,24 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface FamilyFormRouteChildren {
+  FamilyFormChildrenRoute: typeof FamilyFormChildrenRoute
+  FamilyFormConsentRoute: typeof FamilyFormConsentRoute
+  FamilyFormGeneralInfoRoute: typeof FamilyFormGeneralInfoRoute
+  FamilyFormGiftDetailsRoute: typeof FamilyFormGiftDetailsRoute
+}
+
+const FamilyFormRouteChildren: FamilyFormRouteChildren = {
+  FamilyFormChildrenRoute: FamilyFormChildrenRoute,
+  FamilyFormConsentRoute: FamilyFormConsentRoute,
+  FamilyFormGeneralInfoRoute: FamilyFormGeneralInfoRoute,
+  FamilyFormGiftDetailsRoute: FamilyFormGiftDetailsRoute,
+}
+
+const FamilyFormRouteWithChildren = FamilyFormRoute._addFileChildren(
+  FamilyFormRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
@@ -330,6 +444,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   FamilyTokenRoute: FamilyTokenRoute,
+  FamilyFormRoute: FamilyFormRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
