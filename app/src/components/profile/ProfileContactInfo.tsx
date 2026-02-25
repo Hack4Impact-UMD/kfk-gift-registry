@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { EditIcon } from "@/components/profile/EditIcon.tsx"
+import { EditIcon } from "@/components/profile/EditIcon"
 import { AuthUser } from "@/server/auth.ts"
 
 interface ContactInfoSectionProps {

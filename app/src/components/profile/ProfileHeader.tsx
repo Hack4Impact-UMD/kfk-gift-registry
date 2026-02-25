@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { EditIcon } from "@/components/profile/EditIcon.tsx"
+import { EditIcon } from "@/components/profile/EditIcon"
 import { AuthUser } from "@/server/auth.ts"
 
 interface ProfileHeaderProps {
