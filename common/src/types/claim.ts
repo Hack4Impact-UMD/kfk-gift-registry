@@ -20,7 +20,7 @@ export interface ClaimPurchaseConfirmation {
 }
 
 export interface DeliveryConfirmation {
-  date: string,
-  documentationUrl: string,
-  verified: boolean
+  date: string;
+  documentationUrl: string;
+  verified: boolean;
 }
