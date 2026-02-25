@@ -18,7 +18,7 @@ import { verifySession } from "@/server/auth";
 
 interface MyRouterContext {
   queryClient: QueryClient;
-  auth: AuthContext
+  auth: AuthContext;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -49,16 +49,16 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       return {
         auth: {
           isAuthed: true as const,
-          authUser
-        }
-      }
+          authUser,
+        },
+      };
     } else {
       return {
         auth: {
           isAuthed: false as const,
-          authUser: null
-        }
-      }
+          authUser: null,
+        },
+      };
     }
   },
   shellComponent: RootDocument,
@@ -71,7 +71,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <Header />
         {children}
         <TanStackDevtools
           config={{

@@ -1,20 +1,19 @@
 @import "tailwindcss";
-@import '@fontsource-variable/nunito';
+@import "@fontsource-variable/nunito";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
-
 @theme {
   --font-sans: "Nunito Variable", sans-serif;
-  --color-kfk-red: #FF0000;
-  --color-kfk-yellow: #FFCA15;
-  --color-kfk-blue: #0839B1;
-  --color-kfk-green: #1BCE1B;
-  --color-kfk-muted-green: #83F481;
-  --color-kfk-muted-red: #FF9494;
-  --color-kfk-muted-yellow: #FFDE43;
-  --color-kfk-light-blue: #CEDCFF;
+  --color-kfk-red: #ff0000;
+  --color-kfk-yellow: #ffca15;
+  --color-kfk-blue: #0839b1;
+  --color-kfk-green: #1bce1b;
+  --color-kfk-muted-green: #83f481;
+  --color-kfk-muted-red: #ff9494;
+  --color-kfk-muted-yellow: #ffde43;
+  --color-kfk-light-blue: #cedcff;
 }
 
 body {
