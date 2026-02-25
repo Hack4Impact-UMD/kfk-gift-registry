@@ -25,6 +25,6 @@ export const requireRolesMiddleware = (allowedRoles: Array<UserRole>) =>
       if (allowedRoles.includes(context.authUser.role)) {
         return next();
       } else {
-        throw new Error(`[role middleware]: User did not have roles ${allowedRoles}`)
+        throw new Error(`[role middleware]: invalid roles`)
       }
     });
