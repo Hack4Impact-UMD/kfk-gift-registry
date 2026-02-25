@@ -137,8 +137,8 @@ export function StaffSidebar() {
                   onValueChange={setYear}
                 >
                   <SidebarMenuButtonWithTooltip label={year}>
-                    <SelectTrigger className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:min-w-12 min-h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>svg]:group-data-[collapsible=icon]:hidden">
-                      <CalendarIcon className="transition-colors size-6" />
+                    <SelectTrigger chevron={false} className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:min-w-12 min-h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0">
+                      <CalendarIcon className="transition-colors text-black" />
 
                       <span className="truncate group-data-[collapsible=icon]:hidden group-data-[status=active]/button:text-[var(--color-kfk-blue)]">
                         <SelectValue />
