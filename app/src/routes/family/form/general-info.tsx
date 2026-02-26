@@ -73,49 +73,49 @@ export function RouteComponent() {
         <CardDescription className="text-center">Fill all required fields to go to next step<span className="text-destructive">*</span></CardDescription>
       </CardHeader>
       <CardContent>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col max-w-xl mx-auto gap-12">
-          
-          {/* --- SECTION: GENERAL INFO --- */}
-          <section className="space-y-6">
-            <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
-              <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Information</h2>
-            </div>
-
-            <FormFieldInput control={form.control} name="parentName" label="Your Name (Parent/Guardian)" placeholder="e.g. Jane Doe" icon={UsersIcon} required />
-            <FormFieldInput control={form.control} name="email" label="Enter Email" placeholder="e.g. janedoe@gmail.com" icon={EnvelopeIcon} required />
-            <FormFieldInput control={form.control} name="confirmEmail" label="Re-enter Email" placeholder="e.g. janedoe@gmail.com" icon={EnvelopeIcon} required />
-            <FormFieldInput control={form.control} name="phone" label="Phone Number" placeholder="(555)-555-5555" icon={PhoneIcon} />
-            <FormFieldInput control={form.control} name="confirmPhone" label="Re-enter Phone Number" placeholder="(555)-555-5555" icon={PhoneIcon} />
-          </section>
-
-          {/* --- SECTION: ADDRESS --- */}
-          <section className="space-y-6">
-            <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
-              <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Address</h2>
-            </div>
-
-            <FormFieldInput control={form.control} name="streetAddress" label="Street Address" placeholder="Enter street address" icon={MapPinIcon} required />
-            <FormFieldInput control={form.control} name="addressLine2" label="Address Line 2" placeholder="Apt, Suite, etc." icon={MapPinIcon} required />
-            <FormFieldInput control={form.control} name="city" label="City" placeholder="Enter city" icon={MapPinIcon} required />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col max-w-xl mx-auto gap-12">
             
-            <FormSelect control={form.control} name="state" label="State" required />
-          </section>
+            {/* --- SECTION: GENERAL INFO --- */}
+            <section className="space-y-6">
+              <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
+                <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Information</h2>
+              </div>
 
-          {/* --- NAVIGATION --- */}
-          <div className="flex gap-4 pt-4">
-            <Button variant="outline" className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-xl">
-              <ChevronLeftIcon className="mr-2 h-6 w-6" />
-              Back
-            </Button>
-            <Button type="submit" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-xl">
-              Next
-              <ChevronRightIcon className="ml-2 h-6 w-6" />
-            </Button>
-          </div>
+              <FormFieldInput control={form.control} name="parentName" label="Your Name (Parent/Guardian)" placeholder="e.g. Jane Doe" icon={UsersIcon} required />
+              <FormFieldInput control={form.control} name="email" label="Enter Email" placeholder="e.g. janedoe@gmail.com" icon={EnvelopeIcon} required />
+              <FormFieldInput control={form.control} name="confirmEmail" label="Re-enter Email" placeholder="e.g. janedoe@gmail.com" icon={EnvelopeIcon} required />
+              <FormFieldInput control={form.control} name="phone" label="Phone Number" placeholder="(555)-555-5555" icon={PhoneIcon} />
+              <FormFieldInput control={form.control} name="confirmPhone" label="Re-enter Phone Number" placeholder="(555)-555-5555" icon={PhoneIcon} />
+            </section>
 
-        </form>
-      </Form>
+            {/* --- SECTION: ADDRESS --- */}
+            <section className="space-y-6">
+              <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
+                <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Address</h2>
+              </div>
+
+              <FormFieldInput control={form.control} name="streetAddress" label="Street Address" placeholder="Enter street address" icon={MapPinIcon} required />
+              <FormFieldInput control={form.control} name="addressLine2" label="Address Line 2" placeholder="Apt, Suite, etc." icon={MapPinIcon} required />
+              <FormFieldInput control={form.control} name="city" label="City" placeholder="Enter city" icon={MapPinIcon} required />
+              
+              <FormSelect control={form.control} name="state" label="State" required />
+            </section>
+
+            {/* --- NAVIGATION --- */}
+            <div className="flex gap-4 pt-4">
+              <Button variant="outline" className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-xl">
+                <ChevronLeftIcon className="mr-2 h-6 w-6" />
+                Back
+              </Button>
+              <Button type="submit" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-xl">
+                Next
+                <ChevronRightIcon className="ml-2 h-6 w-6" />
+              </Button>
+            </div>
+
+          </form>
+        </Form>
       </CardContent>
     </Card>
   )
