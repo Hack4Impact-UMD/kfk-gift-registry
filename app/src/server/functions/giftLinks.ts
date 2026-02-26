@@ -40,6 +40,18 @@ const getPlatformFromUrl = (url: string): Platform => {
   return null;
 };
 
+const AMAZON_CAPTCHA_SELECTOR = '[action="/errors/validateCaptcha"]';
+
+const assertNotBlocked = (platform: Exclude<Platform, null>, html: string) => {
+  if (platform === 'amazon') {
+    if (html.includes(AMAZON_CAPTCHA_SELECTOR)) {
+      throw new Error('Amazon blocked this request with a captcha. Please try again later.');
+    }
+  }
+
+  // Macy's: no known captcha selector yet. If we find a reliable one, add it here.
+};
+
 export const fetchProductDetails = createServerFn({ method: 'POST' })
   .inputValidator((data: { url: string }) => {
     if (!data?.url || typeof data.url !== 'string') {
@@ -79,6 +91,8 @@ export const fetchProductDetails = createServerFn({ method: 'POST' })
       const message = err instanceof Error ? err.message : 'Unknown error';
       throw new Error(`Failed to fetch product page: ${message}`);
     }
+
+    assertNotBlocked(platform, html);
 
     void html;
 
