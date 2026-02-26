@@ -1,10 +1,6 @@
-import { cn } from "@/lib/utils"
+import type { SVGProps } from "react";
 
-interface EditIconProps {
-  className?: string
-}
-
-export function EditIcon({ className }: EditIconProps) {
+export function PencilSquare(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -12,7 +8,7 @@ export function EditIcon({ className }: EditIconProps) {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className={cn("h-5 w-5", className)}
+      {...props}
     >
       <path
         strokeLinecap="round"

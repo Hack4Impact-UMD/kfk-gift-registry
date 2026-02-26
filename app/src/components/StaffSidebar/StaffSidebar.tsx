@@ -261,7 +261,11 @@ export function StaffSidebar() {
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuLabel>My Profile</DropdownMenuLabel>
+            <DropdownMenuItem>
+              <Link to="/staff/profile">
+                My Profile
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={async () => {

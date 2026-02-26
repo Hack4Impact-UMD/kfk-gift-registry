@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { EditIcon } from "@/components/profile/EditIcon"
+import { PencilSquare } from "@/components/icons/PencilSquare"
 import { AuthUser } from "@/server/auth.ts"
 
 interface ProfileHeaderProps {
@@ -40,7 +40,7 @@ export function ProfileHeader({
             size="icon"
             className="group hover:bg-muted rounded-md"
           >
-            <EditIcon className="text-muted-foreground transition-colors size-md group-hover:text-foreground" />
+            <PencilSquare className="text-muted-foreground transition-colors size-6 group-hover:text-foreground" />
           </Button>
         </div>
         <p className="text-muted-foreground">

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { EditIcon } from "@/components/profile/EditIcon"
+import { PencilSquare } from "@/components/icons/PencilSquare"
 import { AuthUser } from "@/server/auth.ts"
 
 interface ContactInfoSectionProps {
@@ -53,7 +53,7 @@ export function ContactInfoSection({
                 size="icon"
                 className="group absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-muted rounded-md"
               >
-                <EditIcon className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                <PencilSquare className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
               </Button>
             </div>
           </div>
@@ -75,7 +75,7 @@ export function ContactInfoSection({
                 size="icon"
                 className="group absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-muted rounded-md"
               >
-                <EditIcon className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                <PencilSquare className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
               </Button>
             </div>
           </div>
