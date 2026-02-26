@@ -1,18 +1,11 @@
-import { createFileRoute } from '@tanstack/react-router'
+"use client"
+import { createFileRoute } from "@tanstack/react-router"
 
-import * as React from "react"
-import { useForm } from "@tanstack/react-form"
-import { toast } from "sonner"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 import * as z from "zod"
 
-import { Form, Label } from 'radix-ui'
-
-import { 
-  FormAgreement, 
-  FormButton,
- } from '../components/formcomponents'
-
-import { FieldGroup } from "@/components/ui/field"
+import { FormAgreement } from '../components/formcomponents'
 
 import {
   Card,
@@ -23,15 +16,43 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-import "@/styles.css"
+import { Form } from "@/components/ui/form"
 
 import KFKLogo from "@/assets/kisses-for-kyle-logo.png"
+import { Button } from "@/components/ui/button"
+
+import "@/styles.css"
+
+const formSchema = z.object({
+  address: z.boolean(),
+  identity: z.boolean()
+})
+.refine((data) => data.address === true, {
+  message: "",
+  path: ["address"]
+})
+.refine((data) => data.identity === true, {
+  message: "",
+  path: ["identity"]
+});
 
 export const Route = createFileRoute('/family/form/consent')({
   component: ConsentForm,
 })
 
 function ConsentForm() {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      address: false,
+      identity: false
+    },
+  })
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values)
+  }
+
   return (
     <Card className="mx-auto w-full max-w-sm">
       <CardHeader>
@@ -45,17 +66,25 @@ function ConsentForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <FieldGroup>
-          <FormAgreement name="address_form">
-            By checking this box, I agree that Kisses for Kyle will share my home/mailing address listed above with donors who will be providing my child's holiday gift selections. I understand that these gifts will be shipped directly to my home by the donor
-          </FormAgreement>
-          <FormAgreement name="identity_form">
-By checking this box, I certify that I am the legal parent or court-appointed guardian of the child(ren) listed in this application and that the child(ren) currently reside in my household. I understand that confirmation of legal guardianship and residency is required to participate in the Kisses for Kyle Holiday Gift Drive, and I acknowledge that providing false information may result in removal from the program.          </FormAgreement>
-        </FieldGroup>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col max-w-xl mx-auto gap-8">
+
+            {/* --- SECTION: ADDRESS AGREEMENT --- */}
+            <FormAgreement control={form.control} name="address">
+              By checking this box, I agree that Kisses for Kyle will share my home/mailing address listed above with donors who will be providing my child's holiday gift selections. I understand that these gifts will be shipped directly to my home by the donor
+            </FormAgreement>
+
+            {/* --- SECTION: IDENTITY AGREEMENT --- */}
+            <FormAgreement control={form.control} name="identity">
+              By checking this box, I certify that I am the legal parent or court-appointed guardian of the child(ren) listed in this application and that the child(ren) currently reside in my household. I understand that confirmation of legal guardianship and residency is required to participate in the Kisses for Kyle Holiday Gift Drive, and I acknowledge that providing false information may result in removal from the program.
+            </FormAgreement>
+            
+            <Button size="lg" className="w-full h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg">
+              Agree and Continue
+            </Button>
+          </form>
+        </Form>
       </CardContent>
-      <CardFooter>
-        <FormButton label="Agree and Continue"/>
-      </CardFooter>
     </Card>
   )
 }

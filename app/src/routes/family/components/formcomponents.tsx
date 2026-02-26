@@ -33,44 +33,39 @@ import {
 
 import { Input } from "@/components/ui/input"
 
-
 import { Checkbox } from "@/components/ui/checkbox"
 
-export const FormConsentCheckbox = ({name} : {name:string}) => {
-  return (
-    <>
-      <Checkbox required id={name} name={name}></Checkbox>
-      <FieldLabel htmlFor={name}>I agree to the sharing of my mailing address</FieldLabel>
-    </>
-  )
-}
 
 interface FormAgreementProps {
-  children: React.ReactNode;
-  name: string;
+  control: any,
+  name: string,
+  children: React.ReactNode
 }
-export const FormAgreement: React.FC<FormAgreementProps> = ({children, name}) => {
+export const FormAgreement = ({ control, name, children }: FormAgreementProps) => {
   return (
-    <FieldSet className='border bg-green-50 border-green-500 p-5 rounded-lg'>
-      <FieldDescription className='text-black'>
-        {children}
-      </FieldDescription>
-      <Field orientation="horizontal">
-        <FormConsentCheckbox name={name}/>
-      </Field>
-    </FieldSet>
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-col gap-7 border bg-green-50 border-green-500 p-5 rounded-lg text-slate-700">
+          <FieldDescription className="text-slate-700">
+            {children}
+          </FieldDescription>
+          <Field orientation="horizontal">
+            <FormControl>
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              ></Checkbox>
+            </FormControl>
+            <FormLabel>I agree to the sharing of my mailing address</FormLabel>
+          </Field>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   )
 }
-
-export const FormButton = ({label} : {label:string}) => {
-  
-  return (
-  <Button size="lg" className="w-full bg-[var(--color-kfk-blue)] text-white">
-    {label}
-  </Button>
-  )
-}
-
 
 interface FormSelectProps {
   control: any

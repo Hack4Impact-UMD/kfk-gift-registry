@@ -104,11 +104,11 @@ export function RouteComponent() {
 
             {/* --- NAVIGATION --- */}
             <div className="flex gap-4 pt-4">
-              <Button variant="outline" className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-xl">
+              <Button variant="outline" className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg">
                 <ChevronLeftIcon className="mr-2 h-6 w-6" />
                 Back
               </Button>
-              <Button type="submit" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-xl">
+              <Button type="submit" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg">
                 Next
                 <ChevronRightIcon className="ml-2 h-6 w-6" />
               </Button>
