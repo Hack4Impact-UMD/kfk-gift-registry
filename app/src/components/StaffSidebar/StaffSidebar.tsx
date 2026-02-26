@@ -99,6 +99,8 @@ export function StaffSidebar() {
   const [, setIsDropdownPressed] = useState<boolean>(false);
   const isMobile = useIsMobile();
 
+  const { open } = useSidebar();
+
   return (
     <Sidebar collapsible="icon" className="">
       <SidebarTrigger
@@ -137,8 +139,11 @@ export function StaffSidebar() {
                   onValueChange={setYear}
                 >
                   <SidebarMenuButtonWithTooltip label={year}>
-                    <SelectTrigger chevron={false} className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:min-w-12 min-h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0">
-                      <CalendarIcon className="transition-colors text-black" />
+                    <SelectTrigger
+                      chevron={open}
+                      className="text-gray-600 w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:min-w-12 min-h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
+                    >
+                      <CalendarIcon className="transition-colors text-gray-600 size-6" />
 
                       <span className="truncate group-data-[collapsible=icon]:hidden group-data-[status=active]/button:text-[var(--color-kfk-blue)]">
                         <SelectValue />
@@ -158,13 +163,13 @@ export function StaffSidebar() {
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/home"
-                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                    className="group/button flex items-center text-gray-600 gap-2 group-data-[collapsible=icon]:justify-center"
                     activeProps={{
                       className:
                         "group/button flex items-center gap-2 text-kfk-red",
                     }}
                   >
-                    <HomeIcon className="transition-colors size-6" />
+                    <HomeIcon className="transition-colors min-w-6 min-h-6" />
                     <span className={`group-data-[collapsible=icon]:hidden`}>
                       Home
                     </span>
@@ -177,14 +182,14 @@ export function StaffSidebar() {
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/pending"
-                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                    className="group/button flex items-center text-gray-600 gap-2 group-data-[collapsible=icon]:justify-center"
                     activeProps={{
                       className:
-                        "group/button flex items-center gap-2 text-kfk-yellow",
+                        "group/button flex items-center gap-2 text-yellow-600",
                     }}
                   >
                     {/* Placeholder Link */}
-                    <ClipboardIcon className="transition-colors size-6" />
+                    <ClipboardIcon className="transition-colors min-w-6 min-h-6" />
                     <span className="group-data-[collapsible=icon]:hidden">
                       Profile Approval
                     </span>
@@ -197,13 +202,13 @@ export function StaffSidebar() {
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/approved"
-                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                    className="group/button flex items-center text-gray-600 gap-2 group-data-[collapsible=icon]:justify-center"
                     activeProps={{
                       className:
                         "group/button flex items-center gap-2 text-kfk-blue",
                     }}
                   >
-                    <ClipboardCheckIcon className="transition-colors size-6" />
+                    <ClipboardCheckIcon className="transition-colors min-w-6 min-h-6" />
                     <span className="group-data-[collapsible=icon]:hidden">
                       Approved Profiles
                     </span>
@@ -216,7 +221,7 @@ export function StaffSidebar() {
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/admin/users"
-                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                    className="group/button flex items-center gap-2 text-gray-600 group-data-[collapsible=icon]:justify-center"
                     activeProps={{
                       className:
                         "group/button flex items-center gap-2 text-kfk-green",
@@ -224,7 +229,7 @@ export function StaffSidebar() {
                   >
                     {" "}
                     {/* Placeholder Link */}
-                    <UsersIcon className="transition-colors size-6" />
+                    <UsersIcon className="transition-colors min-w-6 min-h-6" />
                     <span className="group-data-[collapsible=icon]:hidden">
                       User Management
                     </span>
@@ -243,13 +248,13 @@ export function StaffSidebar() {
                 size="lg"
                 className="flex items-center gap-3 w-full text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0"
               >
-                <UserCircleIcon className="transition-colors size-10" />
+                <UserCircleIcon className="transition-colors min-h-10 min-w-10" />
 
                 <div className="flex flex-col opacity-100 group-data-[collapsible=icon]:hidden">
                   <span className="text-base font-medium">
                     {user.displayName || "User Name"}
                   </span>
-                  <span className="text-sm text-gray-400">{user.role}</span>
+                  <span className="text-sm text-gray-600">KFK {user.role}</span>
                 </div>
               </SidebarMenuButton>
             </DropdownMenuTrigger>

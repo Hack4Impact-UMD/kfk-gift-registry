@@ -17,7 +17,6 @@ export const authMiddleware = createMiddleware({ type: "function" }).server(
   },
 );
 
-
 export const requireRolesMiddleware = (allowedRoles: Array<UserRole>) =>
   createMiddleware({ type: "function" })
     .middleware([authMiddleware])
@@ -25,6 +24,6 @@ export const requireRolesMiddleware = (allowedRoles: Array<UserRole>) =>
       if (allowedRoles.includes(context.authUser.role)) {
         return next();
       } else {
-        throw new Error(`[role middleware]: invalid roles`)
+        throw new Error(`[role middleware]: invalid roles`);
       }
     });
