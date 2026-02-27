@@ -36,34 +36,29 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 
 
-interface FormAgreementProps {
-  control: any,
-  name: string,
-  children: React.ReactNode
-}
-export const FormAgreement = ({ control, name, children }: FormAgreementProps) => {
+export const FormConsent = ({field} : {field:any}) => {
   return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className="flex flex-col gap-7 border bg-green-50 border-green-500 p-5 rounded-lg text-slate-700">
-          <FieldDescription className="text-slate-700">
-            {children}
-          </FieldDescription>
-          <Field orientation="horizontal">
-            <FormControl>
-              <Checkbox
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              ></Checkbox>
-            </FormControl>
-            <FormLabel>I agree to the sharing of my mailing address</FormLabel>
-          </Field>
-          <FormMessage />
-        </FormItem>
+    <>
+      <Field orientation="horizontal">
+        <input
+          id={field.name}
+          name={field.name}
+          checked={field.state.value}
+          type="checkbox"
+          onChange={(e) => field.handleChange(e.target.checked)}
+        />
+        <FieldLabel htmlFor={field.name}>
+          I agree to the sharing of my mailing address
+        </FieldLabel>
+      </Field>
+      {!field.state.meta.isValid && (
+        <em role="alert" className="mt-0 text-xs font-medium text-red-500">
+          {field.state.meta.errors.map((error: any) => 
+            typeof error === 'object' ? error.message : error
+          ).join(', ')}
+        </em>
       )}
-    />
+    </>
   )
 }
 
