@@ -117,7 +117,7 @@ function RouteComponent() {
       <div className="flex w-full max-w-5xl flex-col items-stretch lg:flex-row">
         {/* Image section: hidden on small screens */}
         <div
-          className={`w-[537px] h-[671px] shrink-0 rounded-2xl bg-cover bg-center ${isDonor ? 'bg-kfk-red/10' : 'bg-kfk-blue/10'}`}
+          className={`hidden lg:block lg:flex-1 lg:rounded-2xl bg-cover bg-center ${isDonor ? 'bg-kfk-red/10' : 'bg-kfk-blue/10'}`}
           style={{
             backgroundImage: isDonor
               ? "url('/donor-login-bg.png')"
