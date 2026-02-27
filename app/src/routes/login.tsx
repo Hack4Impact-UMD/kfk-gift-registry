@@ -113,10 +113,9 @@ function RouteComponent() {
   const accentText = isDonor ? 'text-kfk-red' : 'text-kfk-blue'
 
   return (
-    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-muted/30 p-6">
-      {/* Two separate rounded sections: image (537×671), login (532×671) on top */}
-      <div className="flex items-stretch">
-        {/* Image section: 537×671, rounded – donor vs admin/volunteer background */}
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-muted/30 p-4 sm:p-6">
+      <div className="flex w-full max-w-5xl flex-col items-stretch lg:flex-row">
+        {/* Image section: hidden on small screens */}
         <div
           className={`w-[537px] h-[671px] shrink-0 rounded-2xl bg-cover bg-center ${isDonor ? 'bg-kfk-red/10' : 'bg-kfk-blue/10'}`}
           style={{
@@ -127,21 +126,19 @@ function RouteComponent() {
           role="img"
           aria-label="Decorative background"
         />
-        {/* Login section: 532×671, rounded, overlapping image */}
-        <div className="w-[532px] h-[671px] shrink-0 rounded-2xl overflow-hidden bg-white shadow-xl flex flex-col -ml-8 z-10">
-          {/* Top bar – red for donor, blue for admin/volunteer */}
-          <div className={`w-full h-[30px] shrink-0 rounded-t-2xl ${accentBg}`} aria-hidden />
-          <div className="flex-1 flex flex-col items-center justify-center p-10">
+        <div className="w-full lg:flex-1 rounded-2xl overflow-hidden bg-white shadow-xl flex flex-col lg:-ml-8 z-10">
+          <div className={`w-full h-8 shrink-0 rounded-t-2xl ${accentBg}`} aria-hidden />
+          <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10">
           <form
             onSubmit={(e) => {
               e.preventDefault()
               e.stopPropagation()
               form.handleSubmit()
             }}
-            className="w-full max-w-[288px] flex flex-col gap-5"
+            className="w-full max-w-sm lg:max-w-xs flex flex-col gap-5"
           >
             <div className="flex flex-col gap-0">
-              <h1 className="text-[18px] font-semibold text-foreground text-center">
+              <h1 className="text-lg font-semibold text-foreground text-center">
                 Welcome Back!
               </h1>
               {/* Logo from assets */}
@@ -149,22 +146,22 @@ function RouteComponent() {
                 <img
                   src={kfkFoundationLogo}
                   alt="Kisses for Kyle Foundation"
-                  className="w-[351px] h-[106px] object-contain"
+                  className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
                 />
               </div>
             </div>
 
             {/* Login as: pill widget with two circular buttons (119px each) inside */}
             <div className="flex flex-col gap-2 items-center">
-              <label className="text-[12px] font-medium text-muted-foreground text-center">
+              <label className="text-xs font-medium text-muted-foreground text-center">
                 Login as
               </label>
-              <div className={`p-[2px] flex w-[238px] h-[31px] rounded-full border overflow-hidden items-center justify-center ${isDonor ? 'border-kfk-red' : 'border-foreground'}`}>
+              <div className={`p-0.5 flex w-full max-w-xs h-8 rounded-full border overflow-hidden items-center justify-center ${isDonor ? 'border-kfk-red' : 'border-foreground'}`}>
                 <button
                   type="button"
                   onClick={() => setLoginAs('staff')}
                   className={
-                    'flex-1 min-w-0 h-full rounded-full flex items-center justify-center text-[12px] font-medium transition-colors ' +
+                    'flex-1 min-w-0 h-full rounded-full flex items-center justify-center text-xs font-medium transition-colors ' +
                     (loginAs === 'staff'
                       ? `${accentBg} text-white`
                       : 'bg-white text-muted-foreground hover:bg-muted/30 cursor-pointer')
@@ -176,7 +173,7 @@ function RouteComponent() {
                   type="button"
                   onClick={() => setLoginAs('donor')}
                   className={
-                    'flex-1 min-w-0 h-full rounded-full flex items-center justify-center text-[12px] font-medium transition-colors ' +
+                    'flex-1 min-w-0 h-full rounded-full flex items-center justify-center text-xs font-medium transition-colors ' +
                     (loginAs === 'donor'
                       ? `${accentBg} text-white`
                       : 'bg-white text-muted-foreground hover:bg-muted/30 cursor-pointer')
@@ -196,7 +193,7 @@ function RouteComponent() {
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
-                    className="w-[287px] h-[39px] rounded-lg border-input"
+                    className="w-full h-10 rounded-lg border-input"
                   />
                   {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                     <p className="text-sm text-kfk-red">
@@ -216,7 +213,7 @@ function RouteComponent() {
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
-                    className="w-[287px] h-[39px] rounded-lg border-input"
+                    className="w-full h-10 rounded-lg border-input"
                   />
                   {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                     <p className="text-sm text-kfk-red">
@@ -248,7 +245,7 @@ function RouteComponent() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className={`w-[288px] h-[42px] rounded-[100px] text-white disabled:opacity-50 flex items-center justify-center ${accentBg} ${accentHover}`}
+              className={`w-full h-11 rounded-full text-white disabled:opacity-50 flex items-center justify-center ${accentBg} ${accentHover}`}
             >
               {isSubmitting ? 'Logging in…' : 'Login'}
             </Button>
