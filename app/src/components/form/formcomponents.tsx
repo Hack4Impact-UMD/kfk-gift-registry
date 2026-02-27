@@ -1,135 +1,100 @@
-import * as React from "react"
+import { ReactNode } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
-import { Button } from "@/components/ui/button"
+type FormInputProps = {
+  field: any; //Should try to fix this later.
+  label: string;
+  type?: string;
+  inputMode?: "text" | "email" | "tel" | "numeric" | "decimal" | "search" | "url";
+  autoComplete?: string;
+  placeholder?: string;
+  required?: boolean;
+};
 
-
-import "@/styles.css"
-
-import { 
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field"
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-
-import { Input } from "@/components/ui/input"
-
-import { Checkbox } from "@/components/ui/checkbox"
-
-
-export const FormConsent = ({field} : {field:any}) => {
+export function FormInput({
+  field,
+  label,
+  type = "text",
+  inputMode,
+  autoComplete,
+  placeholder,
+  required = false,
+}: FormInputProps) {
+  const errorMessage = field.state.meta.errors?.[0];
+  
   return (
-    <>
-      <Field orientation="horizontal">
-        <input
-          id={field.name}
-          name={field.name}
-          checked={field.state.value}
-          type="checkbox"
-          onChange={(e) => field.handleChange(e.target.checked)}
-        />
-        <FieldLabel htmlFor={field.name}>
-          I agree to the sharing of my mailing address
-        </FieldLabel>
-      </Field>
-      {!field.state.meta.isValid && (
-        <em role="alert" className="mt-0 text-xs font-medium text-red-500">
-          {field.state.meta.errors.map((error: any) => 
-            typeof error === 'object' ? error.message : error
-          ).join(', ')}
-        </em>
+    <div className="space-y-2">
+      <Label htmlFor={field.name} className="text-sm font-medium">
+        {label}
+        {required && " *"}
+      </Label>
+      <Input
+        id={field.name}
+        type={type}
+        inputMode={inputMode}
+        autoComplete={autoComplete}
+        placeholder={placeholder}
+        value={field.state.value}
+        onBlur={field.handleBlur}
+        onChange={(e) => field.handleChange(e.target.value)}
+        className={`text-base h-11 ${errorMessage ? "border-red-500" : ""}`}
+        required={required}
+      />
+      {errorMessage && (
+        <span className="text-sm text-red-500">{errorMessage}</span>
       )}
-    </>
-  )
+    </div>
+  );
 }
 
-interface FormSelectProps {
-  control: any
-  name: string
-  label: string
-  required?: boolean
-}
-export const FormSelect = ({ control, name, label, required }: FormSelectProps) => {
+type FormCheckboxProps = {
+  field: any; // Should try to fix this later.
+  children: ReactNode;
+  id?: string;
+};
+
+export function FormCheckbox({
+  field,
+  children,
+  id,
+}: FormCheckboxProps) {
+  const checkboxId = id || field.name;
+  
   return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className="relative mt-6 w-full max-w-[240px]">
-          <FormLabel className="absolute -top-2 left-4 bg-white px-2 text-sm text-slate-600 z-10">
-            {label}{required && <span className="text-destructive">*</span>}
-          </FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
-            <FormControl>
-              <SelectTrigger className="h-14 w-full rounded-md border-1 border-slate-700 focus:ring-0 text-slate-400 font-medium">
-                <SelectValue placeholder="Select State" />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              <SelectItem value="md">Maryland</SelectItem>
-              <SelectItem value="va">Virginia</SelectItem>
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  )
+    <div className="flex items-start gap-3 text-left">
+      <Checkbox
+        id={checkboxId}
+        checked={field.state.value}
+        onCheckedChange={(checked) => field.handleChange(!!checked)}
+        className="mt-0.5"
+      />
+      <label htmlFor={checkboxId} className="text-sm cursor-pointer">
+        {children}
+      </label>
+    </div>
+  );
 }
 
-
-interface FormFieldProps {
-  control: any
-  name: string
-  label: string
-  placeholder: string
-  icon: React.ComponentType<React.ComponentProps<'svg'>>
-  required?: boolean
-}
-export const FormFieldInput = ({ control, name, label, placeholder, icon: Icon, required }: FormFieldProps) => {
+export function FormBorderedCheckbox({
+  field,
+  children,
+  id,
+}: FormCheckboxProps) {
+  const checkboxId = id || field.name;
+  
   return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className="relative mt-6">
-          <FormLabel className="absolute -top-2 left-4 bg-white px-2 text-sm text-slate-600 z-10">
-            {label}
-            {required && <span className="text-destructive">*</span>}
-          </FormLabel>
-          <FormControl>
-            <div className="relative">
-              <Icon className="absolute left-4 top-1/2 h-6 w-6 -translate-y-1/2 text-slate-700" aria-hidden="true" />
-
-              <Input
-                {...field}
-                placeholder={placeholder}
-                className="h-14 pl-12 rounded-xl border-1 border-slate-700 focus-visible:ring-0 focus-visible:border-blue-500 placeholder:text-slate-400 font-medium"
-              />
-            </div>
-          </FormControl>
-          <FormMessage className="text-xs" />
-        </FormItem>
-      )}
-    />
-  )
+    <div className="flex items-start gap-3 p-4 border rounded-lg text-left">
+      <Checkbox
+        id={checkboxId}
+        checked={field.state.value}
+        onCheckedChange={(checked) => field.handleChange(!!checked)}
+        className="mt-0.5"
+      />
+      <label htmlFor={checkboxId} className="text-sm leading-relaxed cursor-pointer">
+        {children}
+      </label>
+    </div>
+  );
 }

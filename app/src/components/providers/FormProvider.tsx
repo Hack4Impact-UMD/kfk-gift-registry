@@ -1,39 +1,114 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { FamilyFormData, INITIAL_FORM_DATA } from "../../types/form-schema";
+
+// Define the structure for each form section
+export type ConsentFormData = {
+  consentGiven: boolean;
+  shareMailingAddress: boolean;
+};
+
+export type GeneralInfoFormData = {
+  parentName: string;
+  email: string;
+  emailConfirm: string;
+  phoneNumber?: string;  // Made optional to match Zod
+  streetAddress: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+};
+
+export type ChildInfo = {
+  name: string;
+  age: string;
+  diagnosis: string;
+  hospitalTreatedAt: string;
+  socialWorkerName: string;
+  photoUrl?: string;
+};
+
+export type SiblingInfo = {
+  name: string;
+  age: string;
+  photoUrl?: string;
+};
+
+export type ChildrenFormData = {
+  hasMultipleChildren: boolean;
+  children: ChildInfo[];
+  hasSiblings: boolean;
+  numSiblings: number;
+  siblings: SiblingInfo[];
+  consentPhotosPublic: boolean;
+};
+
+export type GiftSelection = {
+  giftUrl: string;
+  giftName: string;
+};
+
+export type ChildGiftSelections = {
+  childName: string;
+  gifts: GiftSelection[];
+  backupGifts: GiftSelection[];
+};
+
+export type GiftsFormData = {
+  giftSelections: ChildGiftSelections[];
+};
+
+// Central form state - organized by section
+export type FamilyFormState = {
+  consentScreen?: ConsentFormData;
+  generalInfo?: GeneralInfoFormData;
+  children?: ChildrenFormData;
+  gifts?: GiftsFormData;
+};
 
 type FormContextType = {
-    formData: FamilyFormData;
-    updateFormData: (updates: Partial<FamilyFormData>) => void;
-    resetForm: () => void;
+  formState: FamilyFormState;
+  updateSection: <K extends keyof FamilyFormState>(
+    section: K,
+    data: FamilyFormState[K]
+  ) => void;
+  resetForm: () => void;
+  isComplete: (section: keyof FamilyFormState) => boolean;
 };
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
 export function FormProvider({ children }: { children: ReactNode }) {
-    const [formData, setFormData] = useState<FamilyFormData>(INITIAL_FORM_DATA);
+  const [formState, setFormState] = useState<FamilyFormState>({});
 
-    const updateFormData = (updates: Partial<FamilyFormData>) => {
-        setFormData((prev) => ({
-            ...prev,
-            ...updates,
-        }));
-    };
+  const updateSection = <K extends keyof FamilyFormState>(
+    section: K,
+    data: FamilyFormState[K]
+  ) => {
+    setFormState((prev) => ({
+      ...prev,
+      [section]: data,
+    }));
+  };
 
-    const resetForm = () => {
-        setFormData(INITIAL_FORM_DATA);
-    };
+  const resetForm = () => {
+    setFormState({});
+  };
 
-    return (
-        <FormContext.Provider value={{ formData, updateFormData, resetForm }}>
-            {children}
-        </FormContext.Provider>
-    );
+  const isComplete = (section: keyof FamilyFormState): boolean => {
+    return formState[section] !== undefined;
+  };
+
+  return (
+    <FormContext.Provider value={{ formState, updateSection, resetForm, isComplete }}>
+      {children}
+    </FormContext.Provider>
+  );
 }
 
 export function useFormContext() {
-    const context = useContext(FormContext);
-    if (!context) {
-        throw new Error("useFormContext must be used within a FormProvider");
-    }
-    return context;
+  const context = useContext(FormContext);
+  if (!context) {
+    throw new Error("useFormContext must be used within FormProvider");
+  }
+  return context;
 }
