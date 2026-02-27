@@ -1,12 +1,11 @@
 "use client"
 import { createFileRoute } from "@tanstack/react-router"
-
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm } from "@tanstack/react-form"
 import * as z from "zod"
 
 import { 
   EnvelopeIcon, 
+  EnvelopeOpenIcon, 
   MapPinIcon,
   PhoneIcon, 
   UsersIcon, 
@@ -14,12 +13,7 @@ import {
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 
-import { 
-  FormFieldInput,
-  FormSelect
- } from '../../../components/form/formcomponents'
-
-import { Form } from "@/components/ui/form"
+import { FormFieldInput, FormSelect } from "@/components/form/formcomponents"
 
 import {
   Card,
@@ -32,97 +26,208 @@ import {
 
 import { Button } from "@/components/ui/button"
 
+export const Route = createFileRoute('/family/form/general-info')({
+  component: GeneralRouteComponent,
+})
 
-const formSchema = z.object({
-  // General Info
-  parentName: z.string().min(2, "Name is required"),
-  email: z.string().email("Invalid email"),
-  confirmEmail: z.string().email("Please confirm email"),
-  phone: z.string().min(10, "Invalid phone number"),
-  confirmPhone: z.string().min(10, "Please confirm phone"),
-  
-  // Address
+
+const schema = z.object({
+  guardianName: z.string().min(2, "Name is required."),
+  email: z.string().min(1, "Email field is required.").email("Email is invalid"),
+  confirmEmail: z.string().email(),
+  phone: z.string().regex(/^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/, 'invalid'),
+  confirmPhone: z.string().regex(/^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/, 'invalid'),
+
   streetAddress: z.string().min(1, "Street address is required"),
   addressLine2: z.string().min(1, "Unit/Apt is required"),
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "Select a state"),
 })
 .refine((data) => data.email === data.confirmEmail, {
-  message: "Emails do not match",
+  message: "Emails do not match.",
   path: ["confirmEmail"],
 })
 .refine((data) => data.phone === data.confirmPhone, {
-  message: "Phone numbers do not match",
+  message: "Phone Numbers do not match.",
   path: ["confirmPhone"],
-});
+})
 
+function GeneralRouteComponent() {
+  const states: Array<string> = ["CA", "MD", "VA"]
 
-export function RouteComponent() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {},
+  const form = useForm({
+      defaultValues: {
+       guardianName: "", 
+       email: "",
+       confirmEmail: "",
+       phone: "",
+       confirmPhone: "",
+
+       streetAddress: "",
+       addressLine2: "",
+       city: "",
+       state: "",
+      },
+      validators: {
+        onChange: schema,
+      },
+      
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
-  }
-
   return (
-    <Card className="mx-auto w-full max-w-sm">
+  <Card className="mx-auto w-full max-w-sm">
       <CardHeader>
         <CardDescription className="text-center">Fill all required fields to go to next step<span className="text-destructive">*</span></CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col max-w-xl mx-auto gap-12">
-            
-            {/* --- SECTION: GENERAL INFO --- */}
-            <section className="space-y-6">
-              <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
-                <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Information</h2>
-              </div>
+        <form className="flex flex-col gap-10">
+          <div>
+            <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
+            <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Information</h2>
+          </div>
+          <form.Field
+            name="guardianName"
+            children={(field) => (
+              <FormFieldInput
+                field={field}
+                Icon={UsersIcon}
+                label="Your Name (Parent/Guardian)"
+                placeholder="Jane Doe"
+                required
+              />
+            )}
+          />
 
-              <FormFieldInput control={form.control} name="parentName" label="Your Name (Parent/Guardian)" placeholder="e.g. Jane Doe" icon={UsersIcon} required />
-              <FormFieldInput control={form.control} name="email" label="Enter Email" placeholder="e.g. janedoe@gmail.com" icon={EnvelopeIcon} required />
-              <FormFieldInput control={form.control} name="confirmEmail" label="Re-enter Email" placeholder="e.g. janedoe@gmail.com" icon={EnvelopeIcon} required />
-              <FormFieldInput control={form.control} name="phone" label="Phone Number" placeholder="(555)-555-5555" icon={PhoneIcon} />
-              <FormFieldInput control={form.control} name="confirmPhone" label="Re-enter Phone Number" placeholder="(555)-555-5555" icon={PhoneIcon} />
-            </section>
+          <form.Field
+            name="email"
+            children={(field) => (
+              <FormFieldInput
+                field={field}
+                Icon={EnvelopeIcon}
+                label="Enter Email"
+                placeholder="e.g. janedoe@gmail.com"
+                required
+              />
+            )}
+          />
+          
+          <form.Field
+              name="confirmEmail"
+              children={(field) => (
+              <FormFieldInput
+                field={field}
+                Icon={EnvelopeIcon}
+                label="Re-enter Email"
+                placeholder="e.g. janedoe@gmail.com"
+                required
+              />
+            )}
+          />
 
-            {/* --- SECTION: ADDRESS --- */}
-            <section className="space-y-6">
-              <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
-                <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Address</h2>
-              </div>
+            <form.Field
+              name="phone"
+              children={(field) => (
+                <FormFieldInput
+                  field={field}
+                  Icon={PhoneIcon}
+                  label="Phone Number"
+                  placeholder="(555)-5555-555"
+                  required
+                />
+              )}
+            />
 
-              <FormFieldInput control={form.control} name="streetAddress" label="Street Address" placeholder="Enter street address" icon={MapPinIcon} required />
-              <FormFieldInput control={form.control} name="addressLine2" label="Address Line 2" placeholder="Apt, Suite, etc." icon={MapPinIcon} required />
-              <FormFieldInput control={form.control} name="city" label="City" placeholder="Enter city" icon={MapPinIcon} required />
-              
-              <FormSelect control={form.control} name="state" label="State" required />
-            </section>
-
-            {/* --- NAVIGATION --- */}
-            <div className="flex gap-4 pt-4">
-              <Button variant="outline" className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg">
-                <ChevronLeftIcon className="mr-2 h-6 w-6" />
-                Back
-              </Button>
-              <Button type="submit" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg">
-                Next
-                <ChevronRightIcon className="ml-2 h-6 w-6" />
-              </Button>
+            <form.Field
+              name="confirmPhone"
+              children={(field) => (
+                <FormFieldInput
+                  field={field}
+                  Icon={PhoneIcon}
+                  label="Re-enter Phone Number"
+                  placeholder="(555)-5555-555"
+                  required
+                />
+              )}
+            />
+          </div>
+          
+          <div>
+            <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
+              <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Address</h2>
             </div>
 
-          </form>
-        </Form>
+            <form.Field
+              name="streetAddress"
+              children={(field) => (
+                <FormFieldInput
+                  field={field}
+                  Icon={MapPinIcon}
+                  label="Street Address"
+                  placeholder="10 Mountain View Way"
+                  required
+                />
+              )}
+            />
+            <form.Field
+              name="addressLine2"
+              children={(field) => (
+                <FormFieldInput
+                  field={field}
+                  Icon={MapPinIcon}
+                  label="Address Line 2"
+                  placeholder="Apt. J"
+                  required
+                />
+              )}
+            />
+            <form.Field
+              name="city"
+              children={(field) => (
+                <FormFieldInput
+                  field={field}
+                  Icon={MapPinIcon}
+                  label="City"
+                  placeholder="Baltimore"
+                  required
+                />
+              )}
+            />
+
+            <form.Field
+              name="state"
+              children={(field) => (
+                <FormSelect
+                  field={field}
+                  label="State"
+                  placeholder="Select a State"
+                  values={states}
+                  required
+                />
+              )}
+            />
+          </div>
+          
+          <div className="flex gap-4 pt-4 mx-5">
+            <Button variant="outline" className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg">
+              <ChevronLeftIcon className="mr-2 h-6 w-6" />
+              Back
+            </Button>
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
+              children={([canSubmit, isSubmitting, isPristine]) => (
+                <Button 
+                  type="submit" 
+                  disabled={!canSubmit || isPristine }
+                  size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
+                >
+                  {isSubmitting ? '...' : 'Next'}
+                  <ChevronRightIcon className="ml-2 h-6 w-6" />
+                </Button>
+              )}
+            />
+          </div>
+        </form>
       </CardContent>
     </Card>
   )
 }
-
-export const Route = createFileRoute('/family/form/general-info')({
-  component: RouteComponent,
-})
-
-
