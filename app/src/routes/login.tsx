@@ -20,18 +20,13 @@ const searchSchema = z.object({
     }),
 })
 
-const loginSchema = z.object({
-  email: z.string()
-    .min(1, 'Email is required')
-    .email('Email must be a valid email'),
-  password: z.string() // honestly the min and regex here should apply to sign up rather than login
-    .min(1, 'Password is required')
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number')
-    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
-})
+const loginSchema = z.object({  
+  email: z.string()  
+    .min(1, 'Email is required')  
+    .email('Email must be a valid email'),  
+  password: z.string()  
+    .min(1, 'Password is required'),  
+})  
 
 export const Route = createFileRoute('/login')({
   validateSearch: searchSchema,
