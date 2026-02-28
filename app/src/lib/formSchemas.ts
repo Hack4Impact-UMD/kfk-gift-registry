@@ -28,6 +28,11 @@ export const generalInfoSchema = z
       .regex(/^[\d\s\-\(\)]+$/, "Please enter a valid phone number")
       .optional()
       .or(z.literal("")),
+    phoneNumberConfirm: z
+      .string()
+      .regex(/^[\d\s\-\(\)]+$/, "Please enter a valid phone number")
+      .optional()
+      .or(z.literal("")),
     streetAddress: z
       .string()
       .min(1, "Street address is required")
@@ -48,6 +53,10 @@ export const generalInfoSchema = z
   })
   .refine((data) => data.email === data.emailConfirm, {
     message: "Emails do not match",
+    path: ["emailConfirm"], // Show error on emailConfirm field
+  })
+  .refine((data) => data.phoneNumber === data.phoneNumberConfirm, {
+    message: "Phone Numbers do not match",
     path: ["emailConfirm"], // Show error on emailConfirm field
   });
 
