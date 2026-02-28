@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "pnpm -C ../common build",
     "dev": "vite dev --port 3000",
+    "prebuild": "pnpm -C ../common build",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
