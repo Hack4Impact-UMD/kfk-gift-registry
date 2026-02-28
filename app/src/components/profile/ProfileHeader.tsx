@@ -13,8 +13,10 @@ interface ProfileHeaderProps {
 function getInitials(displayName?: string) {
   if (!displayName) return "U";
 
-  const parts = displayName.split(" ");
-  return parts.length === 1 ? parts[0][0] : `${parts[0][0]}${parts[1][0]}`;
+  const parts = displayName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "U";
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
 
 export function ProfileHeader({ user, avatarUrl }: ProfileHeaderProps) {
