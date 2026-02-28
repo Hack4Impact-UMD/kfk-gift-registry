@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useLoginMutation } from '@/hooks/mutations/loginMutation'
 import { UserRole } from 'common'
-import adminVolunteerLoginBg from '@assets/admin-volunteer-login-bg.png'
-import kfkFoundationLogo from '@assets/kfk-foundation-logo.png'
+import adminVolunteerLoginBg from '@/assets/admin-volunteer-login-bg.png'
+import donorLoginBg from '@/assets/donor-login-bg.png'
+import kfkFoundationLogo from '@/assets/kfk-logo.png'
 
 const searchSchema = z.object({
   redirect: z
@@ -121,7 +122,7 @@ function RouteComponent() {
           className={`hidden lg:block lg:flex-1 lg:rounded-2xl bg-cover bg-center ${isDonor ? 'bg-kfk-red/10' : 'bg-kfk-blue/10'}`}
           style={{
             backgroundImage: isDonor
-              ? "url('/donor-login-bg.png')"
+              ? `url(${donorLoginBg})`
               : `url(${adminVolunteerLoginBg})`,
           }}
           role="img"
