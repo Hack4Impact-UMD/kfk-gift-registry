@@ -30,7 +30,12 @@ const config = defineConfig({
       projects: ["./tsconfig.json"],
     }),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      importProtection: {
+        enabled: true,
+        behavior: "mock",
+      },
+    }),
     viteReact(),
   ],
 });

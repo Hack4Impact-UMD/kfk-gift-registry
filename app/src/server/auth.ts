@@ -1,15 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getCookies, setCookie } from "@tanstack/react-start/server";
 import z from "zod";
-import { Duration } from "luxon"
+import { Duration } from "luxon";
+import { UserRole } from "common";
+import { i } from "node_modules/vite/dist/node/chunks/moduleRunnerTransport";
 import { authMiddleware } from "./middleware/authMiddleware";
 import type { UserRecord } from "firebase-admin/auth";
-import { getServerAuth } from "@/lib/firebase.server";
-
-export enum UserRole {
-  Donor = "donor",
-  Admin = "admin"
-}
+import { getServerAuth, getServerDB } from "@/lib/firebase.server";
 
 export type AuthUser = {
   uid: string;
@@ -40,11 +37,11 @@ const toAuthUser = (user: UserRecord): AuthUser => ({
   disabled: user.disabled,
   email: user.email,
   emailVerified: user.emailVerified,
-  role: user.customClaims?.role ?? UserRole.Donor
+  role: user.customClaims?.role ?? UserRole.DONOR,
 });
 
 const loginSchema = z.object({
-  token: z.string().nonempty()
+  token: z.string().nonempty(),
 });
 
 const SESSION_COOKIE_NAME = "__session";
@@ -130,4 +127,17 @@ export const logoutSession = createServerFn({
       path: "/",
       maxAge: 0,
     });
+  });
+
+export const getCurrentUserProfile = createServerFn({
+  method: "GET",
+})
+  .middleware([authMiddleware])
+  .handler(async ({ context }) => {
+    const db = getServerDB();
+    const userDoc = await db.users.doc(context.authUser.uid).get();
+
+    if (!userDoc.exists) throw new Error("User not found");
+
+    return userDoc.data()!;
   });

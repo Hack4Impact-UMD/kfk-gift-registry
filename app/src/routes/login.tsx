@@ -7,18 +7,19 @@ import { FirebaseError } from 'firebase/app'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useLoginMutation } from '@/hooks/mutations/loginMutation'
-import { UserRole } from '@/server/auth'
+import { UserRole } from 'common'
 import adminVolunteerLoginBg from '@assets/admin-volunteer-login-bg.png'
 import kfkFoundationLogo from '@assets/kfk-foundation-logo.png'
 
 const searchSchema = z.object({
-  redirect: z.string()
+  redirect: z
+    .string()
     .optional()
     .default("/hello")
     .refine((val) => val.startsWith("/") && !val.startsWith("//"), {
       message: "Invalid redirect path",
     }),
-})
+});
 
 const loginSchema = z.object({  
   email: z.string()  
@@ -31,7 +32,7 @@ const loginSchema = z.object({
 export const Route = createFileRoute('/login')({
   validateSearch: searchSchema,
   component: RouteComponent,
-})
+});
 
 function getLoginErrorMessage(error: unknown): string {
   if (error instanceof FirebaseError) {
@@ -101,7 +102,7 @@ function RouteComponent() {
       await navigate({
         to:
           redirect ??
-          (auth.authUser.role === UserRole.Donor ? "/donor" : "/staff/home"),
+          (auth.authUser.role === UserRole.DONOR ? "/donor" : "/staff/home"),
       })
     },
   })

@@ -15,8 +15,8 @@ export const getRouter = () => {
       ...rqContext,
       auth: {
         authUser: null,
-        isAuthed: false
-      }
+        isAuthed: false,
+      },
     },
 
     defaultPreload: "intent",
