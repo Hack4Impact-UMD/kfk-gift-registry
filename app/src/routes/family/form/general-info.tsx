@@ -152,10 +152,10 @@ function GeneralRouteComponent() {
             </Button>
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
-              children={([canSubmit, isSubmitting, isPristine]) => (
+              children={([canSubmit, isSubmitting]) => (
                 <Button 
                   type="submit" 
-                  disabled={!canSubmit || isPristine }
+                  disabled={!canSubmit}
                   size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
                 >
                   {isSubmitting ? '...' : 'Next'}
