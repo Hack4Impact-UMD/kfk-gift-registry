@@ -2,7 +2,7 @@
 https://tanstack.com/query/v4/docs/framework/react/guides/mutations */
 
 import { useMutation } from "@tanstack/react-query";
-import { login } from "@/services/authService";
+import { login } from "@/services/authService.client";
 
 type LoginInput = {
   email: string;
