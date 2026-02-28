@@ -12,9 +12,14 @@ function DonorPage() {
   const router = useRouter();
 
   const handleLogout = useCallback(async () => {
-    await logout();
-    router.invalidate();
-  }, [router]);
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      await router.invalidate();
+    }
+  }, [logout, router]);
 
   return (
     <div className="p-2">

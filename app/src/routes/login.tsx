@@ -16,8 +16,7 @@ const searchSchema = z.object({
   redirect: z
     .string()
     .optional()
-    .default("/hello")
-    .refine((val) => val.startsWith("/") && !val.startsWith("//"), {
+    .refine((val) => !val || (val.startsWith("/") && !val.startsWith("//")), {
       message: "Invalid redirect path",
     }),
 });

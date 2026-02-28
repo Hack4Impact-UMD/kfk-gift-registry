@@ -1,5 +1,5 @@
-/* TanStack Query Mutation for login pending check 
-https://tanstack.com/query/v4/docs/framework/react/guides/mutations */
+/* TanStack Query Mutation for login pending check
+https://tanstack.com/query/v5/docs/framework/react/guides/mutations */
 
 import { useMutation } from "@tanstack/react-query";
 import { login } from "@/services/authService.client";
