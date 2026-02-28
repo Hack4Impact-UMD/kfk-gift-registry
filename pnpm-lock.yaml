@@ -63,6 +63,9 @@ importers:
       axios:
         specifier: ^1.13.5
         version: 1.13.5
+      axios-cookiejar-support:
+        specifier: ^6.0.5
+        version: 6.0.5(axios@1.13.5)(tough-cookie@6.0.0)(undici@7.21.0)
       cheerio:
         specifier: ^1.2.0
         version: 1.2.0
@@ -108,6 +111,9 @@ importers:
       tailwindcss:
         specifier: ^4.0.6
         version: 4.1.18
+      tough-cookie:
+        specifier: ^6.0.0
+        version: 6.0.0
       tw-animate-css:
         specifier: ^1.3.6
         version: 1.4.0
@@ -3264,6 +3270,13 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
+  axios-cookiejar-support@6.0.5:
+    resolution: {integrity: sha512-ldPOQCJWB0ipugkTNVB8QRl/5L2UgfmVNVQtS9en1JQJ1wW588PqAmymnwmmgc12HLDzDtsJ28xE2ppj4rD4ng==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      axios: '>=0.20.0'
+      tough-cookie: '>=4.0.0'
+
   axios@1.13.5:
     resolution: {integrity: sha512-cz4ur7Vb0xS4/KUN0tPWe44eqxrIu31me+fbang3ijiNscE129POzipJJA6zniq2C/Z6sJCjMimjS8Lc/GAs8Q==}
 
@@ -4524,6 +4537,16 @@ packages:
 
   http-cache-semantics@4.2.0:
     resolution: {integrity: sha512-dTxcvPXqPvXBQpq5dUr6mEMJX4oIEFv6bwom3FDwKRDsuIjjJGANqhBuoAn9c1RQJIdAKav33ED65E2ys+87QQ==}
+
+  http-cookie-agent@7.0.3:
+    resolution: {integrity: sha512-EeZo7CGhfqPW6R006rJa4QtZZUpBygDa2HZH3DJqsTzTjyRE6foDBVQIv/pjVsxHC8z2GIdbB1Hvn9SRorP3WQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      tough-cookie: ^4.0.0 || ^5.0.0 || ^6.0.0
+      undici: ^7.0.0
+    peerDependenciesMeta:
+      undici:
+        optional: true
 
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
@@ -10274,6 +10297,14 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
+  axios-cookiejar-support@6.0.5(axios@1.13.5)(tough-cookie@6.0.0)(undici@7.21.0):
+    dependencies:
+      axios: 1.13.5
+      http-cookie-agent: 7.0.3(tough-cookie@6.0.0)(undici@7.21.0)
+      tough-cookie: 6.0.0
+    transitivePeerDependencies:
+      - undici
+
   axios@1.13.5:
     dependencies:
       follow-redirects: 1.15.11
@@ -11784,7 +11815,7 @@ snapshots:
   h3@2.0.1-rc.14(crossws@0.4.4(srvx@0.11.2)):
     dependencies:
       rou3: 0.7.12
-      srvx: 0.11.2
+      srvx: 0.11.7
     optionalDependencies:
       crossws: 0.4.4(srvx@0.11.2)
 
@@ -11866,6 +11897,13 @@ snapshots:
       entities: 4.5.0
 
   http-cache-semantics@4.2.0: {}
+
+  http-cookie-agent@7.0.3(tough-cookie@6.0.0)(undici@7.21.0):
+    dependencies:
+      agent-base: 7.1.4
+      tough-cookie: 6.0.0
+    optionalDependencies:
+      undici: 7.21.0
 
   http-errors@2.0.1:
     dependencies:
