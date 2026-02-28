@@ -15,14 +15,14 @@ function RouteComponent() {
   const user = auth?.authUser;
   return (
     <div className="space-y-3 p-6">
-        <ProfileHeader user={user} />
+      <ProfileHeader user={user} />
     
-        <ContactInfoSection
-          user={user}
-          phone="+1 244-567-8910"
-        />
+      <ContactInfoSection
+        user={user}
+        phone="+1 244-567-8910"
+      />
 
-        <AccountDetailsSection/>
+      <AccountDetailsSection/>
       <div className="flex justify-end">
         <Button
           onClick={async () => {

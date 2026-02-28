@@ -1,84 +1,77 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { updatePassword } from "firebase/auth"
-import { FirebaseError } from "firebase/app"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { PencilSquare } from "@/components/icons/PencilSquare"
-import { getClientAuth } from "@/lib/firebase.client"
+import { useState } from "react";
+import { updatePassword } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { PencilSquare } from "@/components/icons/PencilSquare";
+import { getClientAuth } from "@/lib/firebase.client";
 
 export function AccountDetailsSection() {
-  const [editing, setEditing] = useState(false)
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [err, setErr] = useState<string | undefined>()
-  const [loading, setLoading] = useState(false)
+  const [editing, setEditing] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [err, setErr] = useState<string | undefined>();
+  const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
-    setErr(undefined)
+    setErr(undefined);
 
     if (newPassword.length < 6) {
-      setErr("Password must be at least 6 characters.")
-      return
+      setErr("Password must be at least 6 characters.");
+      return;
     }
     if (newPassword !== confirmPassword) {
-      setErr("Passwords do not match.")
-      return
+      setErr("Passwords do not match.");
+      return;
     }
 
     try {
-      setLoading(true)
-      const auth = getClientAuth()
-      const user = auth.currentUser
-      if (!user) throw new Error("No authenticated user found.")
-      await updatePassword(user, newPassword)
-      setEditing(false)
-      setNewPassword("")
-      setConfirmPassword("")
+      setLoading(true);
+      const auth = getClientAuth();
+      const user = auth.currentUser;
+      if (!user) throw new Error("No authenticated user found.");
+      await updatePassword(user, newPassword);
+      setEditing(false);
+      setNewPassword("");
+      setConfirmPassword("");
     } catch (error) {
       if (error instanceof FirebaseError) {
         if (error.code === "auth/requires-recent-login") {
-          setErr("Please log out and log back in before changing your password.")
+          setErr(
+            "Please log out and log back in before changing your password.",
+          );
         } else {
-          setErr("Failed to update password. Please try again.")
+          setErr("Failed to update password. Please try again.");
         }
       } else if (error instanceof Error) {
-        setErr(error.message)
+        setErr(error.message);
       } else {
-        setErr("Failed to update password.")
+        setErr("Failed to update password.");
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleCancel = () => {
-    setEditing(false)
-    setNewPassword("")
-    setConfirmPassword("")
-    setErr(undefined)
-  }
+    setEditing(false);
+    setNewPassword("");
+    setConfirmPassword("");
+    setErr(undefined);
+  };
 
   return (
     <Card className="rounded-lg border-3 border-kfk-light-blue">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-xl font-bold">
-          Account Details
-        </CardTitle>
+        <CardTitle className="text-xl font-bold">Account Details</CardTitle>
       </CardHeader>
 
       <CardContent className="gap-6">
         <div className="flex flex-col gap-2">
-          <label className="text-md font-semibold">
-            Password
-          </label>
+          <label className="text-md font-semibold">Password</label>
 
           {!editing ? (
             <div className="relative">
@@ -140,5 +133,5 @@ export function AccountDetailsSection() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
