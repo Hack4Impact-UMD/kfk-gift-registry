@@ -51,7 +51,10 @@ export function ProfileHeader({ user, avatarUrl }: ProfileHeaderProps) {
             : ""}
         </p>
       </div>
-      <div className="absolute top-0 right-24 h-full w-48 pointer-events-none select-none">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 right-24 hidden h-full w-48 select-none lg:block"
+      >
         <img
           src={profileHeaderImage}
           alt="profile header decoration"
