@@ -34,8 +34,10 @@ export function ProfileHeader({ user, avatarUrl }: ProfileHeaderProps) {
             {user?.displayName || "User Name"}
           </h2>
           <Button
+            type="button"
             variant="ghost"
             size="icon"
+            aria-label="Edit profile header"
             className="group hover:bg-muted rounded-md"
           >
             <PencilSquare className="text-muted-foreground transition-colors size-4 group-hover:text-foreground" />
