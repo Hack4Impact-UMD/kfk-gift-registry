@@ -4,10 +4,10 @@ import { useForm } from '@tanstack/react-form'
 import z from 'zod'
 import { AuthErrorCodes } from 'firebase/auth'
 import { FirebaseError } from 'firebase/app'
+import { UserRole } from 'common'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useLoginMutation } from '@/hooks/mutations/loginMutation'
-import { UserRole } from 'common'
 import adminVolunteerLoginBg from '@/assets/admin-volunteer-login-bg.png'
 import donorLoginBg from '@/assets/donor-login-bg.png'
 import kfkFoundationLogo from '@/assets/kfk-logo.png'
@@ -21,13 +21,13 @@ const searchSchema = z.object({
     }),
 });
 
-const loginSchema = z.object({  
-  email: z.string()  
-    .min(1, 'Email is required')  
-    .email('Email must be a valid email'),  
-  password: z.string()  
-    .min(1, 'Password is required'),  
-})  
+const loginSchema = z.object({
+  email: z.string()
+    .min(1, 'Email is required')
+    .email('Email must be a valid email'),
+  password: z.string()
+    .min(1, 'Password is required'),
+})
 
 export const Route = createFileRoute('/login')({
   validateSearch: searchSchema,
@@ -71,7 +71,8 @@ type LoginAsRole = 'staff' | 'donor'
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const router = useRouter()
+  const { auth } = Route.useRouteContext();
+  const router = useRouter();
   const { redirect } = Route.useSearch()
 
   const loginMutation = useLoginMutation()
@@ -91,18 +92,12 @@ function RouteComponent() {
         email: value.email,
         password: value.password,
       })
-      await router.invalidate()
-
-      const auth = router.state.matches[0]?.context?.auth
-
-      if (!auth || !auth.isAuthed || !auth.authUser) {
-        return
-      }
+      await router.invalidate();
 
       await navigate({
         to:
           redirect ??
-          (auth.authUser.role === UserRole.DONOR ? "/donor" : "/staff/home"),
+          (auth.authUser?.role === UserRole.DONOR ? "/donor" : "/staff/home"),
       })
     },
   })
@@ -130,133 +125,133 @@ function RouteComponent() {
         <div className="w-full lg:flex-1 rounded-2xl overflow-hidden bg-white shadow-xl flex flex-col lg:-ml-8 z-10">
           <div className={`w-full h-8 shrink-0 rounded-t-2xl ${accentBg}`} aria-hidden />
           <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              form.handleSubmit()
-            }}
-            className="w-full max-w-sm lg:max-w-xs flex flex-col gap-5"
-          >
-            <div className="flex flex-col gap-0">
-              <h1 className="text-lg font-semibold text-foreground text-center">
-                Welcome Back!
-              </h1>
-              {/* Logo from assets */}
-              <div className="flex justify-center">
-                <img
-                  src={kfkFoundationLogo}
-                  alt="Kisses for Kyle Foundation"
-                  className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
-                />
-              </div>
-            </div>
-
-            {/* Login as: pill widget with two circular buttons (119px each) inside */}
-            <div className="flex flex-col gap-2 items-center">
-              <label className="text-xs font-medium text-muted-foreground text-center">
-                Login as
-              </label>
-              <div className={`p-0.5 flex w-full max-w-xs h-8 rounded-full border overflow-hidden items-center justify-center ${isDonor ? 'border-kfk-red' : 'border-foreground'}`}>
-                <button
-                  type="button"
-                  onClick={() => setLoginAs('staff')}
-                  className={
-                    'flex-1 min-w-0 h-full rounded-full flex items-center justify-center text-xs font-medium transition-colors ' +
-                    (loginAs === 'staff'
-                      ? `${accentBg} text-white`
-                      : 'bg-white text-muted-foreground hover:bg-muted/30 cursor-pointer')
-                  }
-                >
-                  Admin/Volunteer
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLoginAs('donor')}
-                  className={
-                    'flex-1 min-w-0 h-full rounded-full flex items-center justify-center text-xs font-medium transition-colors ' +
-                    (loginAs === 'donor'
-                      ? `${accentBg} text-white`
-                      : 'bg-white text-muted-foreground hover:bg-muted/30 cursor-pointer')
-                  }
-                >
-                  Donor
-                </button>
-              </div>
-            </div>
-
-            <form.Field name="email">
-              {(field) => (
-                <div className="flex flex-col gap-1">
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className="w-full h-10 rounded-lg border-input"
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-kfk-red">
-                      {issueToMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
-              )}
-            </form.Field>
-
-            <form.Field name="password">
-              {(field) => (
-                <div className="flex flex-col gap-1">
-                  <Input
-                    type="password"
-                    placeholder="Enter your password"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className="w-full h-10 rounded-lg border-input"
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-kfk-red">
-                      {issueToMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
-              )}
-            </form.Field>
-
-            <div className="flex items-center justify-between gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className={`rounded-full border-input size-4 ${isDonor ? 'text-kfk-red focus:ring-kfk-red' : 'text-kfk-blue focus:ring-kfk-blue'}`}
-                />
-                <span className="text-sm text-foreground">Remember me</span>
-              </label>
-              <a
-                href="#"
-                className={`text-sm underline hover:opacity-80 ${accentText}`}
-              >
-                Forgot Password?
-              </a>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full h-11 rounded-full text-white disabled:opacity-50 flex items-center justify-center ${accentBg} ${accentHover}`}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                form.handleSubmit()
+              }}
+              className="w-full max-w-sm lg:max-w-xs flex flex-col gap-5"
             >
-              {isSubmitting ? 'Logging in…' : 'Login'}
-            </Button>
+              <div className="flex flex-col gap-0">
+                <h1 className="text-lg font-semibold text-foreground text-center">
+                  Welcome Back!
+                </h1>
+                {/* Logo from assets */}
+                <div className="flex justify-center">
+                  <img
+                    src={kfkFoundationLogo}
+                    alt="Kisses for Kyle Foundation"
+                    className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
+                  />
+                </div>
+              </div>
 
-            {loginMutation.isError && (
-              <p className="text-sm text-kfk-red text-center">
-                {getLoginErrorMessage(loginMutation.error)}
-              </p>
-            )}
-          </form>
+              {/* Login as: pill widget with two circular buttons (119px each) inside */}
+              <div className="flex flex-col gap-2 items-center">
+                <label className="text-xs font-medium text-muted-foreground text-center">
+                  Login as
+                </label>
+                <div className={`p-0.5 flex w-full max-w-xs h-8 rounded-full border overflow-hidden items-center justify-center ${isDonor ? 'border-kfk-red' : 'border-foreground'}`}>
+                  <button
+                    type="button"
+                    onClick={() => setLoginAs('staff')}
+                    className={
+                      'flex-1 min-w-0 h-full rounded-full flex items-center justify-center text-xs font-medium transition-colors ' +
+                      (loginAs === 'staff'
+                        ? `${accentBg} text-white`
+                        : 'bg-white text-muted-foreground hover:bg-muted/30 cursor-pointer')
+                    }
+                  >
+                    Admin/Volunteer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLoginAs('donor')}
+                    className={
+                      'flex-1 min-w-0 h-full rounded-full flex items-center justify-center text-xs font-medium transition-colors ' +
+                      (loginAs === 'donor'
+                        ? `${accentBg} text-white`
+                        : 'bg-white text-muted-foreground hover:bg-muted/30 cursor-pointer')
+                    }
+                  >
+                    Donor
+                  </button>
+                </div>
+              </div>
+
+              <form.Field name="email">
+                {(field) => (
+                  <div className="flex flex-col gap-1">
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      className="w-full h-10 rounded-lg border-input"
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-kfk-red">
+                        {issueToMessage(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </form.Field>
+
+              <form.Field name="password">
+                {(field) => (
+                  <div className="flex flex-col gap-1">
+                    <Input
+                      type="password"
+                      placeholder="Enter your password"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      className="w-full h-10 rounded-lg border-input"
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-kfk-red">
+                        {issueToMessage(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </form.Field>
+
+              <div className="flex items-center justify-between gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className={`rounded-full border-input size-4 ${isDonor ? 'text-kfk-red focus:ring-kfk-red' : 'text-kfk-blue focus:ring-kfk-blue'}`}
+                  />
+                  <span className="text-sm text-foreground">Remember me</span>
+                </label>
+                <a
+                  href="#"
+                  className={`text-sm underline hover:opacity-80 ${accentText}`}
+                >
+                  Forgot Password?
+                </a>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full h-11 rounded-full text-white disabled:opacity-50 flex items-center justify-center ${accentBg} ${accentHover}`}
+              >
+                {isSubmitting ? 'Logging in…' : 'Login'}
+              </Button>
+
+              {loginMutation.isError && (
+                <p className="text-sm text-kfk-red text-center">
+                  {getLoginErrorMessage(loginMutation.error)}
+                </p>
+              )}
+            </form>
           </div>
         </div>
       </div>
