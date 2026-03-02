@@ -61,7 +61,7 @@ function GeneralRouteComponent() {
           }
           updateSection("generalInfo", result.data);
 
-          navigate({ to: "/family/form/gift-details" });
+          navigate({ to: "/family/form/children" });
       },
       
       

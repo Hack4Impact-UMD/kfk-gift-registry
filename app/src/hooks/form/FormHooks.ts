@@ -68,6 +68,7 @@ export function useChildrenForm() {
   const form = useForm({
     defaultValues: formState.children || {
       hasMultipleChildren: false,
+      numChildren: 1,
       children: [],
       hasSiblings: false,
       numSiblings: 0,

@@ -79,6 +79,7 @@ export const siblingInfoSchema = z.object({
 export const childrenFormSchema = z.object({
   hasMultipleChildren: z.boolean(),
   children: z.array(childInfoSchema).min(1, "At least one child is required"),
+  numChildren: z.number().min(1).max(4),
   hasSiblings: z.boolean(),
   numSiblings: z.number().min(0).max(10),
   siblings: z.array(siblingInfoSchema),

@@ -35,6 +35,7 @@ export type SiblingInfo = {
 
 export type ChildrenFormData = {
   hasMultipleChildren: boolean;
+  numChildren: number;
   children: ChildInfo[];
   hasSiblings: boolean;
   numSiblings: number;
