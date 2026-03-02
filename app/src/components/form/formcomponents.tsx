@@ -109,9 +109,10 @@ interface FormSelectProps {
   label:string,
   placeholder:string,
   values:Array<string>
+  onValueChange?: (value: string) => void;
   required?: boolean
 }
-export const FormSelect = ({field, label, placeholder, values, required}:FormSelectProps) => {
+export const FormSelect = ({field, label, placeholder, values, onValueChange, required}:FormSelectProps) => {
   const errorMessage = field.state.meta.errors?.[0];
   
   return (
@@ -122,7 +123,10 @@ export const FormSelect = ({field, label, placeholder, values, required}:FormSel
       </FieldLabel>
       <Select
         value={field.state.value}
-        onValueChange={(value) => field.handleChange(value)}
+        onValueChange={(value) => {
+          field.handleChange(value);
+          if (onValueChange) onValueChange(value);
+        }}
       >
         <SelectTrigger 
           className={`py-6 w-full rounded-xl border-1 ${errorMessage ? "border-red-500" : "border-slate-700"} focus:ring-0 text-slate-400 font-medium`}

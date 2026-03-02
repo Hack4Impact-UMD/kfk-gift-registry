@@ -69,7 +69,7 @@ export function useChildrenForm() {
     defaultValues: formState.children || {
       hasMultipleChildren: false,
       numChildren: 1,
-      children: [],
+      children: [{}],
       hasSiblings: false,
       numSiblings: 0,
       siblings: [],

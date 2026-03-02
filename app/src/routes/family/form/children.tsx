@@ -16,7 +16,8 @@ import "@/styles.css";
 import KFKLogo from "@/assets/kisses-for-kyle-logo.png";
 import { childrenFormSchema } from '@/lib/formSchemas';
 import { User, Stethoscope, Building2, UserCog } from 'lucide-react';
-import { FormItem } from '@/components/ui/form';
+import { useEffect } from 'react';
+
 
 export const Route = createFileRoute('/family/form/children')({
   component: ChildrenPageComponent,
@@ -47,6 +48,21 @@ function ChildrenPageComponent() {
       navigate({ to: "/family/form/gift-details" });
     },
   })
+
+  
+  useEffect(() => {
+    if (form.state.values.children.length > form.state.values.numChildren) {
+      const newChildren = form.state.values.children.slice(0, form.state.values.numChildren);
+      form.setFieldValue('children', newChildren);
+    }
+  }, [form.state.values.numChildren]);
+
+  useEffect(() => {
+    if (form.state.values.siblings.length > form.state.values.numSiblings) {
+      const newSiblings = form.state.values.siblings.slice(0, form.state.values.numSiblings);
+      form.setFieldValue('siblings', newSiblings);
+    }
+  }, [form.state.values.numSiblings]);
 
   const handleBack = () => {
     const currentValues = form.state.values;
@@ -88,7 +104,14 @@ function ChildrenPageComponent() {
                     type="radio"
                     name="hasMultipleChildren"
                     checked={field.state.value === false}
-                    onChange={() => field.handleChange(false)}
+                    onChange={() => {
+                      field.handleChange(false);
+                      form.setFieldValue('numChildren', 1);
+                      const currentChildren = form.getFieldValue('children') || [];
+                      if (currentChildren.length > 1) {
+                        form.setFieldValue("children", [currentChildren[0]]);
+                      }
+                    }}
                     className="mt-0.5"
                   />
                   <span className="text-sm">
@@ -112,7 +135,6 @@ function ChildrenPageComponent() {
           />
         </div>
 
-        {/* NEW: Conditional Dropdown using form.Subscribe */}
         <form.Subscribe
           selector={(state) => state.values.hasMultipleChildren}
           children={(hasMultipleChildren) => {
@@ -121,22 +143,23 @@ function ChildrenPageComponent() {
 
             return (
               <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
-                <p className="text-sm font-medium">
-                  How many children have been diagnosed?
-                </p>
                 <form.Field
                   name="numChildren"
                   children={(field) => (
-                    <select
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      <option value="1" disabled>Select amount</option>
-                      <option value="2">2 Children</option>
-                      <option value="3">3 Children</option>
-                      <option value="4">4 Children</option>
-                    </select>
+                    <FormSelect
+                      field={field}
+                      label="# of Children Diagnosed"
+                      placeholder="Select number of children"
+                      values={["2", "3", "4"]}
+                      onValueChange={(val: string) => {
+                        const newCount = Number(val);
+                        const currentChildren = form.getFieldValue('children') || [];
+                        if (currentChildren.length > newCount) {
+                          form.setFieldValue('children', currentChildren.slice(0, newCount));
+                        }
+                      }}
+                      required
+                    />
                   )}
                 />
               </div>
@@ -179,19 +202,13 @@ function ChildrenPageComponent() {
                       <form.Field
                         name={`children[${index}].age`}
                         children={(field) => (
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">Age *</label>
-                            <select
-                              value={field.state.value || ""}
-                              onChange={(e) => field.handleChange(e.target.value)}
-                              className="w-full h-11 px-3 rounded-md border border-gray-300 bg-white"
-                            >
-                              <option value="">Select Age</option>
-                              {Array.from({ length: 18 }, (_, i) => i + 1).map((age) => (
-                                <option key={age} value={age}>{age} years old</option>
-                              ))}
-                            </select>
-                          </div>
+                          <FormSelect
+                            field={field}
+                            label="Age"
+                            placeholder="Select Age"
+                            values={Array.from({ length: 18 }, (_, i) => String(i + 1))}
+                            required
+                          />
                         )}
                       />
 
@@ -209,7 +226,32 @@ function ChildrenPageComponent() {
                         )}
                       />
 
-                      {/* ... (Include your Hospital and Social Worker fields here using index) */}
+                      <form.Field
+                        name={`children[${index}].hospitalTreatedAt`}
+                        children={(field) => (
+                          <FormFieldInput
+                            field={field}
+                            label="Hospital Treated At"
+                            placeholder="e.g. Johns Hopkins"
+                            required
+                            Icon={Building2}
+                          />
+                        )}
+                      />
+
+                      <form.Field
+                        name={`children[${index}].socialWorkerName`}
+                        children={(field) => (
+                          <FormFieldInput
+                            field={field}
+                            label="Social Worker Name"
+                            placeholder="e.g. Sarah Smith"
+                            required
+                            Icon={UserCog}
+                          />
+                        )}
+                      />
+
                       
                       {/* Photo Upload Section */}
                       <div className="bg-slate-50 p-4 rounded-lg border border-dashed border-slate-300">
@@ -218,7 +260,7 @@ function ChildrenPageComponent() {
                           Photos increase the chance of gift fulfillment.
                         </p>
                         <Button type="button" variant="outline" className="w-full bg-white">
-                          📷 Upload Photo for {form.getFieldValue(`children[${index}].name`) || "Child"}
+                          📷 Upload Photo for {form.state.values.children?.[index]?.name || "Child"}
                         </Button>
                       </div>
                     </div>
@@ -237,7 +279,7 @@ function ChildrenPageComponent() {
 
             <div>
               <p className="text-sm font-medium mb-3">
-                Does your children have any other siblings?
+                Does your child(ren) have any other siblings?
               </p>
               <form.Field
                 name="hasSiblings"
@@ -260,7 +302,11 @@ function ChildrenPageComponent() {
                         type="radio"
                         name="hasSiblings"
                         checked={field.state.value === false}
-                        onChange={() => field.handleChange(false)}
+                        onChange={() => {
+                          field.handleChange(false);
+                          form.setFieldValue('numSiblings', 0);
+                          form.setFieldValue('siblings', []);
+                        }}
                         className="mt-0.5"
                       />
                       <span className="text-sm">
@@ -273,84 +319,92 @@ function ChildrenPageComponent() {
             </div>
 
             {/* Show sibling fields if hasSiblings is true */}
-            {form.state.values.hasSiblings && (
-              <div className="mt-4 space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    How many siblings? *
-                  </label>
-                  <form.Field
-                    name="numSiblings"
-                    children={(field) => (
-                      <select
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(Number(e.target.value))}
-                        className="w-full h-11 px-3 rounded-md border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">Select</option>
-                        <option value="1">1 sibling</option>
-                        <option value="2">2 siblings</option>
-                        <option value="3">3 siblings</option>
-                        <option value="4">4 siblings</option>
-                        <option value="5">5 siblings</option>
-                      </select>
-                    )}
-                  />
-                </div>
+            <form.Subscribe
+              selector={(state) => state.values.hasSiblings}
+              children={(hasSiblings) => {
+                if (!hasSiblings) return null;
 
-                {/* Dynamically render sibling sections */}
-                {form.state.values.numSiblings > 0 && Array.from({ length: form.state.values.numSiblings }).map((_, index) => (
-                  <div key={index} className="border-t pt-4">
-                    <h4 className="font-medium mb-3">Sibling #{index + 1} Information</h4>
-                    
-                    <div className="space-y-4">
-                      <form.Field
-                        name={`siblings[${index}].name`}
-                        children={(field) => (
-                          <FormFieldInput
-                            field={field}
-                            label={`Sibling Name #${index + 1}`}
-                            placeholder="e.g. Jane Doe"
-                            Icon={User}
-                            type="text"
-                            required
-                          />
-                        )}
-                      />
-
-                      <form.Field
-                        name={`siblings[${index}].age`}
-                        children={(field) => (
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">
-                              Sibling #{index + 1} Age *
-                            </label>
-                            <select
-                              value={field.state.value}
-                              onChange={(e) => field.handleChange(e.target.value)}
-                              className="w-full h-11 px-3 rounded-md border border-gray-300 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                              <option value="">Select</option>
-                              {Array.from({ length: 18 }, (_, i) => i + 1).map(age => (
-                                <option key={age} value={age}>{age} years old</option>
-                              ))}
-                            </select>
-                          </div>
-                        )}
-                      />
-
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
-                      >
-                        📷 Upload Photo
-                      </Button>
-                    </div>
+                return (
+                  <div className="mt-4">
+                    <form.Field
+                      name="numSiblings"
+                      children={(field) => (
+                        <FormSelect
+                          field={field}
+                          label="How many siblings?"
+                          placeholder="Select amount"
+                          values={["1", "2", "3", "4"]}
+                          onValueChange={(val: string) => {
+                            const newCount = Number(val);
+                            const currentSiblings = form.getFieldValue('siblings') || [];
+                            if (currentSiblings.length > newCount) {
+                              form.setFieldValue('siblings', currentSiblings.slice(0, newCount));
+                            }
+                          }}
+                          required
+                        />
+                      )}
+                    />
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              }}
+            />
+
+            <form.Subscribe
+              selector={(state) => [state.values.hasSiblings, state.values.numSiblings]}
+              children={([hasSiblings, numSiblings]) => {
+                if (!hasSiblings || !numSiblings || numSiblings === 0) return null;
+
+                return (
+                  <div className="mt-6 space-y-6">
+                    {Array.from({ length: Number(numSiblings || 0) }).map((_, index) => (
+                      <div key={index} className="border-t pt-4">
+                        <h4 className="font-medium mb-3 text-[var(--color-kfk-blue)]">
+                          Sibling #{index + 1} Information
+                        </h4>
+                        
+                        <div className="space-y-4">
+                          <form.Field
+                            name={`siblings[${index}].name`}
+                            children={(field) => (
+                              <FormFieldInput
+                                field={field}
+                                label={`Sibling Name #${index + 1}`}
+                                placeholder="e.g. Jane Doe"
+                                Icon={User}
+                                type="text"
+                                required
+                              />
+                            )}
+                          />
+
+                          <form.Field
+                            name={`siblings[${index}].age`}
+                            children={(field) => (
+                              <FormSelect
+                                field={field}
+                                label={`Sibling #${index + 1} Age`}
+                                placeholder="Select Age"
+                                values={Array.from({ length: 18 }, (_, i) => String(i + 1))}
+                                required
+                              />
+                            )}
+                          />
+
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+                          >
+                            📷 Upload Photo for {form.state.values.siblings?.[index]?.name || "Sibling"}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              }}
+            />
           </div>
 
           {/* Photo Consent */}
@@ -379,10 +433,10 @@ function ChildrenPageComponent() {
           </Button>
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
-            children={([canSubmit, isSubmitting]) => (
+            children={([canSubmit, isSubmitting, isPristine]) => (
               <Button 
                 type="submit" 
-                disabled={!canSubmit}
+                disabled={!canSubmit || isPristine}
                 size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
               >
                 {isSubmitting ? '...' : 'Next'}
