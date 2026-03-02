@@ -18,6 +18,7 @@ import { Route as FamilyTokenRouteImport } from './routes/family/$token'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
 import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
 import { Route as AuthenticatedDonorRouteRouteImport } from './routes/_authenticated/donor/route'
+import { Route as AuthenticatedStaffProfileRouteImport } from './routes/_authenticated/staff/profile'
 import { Route as AuthenticatedStaffPendingRouteImport } from './routes/_authenticated/staff/pending'
 import { Route as AuthenticatedStaffHomeRouteImport } from './routes/_authenticated/staff/home'
 import { Route as AuthenticatedStaffApprovedRouteImport } from './routes/_authenticated/staff/approved'
@@ -69,6 +70,12 @@ const AuthenticatedDonorRouteRoute = AuthenticatedDonorRouteRouteImport.update({
   path: '/donor',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedStaffProfileRoute =
+  AuthenticatedStaffProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
 const AuthenticatedStaffPendingRoute =
   AuthenticatedStaffPendingRouteImport.update({
     id: '/pending',
@@ -119,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
   '/staff/pending': typeof AuthenticatedStaffPendingRoute
+  '/staff/profile': typeof AuthenticatedStaffProfileRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
 }
 export interface FileRoutesByTo {
@@ -135,6 +143,7 @@ export interface FileRoutesByTo {
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
   '/staff/pending': typeof AuthenticatedStaffPendingRoute
+  '/staff/profile': typeof AuthenticatedStaffProfileRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
 }
 export interface FileRoutesById {
@@ -153,6 +162,7 @@ export interface FileRoutesById {
   '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/_authenticated/staff/home': typeof AuthenticatedStaffHomeRoute
   '/_authenticated/staff/pending': typeof AuthenticatedStaffPendingRoute
+  '/_authenticated/staff/profile': typeof AuthenticatedStaffProfileRoute
   '/_authenticated/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
 }
 export interface FileRouteTypes {
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/staff/approved'
     | '/staff/home'
     | '/staff/pending'
+    | '/staff/profile'
     | '/staff/admin/users'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/staff/approved'
     | '/staff/home'
     | '/staff/pending'
+    | '/staff/profile'
     | '/staff/admin/users'
   id:
     | '__root__'
@@ -204,6 +216,7 @@ export interface FileRouteTypes {
     | '/_authenticated/staff/approved'
     | '/_authenticated/staff/home'
     | '/_authenticated/staff/pending'
+    | '/_authenticated/staff/profile'
     | '/_authenticated/staff/admin/users'
   fileRoutesById: FileRoutesById
 }
@@ -281,6 +294,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDonorRouteRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/staff/profile': {
+      id: '/_authenticated/staff/profile'
+      path: '/profile'
+      fullPath: '/staff/profile'
+      preLoaderRoute: typeof AuthenticatedStaffProfileRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
     '/_authenticated/staff/pending': {
       id: '/_authenticated/staff/pending'
       path: '/pending'
@@ -346,6 +366,7 @@ interface AuthenticatedStaffRouteRouteChildren {
   AuthenticatedStaffApprovedRoute: typeof AuthenticatedStaffApprovedRoute
   AuthenticatedStaffHomeRoute: typeof AuthenticatedStaffHomeRoute
   AuthenticatedStaffPendingRoute: typeof AuthenticatedStaffPendingRoute
+  AuthenticatedStaffProfileRoute: typeof AuthenticatedStaffProfileRoute
 }
 
 const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren =
@@ -357,6 +378,7 @@ const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren
     AuthenticatedStaffApprovedRoute: AuthenticatedStaffApprovedRoute,
     AuthenticatedStaffHomeRoute: AuthenticatedStaffHomeRoute,
     AuthenticatedStaffPendingRoute: AuthenticatedStaffPendingRoute,
+    AuthenticatedStaffProfileRoute: AuthenticatedStaffProfileRoute,
   }
 
 const AuthenticatedStaffRouteRouteWithChildren =

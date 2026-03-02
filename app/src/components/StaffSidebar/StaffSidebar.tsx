@@ -1,14 +1,5 @@
 import { useState } from "react";
 import { Link, useRouteContext } from "@tanstack/react-router";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { logout } from "@/services/authService.client";
 import KFKLogo from "@/assets/kfk-logo.png";
 
 import {
@@ -38,7 +29,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { useIsMobile } from "@/hooks/use-mobile";
 import {
   CalendarIcon,
   ChevronDoubleLeftIcon,
@@ -97,9 +87,6 @@ export function StaffSidebar() {
   const user = auth.authUser;
   const [year, setYear] = useState("2026");
   const [, setIsDropdownPressed] = useState<boolean>(false);
-  const isMobile = useIsMobile();
-
-  const { open } = useSidebar();
 
   return (
     <Sidebar collapsible="icon" className="">
@@ -110,7 +97,7 @@ export function StaffSidebar() {
         closeIcon={
           <ChevronDoubleLeftIcon className="transition-colors size-6" />
         }
-        className="absolute top-4 right-4 rounded transition-colors duration-200"
+        className="absolute top-4 right-4 rounded transition-colors duration-200 hover:bg-black hover:text-white"
       />
       <SidebarHeader className="border-b px-4 py-8 mt-4 flex flex-col items-center gap-[15px]">
         <img
@@ -140,10 +127,10 @@ export function StaffSidebar() {
                 >
                   <SidebarMenuButtonWithTooltip label={year}>
                     <SelectTrigger
-                      chevron={open}
-                      className="text-gray-600 w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:min-w-12 min-h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
+                      chevron={false}
+                      className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:min-w-12 min-h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 data-[state=open]:text-[var(--color-kfk-blue)]"
                     >
-                      <CalendarIcon className="transition-colors text-gray-600 size-6" />
+                      <CalendarIcon className="transition-colors text-black size-6" />
 
                       <span className="truncate group-data-[collapsible=icon]:hidden group-data-[status=active]/button:text-[var(--color-kfk-blue)]">
                         <SelectValue />
@@ -163,13 +150,13 @@ export function StaffSidebar() {
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/home"
-                    className="group/button flex items-center text-gray-600 gap-2 group-data-[collapsible=icon]:justify-center"
+                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
                     activeProps={{
                       className:
                         "group/button flex items-center gap-2 text-kfk-red",
                     }}
                   >
-                    <HomeIcon className="transition-colors min-w-6 min-h-6" />
+                    <HomeIcon className="transition-colors size-6" />
                     <span className={`group-data-[collapsible=icon]:hidden`}>
                       Home
                     </span>
@@ -182,14 +169,14 @@ export function StaffSidebar() {
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/pending"
-                    className="group/button flex items-center text-gray-600 gap-2 group-data-[collapsible=icon]:justify-center"
+                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
                     activeProps={{
                       className:
-                        "group/button flex items-center gap-2 text-yellow-600",
+                        "group/button flex items-center gap-2 text-kfk-yellow",
                     }}
                   >
                     {/* Placeholder Link */}
-                    <ClipboardIcon className="transition-colors min-w-6 min-h-6" />
+                    <ClipboardIcon className="transition-colors size-6" />
                     <span className="group-data-[collapsible=icon]:hidden">
                       Profile Approval
                     </span>
@@ -202,13 +189,13 @@ export function StaffSidebar() {
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/approved"
-                    className="group/button flex items-center text-gray-600 gap-2 group-data-[collapsible=icon]:justify-center"
+                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
                     activeProps={{
                       className:
                         "group/button flex items-center gap-2 text-kfk-blue",
                     }}
                   >
-                    <ClipboardCheckIcon className="transition-colors min-w-6 min-h-6" />
+                    <ClipboardCheckIcon className="transition-colors size-6" />
                     <span className="group-data-[collapsible=icon]:hidden">
                       Approved Profiles
                     </span>
@@ -221,7 +208,7 @@ export function StaffSidebar() {
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/admin/users"
-                    className="group/button flex items-center gap-2 text-gray-600 group-data-[collapsible=icon]:justify-center"
+                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
                     activeProps={{
                       className:
                         "group/button flex items-center gap-2 text-kfk-green",
@@ -229,7 +216,7 @@ export function StaffSidebar() {
                   >
                     {" "}
                     {/* Placeholder Link */}
-                    <UsersIcon className="transition-colors min-w-6 min-h-6" />
+                    <UsersIcon className="transition-colors size-6" />
                     <span className="group-data-[collapsible=icon]:hidden">
                       User Management
                     </span>
@@ -241,44 +228,27 @@ export function StaffSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="px-6 py-4">
-        <DropdownMenu>
-          <SidebarMenuButtonWithTooltip label={user.displayName || "User"}>
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuButton
-                size="lg"
-                className="flex items-center gap-3 w-full text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0"
-              >
-                <UserCircleIcon className="transition-colors min-h-10 min-w-10" />
-
-                <div className="flex flex-col opacity-100 group-data-[collapsible=icon]:hidden">
-                  <span className="text-base font-medium">
-                    {user.displayName || "User Name"}
-                  </span>
-                  <span className="text-sm text-gray-600">KFK {user.role}</span>
-                </div>
-              </SidebarMenuButton>
-            </DropdownMenuTrigger>
-          </SidebarMenuButtonWithTooltip>
-
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuLabel>My Profile</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={async () => {
-                await logout();
-                window.location.reload();
+        <SidebarMenuButtonWithTooltip label={user.displayName || "User"}>
+          <SidebarMenuButtonWithHovering>
+            <Link
+              to="/staff/profile"
+              className="group/button flex items-center gap-3 w-full text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 hover:!bg-black hover:text-white"
+              activeProps={{
+                className:
+                  "group/button flex items-center gap-3 w-full text-left bg-black text-white group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0",
               }}
-              variant={"destructive"}
             >
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <UserCircleIcon className="transition-colors size-8" />
+
+              <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+                <span className="text-base font-medium">
+                  {user.displayName || "User Name"}
+                </span>
+                <span className="text-sm text-gray-300">{user.role}</span>
+              </div>
+            </Link>
+          </SidebarMenuButtonWithHovering>
+        </SidebarMenuButtonWithTooltip>
       </SidebarFooter>
     </Sidebar>
   );
