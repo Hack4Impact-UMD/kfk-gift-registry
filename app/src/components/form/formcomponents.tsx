@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { CardDescription } from "../ui/card";
 import { FieldLabel } from "../ui/field";
 import { FormItem } from "../ui/form";
@@ -111,6 +112,8 @@ interface FormSelectProps {
   required?: boolean
 }
 export const FormSelect = ({field, label, placeholder, values, required}:FormSelectProps) => {
+  const errorMessage = field.state.meta.errors?.[0];
+  
   return (
     <FormItem className="relative mt-6 w-full max-w-[240px]">
       <FieldLabel className="absolute -top-2 left-4 bg-white px-2 text-sm text-slate-600 z-10">
@@ -122,14 +125,17 @@ export const FormSelect = ({field, label, placeholder, values, required}:FormSel
         onValueChange={(value) => field.handleChange(value)}
       >
         <SelectTrigger 
-          className={`py-6 w-full rounded-xl border-1 ${!field.state.meta.isValid ? "border-red-500" : "border-slate-700"} focus:ring-0 text-slate-400 font-medium`}
+          className={`py-6 w-full rounded-xl border-1 ${errorMessage ? "border-red-500" : "border-slate-700"} focus:ring-0 text-slate-400 font-medium`}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {values.map((value) => (<SelectItem value={value}>{value}</SelectItem>))}
+          {values.map((value) => (<SelectItem key={value} value={value}>{value}</SelectItem>))}
         </SelectContent>
       </Select>
+      {errorMessage && (
+        <span className="text-xs text-red-500 mt-1 block">{errorMessage}</span>
+      )}
     </FormItem>
   )
 }
@@ -140,27 +146,104 @@ interface FormFieldProps {
   label:string,
   placeholder:string,
   required?: boolean
+  type?: string;
+  inputMode?: "text" | "email" | "tel" | "numeric" | "decimal" | "search" | "url";
+  autoComplete?: string;
 }
-export const FormFieldInput = ({ field, Icon, label, placeholder, required }:FormFieldProps) => {
+export const FormFieldInput = ({ field, Icon, label, placeholder, required, type = "text", inputMode, autoComplete }:FormFieldProps) => {
+  const errorMessage = field.state.meta.errors?.[0];
+  
   return (
     <FormItem className="relative mt-6">
-        <CardDescription className={`absolute -top-2 left-4 bg-white px-2 text-sm ${!field.state.meta.isValid ? "border-red-500" : "border-slate-600"} z-10`}>
+        <CardDescription className={`absolute -top-2 left-4 bg-white px-2 text-sm ${errorMessage ? "text-red-500" : "text-slate-600"} z-10`}>
           {label}
           {required && <span className="text-destructive">*</span>}
         </CardDescription>
         <div className="relative">
           <Icon className="absolute left-4 top-1/2 h-6 w-6 -translate-y-1/2 text-slate-700" aria-hidden="true" />
           <Input 
-            type="input"
+            type={type}
+            inputMode={inputMode}
+            autoComplete={autoComplete}
             name={field.name}
             id={field.name}
             value={field.state.value}
             placeholder={placeholder}
             onChange={(e) => field.handleChange(e.target.value)}
-            className={`h-14 pl-12 rounded-xl border-1 ${!field.state.meta.isValid ? "border-red-500" : "border-slate-700"} focus-visible:ring-0 focus-visible:border-blue-500 placeholder:text-slate-400 font-medium`}
-          >
-          </Input>
+            onBlur={field.handleBlur}
+            className={`h-14 pl-12 rounded-xl border-1 ${errorMessage ? "border-red-500" : "border-slate-700"} focus-visible:ring-0 focus-visible:border-blue-500 placeholder:text-slate-400 font-medium`}
+          />
         </div>
+        {errorMessage && (
+          <span className="text-xs text-red-500 mt-1 block">{errorMessage}</span>
+        )}
     </FormItem>
   )
 }
+
+
+type FormAgreementProps = {
+  field: any;
+  children: ReactNode;
+  checkboxLabel?: string;
+  id?: string;
+};
+
+export function FormAgreement({ 
+  field, 
+  children, 
+  checkboxLabel = "I agree to the sharing of my mailing address",
+  id 
+}: FormAgreementProps) {
+  const checkboxId = id || field.name;
+  
+  return (
+    <div className="border bg-green-50 border-green-500 p-5 rounded-lg">
+      <div className="text-black text-sm mb-3">
+        {children}
+      </div>
+      <div className="flex items-start gap-3">
+        <Checkbox
+          id={checkboxId}
+          checked={field.state.value}
+          onCheckedChange={(checked) => field.handleChange(!!checked)}
+          className="mt-0.5"
+        />
+        <label htmlFor={checkboxId} className="text-sm cursor-pointer">
+          {checkboxLabel}
+        </label>
+      </div>
+    </div>
+  );
+}
+
+
+type FormButtonProps = {
+  label: string;
+  disabled?: boolean;
+  isSubmitting?: boolean;
+};
+
+export function FormButton({ label, disabled = false, isSubmitting = false }: FormButtonProps) {
+  return (
+    <Button 
+      type="submit"
+      size="lg" 
+      disabled={disabled || isSubmitting}
+      className="w-full h-14 bg-[var(--color-kfk-blue)] mt-5 hover:bg-[var(--color-kfk-blue)]/90 text-white font-semibold"
+    >
+      {isSubmitting ? "Submitting..." : label}
+    </Button>
+  );
+}
+
+/**
+ * US States data for FormSelect
+ */
+export const US_STATES = [
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+];
