@@ -26,6 +26,22 @@ const AMAZON_PRODUCT_URL_RE =
 const MACYS_PRODUCT_URL_RE =
   /^https?:\/\/(?:www\.)?macys\.com\/shop\/product\/(?:[^\s?#/]+)(?:\/(?<idInPath>\d+))?(?:[/?#].*)?$/i;
 
+// normalizing so it can handle inputs like "www.amazon.com/..." or "amazon.com/..." or "https://amazon.com/..."
+function normalizeProductUrl(rawUrl: string): string {
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return trimmed;
+
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (trimmed.startsWith("//")) return `https:${trimmed}`;
+
+  // For bare domains like amazon.com/... or www.amazon.com/..., assume HTTPS.
+  if (!/^[a-z][a-z0-9+\-.]*:\/\//i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+
+  return trimmed;
+}
+
 function getPlatformFromUrl(rawUrl: string): Platform | null {
   if (AMAZON_PRODUCT_URL_RE.test(rawUrl)) return "amazon";
 
@@ -175,7 +191,7 @@ export const fetchProductDetails = createServerFn({ method: "POST" })
       throw new Error("Product URL is required");
     }
 
-    const url = data.url.trim();
+    const url = normalizeProductUrl(data.url);
     if (!url) throw new Error("Product URL is required");
 
     return { url };
