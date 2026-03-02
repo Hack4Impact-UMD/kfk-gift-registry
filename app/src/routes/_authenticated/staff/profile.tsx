@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/staff/profile")({
 
 function RouteComponent() {
   const { auth } = useRouteContext({ from: "/_authenticated/staff" });
-  const user = auth?.authUser;
+  const user = auth.authUser;
   return (
     <div className="space-y-3 p-6">
       <ProfileHeader user={user} />

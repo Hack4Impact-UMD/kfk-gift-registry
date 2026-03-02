@@ -9,8 +9,8 @@ export const Route = createFileRoute("/_authenticated/staff")({
   beforeLoad: ({ context }) => {
     if (context.auth.authUser.role === UserRole.DONOR) {
       throw redirect({
-        to: "/"
-      })
+        to: "/",
+      });
     }
   },
   component: RouteComponent,

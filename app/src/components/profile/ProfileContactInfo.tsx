@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import type { AuthUser } from "@/server/auth.ts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +12,7 @@ interface ContactInfoSectionProps {
 
 export function ContactInfoSection({ user, phone }: ContactInfoSectionProps) {
   const [contactData, setContactData] = useState({
-    email: user?.email || "",
+    email: user.email || "",
     phone: phone ?? "",
   });
 

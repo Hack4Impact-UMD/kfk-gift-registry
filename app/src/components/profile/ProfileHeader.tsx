@@ -25,13 +25,13 @@ export function ProfileHeader({ user, avatarUrl }: ProfileHeaderProps) {
       <Avatar className="h-28 w-28 border-4 border-background shadow-lg">
         <AvatarImage src={avatarUrl} />
         <AvatarFallback className="bg-kfk-blue text-white text-[30px] font-semibold">
-          {getInitials(user?.displayName)}
+          {getInitials(user.displayName)}
         </AvatarFallback>
       </Avatar>
       <div className="flex flex-col">
         <div className="flex flex-row items-center gap-2">
           <h2 className="text-3xl font-semibold text-foreground">
-            {user?.displayName || "User Name"}
+            {user.displayName || "User Name"}
           </h2>
           <Button
             type="button"
@@ -45,10 +45,7 @@ export function ProfileHeader({ user, avatarUrl }: ProfileHeaderProps) {
         </div>
         <p className="text-muted-foreground">
           KFK{" "}
-          {user?.role
-            ? user.role.charAt(0).toUpperCase() +
-              user.role.slice(1).toLowerCase()
-            : ""}
+          {user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase()}
         </p>
       </div>
       <div

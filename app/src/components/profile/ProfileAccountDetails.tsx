@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { updatePassword } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
@@ -17,6 +15,7 @@ export function AccountDetailsSection() {
   const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
+    // TODO: Switch this out to send password reset email instead
     setErr(undefined);
 
     if (newPassword.length < 6) {
