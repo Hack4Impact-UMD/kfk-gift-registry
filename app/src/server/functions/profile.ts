@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { UserRole } from "common";
-import z from "zod";
-import { authMiddleware } from "../middleware/authMiddleware";
-import { getServerAuth, getServerDB } from "@/lib/firebase.server";
 import type { UserProfile } from "common";
+import z from "zod";
+import { authMiddleware, requireRolesMiddleware } from "../middleware/authMiddleware";
+import { getServerAuth, getServerDB } from "@/lib/firebase.server";
 
 const uidSchema = z.object({ uid: z.string().min(1) });
 
@@ -16,18 +16,10 @@ const uidSchema = z.object({ uid: z.string().min(1) });
 export const getUserProfileById = createServerFn({
   method: "GET",
 })
-  .middleware([authMiddleware])
+  .middleware([requireRolesMiddleware([UserRole.VOLUNTEER, UserRole.ADMIN])])
   .inputValidator(uidSchema)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     const uid = data.uid;
-    const { authUser } = context;
-    const isPrivileged =
-      authUser.role === UserRole.VOLUNTEER || authUser.role === UserRole.ADMIN;
-
-    if (!isPrivileged && authUser.uid !== uid) {
-      throw new Error("You can only fetch your own user profile");
-    }
-
     const db = getServerDB();
     const userDoc = await db.users.doc(uid).get();
 
@@ -40,7 +32,7 @@ export const getUserProfileById = createServerFn({
       throw new Error("User not found");
     }
 
-    return { ...profileData, id: userDoc.id } as UserProfile;
+    return { profileData };
   });
 
 /**
@@ -50,22 +42,14 @@ export const getUserProfileById = createServerFn({
 export const getAllUserProfiles = createServerFn({
   method: "GET",
 })
-  .middleware([authMiddleware])
-  .handler(async ({ context }) => {
-    const { authUser } = context;
-    const isPrivileged =
-      authUser.role === UserRole.ADMIN || authUser.role === UserRole.VOLUNTEER;
-
-    if (!isPrivileged) {
-      throw new Error("Only admins and volunteers may list all user profiles");
-    }
-
+  .middleware([requireRolesMiddleware([UserRole.ADMIN, UserRole.VOLUNTEER])])
+  .handler(async () => {
     const db = getServerDB();
     const snapshot = await db.users.get();
 
     return snapshot.docs.map((doc) => {
       const data = doc.data();
-      return { ...data, id: doc.id } as UserProfile;
+      return { data };
     });
   });
 
@@ -172,29 +156,30 @@ const deleteUserProfileSchema = z.object({
 export const deleteUserProfile = createServerFn({
   method: "POST",
 })
-  .middleware([authMiddleware])
+  .middleware([requireRolesMiddleware([UserRole.ADMIN])])
   .inputValidator(deleteUserProfileSchema)
   .handler(async ({ data, context }) => {
-    if (context.authUser.role !== UserRole.ADMIN) {
-      throw new Error("Only admins can delete user profiles");
+    const { userId } = data;
+
+    if (context.authUser.uid === userId) {
+      throw new Error("Admins cannot delete their own account");
     }
 
-    const { userId } = data;
     const db = getServerDB();
     const auth = getServerAuth();
 
     const errors: Array<string> = [];
 
     try {
-      await db.users.doc(userId).delete();
-    } catch {
-      errors.push("Firestore user profile");
-    }
-
-    try {
       await auth.deleteUser(userId);
     } catch {
       errors.push("Firebase Auth user");
+    }
+
+    try {
+      await db.users.doc(userId).delete();
+    } catch {
+      errors.push("Firestore user profile");
     }
 
     if (errors.length > 0) {
