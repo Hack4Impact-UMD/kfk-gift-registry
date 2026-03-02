@@ -21,8 +21,7 @@ function FamilyRoute() {
       <p>Parent: {family.parentName}</p>
       <p>Email: {family.email}</p>
       <p>Diagnosis: {family.diagnosis}</p>
-        */
-      }
+        */}
     </div>
   );
 }
