@@ -112,9 +112,9 @@ function RouteComponent() {
           role="img"
           aria-label="Decorative background"
         />
-        <div className="w-full lg:flex-1 rounded-2xl overflow-hidden bg-white shadow-xl flex flex-col lg:-ml-8 z-10">
+        <div className="w-full lg:flex-1 rounded-2xl overflow-hidden bg-white shadow-xl flex flex-col lg:-ml-8 z-10 pb-8 sm:pb-10">
           <div className="w-full h-8 shrink-0 rounded-t-2xl bg-kfk-blue" aria-hidden />
-          <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10">
+          <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-14">
             <form
               onSubmit={(e) => {
                 e.preventDefault()
@@ -135,7 +135,7 @@ function RouteComponent() {
                     className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
                   />
                 </div>
-                <p className="mt-3 text-center text-xl text-kfk-blue">
+                <p className="mt-5 text-center text-mg text-kfk-blue">
                   User Log-in
                 </p>
               </div>
