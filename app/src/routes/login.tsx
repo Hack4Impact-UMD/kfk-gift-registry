@@ -135,7 +135,7 @@ function RouteComponent() {
                     className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
                   />
                 </div>
-                <p className="mt-5 text-center text-mg text-kfk-blue">
+                <p className="mt-5 text-center text-base text-kfk-blue">
                   User Log-in
                 </p>
               </div>
