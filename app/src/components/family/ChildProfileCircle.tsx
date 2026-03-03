@@ -19,7 +19,7 @@ export function ChildProfileCircle({ child, token }: Props) {
       params={{ token, childId: child.id }}
       className="flex flex-col items-center gap-2 shrink-0"
     >
-      <div className="w-16 h-16 rounded-full border-2 border-primary overflow-hidden">
+      <div className="w-16 h-16 rounded-full border-2 border-background ring-2 ring-kfk-red overflow-hidden">
         {child.profileImage ? (
           <img
             src={child.profileImage}

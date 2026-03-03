@@ -1,7 +1,7 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { getFamilyByToken } from "@/server/family";
 import KFKLogo from "@/assets/kfk-logo.png";
-import { BellIcon } from "@/components/icons";
+import { BellIcon, HomeIcon } from "@/components/icons";
 import { mockFamily } from "@/mocks/mockFamily";
 import { ChildProfileCircle } from "@/components/family/ChildProfileCircle";
 
@@ -26,13 +26,26 @@ function FamilyRoute() {
         <img
           src={KFKLogo}
           alt="Kisses For Kyle"
-          className="h-[51px] w-[205px] object-contain"
+          className="h-[60px] w-[198px] object-contain"
         />
-        <BellIcon className="size-6" />
+        <BellIcon className="size-8" />
       </div>
 
       {/* Horizontal Children Scroll */}
-      <div className="flex gap-4 overflow-x-auto px-4 py-4">
+      <div className="flex gap-4 overflow-x-auto px-4 py-4 items-center">
+        <Link
+          to="/family/$token/home"
+          params={{ token: family.token }}
+          className="flex flex-col items-center gap-2 shrink-0"
+        >
+          <div className="w-16 h-16 rounded-full bg-kfk-yellow border-2 border-background ring-2 ring-kfk-yellow flex items-center justify-center">
+            <HomeIcon className="size-10 text-background" />
+          </div>
+          <span className="text-sm font-medium">Home</span>
+        </Link>
+
+        <div className="w-[2px] h-16 bg-ring shrink-0 rounded-full"></div>
+
         {family.children.map((child: any) => (
           <ChildProfileCircle
             key={child.id}
