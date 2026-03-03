@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useLoginMutation } from '@/hooks/mutations/loginMutation'
 import adminVolunteerLoginBg from '@/assets/admin-volunteer-login-bg.png'
-import donorLoginBg from '@/assets/donor-login-bg.png'
 import kfkFoundationLogo from '@/assets/kfk-logo.png'
 
 const searchSchema = z.object({
@@ -67,8 +66,6 @@ function issueToMessage(issue: unknown): string {
   return 'Invalid value'
 }
 
-type LoginAsRole = 'staff' | 'donor'
-
 function RouteComponent() {
   const navigate = useNavigate()
   const { auth } = Route.useRouteContext();
@@ -76,7 +73,6 @@ function RouteComponent() {
   const { redirect } = Route.useSearch()
 
   const loginMutation = useLoginMutation()
-  const [loginAs, setLoginAs] = useState<LoginAsRole>('staff')
   const [rememberMe, setRememberMe] = useState(false)
 
   const form = useForm({
@@ -103,27 +99,21 @@ function RouteComponent() {
   })
 
   const isSubmitting = form.state.isSubmitting || loginMutation.isPending
-  const isDonor = loginAs === 'donor'
-  const accentBg = isDonor ? 'bg-kfk-red' : 'bg-kfk-blue'
-  const accentHover = isDonor ? 'hover:bg-kfk-red/90' : 'hover:bg-kfk-blue/90'
-  const accentText = isDonor ? 'text-kfk-red' : 'text-kfk-blue'
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-muted/30 p-4 sm:p-6">
       <div className="flex w-full max-w-5xl flex-col items-stretch lg:flex-row">
         {/* Image section: hidden on small screens */}
         <div
-          className={`hidden lg:block lg:flex-1 lg:rounded-2xl bg-cover bg-center ${isDonor ? 'bg-kfk-red/10' : 'bg-kfk-blue/10'}`}
+          className="hidden lg:block lg:flex-1 lg:rounded-2xl bg-cover bg-center bg-kfk-blue/10"
           style={{
-            backgroundImage: isDonor
-              ? `url(${donorLoginBg})`
-              : `url(${adminVolunteerLoginBg})`,
+            backgroundImage: `url(${adminVolunteerLoginBg})`,
           }}
           role="img"
           aria-label="Decorative background"
         />
         <div className="w-full lg:flex-1 rounded-2xl overflow-hidden bg-white shadow-xl flex flex-col lg:-ml-8 z-10">
-          <div className={`w-full h-8 shrink-0 rounded-t-2xl ${accentBg}`} aria-hidden />
+          <div className="w-full h-8 shrink-0 rounded-t-2xl bg-kfk-blue" aria-hidden />
           <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10">
             <form
               onSubmit={(e) => {
@@ -145,39 +135,9 @@ function RouteComponent() {
                     className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
                   />
                 </div>
-              </div>
-
-              {/* Login as: pill widget with two circular buttons (119px each) inside */}
-              <div className="flex flex-col gap-2 items-center">
-                <label className="text-xs font-medium text-muted-foreground text-center">
-                  Login as
-                </label>
-                <div className={`p-0.5 flex w-full max-w-xs h-8 rounded-full border overflow-hidden items-center justify-center ${isDonor ? 'border-kfk-red' : 'border-foreground'}`}>
-                  <button
-                    type="button"
-                    onClick={() => setLoginAs('staff')}
-                    className={
-                      'flex-1 min-w-0 h-full rounded-full flex items-center justify-center text-xs font-medium transition-colors ' +
-                      (loginAs === 'staff'
-                        ? `${accentBg} text-white`
-                        : 'bg-white text-muted-foreground hover:bg-muted/30 cursor-pointer')
-                    }
-                  >
-                    Admin/Volunteer
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLoginAs('donor')}
-                    className={
-                      'flex-1 min-w-0 h-full rounded-full flex items-center justify-center text-xs font-medium transition-colors ' +
-                      (loginAs === 'donor'
-                        ? `${accentBg} text-white`
-                        : 'bg-white text-muted-foreground hover:bg-muted/30 cursor-pointer')
-                    }
-                  >
-                    Donor
-                  </button>
-                </div>
+                <p className="mt-3 text-center text-xl text-kfk-blue">
+                  User Log-in
+                </p>
               </div>
 
               <form.Field name="email">
@@ -226,13 +186,13 @@ function RouteComponent() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className={`rounded-full border-input size-4 ${isDonor ? 'text-kfk-red focus:ring-kfk-red' : 'text-kfk-blue focus:ring-kfk-blue'}`}
+                    className="rounded-full border-input size-4 text-kfk-blue focus:ring-kfk-blue"
                   />
                   <span className="text-sm text-foreground">Remember me</span>
                 </label>
                 <a
                   href="#"
-                  className={`text-sm underline hover:opacity-80 ${accentText}`}
+                  className="text-sm underline hover:opacity-80 text-kfk-blue"
                 >
                   Forgot Password?
                 </a>
@@ -241,7 +201,7 @@ function RouteComponent() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full h-11 rounded-full text-white disabled:opacity-50 flex items-center justify-center ${accentBg} ${accentHover}`}
+                className="w-full h-11 rounded-full text-white disabled:opacity-50 flex items-center justify-center bg-kfk-blue hover:bg-kfk-blue/90"
               >
                 {isSubmitting ? 'Logging in…' : 'Login'}
               </Button>
