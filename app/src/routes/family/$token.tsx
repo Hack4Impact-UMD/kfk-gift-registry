@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getFamilyByToken } from "@/server/family";
+import KFKLogo from "@/assets/kfk-logo.png";
+import { BellIcon } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/family/$token")({
   loader: async ({ params }) => {
@@ -14,6 +17,21 @@ function FamilyRoute() {
 
   return (
     <div>
+      <div className="flex items-center justify-between px-2 py-2">
+        <img
+          src={KFKLogo}
+          alt="Kisses For Kyle"
+          className="h-[51px] w-[205px] object-contain opacity-100 group-data-[collapsible=icon]:opacity-0"
+        />
+        <BellIcon className="size-6 mr-4" />
+      </div>
+      <div className="px-4 py-8 mt-4 flex flex justify-between items-center">
+        <h3 className="text-lg font-semibold mx-2 px-2">Notifications</h3>
+        <Button variant="outline" className="rounded-full border-ring text-foreground">
+          Clear All
+        </Button>
+      </div>
+      
       {/*
 
       <h1>Hi this is unique to {family.childName}</h1>

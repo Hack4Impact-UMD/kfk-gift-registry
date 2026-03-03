@@ -1,3 +1,4 @@
+export { BellIcon } from "./BellIcon";
 export { ChevronDoubleRightIcon } from "./ChevronDoubleRightIcon";
 export { ChevronDoubleLeftIcon } from "./ChevronDoubleLeftIcon";
 export { CalendarIcon } from "./CalendarIcon";
