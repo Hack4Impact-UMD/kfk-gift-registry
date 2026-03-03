@@ -1,36 +1,52 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { getFamilyByToken } from "@/server/family";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { BellIcon } from "@/components/icons";
-import { Button } from "@/components/ui/button";
+import { mockFamily } from "@/mocks/mockFamily";
+import { ChildProfileCircle } from "@/components/family/ChildProfileCircle";
 
 export const Route = createFileRoute("/family/$token")({
   loader: async ({ params }) => {
-    return await getFamilyByToken({ data: { token: params.token } });
+    // TEMP: return mock data
+    return mockFamily;
+    //return await getFamilyByToken({ data: { token: params.token } });
   },
   component: FamilyRoute,
   errorComponent: FamilyError,
 });
 
 function FamilyRoute() {
-  // const family = Route.useLoaderData();
+  const family = Route.useLoaderData();
 
   return (
     <div>
-      <div className="flex items-center justify-between px-2 py-2">
+      <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3">
         <img
           src={KFKLogo}
           alt="Kisses For Kyle"
-          className="h-[51px] w-[205px] object-contain opacity-100 group-data-[collapsible=icon]:opacity-0"
+          className="h-[51px] w-[205px] object-contain"
         />
-        <BellIcon className="size-6 mr-4" />
+        <BellIcon className="size-6" />
       </div>
-      <div className="px-4 py-8 mt-4 flex flex justify-between items-center">
-        <h3 className="text-lg font-semibold mx-2 px-2">Notifications</h3>
-        <Button variant="outline" className="rounded-full border-ring text-foreground">
-          Clear All
-        </Button>
+
+      {/* Horizontal Children Scroll */}
+      <div className="flex gap-4 overflow-x-auto px-4 py-4">
+        {family.children.map((child: any) => (
+          <ChildProfileCircle
+            key={child.id}
+            child={child}
+            token={family.token}
+          />
+        ))}
       </div>
+
+      {/* Nested Route Content */}
+      <div className="px-4 pb-8">
+        <Outlet />
+      </div>
+    </div>
       
       {/*
 
