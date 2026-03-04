@@ -105,7 +105,7 @@ const patient2: ChildInfo = {
   const handleBack = () => {
     const currentValues = form.state.values;
     updateSection("gifts", currentValues);
-    navigate({ to: "/family/form/general-info" }); // Change this to child info when it's added
+    navigate({ to: "/family/form/children" });
   }
 
   const form = useForm({
