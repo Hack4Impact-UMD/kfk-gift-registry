@@ -19,9 +19,7 @@ function FamilyRoute() {
   const family = Route.useLoaderData();
 
   return (
-    <div>
-      <div className="min-h-screen bg-background">
-      {/* Header */}
+    <div className="min-h-screen bg-background">
       <div className="flex items-center justify-between px-4 py-3">
         <img
           src={KFKLogo}
@@ -31,8 +29,7 @@ function FamilyRoute() {
         <BellIcon className="size-8" />
       </div>
 
-      {/* Horizontal Children Scroll */}
-      <div className="flex gap-4 overflow-x-auto px-4 py-4 items-center">
+      <div className="flex gap-6 overflow-x-auto px-4 py-4 items-center">
         <Link
           to="/family/$token/home"
           params={{ token: family.token }}
@@ -55,20 +52,9 @@ function FamilyRoute() {
         ))}
       </div>
 
-      {/* Nested Route Content */}
       <div className="px-4 pb-8">
         <Outlet />
       </div>
-    </div>
-      
-      {/*
-
-      <h1>Hi this is unique to {family.childName}</h1>
-      <p>Data for {family.childName}</p>
-      <p>Parent: {family.parentName}</p>
-      <p>Email: {family.email}</p>
-      <p>Diagnosis: {family.diagnosis}</p>
-        */}
     </div>
   );
 }
