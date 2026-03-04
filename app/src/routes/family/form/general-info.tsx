@@ -89,8 +89,8 @@ function GeneralRouteComponent() {
         >
           <div>
             <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
-            <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Information</h2>
-          </div>
+              <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Information</h2>
+            </div>
           <form.Field
             name="parentName"
             children={(field) => (

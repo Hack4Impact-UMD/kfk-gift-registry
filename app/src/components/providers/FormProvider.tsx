@@ -52,6 +52,7 @@ export type ChildGiftSelections = {
   childName: string;
   gifts: GiftSelection[];
   backupGifts: GiftSelection[];
+  verified: boolean;
 };
 
 export type GiftsFormData = {
