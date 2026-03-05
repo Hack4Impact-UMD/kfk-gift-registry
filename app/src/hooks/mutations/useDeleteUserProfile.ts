@@ -10,7 +10,9 @@ export function useDeleteUserProfile() {
       deleteUserProfile({ data: params }),
     onSuccess: (_data, variables) => {
       // Remove the deleted user from cache and invalidate all users list
-      queryClient.removeQueries({ queryKey: queries.users.id(variables.userId).queryKey });
+      queryClient.removeQueries({
+        queryKey: queries.users.id(variables.userId).queryKey,
+      });
       queryClient.invalidateQueries({ queryKey: queries.users.all.queryKey });
     },
   });

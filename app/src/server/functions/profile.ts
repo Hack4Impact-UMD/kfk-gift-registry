@@ -1,8 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { UserRole } from "common";
-import type { UserProfile } from "common";
 import z from "zod";
-import { authMiddleware, requireRolesMiddleware } from "../middleware/authMiddleware";
+import {
+  authMiddleware,
+  requireRolesMiddleware,
+} from "@/server/middleware/authMiddleware";
 import { getServerAuth, getServerDB } from "@/lib/firebase.server";
 
 const uidSchema = z.object({ uid: z.string().min(1) });
@@ -16,7 +18,13 @@ const uidSchema = z.object({ uid: z.string().min(1) });
 export const getUserProfileById = createServerFn({
   method: "GET",
 })
-  .middleware([requireRolesMiddleware([UserRole.VOLUNTEER, UserRole.ADMIN])])
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.VOLUNTEER,
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+    ]),
+  ])
   .inputValidator(uidSchema)
   .handler(async ({ data }) => {
     const uid = data.uid;
@@ -32,7 +40,7 @@ export const getUserProfileById = createServerFn({
       throw new Error("User not found");
     }
 
-    return { profileData };
+    return profileData;
   });
 
 /**
@@ -42,14 +50,20 @@ export const getUserProfileById = createServerFn({
 export const getAllUserProfiles = createServerFn({
   method: "GET",
 })
-  .middleware([requireRolesMiddleware([UserRole.ADMIN, UserRole.VOLUNTEER])])
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.VOLUNTEER,
+      UserRole.DIRECTOR,
+    ]),
+  ])
   .handler(async () => {
     const db = getServerDB();
     const snapshot = await db.users.get();
 
     return snapshot.docs.map((doc) => {
       const data = doc.data();
-      return { data };
+      return data;
     });
   });
 
@@ -57,10 +71,11 @@ const updateUserProfileSchema = z.object({
   userId: z.string().min(1),
   updates: z
     .object({
-      firstName: z.string().trim().min(1).optional(),
-      lastName: z.string().trim().min(1).optional(),
-      phone: z.string().trim().min(1).optional(),
+      firstName: z.string().trim().min(1),
+      lastName: z.string().trim().min(1),
+      phone: z.string().trim().min(1),
     })
+    .partial()
     .strict()
     .refine((u) => Object.keys(u).length > 0, {
       message: "At least one update field is required",
@@ -82,7 +97,7 @@ export const updateUserProfile = createServerFn({
     const { userId, updates } = data;
     const { authUser } = context;
 
-    const isAdmin = authUser.role === UserRole.ADMIN;
+    const isAdmin = authUser.role === UserRole.DIRECTOR;
     if (!isAdmin && authUser.uid !== userId) {
       throw new Error("You can only update your own user profile");
     }
@@ -100,49 +115,27 @@ export const updateUserProfile = createServerFn({
     const currentProfile = userSnap.data();
     if (!currentProfile) throw new Error("User not found");
 
-    const nextProfile: UserProfile = {
-      ...currentProfile,
-      ...(updates.firstName !== undefined ? { firstName: updates.firstName } : {}),
-      ...(updates.lastName !== undefined ? { lastName: updates.lastName } : {}),
-      ...(updates.phone !== undefined ? { phone: updates.phone } : {}),
-      id: userSnap.id,
-    };
-
-    const authPatch: Parameters<typeof auth.updateUser>[1] = {};
-    if (updates.phone !== undefined) authPatch.phoneNumber = updates.phone;
-    if (updates.firstName !== undefined || updates.lastName !== undefined) {
-      authPatch.displayName = `${nextProfile.firstName} ${nextProfile.lastName}`.trim();
-    }
-
-    // Two-phase update with best-effort rollback to reduce drift.
     try {
-      if (Object.keys(authPatch).length > 0) {
-        await auth.updateUser(userId, authPatch);
-      }
-    } catch (err) {
-      throw new Error("Failed to update Firebase Auth user");
-    }
+      const displayName = `${updates.firstName ?? currentProfile.firstName} ${updates.lastName ?? currentProfile.lastName}`;
+      await auth.updateUser(userId, {
+        displayName,
+        phoneNumber: updates.phone,
+      });
 
-    try {
-      await userRef.update({
-        ...(updates.firstName !== undefined ? { firstName: updates.firstName } : {}),
-        ...(updates.lastName !== undefined ? { lastName: updates.lastName } : {}),
-        ...(updates.phone !== undefined ? { phone: updates.phone } : {}),
+      await db.users.doc(userId).update({
+        ...updates,
       });
     } catch (err) {
-      // rollback auth best-effort
-      const rollbackPatch: Parameters<typeof auth.updateUser>[1] = {};
-      rollbackPatch.displayName = authRecord.displayName ?? undefined;
-      rollbackPatch.phoneNumber = authRecord.phoneNumber ?? undefined;
-      try {
-        await auth.updateUser(userId, rollbackPatch);
-      } catch {
-        // ignore rollback failure; we'll still surface Firestore failure
-      }
-      throw new Error("Failed to update user profile");
+      await db.users.doc(userId).set(currentProfile);
+      await auth.updateUser(userId, {
+        displayName: authRecord.displayName,
+        phoneNumber: authRecord.phoneNumber,
+      });
+
+      throw new Error("Update failed");
     }
 
-    return nextProfile;
+    return (await db.users.doc(userId).get()).data();
   });
 
 const deleteUserProfileSchema = z.object({
@@ -156,7 +149,7 @@ const deleteUserProfileSchema = z.object({
 export const deleteUserProfile = createServerFn({
   method: "POST",
 })
-  .middleware([requireRolesMiddleware([UserRole.ADMIN])])
+  .middleware([requireRolesMiddleware([UserRole.DIRECTOR])])
   .inputValidator(deleteUserProfileSchema)
   .handler(async ({ data, context }) => {
     const { userId } = data;
