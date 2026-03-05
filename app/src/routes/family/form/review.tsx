@@ -28,6 +28,8 @@ import { generalInfoSchema } from "@/lib/formSchemas";
 import { useFormContext, FamilyFormState } from "@/components/providers/FormProvider";
 import { FormItem } from "@/components/ui/form"
 import { User, Stethoscope, Building2, UserCog, GiftIcon } from "lucide-react"
+import { FormProgressBar } from "@/components/form/FormProgressBar"
+import { useProgressBarNavigation } from "@/hooks/form/FormHooks"
 
 
 
@@ -45,6 +47,12 @@ function RouteComponent() {
         alert("Submitted!")
     },
     })
+
+    const handleProgressBarNavigate = async (targetPath: string) => {
+      navigate({ to: targetPath as any });
+    };
+
+    <FormProgressBar onNavigate={handleProgressBarNavigate} />
 
     const handleBack = () => {
     const currentValues = form.state.values;

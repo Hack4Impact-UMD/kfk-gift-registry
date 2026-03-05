@@ -27,6 +27,8 @@ import { Button } from "@/components/ui/button"
 import { generalInfoSchema } from "@/lib/formSchemas";
 import { useFormContext } from "@/components/providers/FormProvider";
 import { FormItem } from "@/components/ui/form"
+import { FormProgressBar } from "@/components/form/FormProgressBar"
+import { useProgressBarNavigation } from "@/hooks/form/FormHooks"
 
 
 export const Route = createFileRoute('/family/form/general-info')({
@@ -67,6 +69,13 @@ function GeneralRouteComponent() {
       
   })
 
+  const handleProgressBarNavigate = useProgressBarNavigation(
+    "generalInfo",  // section key
+    () => form.state.values  // Current form values
+  );
+
+  <FormProgressBar onNavigate={handleProgressBarNavigate} />
+
   const handleBack = () => {
     const currentValues = form.state.values;
     updateSection("generalInfo", currentValues);
@@ -76,14 +85,16 @@ function GeneralRouteComponent() {
   return (
   <Card className="mx-auto w-full max-w-sm">
       <CardHeader>
+        <FormProgressBar />
         <CardDescription className="text-center">Fill all required fields to go to next step<span className="text-destructive">*</span></CardDescription>
       </CardHeader>
       <CardContent>
-        <form 
+        <form
+          noValidate
           onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              form.handleSubmit();
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
           }}
           className="flex flex-col gap-10"
         >
@@ -94,27 +105,27 @@ function GeneralRouteComponent() {
           <form.Field
             name="parentName"
             children={(field) => (
-              <FormFieldInput field={field} Icon={UsersIcon} label="Your Name (Parent/Guardian)" placeholder="Jane Doe" required/>
+              <FormFieldInput field={field} Icon={UsersIcon} label="Your Name (Parent/Guardian)" placeholder="Jane Doe" />
             )}
           />
           <form.Field
             name="email"
             children={(field) => (
-              <FormFieldInput field={field} Icon={EnvelopeIcon} label="Enter Email" placeholder="e.g. janedoe@gmail.com" required/>
+              <FormFieldInput field={field} Icon={EnvelopeIcon} label="Enter Email" placeholder="e.g. janedoe@gmail.com" />
             )}
           />
           <form.Field
             name="emailConfirm"
             children={(field) => (
-              <FormFieldInput field={field} Icon={EnvelopeIcon} label="Re-enter Email" placeholder="e.g. janedoe@gmail.com" required/>
+              <FormFieldInput field={field} Icon={EnvelopeIcon} label="Re-enter Email" placeholder="e.g. janedoe@gmail.com" />
             )}
           />
           <form.Field name="phoneNumber" children={(field) => (
-              <FormFieldInput field={field} Icon={PhoneIcon} label="Phone Number" placeholder="(555)-5555-555" required/>
+              <FormFieldInput field={field} Icon={PhoneIcon} label="Phone Number" placeholder="(555)-5555-555" />
             )}
           />
           <form.Field name="phoneNumberConfirm" children={(field) => (
-              <FormFieldInput field={field} Icon={PhoneIcon} label="Re-enter Phone Number" placeholder="(555)-5555-555" required/>
+              <FormFieldInput field={field} Icon={PhoneIcon} label="Re-enter Phone Number" placeholder="(555)-5555-555" />
             )}
           />
           </div>
@@ -124,23 +135,23 @@ function GeneralRouteComponent() {
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Address</h2>
             </div>
             <form.Field name="streetAddress" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="Street Address" placeholder="10 Mountain View Way" required/>
+              <FormFieldInput field={field} Icon={MapPinIcon} label="Street Address" placeholder="10 Mountain View Way" />
               )}
             />
             <form.Field name="addressLine2" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="Address Line 2" placeholder="Apt. J" required/>
+              <FormFieldInput field={field} Icon={MapPinIcon} label="Address Line 2" placeholder="Apt. J" />
               )}
             />
             <form.Field name="city" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="City" placeholder="Baltimore" required/>
+              <FormFieldInput field={field} Icon={MapPinIcon} label="City" placeholder="Baltimore" />
               )}
             />
             <form.Field name="state" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="State" placeholder="MD" required/>
+              <FormFieldInput field={field} Icon={MapPinIcon} label="State" placeholder="MD" />
               )}
             />
             <form.Field name="zipCode" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="Zipcode" placeholder="10101" required/>
+              <FormFieldInput field={field} Icon={MapPinIcon} label="Zipcode" placeholder="10101" />
               )}
             />
           </div>

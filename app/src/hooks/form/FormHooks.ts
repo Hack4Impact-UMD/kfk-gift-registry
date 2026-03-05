@@ -1,7 +1,29 @@
 import { useForm } from "@tanstack/react-form";
-import { useFormContext } from "@/components/providers/FormProvider";
+import { useFormContext, type FamilyFormState } from "@/components/providers/FormProvider";
 import { useNavigate } from "@tanstack/react-router";
 import { consentSchema, generalInfoSchema, childrenFormSchema } from "@/lib/formSchemas";
+
+
+export function useProgressBarNavigation<K extends keyof FamilyFormState>(
+  sectionKey: K,
+  getCurrentValues: () => FamilyFormState[K]
+) {
+  const { updateSection } = useFormContext();
+  const navigate = useNavigate();
+
+  const handleProgressBarNavigate = async (targetPath: string) => {
+    // Get current form values
+    const currentValues = getCurrentValues();
+    
+    // Save to form state (even if incomplete/invalid)
+    updateSection(sectionKey, currentValues);
+    
+    // Navigate to target
+    navigate({ to: targetPath as any });
+  };
+
+  return handleProgressBarNavigate;
+}
 
 export function useConsentForm() {
   const { formState, updateSection } = useFormContext();

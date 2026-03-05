@@ -57,7 +57,7 @@ export const generalInfoSchema = z
   })
   .refine((data) => data.phoneNumber === data.phoneNumberConfirm, {
     message: "Phone Numbers do not match",
-    path: ["emailConfirm"], // Show error on emailConfirm field
+    path: ["phoneNumberConfirm"], // Show error on phoneNumberConfirm field
   });
 
 
@@ -84,4 +84,46 @@ export const childrenFormSchema = z.object({
   numSiblings: z.number().min(0).max(10),
   siblings: z.array(siblingInfoSchema),
   consentPhotosPublic: z.boolean(),
+});
+
+const giftSchema = z.object({
+  giftName: z.string(),
+  giftUrl: z.string(),
+}).refine((data) => {
+  const hasName = data.giftName.trim().length > 0;
+  const hasUrl = data.giftUrl.trim().length > 0;
+  return (hasName && hasUrl) || (!hasName && !hasUrl);
+}, {
+  message: "Both Name and URL are required if this gift is selected",
+});
+
+export const childGiftSchema = z.object({
+  childName: z.string(),
+  gifts: z.tuple([
+    z.object({
+      giftName: z.string().min(1, "Gift Name is required"),
+      giftUrl: z.string().url("Valid URL is required"),
+    }),
+    giftSchema,
+    giftSchema, 
+  ]),
+  backupGifts: z.tuple([
+    z.object({
+      giftName: z.string().min(1, "Gift Name is required"),
+      giftUrl: z.string().url("Valid URL is required"),
+    }),
+    z.object({
+      giftName: z.string().min(1, "Gift Name is required"),
+      giftUrl: z.string().url("Valid URL is required"),
+    }),
+  ]),
+  verified: z
+    .boolean()
+    .refine((val) => val === true, {
+    message: "You must agree the conditions",
+    }),
+});
+
+export const giftsFormSchema = z.object({
+  giftSelections: z.array(childGiftSchema),
 });

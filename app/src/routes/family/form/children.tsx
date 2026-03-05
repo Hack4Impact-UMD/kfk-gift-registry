@@ -13,10 +13,11 @@ import { FormFieldInput, FormSelect, FormButton, FormCheckbox } from "@/componen
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import "@/styles.css";
-import KFKLogo from "@/assets/kisses-for-kyle-logo.png";
 import { childrenFormSchema } from '@/lib/formSchemas';
 import { User, Stethoscope, Building2, UserCog } from 'lucide-react';
 import { useEffect } from 'react';
+import { FormProgressBar } from '@/components/form/FormProgressBar';
+import { useProgressBarNavigation } from '@/hooks/form/FormHooks';
 
 
 export const Route = createFileRoute('/family/form/children')({
@@ -64,6 +65,14 @@ function ChildrenPageComponent() {
     }
   }, [form.state.values.numSiblings]);
 
+
+  const handleProgressBarNavigate = useProgressBarNavigation(
+    "children",  // section key
+    () => form.state.values  // Current form values
+  );
+
+  <FormProgressBar onNavigate={handleProgressBarNavigate} />
+
   const handleBack = () => {
     const currentValues = form.state.values;
     updateSection("children", currentValues);
@@ -73,25 +82,25 @@ function ChildrenPageComponent() {
   return (
     <Card className="mx-auto w-full max-w-sm">
       <CardHeader>
-        <img src={KFKLogo} className="w-50 m-auto" alt="Kisses for Kyle Logo" />
-        <CardTitle className="font-bold text-[var(--color-kfk-blue)] text-2xl text-center my-5">
-          Child Details
-        </CardTitle>
-        <CardDescription className="text-center">
-          Fill all required fields to go to next step*
-        </CardDescription>
+        <FormProgressBar />
+        <CardDescription className="text-center">Fill all required fields to go to next step<span className="text-destructive">*</span></CardDescription> 
       </CardHeader>
 
       <form
+        noValidate
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
           form.handleSubmit();
         }}
+        className="flex flex-col gap-10"
       >
       <CardContent className="space-y-6">
         {/* Multiple Children Question */}
         <div>
+          <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
+              <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Child Details</h2>
+          </div>
           <p className="text-sm font-medium mb-3">
             Have more than one of your children been diagnosed with cancer?
           </p>

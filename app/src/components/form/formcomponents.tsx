@@ -27,13 +27,14 @@ export function FormInput({
   placeholder,
   required = false,
 }: FormInputProps) {
-  const errorMessage = field.state.meta.errors?.[0];
+  const errorMessage =
+  field.state.meta.isTouched && field.state.meta.errors?.[0];
   
   return (
     <div className="space-y-2">
       <Label htmlFor={field.name} className="text-sm font-medium">
         {label}
-        {required && " *"}
+        {required && <span className="text-destructive"> *</span>}
       </Label>
       <Input
         id={field.name}
@@ -45,7 +46,6 @@ export function FormInput({
         onBlur={field.handleBlur}
         onChange={(e) => field.handleChange(e.target.value)}
         className={`text-base h-11 ${errorMessage ? "border-red-500" : ""}`}
-        required={required}
       />
       {errorMessage && (
         <span className="text-sm text-red-500">{errorMessage}</span>
@@ -113,7 +113,8 @@ interface FormSelectProps {
   required?: boolean
 }
 export const FormSelect = ({field, label, placeholder, values, onValueChange, required}:FormSelectProps) => {
-  const errorMessage = field.state.meta.errors?.[0];
+  const errorMessage =
+  field.state.meta.isTouched && field.state.meta.errors?.[0];
   
   return (
     <FormItem className="relative mt-6 w-full max-w-[240px]">
@@ -155,7 +156,8 @@ interface FormFieldProps {
   autoComplete?: string;
 }
 export const FormFieldInput = ({ field, Icon, label, placeholder, required, type = "text", inputMode, autoComplete }:FormFieldProps) => {
-  const errorMessage = field.state.meta.errors?.[0];
+  const errorMessage =
+  field.state.meta.isTouched && field.state.meta.errors?.[0];
   
   return (
     <FormItem className="relative mt-6">
