@@ -1,11 +1,13 @@
 @import "tailwindcss";
 @import "@fontsource-variable/nunito";
+@import "@fontsource/gaegu";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
   --font-sans: "Nunito Variable", sans-serif;
+  --font-gaegu: "Gaegu", cursive;
   --color-kfk-red: #ff0000;
   --color-kfk-yellow: #ffca15;
   --color-kfk-blue: #0839b1;
@@ -24,7 +26,7 @@ body {
 
 code {
   font-family:
-    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace, Gaegu;
 }
 
 :root {

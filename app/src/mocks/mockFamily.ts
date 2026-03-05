@@ -17,6 +17,7 @@ export type Gift = {
 export type Child = {
   id: string;
   name: string;
+  label: string;
   color: string;
   profileImage?: string;
   gifts: Gift[];
@@ -41,6 +42,7 @@ export const mockFamily: Family = {
     {
       id: "child-1",
       name: "John R.",
+      label: "Warrior",
       color: "kfk-red",
       profileImage: undefined,
       gifts: [
@@ -71,6 +73,7 @@ export const mockFamily: Family = {
     {
       id: "child-2",
       name: "Maya R.",
+      label: "SuperSib",
       color: "kfk-blue",
       profileImage: undefined,
       gifts: [
@@ -87,6 +90,7 @@ export const mockFamily: Family = {
     {
       id: "child-3",
       name: "Lily M.",
+      label: "SuperSib",
       color: "kfk-green",
       profileImage: undefined,
       gifts: [
@@ -111,6 +115,7 @@ export const mockFamily: Family = {
     {
       id: "child-4",
       name: "Ronald R.",
+      label: "SuperSib",
       color: "kfk-red",
       profileImage: undefined,
       gifts: [
@@ -125,6 +130,7 @@ export const mockFamily: Family = {
     {
       id: "child-5",
       name: "Luna R.",
+      label: "SuperSib",
       color: "kfk-blue",
       profileImage: undefined,
       gifts: [

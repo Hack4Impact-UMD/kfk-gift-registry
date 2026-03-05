@@ -2,9 +2,10 @@ import type { Gift } from "@/mocks/mockFamily";
 
 type Props = {
   gift: Gift;
+  color: string;
 };
 
-export function GiftCard({ gift}: Props) {
+export function GiftCard({ gift, color}: Props) {
   const formattedStatus =
     gift.status
       .replaceAll("_", " ")
