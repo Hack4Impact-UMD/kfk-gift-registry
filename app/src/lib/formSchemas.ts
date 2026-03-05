@@ -53,11 +53,11 @@ export const generalInfoSchema = z
   })
   .refine((data) => data.email === data.emailConfirm, {
     message: "Emails do not match",
-    path: ["emailConfirm"], // Show error on emailConfirm field
+    path: ["emailConfirm"],
   })
   .refine((data) => data.phoneNumber === data.phoneNumberConfirm, {
     message: "Phone Numbers do not match",
-    path: ["phoneNumberConfirm"], // Show error on phoneNumberConfirm field
+    path: ["phoneNumberConfirm"],
   });
 
 

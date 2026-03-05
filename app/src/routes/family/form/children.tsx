@@ -39,13 +39,11 @@ function ChildrenPageComponent() {
       consentPhotosPublic: false,
     },
     onSubmit: async ({ value }) => {
-      const result = childrenFormSchema.safeParse(value);
-      if (!result.success) {
-        const firstError = result.error.issues[0];
-        alert(`Error: ${firstError.message}`);
-        return;
-      }
-      updateSection("children", result.data);
+      // Save to context and navigate
+      const isValid = await form.validateAllFields('change');
+      if (!isValid) return;
+
+      updateSection("children", value);
       navigate({ to: "/family/form/gift-details" });
     },
   })
@@ -55,6 +53,12 @@ function ChildrenPageComponent() {
     if (form.state.values.children.length > form.state.values.numChildren) {
       const newChildren = form.state.values.children.slice(0, form.state.values.numChildren);
       form.setFieldValue('children', newChildren);
+      
+      // Clear validation errors for removed children
+      // This forces the form to re-validate with only the remaining children
+      setTimeout(() => {
+        form.validateAllFields('change');
+      }, 0);
     }
   }, [form.state.values.numChildren]);
 
@@ -62,16 +66,19 @@ function ChildrenPageComponent() {
     if (form.state.values.siblings.length > form.state.values.numSiblings) {
       const newSiblings = form.state.values.siblings.slice(0, form.state.values.numSiblings);
       form.setFieldValue('siblings', newSiblings);
+      
+      // Clear validation errors for removed siblings
+      setTimeout(() => {
+        form.validateAllFields('change');
+      }, 0);
     }
   }, [form.state.values.numSiblings]);
 
 
   const handleProgressBarNavigate = useProgressBarNavigation(
-    "children",  // section key
-    () => form.state.values  // Current form values
+    "children",
+    () => form.state.values
   );
-
-  <FormProgressBar onNavigate={handleProgressBarNavigate} />
 
   const handleBack = () => {
     const currentValues = form.state.values;
@@ -82,7 +89,7 @@ function ChildrenPageComponent() {
   return (
     <Card className="mx-auto w-full max-w-sm">
       <CardHeader>
-        <FormProgressBar />
+        <FormProgressBar onNavigate={handleProgressBarNavigate} />
         <CardDescription className="text-center">Fill all required fields to go to next step<span className="text-destructive">*</span></CardDescription> 
       </CardHeader>
 
@@ -119,6 +126,10 @@ function ChildrenPageComponent() {
                       const currentChildren = form.getFieldValue('children') || [];
                       if (currentChildren.length > 1) {
                         form.setFieldValue("children", [currentChildren[0]]);
+                        // Clear validation for removed children
+                        setTimeout(() => {
+                          form.validateAllFields('change');
+                        }, 0);
                       }
                     }}
                     className="mt-0.5"
@@ -147,13 +158,18 @@ function ChildrenPageComponent() {
         <form.Subscribe
           selector={(state) => state.values.hasMultipleChildren}
           children={(hasMultipleChildren) => {
-            // If "No" is selected (false), don't show the dropdown
             if (!hasMultipleChildren) return null;
 
             return (
               <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
                 <form.Field
                   name="numChildren"
+                  validators={{
+                    onChange: ({ value }) => {
+                      if (!value || value === 0) return 'Please select number of children';
+                      return undefined;
+                    }
+                  }}
                   children={(field) => (
                     <FormSelect
                       field={field}
@@ -179,8 +195,6 @@ function ChildrenPageComponent() {
         <form.Subscribe
           selector={(state) => [state.values.numChildren, state.values.hasMultipleChildren]}
           children={([numChildren, hasMultipleChildren]) => {
-            // Determine how many sections to show. 
-            // If "No" is selected, force 1. Otherwise, use numChildren.
             const displayCount = hasMultipleChildren ? (Number(numChildren) || 1) : 1;
 
             return (
@@ -195,7 +209,14 @@ function ChildrenPageComponent() {
                     <div className="space-y-4">
                       {/* Child Name */}
                       <form.Field
-                        name={`children[${index}].name`}
+                        name={`children[${index}].name` as any}
+                        validators={{
+                          onChange: ({ value }) => {
+                            if (!value) return "Child's name is required";
+                            if (value.length > 100) return "Name is too long";
+                            return undefined;
+                          }
+                        }}
                         children={(field) => (
                           <FormFieldInput
                             field={field}
@@ -209,7 +230,13 @@ function ChildrenPageComponent() {
 
                       {/* Child Age */}
                       <form.Field
-                        name={`children[${index}].age`}
+                        name={`children[${index}].age` as any}
+                        validators={{
+                          onChange: ({ value }) => {
+                            if (!value) return "Age is required";
+                            return undefined;
+                          }
+                        }}
                         children={(field) => (
                           <FormSelect
                             field={field}
@@ -223,12 +250,19 @@ function ChildrenPageComponent() {
 
                       {/* Diagnosis */}
                       <form.Field
-                        name={`children[${index}].diagnosis`}
+                        name={`children[${index}].diagnosis` as any}
+                        validators={{
+                          onChange: ({ value }) => {
+                            if (!value) return "Diagnosis is required";
+                            if (value.length > 200) return "Diagnosis is too long";
+                            return undefined;
+                          }
+                        }}
                         children={(field) => (
                           <FormFieldInput
                             field={field}
                             label="Diagnosis"
-                            placeholder="e.g. Cancer"
+                            placeholder="e.g. Leukemia"
                             required
                             Icon={Stethoscope}
                           />
@@ -236,7 +270,14 @@ function ChildrenPageComponent() {
                       />
 
                       <form.Field
-                        name={`children[${index}].hospitalTreatedAt`}
+                        name={`children[${index}].hospitalTreatedAt` as any}
+                        validators={{
+                          onChange: ({ value }) => {
+                            if (!value) return "Hospital name is required";
+                            if (value.length > 200) return "Hospital name is too long";
+                            return undefined;
+                          }
+                        }}
                         children={(field) => (
                           <FormFieldInput
                             field={field}
@@ -249,7 +290,14 @@ function ChildrenPageComponent() {
                       />
 
                       <form.Field
-                        name={`children[${index}].socialWorkerName`}
+                        name={`children[${index}].socialWorkerName` as any}
+                        validators={{
+                          onChange: ({ value }) => {
+                            if (!value) return "Social worker name is required";
+                            if (value.length > 100) return "Name is too long";
+                            return undefined;
+                          }
+                        }}
                         children={(field) => (
                           <FormFieldInput
                             field={field}
@@ -315,6 +363,10 @@ function ChildrenPageComponent() {
                           field.handleChange(false);
                           form.setFieldValue('numSiblings', 0);
                           form.setFieldValue('siblings', []);
+                          // Clear validation for removed siblings
+                          setTimeout(() => {
+                            form.validateAllFields('change');
+                          }, 0);
                         }}
                         className="mt-0.5"
                       />
@@ -337,6 +389,12 @@ function ChildrenPageComponent() {
                   <div className="mt-4">
                     <form.Field
                       name="numSiblings"
+                      validators={{
+                        onChange: ({ value }) => {
+                          if (!value || value === 0) return 'Please select number of siblings';
+                          return undefined;
+                        }
+                      }}
                       children={(field) => (
                         <FormSelect
                           field={field}
@@ -374,7 +432,14 @@ function ChildrenPageComponent() {
                         
                         <div className="space-y-4">
                           <form.Field
-                            name={`siblings[${index}].name`}
+                            name={`siblings[${index}].name` as any}
+                            validators={{
+                              onChange: ({ value }) => {
+                                if (!value) return "Sibling's name is required";
+                                if (value.length > 100) return "Name is too long";
+                                return undefined;
+                              }
+                            }}
                             children={(field) => (
                               <FormFieldInput
                                 field={field}
@@ -388,7 +453,13 @@ function ChildrenPageComponent() {
                           />
 
                           <form.Field
-                            name={`siblings[${index}].age`}
+                            name={`siblings[${index}].age` as any}
+                            validators={{
+                              onChange: ({ value }) => {
+                                if (!value) return "Age is required";
+                                return undefined;
+                              }
+                            }}
                             children={(field) => (
                               <FormSelect
                                 field={field}
@@ -441,11 +512,11 @@ function ChildrenPageComponent() {
             Back
           </Button>
           <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
-            children={([canSubmit, isSubmitting, isPristine]) => (
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+            children={([canSubmit, isSubmitting]) => (
               <Button 
                 type="submit" 
-                disabled={!canSubmit || isPristine}
+                disabled={isSubmitting}
                 size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
               >
                 {isSubmitting ? '...' : 'Next'}

@@ -52,7 +52,7 @@ function RouteComponent() {
       navigate({ to: targetPath as any });
     };
 
-    <FormProgressBar onNavigate={handleProgressBarNavigate} />
+    
 
     const handleBack = () => {
     const currentValues = form.state.values;
@@ -61,7 +61,10 @@ function RouteComponent() {
 
 
   return (
+
+    
     <Card className="mx-auto w-full max-w-sm">
+      <FormProgressBar onNavigate={handleProgressBarNavigate} />
       <CardContent>
         <form 
           onSubmit={(e) => {

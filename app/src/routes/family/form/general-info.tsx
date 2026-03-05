@@ -4,7 +4,6 @@ import { useForm } from "@tanstack/react-form"
 
 import { 
   EnvelopeIcon, 
-  EnvelopeOpenIcon, 
   MapPinIcon,
   PhoneIcon, 
   UsersIcon, 
@@ -12,20 +11,18 @@ import {
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 
-import { FormFieldInput, FormSelect } from "@/components/form/formcomponents"
+import { FormFieldInput } from "@/components/form/formcomponents"
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 
 import { Button } from "@/components/ui/button"
-import { generalInfoSchema } from "@/lib/formSchemas";
-import { useFormContext } from "@/components/providers/FormProvider";
+import { generalInfoSchema } from "@/lib/formSchemas"
+import { useFormContext } from "@/components/providers/FormProvider"
 import { FormItem } from "@/components/ui/form"
 import { FormProgressBar } from "@/components/form/FormProgressBar"
 import { useProgressBarNavigation } from "@/hooks/form/FormHooks"
@@ -39,42 +36,30 @@ function GeneralRouteComponent() {
   const { formState, updateSection } = useFormContext();
   const navigate = useNavigate();
 
-
   const form = useForm({
-      defaultValues: formState.generalInfo || {
-       parentName: "", 
-       email: "",
-       emailConfirm: "",
-       phoneNumber: "",
-       phoneNumberConfirm: "",
-
-       streetAddress: "",
-       addressLine2: "",
-       city: "",
-       state: "",
-       zipCode: "",
-      },
-      onSubmit: async ({ value }) => {
-        const result = generalInfoSchema.safeParse(value);
-          if (!result.success) {
-            const firstError = result.error.issues[0];
-            alert(`Error: ${firstError.message}`);
-            return;
-          }
-          updateSection("generalInfo", result.data);
-
-          navigate({ to: "/family/form/children" });
-      },
-      
-      
+    defaultValues: formState.generalInfo || {
+      parentName: "", 
+      email: "",
+      emailConfirm: "",
+      phoneNumber: "",
+      phoneNumberConfirm: "",
+      streetAddress: "",
+      addressLine2: "",
+      city: "",
+      state: "",
+      zipCode: "",
+    },
+    onSubmit: async ({ value }) => {
+      // Save to context and navigate
+      updateSection("generalInfo", value);
+      navigate({ to: "/family/form/children" });
+    },
   })
 
   const handleProgressBarNavigate = useProgressBarNavigation(
-    "generalInfo",  // section key
-    () => form.state.values  // Current form values
+    "generalInfo",
+    () => form.state.values
   );
-
-  <FormProgressBar onNavigate={handleProgressBarNavigate} />
 
   const handleBack = () => {
     const currentValues = form.state.values;
@@ -83,10 +68,12 @@ function GeneralRouteComponent() {
   }
 
   return (
-  <Card className="mx-auto w-full max-w-sm">
+    <Card className="mx-auto w-full max-w-sm">
       <CardHeader>
-        <FormProgressBar />
-        <CardDescription className="text-center">Fill all required fields to go to next step<span className="text-destructive">*</span></CardDescription>
+        <FormProgressBar onNavigate={handleProgressBarNavigate} />
+        <CardDescription className="text-center">
+          Fill all required fields to go to next step<span className="text-destructive">*</span>
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -102,72 +89,245 @@ function GeneralRouteComponent() {
             <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Information</h2>
             </div>
-          <form.Field
-            name="parentName"
-            children={(field) => (
-              <FormFieldInput field={field} Icon={UsersIcon} label="Your Name (Parent/Guardian)" placeholder="Jane Doe" />
-            )}
-          />
-          <form.Field
-            name="email"
-            children={(field) => (
-              <FormFieldInput field={field} Icon={EnvelopeIcon} label="Enter Email" placeholder="e.g. janedoe@gmail.com" />
-            )}
-          />
-          <form.Field
-            name="emailConfirm"
-            children={(field) => (
-              <FormFieldInput field={field} Icon={EnvelopeIcon} label="Re-enter Email" placeholder="e.g. janedoe@gmail.com" />
-            )}
-          />
-          <form.Field name="phoneNumber" children={(field) => (
-              <FormFieldInput field={field} Icon={PhoneIcon} label="Phone Number" placeholder="(555)-5555-555" />
-            )}
-          />
-          <form.Field name="phoneNumberConfirm" children={(field) => (
-              <FormFieldInput field={field} Icon={PhoneIcon} label="Re-enter Phone Number" placeholder="(555)-5555-555" />
-            )}
-          />
+            
+            <form.Field
+              name="parentName"
+              validators={{
+                onChange: ({ value }) => 
+                  !value ? 'Parent/Guardian name is required' : 
+                  value.length > 100 ? 'Name is too long' : undefined
+              }}
+              children={(field) => (
+                <FormFieldInput 
+                  field={field} 
+                  Icon={UsersIcon} 
+                  label="Your Name (Parent/Guardian)" 
+                  placeholder="Jane Doe"
+                  required
+                />
+              )}
+            />
+            
+            <form.Field
+              name="email"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value) return 'Email is required';
+                  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email address';
+                  return undefined;
+                }
+              }}
+              children={(field) => (
+                <FormFieldInput 
+                  field={field} 
+                  Icon={EnvelopeIcon} 
+                  label="Enter Email" 
+                  placeholder="e.g. janedoe@gmail.com"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  required
+                />
+              )}
+            />
+            
+            <form.Field
+              name="emailConfirm"
+              validators={{
+                onChangeListenTo: ['email'],
+                onChange: ({ value, fieldApi }) => {
+                  if (!value) return 'Please confirm your email';
+                  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email address';
+                  const email = fieldApi.form.getFieldValue('email');
+                  if (value !== email) return 'Emails do not match';
+                  return undefined;
+                }
+              }}
+              children={(field) => (
+                <FormFieldInput 
+                  field={field} 
+                  Icon={EnvelopeIcon} 
+                  label="Re-enter Email" 
+                  placeholder="e.g. janedoe@gmail.com"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  required
+                />
+              )}
+            />
+            
+            <form.Field 
+              name="phoneNumber"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value || value === '') return undefined;
+                  if (!/^[\d\s\-\(\)]+$/.test(value)) return 'Please enter a valid phone number';
+                  return undefined;
+                }
+              }}
+              children={(field) => (
+                <FormFieldInput 
+                  field={field} 
+                  Icon={PhoneIcon} 
+                  label="Phone Number" 
+                  placeholder="(555)-555-5555"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                />
+              )}
+            />
+            
+            <form.Field 
+              name="phoneNumberConfirm"
+              validators={{
+                onChangeListenTo: ['phoneNumber'],
+                onChange: ({ value, fieldApi }) => {
+                  if (!value || value === '') return undefined;
+                  if (!/^[\d\s\-\(\)]+$/.test(value)) return 'Please enter a valid phone number';
+                  const phoneNumber = fieldApi.form.getFieldValue('phoneNumber');
+                  if (value !== phoneNumber) return 'Phone numbers do not match';
+                  return undefined;
+                }
+              }}
+              children={(field) => (
+                <FormFieldInput 
+                  field={field} 
+                  Icon={PhoneIcon} 
+                  label="Re-enter Phone Number" 
+                  placeholder="(555)-555-5555"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                />
+              )}
+            />
           </div>
           
           <div>
             <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Address</h2>
             </div>
-            <form.Field name="streetAddress" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="Street Address" placeholder="10 Mountain View Way" />
+            
+            <form.Field 
+              name="streetAddress"
+              validators={{
+                onChange: ({ value }) => 
+                  !value ? 'Street address is required' : 
+                  value.length > 200 ? 'Address is too long' : undefined
+              }}
+              children={(field) => (
+                <FormFieldInput 
+                  field={field} 
+                  Icon={MapPinIcon} 
+                  label="Street Address" 
+                  placeholder="10 Mountain View Way"
+                  autoComplete="street-address"
+                  required
+                />
               )}
             />
-            <form.Field name="addressLine2" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="Address Line 2" placeholder="Apt. J" />
+            
+            <form.Field 
+              name="addressLine2"
+              validators={{
+                onChange: ({ value }) => 
+                  value && value.length > 200 ? 'Address is too long' : undefined
+              }}
+              children={(field) => (
+                <FormFieldInput 
+                  field={field} 
+                  Icon={MapPinIcon} 
+                  label="Address Line 2" 
+                  placeholder="Apt. J"
+                  autoComplete="address-line2"
+                />
               )}
             />
-            <form.Field name="city" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="City" placeholder="Baltimore" />
+            
+            <form.Field 
+              name="city"
+              validators={{
+                onChange: ({ value }) => 
+                  !value ? 'City is required' : 
+                  value.length > 100 ? 'City name is too long' : undefined
+              }}
+              children={(field) => (
+                <FormFieldInput 
+                  field={field} 
+                  Icon={MapPinIcon} 
+                  label="City" 
+                  placeholder="Baltimore"
+                  autoComplete="address-level2"
+                  required
+                />
               )}
             />
-            <form.Field name="state" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="State" placeholder="MD" />
+            
+            <form.Field 
+              name="state"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value) return 'State is required';
+                  if (value.length !== 2) return 'Please use 2-letter state code (e.g., MD)';
+                  return undefined;
+                }
+              }}
+              children={(field) => (
+                <FormFieldInput 
+                  field={field} 
+                  Icon={MapPinIcon} 
+                  label="State" 
+                  placeholder="MD"
+                  autoComplete="address-level1"
+                  required
+                />
               )}
             />
-            <form.Field name="zipCode" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="Zipcode" placeholder="10101" />
+            
+            <form.Field 
+              name="zipCode"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value) return 'Zip code is required';
+                  if (!/^\d{5}(-\d{4})?$/.test(value)) return 'Please enter a valid zip code (e.g., 12345 or 12345-6789)';
+                  return undefined;
+                }
+              }}
+              children={(field) => (
+                <FormFieldInput 
+                  field={field} 
+                  Icon={MapPinIcon} 
+                  label="Zipcode" 
+                  placeholder="20742"
+                  inputMode="numeric"
+                  autoComplete="postal-code"
+                  required
+                />
               )}
             />
           </div>
           
           <FormItem className="flex gap-4 pt-4 mx-5">
-            <Button type="button" onClick={handleBack} variant="outline" className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg">
+            <Button 
+              type="button" 
+              onClick={handleBack} 
+              variant="outline" 
+              className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg"
+            >
               <ChevronLeftIcon className="mr-2 h-6 w-6" />
               Back
             </Button>
+            
             <form.Subscribe
-              selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
               children={([canSubmit, isSubmitting]) => (
                 <Button 
                   type="submit" 
-                  disabled={!canSubmit}
-                  size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
+                  disabled={isSubmitting}
+                  size="lg" 
+                  className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
                 >
                   {isSubmitting ? '...' : 'Next'}
                   <ChevronRightIcon className="ml-2 h-6 w-6" />

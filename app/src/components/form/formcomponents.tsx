@@ -9,7 +9,7 @@ import { FormItem } from "../ui/form";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
 
 type FormInputProps = {
-  field: any; //Should try to fix this later.
+  field: any;
   label: string;
   type?: string;
   inputMode?: "text" | "email" | "tel" | "numeric" | "decimal" | "search" | "url";
@@ -28,7 +28,7 @@ export function FormInput({
   required = false,
 }: FormInputProps) {
   const errorMessage =
-  field.state.meta.isTouched && field.state.meta.errors?.[0];
+    field.state.meta.isTouched && field.state.meta.errors?.[0];
   
   return (
     <div className="space-y-2">
@@ -55,7 +55,7 @@ export function FormInput({
 }
 
 type FormCheckboxProps = {
-  field: any; // Should try to fix this later.
+  field: any;
   children: ReactNode;
   id?: string;
 };
@@ -105,22 +105,30 @@ export function FormBorderedCheckbox({
 }
 
 interface FormSelectProps {
-  field:any,
-  label:string,
-  placeholder:string,
-  values:Array<string>
+  field: any;
+  label: string;
+  placeholder: string;
+  values: Array<string>;
   onValueChange?: (value: string) => void;
-  required?: boolean
+  required?: boolean;
 }
-export const FormSelect = ({field, label, placeholder, values, onValueChange, required}:FormSelectProps) => {
+
+export const FormSelect = ({
+  field,
+  label,
+  placeholder,
+  values,
+  onValueChange,
+  required
+}: FormSelectProps) => {
   const errorMessage =
-  field.state.meta.isTouched && field.state.meta.errors?.[0];
+    field.state.meta.isTouched && field.state.meta.errors?.[0];
   
   return (
     <FormItem className="relative mt-6 w-full max-w-[240px]">
       <FieldLabel className="absolute -top-2 left-4 bg-white px-2 text-sm text-slate-600 z-10">
-          {label}
-          {required && <span className="text-destructive">*</span>}
+        {label}
+        {required && <span className="text-destructive"> *</span>}
       </FieldLabel>
       <Select
         value={field.state.value}
@@ -130,63 +138,96 @@ export const FormSelect = ({field, label, placeholder, values, onValueChange, re
         }}
       >
         <SelectTrigger 
-          className={`py-6 w-full rounded-xl border-1 ${errorMessage ? "border-red-500" : "border-slate-700"} focus:ring-0 text-slate-400 font-medium`}
+          className={`py-6 w-full rounded-xl border-1 ${
+            errorMessage ? "border-red-500" : "border-slate-700"
+          } focus:ring-0 text-slate-400 font-medium`}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {values.map((value) => (<SelectItem key={value} value={value}>{value}</SelectItem>))}
+          {values.map((value) => (
+            <SelectItem key={value} value={value}>
+              {value}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
       {errorMessage && (
         <span className="text-xs text-red-500 mt-1 block">{errorMessage}</span>
       )}
     </FormItem>
-  )
-}
+  );
+};
 
 interface FormFieldProps {
-  field:any,
-  Icon:React.ComponentType<React.SVGProps<SVGSVGElement>>,
-  label:string,
-  placeholder:string,
-  required?: boolean
+  field: any;
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  label: string;
+  placeholder: string;
+  required?: boolean;
   type?: string;
   inputMode?: "text" | "email" | "tel" | "numeric" | "decimal" | "search" | "url";
   autoComplete?: string;
 }
-export const FormFieldInput = ({ field, Icon, label, placeholder, required, type = "text", inputMode, autoComplete }:FormFieldProps) => {
+
+export const FormFieldInput = ({
+  field,
+  Icon,
+  label,
+  placeholder,
+  required = false,
+  type = "text",
+  inputMode,
+  autoComplete
+}: FormFieldProps) => {
   const errorMessage =
-  field.state.meta.isTouched && field.state.meta.errors?.[0];
+    field.state.meta.isTouched && field.state.meta.errors?.[0];
   
   return (
     <FormItem className="relative mt-6">
-        <CardDescription className={`absolute -top-2 left-4 bg-white px-2 text-sm ${errorMessage ? "text-red-500" : "text-slate-600"} z-10`}>
-          {label}
-          {required && <span className="text-destructive">*</span>}
-        </CardDescription>
-        <div className="relative">
-          <Icon className="absolute left-4 top-1/2 h-6 w-6 -translate-y-1/2 text-slate-700" aria-hidden="true" />
-          <Input 
-            type={type}
-            inputMode={inputMode}
-            autoComplete={autoComplete}
-            name={field.name}
-            id={field.name}
-            value={field.state.value}
-            placeholder={placeholder}
-            onChange={(e) => field.handleChange(e.target.value)}
-            onBlur={field.handleBlur}
-            className={`h-14 pl-12 rounded-xl border-1 ${errorMessage ? "border-red-500" : "border-slate-700"} focus-visible:ring-0 focus-visible:border-blue-500 placeholder:text-slate-400 font-medium`}
-          />
-        </div>
+      <CardDescription 
+        className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
+          errorMessage ? "text-red-500" : "text-slate-600"
+        } z-10`}
+      >
+        {label}
+        {required && <span className="text-destructive"> *</span>}
+      </CardDescription>
+      <div className="relative">
+        <Icon 
+          className="absolute left-4 top-1/2 h-6 w-6 -translate-y-1/2 text-slate-700" 
+          aria-hidden="true" 
+        />
+        <Input 
+          type={type}
+          inputMode={inputMode}
+          autoComplete={autoComplete}
+          name={field.name}
+          id={field.name}
+          value={field.state.value || ""}
+          placeholder={placeholder}
+          onChange={(e) => field.handleChange(e.target.value)}
+          onBlur={field.handleBlur}
+          className={`h-14 pl-12 ${
+            errorMessage ? "pr-12" : "pr-4"
+          } rounded-xl border-1 ${
+            errorMessage ? "border-red-500" : "border-slate-700"
+          } focus-visible:ring-0 focus-visible:border-blue-500 placeholder:text-slate-400 font-medium`}
+        />
         {errorMessage && (
-          <span className="text-xs text-red-500 mt-1 block">{errorMessage}</span>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold">
+              !
+            </span>
+          </div>
         )}
+      </div>
+      {errorMessage && (
+        <span className="text-xs text-red-500 mt-1 block pl-1">{errorMessage}</span>
+      )}
     </FormItem>
-  )
-}
-
+  );
+};
 
 type FormAgreementProps = {
   field: any;
@@ -223,14 +264,17 @@ export function FormAgreement({
   );
 }
 
-
 type FormButtonProps = {
   label: string;
   disabled?: boolean;
   isSubmitting?: boolean;
 };
 
-export function FormButton({ label, disabled = false, isSubmitting = false }: FormButtonProps) {
+export function FormButton({ 
+  label, 
+  disabled = false, 
+  isSubmitting = false 
+}: FormButtonProps) {
   return (
     <Button 
       type="submit"
