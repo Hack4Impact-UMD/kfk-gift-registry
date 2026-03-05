@@ -18,29 +18,27 @@ const uidSchema = z.object({ uid: z.string().min(1) });
 export const getUserProfileById = createServerFn({
   method: "GET",
 })
-  .middleware([
-    requireRolesMiddleware([
-      UserRole.VOLUNTEER,
-      UserRole.ADMIN,
-      UserRole.DIRECTOR,
-    ]),
-  ])
+  .middleware([authMiddleware])
   .inputValidator(uidSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const uid = data.uid;
-    const db = getServerDB();
-    const userDoc = await db.users.doc(uid).get();
+    if (uid === context.authUser.uid || context.authUser.role !== UserRole.VOLUNTEER) {
+      const db = getServerDB();
+      const userDoc = await db.users.doc(uid).get();
 
-    if (!userDoc.exists) {
-      throw new Error("User not found");
+      if (!userDoc.exists) {
+        throw new Error("User not found");
+      }
+
+      const profileData = userDoc.data();
+      if (!profileData) {
+        throw new Error("User not found");
+      }
+
+      return profileData;
+    } else {
+      throw new Error("Not authorized");
     }
-
-    const profileData = userDoc.data();
-    if (!profileData) {
-      throw new Error("User not found");
-    }
-
-    return profileData;
   });
 
 /**
@@ -84,8 +82,8 @@ const updateUserProfileSchema = z.object({
 
 /**
  * Updates a user's profile details (first name, last name, phone).
- * - Admins may update any user.
- * - Non-admins may only update their own profile.
+ * - Directors may update any user.
+ * - Non - directors may only update their own profile.
  * Syncs updates to both Firestore `users` and Firebase Auth user record.
  */
 export const updateUserProfile = createServerFn({
@@ -97,8 +95,8 @@ export const updateUserProfile = createServerFn({
     const { userId, updates } = data;
     const { authUser } = context;
 
-    const isAdmin = authUser.role === UserRole.DIRECTOR;
-    if (!isAdmin && authUser.uid !== userId) {
+    const isDirector = authUser.role === UserRole.DIRECTOR;
+    if (!isDirector && authUser.uid !== userId) {
       throw new Error("You can only update your own user profile");
     }
 
@@ -143,7 +141,7 @@ const deleteUserProfileSchema = z.object({
 });
 
 /**
- * Deletes a user profile (Firestore + Firebase Auth).
+ * Deletes a user profile(Firestore + Firebase Auth).
  * Only accessible to admins.
  */
 export const deleteUserProfile = createServerFn({
@@ -155,7 +153,7 @@ export const deleteUserProfile = createServerFn({
     const { userId } = data;
 
     if (context.authUser.uid === userId) {
-      throw new Error("Admins cannot delete their own account");
+      throw new Error("Directors cannot delete their own account");
     }
 
     const db = getServerDB();
