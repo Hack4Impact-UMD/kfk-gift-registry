@@ -10,15 +10,18 @@ export const Route = createFileRoute("/family/$token")({
 });
 
 function FamilyRoute() {
-  const family = Route.useLoaderData();
+  // const family = Route.useLoaderData();
 
   return (
     <div>
+      {/*
+
       <h1>Hi this is unique to {family.childName}</h1>
       <p>Data for {family.childName}</p>
       <p>Parent: {family.parentName}</p>
       <p>Email: {family.email}</p>
       <p>Diagnosis: {family.diagnosis}</p>
+        */}
     </div>
   );
 }
