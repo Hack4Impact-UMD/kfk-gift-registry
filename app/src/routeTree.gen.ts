@@ -19,6 +19,7 @@ import { Route as FamilyTokenRouteImport } from './routes/family/$token'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
 import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
 import { Route as AuthenticatedDonorRouteRouteImport } from './routes/_authenticated/donor/route'
+import { Route as FamilyFormReviewRouteImport } from './routes/family/form/review'
 import { Route as FamilyFormGiftDetailsRouteImport } from './routes/family/form/gift-details'
 import { Route as FamilyFormGeneralInfoRouteImport } from './routes/family/form/general-info'
 import { Route as FamilyFormConsentRouteImport } from './routes/family/form/consent'
@@ -76,6 +77,11 @@ const AuthenticatedDonorRouteRoute = AuthenticatedDonorRouteRouteImport.update({
   id: '/donor',
   path: '/donor',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const FamilyFormReviewRoute = FamilyFormReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => FamilyFormRoute,
 } as any)
 const FamilyFormGiftDetailsRoute = FamilyFormGiftDetailsRouteImport.update({
   id: '/gift-details',
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/family/form/consent': typeof FamilyFormConsentRoute
   '/family/form/general-info': typeof FamilyFormGeneralInfoRoute
   '/family/form/gift-details': typeof FamilyFormGiftDetailsRoute
+  '/family/form/review': typeof FamilyFormReviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/family/form/consent': typeof FamilyFormConsentRoute
   '/family/form/general-info': typeof FamilyFormGeneralInfoRoute
   '/family/form/gift-details': typeof FamilyFormGiftDetailsRoute
+  '/family/form/review': typeof FamilyFormReviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/family/form/consent': typeof FamilyFormConsentRoute
   '/family/form/general-info': typeof FamilyFormGeneralInfoRoute
   '/family/form/gift-details': typeof FamilyFormGiftDetailsRoute
+  '/family/form/review': typeof FamilyFormReviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
     | '/family/form/consent'
     | '/family/form/general-info'
     | '/family/form/gift-details'
+    | '/family/form/review'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -219,6 +229,7 @@ export interface FileRouteTypes {
     | '/family/form/consent'
     | '/family/form/general-info'
     | '/family/form/gift-details'
+    | '/family/form/review'
   id:
     | '__root__'
     | '/'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/family/form/consent'
     | '/family/form/general-info'
     | '/family/form/gift-details'
+    | '/family/form/review'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -322,6 +334,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/donor'
       preLoaderRoute: typeof AuthenticatedDonorRouteRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/family/form/review': {
+      id: '/family/form/review'
+      path: '/review'
+      fullPath: '/family/form/review'
+      preLoaderRoute: typeof FamilyFormReviewRouteImport
+      parentRoute: typeof FamilyFormRoute
     }
     '/family/form/gift-details': {
       id: '/family/form/gift-details'
@@ -424,6 +443,7 @@ interface FamilyFormRouteChildren {
   FamilyFormConsentRoute: typeof FamilyFormConsentRoute
   FamilyFormGeneralInfoRoute: typeof FamilyFormGeneralInfoRoute
   FamilyFormGiftDetailsRoute: typeof FamilyFormGiftDetailsRoute
+  FamilyFormReviewRoute: typeof FamilyFormReviewRoute
 }
 
 const FamilyFormRouteChildren: FamilyFormRouteChildren = {
@@ -431,6 +451,7 @@ const FamilyFormRouteChildren: FamilyFormRouteChildren = {
   FamilyFormConsentRoute: FamilyFormConsentRoute,
   FamilyFormGeneralInfoRoute: FamilyFormGeneralInfoRoute,
   FamilyFormGiftDetailsRoute: FamilyFormGiftDetailsRoute,
+  FamilyFormReviewRoute: FamilyFormReviewRoute,
 }
 
 const FamilyFormRouteWithChildren = FamilyFormRoute._addFileChildren(

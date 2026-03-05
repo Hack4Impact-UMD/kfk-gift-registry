@@ -16,6 +16,7 @@ import { FormItem } from '@/components/ui/form';
 
 
 
+
 export const Route = createFileRoute('/family/form/gift-details')({
   component: GiftsStep,
 })
@@ -137,7 +138,7 @@ const patient2: ChildInfo = {
 
       updateSection("gifts", value);
       console.log(formState);
-      navigate({ to: "/family/form/consent" }) // Change this to review info when it's added
+      navigate({ to: "/family/form/review" })
     },
   });
 
