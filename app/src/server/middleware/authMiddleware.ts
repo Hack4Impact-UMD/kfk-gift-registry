@@ -1,6 +1,6 @@
 import { createMiddleware } from "@tanstack/react-start";
-import { verifySession } from "../auth";
 import type { UserRole } from "common";
+import { verifySession } from "@/server/auth";
 
 export const authMiddleware = createMiddleware({ type: "function" }).server(
   async ({ next }) => {
