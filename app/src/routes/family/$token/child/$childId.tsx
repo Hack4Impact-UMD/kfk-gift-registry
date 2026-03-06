@@ -56,8 +56,8 @@ function ChildPage() {
                   <div
                     className={`text-center py-1 rounded-full mb-2 ${
                       received
-                        ? "bg-kfk-muted-green text-green-800"
-                        : "bg-kfk-muted-red text-red-700"
+                        ? "bg-kfk-muted-green/30 text-kfk-green"
+                        : "bg-kfk-muted-red/30 text-kfk-red"
                     }`}
                   >
                     {received ? "Recieved" : "Not Recieved"}

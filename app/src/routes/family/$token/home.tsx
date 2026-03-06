@@ -11,7 +11,7 @@ function FamilyHome() {
   const family = FamilyTokenRoute.useLoaderData();
 
   return (
-    <div className="px-4 py-8 mt-4 flex flex-col"> 
+    <div className="px-4 py-8 mt-2 flex flex-col"> 
 
       <div className="bg-kfk-blue text-white rounded-2xl p-6 shadow-xl flex items-center justify-between gap-2">
         <div className="flex flex-col gap-2">
