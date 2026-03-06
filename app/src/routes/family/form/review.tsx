@@ -108,8 +108,9 @@ function RouteComponent() {
           </div>
           
           <div>
-            <div className="border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
+            <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Address</h2>
+              <button type="button" className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
             </div>
             <form.Field name="streetAddress" children={(field) => (
               <FormFieldInput field={field} Icon={MapPinIcon} label="Street Address" placeholder="10 Mountain View Way" required/>
@@ -158,6 +159,10 @@ function RouteComponent() {
       <CardContent className="space-y-6">
 
       {/* Multiple Children Question */}
+        <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
+          <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Details</h2>
+          <button type="button" className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+        </div>
         <div>
           <p className="text-sm font-medium mb-3">
             Have more than one of your children been diagnosed with cancer?
@@ -324,9 +329,10 @@ function RouteComponent() {
 
           {/* Sibling Details */}
           <div className="border-t pt-6">
-            <h3 className="font-semibold text-lg mb-4 text-[var(--color-kfk-blue)]">
-              Sibling Details
-            </h3>
+            <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
+              <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Sibling Information</h2>
+              <button type="button" className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+            </div>
 
             <div>
               <p className="text-sm font-medium mb-3">
@@ -469,10 +475,15 @@ function RouteComponent() {
 
         
         <CardContent>
-        <form className="flex flex-col gap-10">
+        <form className="flex flex-col gap-2">
+          
             {formState.gifts?.giftSelections.map((childSelect, activeChildIndex) => {
                 return (
                     <>
+                    <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8 mt-3">
+          <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">{childSelect.childName}'s Gift Selection</h2>
+          <button type="button" className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+        </div>
                     <div className="flex flex-col gap-7">
             {[0, 1, 2].map((i) => (
               <div key={i}>
@@ -491,7 +502,7 @@ function RouteComponent() {
             ))}
           </div>
 
-          <div className="flex flex-col gap-7">
+          <div className="flex flex-col gap-7 mt-10">
           {[0, 1].map((i) => (
               <div key={i}>
                 <CardDescription className="text-md text-[var(--color-kfk-blue)] -mb-2">Backup Gift #{i + 1}</CardDescription>
