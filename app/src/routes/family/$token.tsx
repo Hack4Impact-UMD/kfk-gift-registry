@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { getFamilyByToken } from "@/server/family";
 import KFKLogo from "@/assets/kfk-logo.png";
-import { BellIcon, HomeIcon } from "@/components/icons";
+import { HomeIcon } from "@/components/icons";
 import { mockFamily } from "@/mocks/mockFamily";
 import { ChildProfileCircle } from "@/components/family/ChildProfileCircle";
 
@@ -20,13 +20,12 @@ function FamilyRoute() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center px-4 py-3">
         <img
           src={KFKLogo}
           alt="Kisses For Kyle"
           className="h-[60px] w-[198px] object-contain"
         />
-        <BellIcon className="size-8" />
       </div>
 
       <div className="flex gap-6 overflow-x-auto px-4 py-4 items-center">
