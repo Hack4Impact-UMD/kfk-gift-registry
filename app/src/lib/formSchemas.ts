@@ -84,6 +84,12 @@ export const childrenFormSchema = z.object({
   numSiblings: z.number().min(0).max(10),
   siblings: z.array(siblingInfoSchema),
   consentPhotosPublic: z.boolean(),
+}).refine((data) => {
+  const expected = data.hasMultipleChildren ? data.numChildren : 1;
+  return data.children.length === expected;
+}, {
+  message: "Number of children filled must match selected count",
+  path: ["children"],
 });
 
 const giftSchema = z.object({
@@ -127,3 +133,11 @@ export const childGiftSchema = z.object({
 export const giftsFormSchema = z.object({
   giftSelections: z.array(childGiftSchema),
 });
+
+
+export const SECTION_SCHEMAS = {
+  generalInfo: generalInfoSchema,
+  children: childrenFormSchema,
+  gifts: giftsFormSchema,
+  consentScreen: consentSchema,
+} as const;

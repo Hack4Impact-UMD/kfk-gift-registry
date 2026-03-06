@@ -6,7 +6,7 @@ import {
   GiftIcon, 
   DocumentCheckIcon 
 } from "@heroicons/react/24/solid";
-import { generalInfoSchema, childrenFormSchema, giftsFormSchema } from "@/lib/formSchemas";
+import { SECTION_SCHEMAS } from "@/lib/formSchemas";
 
 type FormStep = {
   id: string;
@@ -14,7 +14,6 @@ type FormStep = {
   path: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   sectionKey: keyof FamilyFormState;
-  schema?: any;
   isReviewPage?: boolean; // Flag for pages without their own form data
 };
 
@@ -24,8 +23,7 @@ const FORM_STEPS: FormStep[] = [
     label: "General",
     path: "/family/form/general-info",
     icon: UserIcon,
-    sectionKey: "generalInfo",
-    schema: generalInfoSchema,
+    sectionKey: "generalInfo",  
   },
   {
     id: "children",
@@ -33,7 +31,6 @@ const FORM_STEPS: FormStep[] = [
     path: "/family/form/children",
     icon: UsersIcon,
     sectionKey: "children",
-    schema: childrenFormSchema,
   },
   {
     id: "gifts",
@@ -41,7 +38,6 @@ const FORM_STEPS: FormStep[] = [
     path: "/family/form/gift-details",
     icon: GiftIcon,
     sectionKey: "gifts",
-    schema: giftsFormSchema,
   },
   {
     id: "review",
@@ -67,46 +63,8 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
 
   const getStepState = (step: FormStep, index: number): StepState => {
     // Check if this is the current step
-    if (currentPath === step.path) {
-      return "current";
-    }
-
-    // Special handling for review step
-    if (step.id === "review") {
-      // If we're past the review page (shouldn't happen, but handle it)
-      if (currentPath.includes("/family/form/") && currentPath > step.path) {
-        return "complete";
-      }
-      
-      // Check if all previous steps are complete
-      const allPreviousComplete = FORM_STEPS.slice(0, -1).every((s) => {
-        const data = formState[s.sectionKey];
-        if (!data) return false;
-        if (s.schema) {
-          const result = s.schema.safeParse(data);
-          return result.success;
-        }
-        return true;
-      });
-      
-      // Review is only accessible if all previous steps are valid
-      return allPreviousComplete ? "complete" : "incomplete";
-    }
-
-    // Check if step has data
-    const stepData = formState[step.sectionKey];
-    if (!stepData) {
-      return "incomplete";
-    }
-
-    // Validate with schema if available
-    if (step.schema) {
-      const result = step.schema.safeParse(stepData);
-      return result.success ? "complete" : "error";
-    }
-
-    // If no schema, just check if data exists
-    return "complete";
+    if (currentPath === step.path) return "current";
+    return getUnderlyingState(step, index);
   };
 
   // Helper to get the underlying state (ignoring current status)
@@ -116,11 +74,8 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
       const allPreviousComplete = FORM_STEPS.slice(0, -1).every((s) => {
         const data = formState[s.sectionKey];
         if (!data) return false;
-        if (s.schema) {
-          const result = s.schema.safeParse(data);
-          return result.success;
-        }
-        return true;
+        const schema = SECTION_SCHEMAS[s.sectionKey];
+        return schema ? schema.safeParse(data).success : true;
       });
       return allPreviousComplete ? "complete" : "incomplete";
     }
@@ -132,60 +87,22 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
     }
 
     // Validate with schema if available
-    if (step.schema) {
-      const result = step.schema.safeParse(stepData);
-      return result.success ? "complete" : "error";
+    const schema = SECTION_SCHEMAS[step.sectionKey];
+    if (schema) {
+      return schema.safeParse(stepData).success ? "complete" : "error";
     }
-
-    // If no schema, just check if data exists
     return "complete";
   };
 
-  // Find the furthest completed step (including current)
-  const getFurthestAccessibleStep = (): number => {
-    const currentStepIndex = FORM_STEPS.findIndex(step => step.path === currentPath);
-    
-    // User can access any step up to and including where they currently are
-    // OR any step they've already visited (has data, even if invalid)
-    let furthest = currentStepIndex >= 0 ? currentStepIndex : 0;
-    
-    // Check which steps have been visited (have any data)
-    for (let i = 0; i < FORM_STEPS.length; i++) {
-      const step = FORM_STEPS[i];
-      
-      // Skip review page for this check
-      if (step.id === "review") {
-        // Review is accessible if all previous steps have data
-        const allPreviousHaveData = FORM_STEPS.slice(0, -1).every((s) => {
-          return formState[s.sectionKey] !== undefined;
-        });
-        if (allPreviousHaveData && i > furthest) {
-          furthest = i;
-        }
-        continue;
-      }
-      
-      // If this step has ANY data (even if invalid), user has been there
-      const stepData = formState[step.sectionKey];
-      if (stepData !== undefined && i > furthest) {
-        furthest = i;
-      }
-    }
-    
-    return furthest;
-  };
 
   const isStepClickable = (step: FormStep, index: number): boolean => {
-    const state = getStepState(step, index);
+    if (getStepState(step, index) === "current") return false;
+
+    const firstUnvisitedIndex = FORM_STEPS.findIndex((s, i) => getUnderlyingState(s, i) === "incomplete");
     
-    // Current step is not clickable (already on it)
-    if (state === "current") {
-      return false;
-    }
-    
-    // Can click on any step up to and including the furthest accessible step
-    const furthestIndex = getFurthestAccessibleStep();
-    return index <= furthestIndex;
+    if (firstUnvisitedIndex === -1) return true;
+
+    return index < firstUnvisitedIndex;
   };
 
   const handleStepClick = async (step: FormStep, index: number) => {
@@ -240,7 +157,7 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
           iconBorder: "border-red-500 border-[3px]",
           iconColor: "text-white",
           labelColor: "text-gray-900",
-          underline: "border-b-2 border-red-500",
+          underline: "",
         };
       case "incomplete":
       default:

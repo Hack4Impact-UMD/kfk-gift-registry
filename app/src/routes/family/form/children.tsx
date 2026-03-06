@@ -7,17 +7,14 @@ import {
   CardDescription
 } from '@/components/ui/card'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useForm } from "@tanstack/react-form"
 import { useFormContext } from "@/components/providers/FormProvider";
 import { FormFieldInput, FormSelect, FormButton, FormCheckbox } from "@/components/form/formcomponents";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import "@/styles.css";
-import { childrenFormSchema } from '@/lib/formSchemas';
 import { User, Stethoscope, Building2, UserCog } from 'lucide-react';
-import { useEffect } from 'react';
 import { FormProgressBar } from '@/components/form/FormProgressBar';
-import { useProgressBarNavigation } from '@/hooks/form/FormHooks';
+import { useChildrenForm, useProgressBarNavigation } from '@/hooks/form/FormHooks';
 
 
 export const Route = createFileRoute('/family/form/children')({
@@ -27,52 +24,8 @@ export const Route = createFileRoute('/family/form/children')({
 function ChildrenPageComponent() {
   const { formState, updateSection } = useFormContext();
   const navigate = useNavigate();
-  
-  const form = useForm({
-    defaultValues: formState.children || {
-      hasMultipleChildren: false,
-      numChildren: 1,
-      children: [],
-      hasSiblings: false,
-      numSiblings: 0,
-      siblings: [],
-      consentPhotosPublic: false,
-    },
-    onSubmit: async ({ value }) => {
-      // Save to context and navigate
-      const isValid = await form.validateAllFields('change');
-      if (!isValid) return;
 
-      updateSection("children", value);
-      navigate({ to: "/family/form/gift-details" });
-    },
-  })
-
-  
-  useEffect(() => {
-    if (form.state.values.children.length > form.state.values.numChildren) {
-      const newChildren = form.state.values.children.slice(0, form.state.values.numChildren);
-      form.setFieldValue('children', newChildren);
-      
-      // Clear validation errors for removed children
-      // This forces the form to re-validate with only the remaining children
-      setTimeout(() => {
-        form.validateAllFields('change');
-      }, 0);
-    }
-  }, [form.state.values.numChildren]);
-
-  useEffect(() => {
-    if (form.state.values.siblings.length > form.state.values.numSiblings) {
-      const newSiblings = form.state.values.siblings.slice(0, form.state.values.numSiblings);
-      form.setFieldValue('siblings', newSiblings);
-      
-      // Clear validation errors for removed siblings
-      setTimeout(() => {
-        form.validateAllFields('change');
-      }, 0);
-    }
-  }, [form.state.values.numSiblings]);
+  const form = useChildrenForm();
 
 
   const handleProgressBarNavigate = useProgressBarNavigation(
@@ -89,8 +42,8 @@ function ChildrenPageComponent() {
   return (
     <Card className="mx-auto w-full max-w-sm">
       <CardHeader>
-        <FormProgressBar onNavigate={handleProgressBarNavigate} />
         <CardDescription className="text-center">Fill all required fields to go to next step<span className="text-destructive">*</span></CardDescription> 
+        <FormProgressBar onNavigate={handleProgressBarNavigate} />
       </CardHeader>
 
       <form
@@ -98,6 +51,7 @@ function ChildrenPageComponent() {
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
+          form.validateAllFields('submit');
           form.handleSubmit();
         }}
         className="flex flex-col gap-10"
@@ -122,15 +76,13 @@ function ChildrenPageComponent() {
                     checked={field.state.value === false}
                     onChange={() => {
                       field.handleChange(false);
-                      form.setFieldValue('numChildren', 1);
-                      const currentChildren = form.getFieldValue('children') || [];
-                      if (currentChildren.length > 1) {
-                        form.setFieldValue("children", [currentChildren[0]]);
-                        // Clear validation for removed children
-                        setTimeout(() => {
-                          form.validateAllFields('change');
-                        }, 0);
-                      }
+                      const firstChild = form.getFieldValue('children')?.[0];
+                      form.reset({
+                        ...form.state.values,
+                        hasMultipleChildren: false,
+                        numChildren: 1,
+                        children: [firstChild || { name: "", age: "", diagnosis: "", hospitalTreatedAt: "", socialWorkerName: "", photoUrl: "" }],
+                      });
                     }}
                     className="mt-0.5"
                   />
@@ -361,12 +313,12 @@ function ChildrenPageComponent() {
                         checked={field.state.value === false}
                         onChange={() => {
                           field.handleChange(false);
-                          form.setFieldValue('numSiblings', 0);
-                          form.setFieldValue('siblings', []);
-                          // Clear validation for removed siblings
-                          setTimeout(() => {
-                            form.validateAllFields('change');
-                          }, 0);
+                          form.reset({
+                            ...form.state.values,
+                            hasSiblings: false,
+                            numSiblings: 0,
+                            siblings: [],
+                          });
                         }}
                         className="mt-0.5"
                       />

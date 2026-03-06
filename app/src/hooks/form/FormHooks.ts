@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { useFormContext, type FamilyFormState } from "@/components/providers/FormProvider";
 import { useNavigate } from "@tanstack/react-router";
 import { consentSchema, generalInfoSchema, childrenFormSchema } from "@/lib/formSchemas";
+import { useEffect } from "react";
 
 
 export function useProgressBarNavigation<K extends keyof FamilyFormState>(
@@ -60,6 +61,7 @@ export function useGeneralInfoForm() {
       email: "",
       emailConfirm: "",
       phoneNumber: "",
+      phoneNumberConfirm: "",
       streetAddress: "",
       addressLine2: "",
       city: "",
@@ -69,13 +71,11 @@ export function useGeneralInfoForm() {
     onSubmit: async ({ value }) => {
       const result = generalInfoSchema.safeParse(value);
       if (!result.success) {
-        const firstError = result.error.issues[0];
-        alert(`${firstError.path.join(".")}: ${firstError.message}`);
+        console.error("Validation failed:", result.error);
         return;
       }
       
       updateSection("generalInfo", result.data);
-      
       navigate({ to: "/family/form/children" });
     },
   });
@@ -91,7 +91,14 @@ export function useChildrenForm() {
     defaultValues: formState.children || {
       hasMultipleChildren: false,
       numChildren: 1,
-      children: [{}],
+      children: [{
+        name: "",
+        age: "",
+        diagnosis: "",
+        hospitalTreatedAt: "",
+        socialWorkerName: "",
+        photoUrl: "",
+      }],
       hasSiblings: false,
       numSiblings: 0,
       siblings: [],
@@ -105,9 +112,34 @@ export function useChildrenForm() {
       }
 
       updateSection("children", result.data);
-      navigate({ to: "/family/form/gifts" });
+      navigate({ to: "/family/form/gift-details" });
     },
   });
+
+  useEffect(() => {
+    if (form.state.values.children.length > form.state.values.numChildren) {
+      const newChildren = form.state.values.children.slice(0, form.state.values.numChildren);
+      form.setFieldValue('children', newChildren);
+      
+      // Clear validation errors for removed children
+      // This forces the form to re-validate with only the remaining children
+      setTimeout(() => {
+        form.validateAllFields('change');
+      }, 0);
+    }
+  }, [form.state.values.numChildren]);
+
+  useEffect(() => {
+    if (form.state.values.siblings.length > form.state.values.numSiblings) {
+      const newSiblings = form.state.values.siblings.slice(0, form.state.values.numSiblings);
+      form.setFieldValue('siblings', newSiblings);
+      
+      // Clear validation errors for removed siblings
+      setTimeout(() => {
+        form.validateAllFields('change');
+      }, 0);
+    }
+  }, [form.state.values.numSiblings]);
 
   return form;
 }

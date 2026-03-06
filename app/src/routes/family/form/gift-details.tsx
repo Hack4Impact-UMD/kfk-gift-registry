@@ -188,11 +188,9 @@ function GiftsStep() {
 
   return (
     <div className="w-full">
-      {/* Progress Bar at top level */}
-      <FormProgressBar onNavigate={handleProgressBarNavigate} />
-      
       <Card className="mx-auto w-full max-w-sm">
         <CardHeader className="flex flex-col justify-around gap-7">
+          <FormProgressBar onNavigate={handleProgressBarNavigate} />
           <CardTitle className="mx-auto text-2xl text-[var(--color-kfk-blue)] text-center">{childrenList[activeChildIndex].name}'s Gift Selection</CardTitle>
           <CardDescription className="mx-auto"><em>Please choose up to 3 gifts for your child.</em></CardDescription>
         </CardHeader>

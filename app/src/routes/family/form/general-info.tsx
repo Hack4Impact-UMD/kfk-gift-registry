@@ -1,6 +1,6 @@
 "use client"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useForm } from "@tanstack/react-form"
+
 
 import { 
   EnvelopeIcon, 
@@ -11,7 +11,7 @@ import {
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 
-import { FormFieldInput } from "@/components/form/formcomponents"
+import { FormFieldInput, FormSelect, US_STATES } from "@/components/form/formcomponents"
 
 import {
   Card,
@@ -25,7 +25,7 @@ import { generalInfoSchema } from "@/lib/formSchemas"
 import { useFormContext } from "@/components/providers/FormProvider"
 import { FormItem } from "@/components/ui/form"
 import { FormProgressBar } from "@/components/form/FormProgressBar"
-import { useProgressBarNavigation } from "@/hooks/form/FormHooks"
+import { useGeneralInfoForm, useProgressBarNavigation } from "@/hooks/form/FormHooks"
 
 
 export const Route = createFileRoute('/family/form/general-info')({
@@ -36,25 +36,7 @@ function GeneralRouteComponent() {
   const { formState, updateSection } = useFormContext();
   const navigate = useNavigate();
 
-  const form = useForm({
-    defaultValues: formState.generalInfo || {
-      parentName: "", 
-      email: "",
-      emailConfirm: "",
-      phoneNumber: "",
-      phoneNumberConfirm: "",
-      streetAddress: "",
-      addressLine2: "",
-      city: "",
-      state: "",
-      zipCode: "",
-    },
-    onSubmit: async ({ value }) => {
-      // Save to context and navigate
-      updateSection("generalInfo", value);
-      navigate({ to: "/family/form/children" });
-    },
-  })
+  const form = useGeneralInfoForm();
 
   const handleProgressBarNavigate = useProgressBarNavigation(
     "generalInfo",
@@ -70,10 +52,10 @@ function GeneralRouteComponent() {
   return (
     <Card className="mx-auto w-full max-w-sm">
       <CardHeader>
-        <FormProgressBar onNavigate={handleProgressBarNavigate} />
         <CardDescription className="text-center">
           Fill all required fields to go to next step<span className="text-destructive">*</span>
         </CardDescription>
+        <FormProgressBar onNavigate={handleProgressBarNavigate} />
       </CardHeader>
       <CardContent>
         <form
@@ -265,22 +247,20 @@ function GeneralRouteComponent() {
               )}
             />
             
-            <form.Field 
+            <form.Field
               name="state"
               validators={{
                 onChange: ({ value }) => {
-                  if (!value) return 'State is required';
-                  if (value.length !== 2) return 'Please use 2-letter state code (e.g., MD)';
+                  if (!value) return "State is required";
                   return undefined;
                 }
               }}
               children={(field) => (
-                <FormFieldInput 
-                  field={field} 
-                  Icon={MapPinIcon} 
-                  label="State" 
-                  placeholder="MD"
-                  autoComplete="address-level1"
+                <FormSelect
+                  field={field}
+                  label="State"
+                  placeholder="Select State"
+                  values={US_STATES}
                   required
                 />
               )}
