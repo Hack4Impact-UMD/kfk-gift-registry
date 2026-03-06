@@ -21,6 +21,12 @@ export function GiftCard({ gift, color }: Props) {
   return (
     <>
       <div className="rounded-xl border p-4 mb-4 bg-card shadow-lg space-y-2">
+
+        {gift.status === "received" && (
+          <div className="-mx-4 mb-4 bg-kfk-green text-white text-center shrink-0">
+            <p className="p-2 font-semibold">Yay! You received this gift!</p>
+          </div>
+        )}
         
         <p>
           <span className="font-semibold">Gift Name:</span>{" "}
@@ -37,8 +43,12 @@ export function GiftCard({ gift, color }: Props) {
 
             <div
               onClick={() => setConfirmOpen(true)}
-              className="cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition"
+              className="relative cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition"
             >
+              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red/50 blur-sm animate-ping"></span>
+              <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red flex items-center justify-center text-white">
+                <ExclamationCircleIcon className="size-5" />
+              </div>
               <p className="mb-3">
                 Please confirm if you have received this gift!
               </p>
@@ -81,8 +91,6 @@ export function GiftCard({ gift, color }: Props) {
           {gift.dateDelivered ?? "N/A"}
         </p>
       </div>
-
-      {/* Modals */}
 
       <ConfirmGiftModal
         open={confirmOpen}

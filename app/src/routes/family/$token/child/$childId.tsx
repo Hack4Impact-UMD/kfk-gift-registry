@@ -19,7 +19,7 @@ function ChildPage() {
 
   return (
     <div>
-      <div className={`rounded-2xl bg-${child.color} p-6 shadow-xl relative overflow-hidden mb-6`}>
+      <div className={`rounded-2xl bg-kfk-blue p-6 shadow-xl relative overflow-hidden my-6`}>
         <div className="flex gap-6 items-center">
 
           <div className="flex flex-col items-center gap-3 min-w-[140px]">
@@ -75,7 +75,7 @@ function ChildPage() {
 
       </div>
 
-      <div className={`flex items-center justify-center gap-2 mb-4 bg-${child.color} text-white px-3 py-2 -mx-4`}>
+      <div className={`flex items-center justify-center gap-2 mb-4 bg-kfk-blue text-white px-3 py-2 -mx-4`}>
         <GiftIcon className="size-6 text-background" />
         <h2 className="text-semibold">{firstName}'s Gift Information</h2>
       </div>

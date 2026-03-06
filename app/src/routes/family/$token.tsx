@@ -42,13 +42,18 @@ function FamilyRoute() {
 
         <div className="w-[2px] h-16 bg-ring shrink-0 rounded-full"></div>
 
-        {family.children.map((child: any) => (
-          <ChildProfileCircle
-            key={child.id}
-            child={child}
-            token={family.token}
-          />
-        ))}
+        {family.children.map((child: any, index: number) => {
+          const ringClasses = ["ring-kfk-red", "ring-kfk-blue", "ring-kfk-green"];
+          const ringClass = ringClasses[index % ringClasses.length];
+
+          return (
+            <ChildProfileCircle
+              key={child.id}
+              child={{ ...child, ringClass }}
+              token={family.token}
+            />
+          );
+        })}
       </div>
 
       <div className="px-4 pb-8">
