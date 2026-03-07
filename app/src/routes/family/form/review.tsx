@@ -12,6 +12,7 @@ import {
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 
+import { User, Stethoscope, Building2, UserCog, GiftIcon } from "lucide-react"
 import { FormCheckbox, FormFieldInput, FormSelect, US_STATES } from "@/components/form/formcomponents"
 
 import {
@@ -27,7 +28,6 @@ import { Button } from "@/components/ui/button"
 import { generalInfoSchema } from "@/lib/formSchemas";
 import { useFormContext, FamilyFormState } from "@/components/providers/FormProvider";
 import { FormItem } from "@/components/ui/form"
-import { User, Stethoscope, Building2, UserCog, GiftIcon } from "lucide-react"
 import { FormProgressBar } from "@/components/form/FormProgressBar"
 import { useProgressBarNavigation } from "@/hooks/form/FormHooks"
 
@@ -78,7 +78,7 @@ function RouteComponent() {
           <div>
             <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Information</h2>
-              <button type="button" onClick={() => {navigate({ to: "/family/form/general-info" })}} className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+              <button type="button" onClick={() => {navigate({ to: "/family/form/general-info" })}} className="text-sm h-5 my-auto cursor-pointer transition duration-200 ease-in-out hover:bg-[var(--color-kfk-blue)] hover:text-white text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
             </div>
           <form.Field
             name="parentName"
@@ -111,7 +111,7 @@ function RouteComponent() {
           <div>
             <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Address</h2>
-              <button type="button" onClick={() => {navigate({ to: "/family/form/general-info" })}} className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+              <button type="button" onClick={() => {navigate({ to: "/family/form/general-info" })}} className="text-sm h-5 my-auto cursor-pointer transition duration-200 ease-in-out hover:bg-[var(--color-kfk-blue)] hover:text-white text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
             </div>
             <form.Field name="streetAddress" children={(field) => (
               <FormFieldInput field={field} Icon={MapPinIcon} label="Street Address" placeholder="10 Mountain View Way" value={formState.generalInfo?.streetAddress} disabled required/>
@@ -151,7 +151,7 @@ function RouteComponent() {
       {/* Multiple Children Question */}
         <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
           <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Details</h2>
-          <button type="button" onClick={() => {navigate({ to: "/family/form/children" })}} className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+          <button type="button" onClick={() => {navigate({ to: "/family/form/children" })}} className="text-sm h-5 my-auto cursor-pointer transition duration-200 ease-in-out hover:bg-[var(--color-kfk-blue)] hover:text-white text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
         </div>
         <div>
           <p className="text-sm font-medium mb-3">
@@ -333,7 +333,7 @@ function RouteComponent() {
           <div className="border-t pt-6">
             <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Sibling Information</h2>
-              <button type="button" onClick={() => {navigate({ to: "/family/form/children" })}} className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+              <button type="button" onClick={() => {navigate({ to: "/family/form/children" })}} className="text-sm h-5 my-auto cursor-pointer transition duration-200 ease-in-out hover:bg-[var(--color-kfk-blue)] hover:text-white text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
             </div>
 
             <div>
@@ -447,7 +447,7 @@ function RouteComponent() {
                             variant="outline"
                             className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
                           >
-                            📷 Upload Photo for {formState.children?.siblings?.[index]?.name || "Sibling"}
+                            📷 Upload Photo for {formState.children?.siblings[index]?.name || "Sibling"}
                           </Button>
                         </div>
                       </div>
@@ -488,7 +488,7 @@ function RouteComponent() {
                     <>
                     <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8 mt-3">
           <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">{childSelect.childName}'s Gift Selection</h2>
-          <button type="button" onClick={() => {navigate({ to: "/family/form/gift-details" })}} className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+          <button type="button" onClick={() => {navigate({ to: "/family/form/gift-details" })}} className="text-sm h-5 my-auto cursor-pointer transition duration-200 ease-in-out hover:bg-[var(--color-kfk-blue)] hover:text-white text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
         </div>
                     <div className="flex flex-col gap-7">
             {[0, 1, 2].map((i) => (

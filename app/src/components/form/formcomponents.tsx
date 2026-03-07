@@ -198,10 +198,10 @@ export const FormFieldInput = ({
     field.state.meta.isTouched && field.state.meta.errors?.[0];
   
   return (
-    <FormItem className="relative mt-6">
+    <FormItem className="group relative mt-6">
       <CardDescription 
         className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
-          errorMessage ? "text-red-500" : "text-slate-600"
+          errorMessage ? "text-red-500" : "text-slate-600 group-focus-within:text-[var(--color-kfk-blue)]"
         } z-10`}
       >
         {label}
@@ -226,8 +226,8 @@ export const FormFieldInput = ({
           className={`h-14 pl-12 ${
             errorMessage ? "pr-12" : "pr-4"
           } rounded-xl border-1 ${
-            errorMessage ? "border-red-500" : "border-slate-700"
-          } focus-visible:ring-0 focus-visible:border-blue-500 placeholder:text-slate-400 font-medium`}
+            errorMessage ? "border-red-500 text-red-500 placeholder:text-red-500" : "border-slate-700 placeholder:text-slate-400 focus-visible:placeholder:text-slate-700 group-hover:placeholder:text-slate-700"
+          } focus-visible:ring-0 focus-visible:border-[var(--color-kfk-blue)] font-medium`}
         />
         {errorMessage && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">

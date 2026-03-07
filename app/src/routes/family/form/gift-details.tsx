@@ -155,7 +155,7 @@ function GiftsStep() {
           {childrenList.map((child, index) => (
             <button 
               key={index}
-              className={`flex flex-row justify-around ${isChildComplete(index) == "completed" ? "bg-green-500" : isChildComplete(index) == "dirty" ? "bg-red-500" : "bg-yellow-300"} ${isChildComplete(index) == "dirty" && "text-white"} rounded-lg text-md p-4 mx-7 mt-7`}
+              className={`flex flex-row cursor-pointer justify-around ${isChildComplete(index) == "completed" ? "bg-[var(--color-kfk-green)]" : isChildComplete(index) == "dirty" ? "bg-red-500" : "bg-yellow-300"} ${isChildComplete(index) == "dirty" && "text-white"} rounded-lg text-md p-4 mx-7 mt-7`}
               onClick={() => setActiveChildIndex(index)}
             >
               <span className="my-auto">{child.name}'s Gift Selection</span>
