@@ -35,46 +35,42 @@ function GiftsStep() {
   const { updateSection, formState } = useFormContext();
   const navigate = useNavigate();
   const children = formState.children?.children || [];
-  const siblings = formState.children?.siblings || [];
+  const siblings = formState.children?.hasSiblings ? (formState.children?.siblings || []) : [];
   const childrenNameList = [
     ...children.map(c => c.name),
     ...siblings.map(s => s.name)
-  ]
+  ];
 
   // -1: "Dashboard". 
   // 0, 1, 2, 3, ...: Specific forms for that child
   const [activeChildIndex, setActiveChildIndex] = useState<number>(-1);
 
+  // Reconcile saved gift selections against the current children/siblings list.
+  // This handles the case where the user went back and changed the number of
+  // children or toggled siblings — stale entries are dropped and new children
+  // get empty gift slots. Matching is done by childName so existing data is
+  // preserved for children whose names haven't changed.
+  const reconciledGiftSelections = childrenNameList.map(childName => {
+    const existing = formState.gifts?.giftSelections?.find(g => g.childName === childName);
+    if (existing) return existing;
+    return {
+      childName,
+      gifts: [
+        { giftName: '', giftUrl: '' },
+        { giftName: '', giftUrl: '' },
+        { giftName: '', giftUrl: '' },
+      ] as [GiftSelection, GiftSelection, GiftSelection],
+      backupGifts: [
+        { giftName: '', giftUrl: '' },
+        { giftName: '', giftUrl: '' },
+      ] as [GiftSelection, GiftSelection],
+      verified: false,
+    };
+  });
+
   const form = useForm({
     defaultValues: {
-      giftSelections: formState.gifts?.giftSelections ?? 
-        childrenNameList.map(c => ({ 
-          childName: c, 
-          gifts: [
-            { giftName: '', giftUrl: '' },
-            { giftName: '', giftUrl: '' },
-            { giftName: '', giftUrl: '' }
-          ] as [GiftSelection, GiftSelection, GiftSelection], 
-          backupGifts: [
-            { giftName: '', giftUrl: '' },
-            { giftName: '', giftUrl: '' }
-          ] as [GiftSelection, GiftSelection],
-          verified: false 
-      })),
-    },
-    onSubmit: ({ value }) => {
-      console.log(value);
-      const result = giftsFormSchema.safeParse(value);
-      if (!result.success) {
-            const firstError = result.error.issues[0];
-            console.log(result);
-            alert(`Error: ${firstError.message}`);
-            return;
-      }
-
-      updateSection("gifts", value);
-      console.log(formState);
-      navigate({ to: "/family/form/review" })
+      giftSelections: reconciledGiftSelections,
     },
   });
 
@@ -146,20 +142,23 @@ function GiftsStep() {
               <ChevronLeftIcon className="mr-2 h-6 w-6" />
               Back
             </Button>
-            <form.Subscribe
-              selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
-              children={([canSubmit, isSubmitting]) => (
-                <Button 
-                  type="submit" 
-                  disabled={!allComplete}
-                  onClick={() => form.handleSubmit()}
-                  size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
-                >
-                  {isSubmitting ? '...' : 'Next'}
-                  <ChevronRightIcon className="ml-2 h-6 w-6" />
-                </Button>
-              )}
-            />
+            <Button
+              type="button"
+              disabled={!allComplete}
+              onClick={() => {
+                const values = form.state.values;
+                const result = giftsFormSchema.safeParse(values);
+                if (result.success) {
+                  updateSection("gifts", result.data);
+                  navigate({ to: "/family/form/review" });
+                }
+              }}
+              size="lg"
+              className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
+            >
+              Next
+              <ChevronRightIcon className="ml-2 h-6 w-6" />
+            </Button>
           </FormItem>
         </CardContent>
       </Card>

@@ -144,7 +144,16 @@ export const FormSelect = ({
         {required && <span className="text-destructive"> *</span>}
       </FieldLabel>
       <Select
-        value={field.state.value || value}
+        value={
+          // Radix UI Select requires a string value. field.state.value can be a
+          // number when defaultValues are restored from FormProvider (which saves
+          // numbers via z.coerce.number). String-ify so the correct item is
+          // highlighted. Falsy values (0, "", undefined) fall back to undefined
+          // so the placeholder is shown instead of a blank selected item.
+          (field.state.value !== undefined && field.state.value !== null && field.state.value !== '' && field.state.value !== 0)
+            ? String(field.state.value)
+            : (value || undefined)
+        }
         disabled={disabled}
         onValueChange={(value) => {
           field.handleChange(value);
@@ -154,7 +163,7 @@ export const FormSelect = ({
         <SelectTrigger 
           className={`py-6 w-full rounded-xl border-1 ${
             errorMessage ? "border-red-500 [&>span]:text-red-500" : "border-slate-700"
-          } focus:ring-0 text-slate-400 font-medium`}
+          } focus:ring-0 data-[placeholder]:text-slate-400 font-medium`}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
@@ -230,7 +239,7 @@ export const FormFieldInput = ({
           className={`h-14 pl-12 ${
             errorMessage ? "pr-12" : "pr-4"
           } rounded-xl border-1 ${
-            errorMessage ? "border-red-500 text-red-500 placeholder:text-red-500" : "border-slate-700 placeholder:text-slate-400 focus-visible:placeholder:text-slate-700 group-hover:placeholder:text-slate-700"
+            errorMessage ? "border-red-500 text-red-500 placeholder:text-red-500" : "border-slate-700 placeholder:text-slate-400"
           } focus-visible:ring-0 focus-visible:border-[var(--color-kfk-blue)] font-medium transition duration-200 ease-in-out`}
         />
         {errorMessage && (

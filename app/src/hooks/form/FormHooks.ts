@@ -143,14 +143,30 @@ export function useChildrenForm() {
   // current live values so stale errors never prevent navigation.
   const handleNext = async () => {
     const values = form.state.values;
-    // Normalize: FormSelect stores strings; coerce to numbers before Zod sees them.
-    // Also clear siblings when hasSiblings is false so leftover entries don't fail.
+
+    // Coerce counts to numbers — FormSelect stores strings ("2", "3", …).
+    const numChildren = Number(values.numChildren ?? 1);
+    const numSiblings = Number(values.numSiblings ?? 0);
+
+    // The useEffect that trims children/siblings runs asynchronously after each
+    // render, so there is a window where the user can click Next before the
+    // trim has been applied (e.g. dropdown changed 3→2 but children array is
+    // still length 3). Normalise the arrays here so Zod always sees consistent
+    // data regardless of the effect timing.
+    const expectedChildCount = values.hasMultipleChildren ? numChildren : 1;
+    const normalizedChildren = (values.children ?? []).slice(0, expectedChildCount);
+    const normalizedSiblings = values.hasSiblings
+      ? (values.siblings ?? []).slice(0, numSiblings)
+      : [];
+
     const normalized = {
       ...values,
-      numChildren: Number(values.numChildren ?? 1),
-      numSiblings: Number(values.numSiblings ?? 0),
-      siblings: values.hasSiblings ? values.siblings : [],
+      numChildren,
+      numSiblings,
+      children: normalizedChildren,
+      siblings: normalizedSiblings,
     };
+
     const result = childrenFormSchema.safeParse(normalized);
     if (result.success) {
       updateSection("children", result.data);
