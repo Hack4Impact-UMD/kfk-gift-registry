@@ -6,7 +6,7 @@ import {
   requireRolesMiddleware,
 } from "@/server/middleware/authMiddleware";
 import { getServerAuth, getServerDB } from "@/lib/firebase.server";
-import { DateTime } from 'luxon';
+import { DateTime } from "luxon";
 
 const uidSchema = z.object({ uid: z.string().min(1) });
 
@@ -23,7 +23,10 @@ export const getUserProfileById = createServerFn({
   .inputValidator(uidSchema)
   .handler(async ({ data, context }) => {
     const uid = data.uid;
-    if (uid === context.authUser.uid || context.authUser.role !== UserRole.VOLUNTEER) {
+    if (
+      uid === context.authUser.uid ||
+      context.authUser.role !== UserRole.VOLUNTEER
+    ) {
       const db = getServerDB();
       const userDoc = await db.users.doc(uid).get();
 
@@ -184,8 +187,8 @@ const relevantStaffFields = z.object({
   firstName: z.string(),
   lastName: z.string(),
   password: z.string(),
-  phone: z.string().optional()
-}) // validates request input
+  phone: z.string().optional(),
+}); // validates request input
 
 const staffInviteSchema = z.object({
   id: z.string(),
@@ -196,62 +199,60 @@ const staffInviteSchema = z.object({
   role: z.enum([UserRole.ADMIN, UserRole.VOLUNTEER]),
   createdAt: z.string(),
   used: z.boolean(),
-}) // validates firestore invite doc
+}); // validates firestore invite doc
 
-export const registerStaffMemberWithInvite = createServerFn({method: "POST"})
-.inputValidator(relevantStaffFields)
-.handler(
-    async ({data}) => {
-      const db = getServerDB();
-      const auth = getServerAuth();
+export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
+  .inputValidator(relevantStaffFields)
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const auth = getServerAuth();
 
-      const inviteSnap = await db.invites.doc(data.inviteId).get();
-      if (!inviteSnap.exists){ 
-        throw new Error("Invite not found");
-      }
-
-      const invite = staffInviteSchema.parse(inviteSnap.data());
-
-      if (invite.used){ 
-        throw new Error("Invite already used");
-      }
-
-      const dateCreated = DateTime.fromISO(invite.createdAt);
-      if (!dateCreated.isValid){
-        throw new Error("Invalid invite createdAt")
-      }
-      const expired = dateCreated < DateTime.now().minus({days: 7})
-      if (expired){
-        throw new Error("Invite not created in past 7 days")
-      }
-      // if no errors, data is valid
-      const userEmail = invite.email
-      const authUser = await auth.createUser({
-        displayName: `${data.firstName} ${data.lastName}`,
-        email: userEmail,
-        password: data.password,
-        phoneNumber: data.phone,
-      });
-
-      await auth.setCustomUserClaims(authUser.uid, {
-        role: invite.role,
-      });
-
-      // creates the user profile doc with the same ID as the Auth user
-      const userDoc = {
-        id: authUser.uid,
-        email: userEmail,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        role: invite.role,
-        phone: data.phone,
-        createdAt: DateTime.now().toISO(),
-        enabled: true,
-      };
-
-      await db.users.doc(authUser.uid).set(userDoc);
-      await db.invites.doc(data.inviteId).update({ used: true })
-
-      return userDoc;
+    const inviteSnap = await db.invites.doc(data.inviteId).get();
+    if (!inviteSnap.exists) {
+      throw new Error("Invite not found");
     }
-  )
+
+    const invite = staffInviteSchema.parse(inviteSnap.data());
+
+    if (invite.used) {
+      throw new Error("Invite already used");
+    }
+
+    const dateCreated = DateTime.fromISO(invite.createdAt);
+    if (!dateCreated.isValid) {
+      throw new Error("Invalid invite createdAt");
+    }
+    const expired = dateCreated < DateTime.now().minus({ days: 7 });
+    if (expired) {
+      throw new Error("Invite not created in past 7 days");
+    }
+    // if no errors, data is valid
+    const userEmail = invite.email;
+    const authUser = await auth.createUser({
+      displayName: `${data.firstName} ${data.lastName}`,
+      email: userEmail,
+      password: data.password,
+      phoneNumber: data.phone,
+    });
+
+    await auth.setCustomUserClaims(authUser.uid, {
+      role: invite.role,
+    });
+
+    // creates the user profile doc with the same ID as the Auth user
+    const userDoc = {
+      id: authUser.uid,
+      email: userEmail,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: invite.role,
+      phone: data.phone,
+      createdAt: DateTime.now().toISO(),
+      enabled: true,
+    };
+
+    await db.users.doc(authUser.uid).set(userDoc);
+    await db.invites.doc(data.inviteId).update({ used: true });
+
+    return userDoc;
+  });
