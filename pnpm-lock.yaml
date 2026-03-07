@@ -24,6 +24,9 @@ importers:
       '@fontsource-variable/nunito':
         specifier: ^5.2.7
         version: 5.2.7
+      '@fontsource/gaegu':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@lukemorales/query-key-factory':
         specifier: ^1.3.4
         version: 1.3.4(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))
@@ -900,6 +903,9 @@ packages:
 
   '@fontsource-variable/nunito@5.2.7':
     resolution: {integrity: sha512-2N8QhatkyKgSUbAGZO2FYLioxA32+RyI1EplVLawbpkGjUeui9Qg9VMrpkCaik1ydjFjfLV+kzQ0cGEsMrMenQ==}
+
+  '@fontsource/gaegu@5.2.8':
+    resolution: {integrity: sha512-3rjyZGlUOQJo5zx0/1YFiFYKv4SZtaPiORncSXX4guo2P/sTMbxUIJRJWe14IS+CbkSrDppu24Y/KpXyQSFyhA==}
 
   '@google-cloud/firestore@7.11.6':
     resolution: {integrity: sha512-EW/O8ktzwLfyWBOsNuhRoMi8lrC3clHM5LVFhGvO1HCsLozCOOXRAlHrYBoE6HL42Sc8yYMuCb2XqcnJ4OOEpw==}
@@ -6803,6 +6809,8 @@ snapshots:
   '@floating-ui/utils@0.2.10': {}
 
   '@fontsource-variable/nunito@5.2.7': {}
+
+  '@fontsource/gaegu@5.2.8': {}
 
   '@google-cloud/firestore@7.11.6':
     dependencies:
