@@ -1,52 +1,65 @@
-import DefaultProfilePhoto from "@/assets/default-profile-photo.png";
+import { Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { ChildProfileCircle } from "@/components/family/ChildProfileCircle";
+import type { Child } from "@/mocks/mockFamily";
+import { X } from "lucide-react";
 
 type NotificationCardProps = {
-  childName: string;
+  child: Child;
   giftTitle: string;
-  accentColor: string;
+  token: string;
 };
 
 export function NotificationCard({
-  childName,
+  child,
   giftTitle,
-  accentColor,
+  token,
 }: NotificationCardProps) {
   const colorClasses = {
-    "kfk-red": { bar: "bg-kfk-red", ring: "border-kfk-red" },
-    "kfk-blue": { bar: "bg-kfk-blue", ring: "border-kfk-blue" },
-    "kfk-green": { bar: "bg-kfk-green", ring: "border-kfk-green" },
-  }[accentColor] ?? { bar: "bg-kfk-red", ring: "border-kfk-red" };
+    "kfk-red": { bar: "bg-kfk-red", ring: "ring-kfk-red" },
+    "kfk-blue": { bar: "bg-kfk-blue", ring: "ring-kfk-blue" },
+    "kfk-green": { bar: "bg-kfk-green", ring: "ring-kfk-green" },
+  }[child.color] ?? { bar: "bg-kfk-red", ring: "ring-kfk-red" };
 
   return (
     <div className="flex items-stretch rounded-r-[20px] bg-card overflow-hidden border border-[2px] border-[#ececec]">
-      <div className={`w-1 ${colorClasses.bar}`} />
+
+      <div className={`w-2 ${colorClasses.bar}`} />
 
       <div className="flex flex-1 items-center gap-4 px-4 py-3">
-        <img
-          src={DefaultProfilePhoto}
-          alt="Child profile"
-          className={`w-11 h-11 rounded-full border-[3px] object-cover ${colorClasses.ring}`}
-        />
+=
+        <Link
+          to="/family/$token/child/$childId"
+          params={{ token, childId: child.id }}
+          className="flex flex-1 items-center gap-4"
+        >
+          <ChildProfileCircle
+            child={child}
+            ringClass={colorClasses.ring}
+            token={token}
+            compact
+          />
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex-1 min-w-0">
             <p className="font-semibold">
-              {childName} Gift Delivered!
+              {child.name} Gift Delivered!
             </p>
-            <button
-              type="button"
-              aria-label="Dismiss notification"
-              className="text-black w-2 h-[7px] flex items-center justify-center"
-            >
-              ×
-            </button>
+
+            <p className="text-sm text-foreground mt-1">
+              {giftTitle}... gift was delivered! Confirm if you received the gift!
+            </p>
           </div>
-          <p className="text-sm text-foreground mt-1">
-            {giftTitle}.... gift was delivered! Confirm if you received the gift!
-          </p>
-        </div>
+        </Link>
+
+        <Button
+          variant="ghost"
+          aria-label="Dismiss notification"
+          className="text-black flex items-center justify-center self-start"
+        >
+          <X size={16} />
+        </Button>
+
       </div>
     </div>
   );
 }
-

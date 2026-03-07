@@ -5,10 +5,12 @@ import type { Child } from "@/mocks/mockFamily";
 
 type Props = {
   child: Child;
+  ringClass: string;
   token: string;
+  compact?: boolean;
 };
 
-export function ChildProfileCircle({ child, token }: Props) {
+export function ChildProfileCircle({ child, ringClass, token, compact }: Props) {
   const needsAttention = child.gifts.some(
   (gift) => gift.status === "delivered"
 );
@@ -20,7 +22,7 @@ export function ChildProfileCircle({ child, token }: Props) {
     >
       <div className="relative w-16 h-16">
         <div
-          className={`w-16 h-16 rounded-full border-2 border-background ring-2 ring-${child.color} flex items-center justify-center overflow-hidden`}
+          className={`w-16 h-16 rounded-full border-2 border-background ring-2 ${ringClass} flex items-center justify-center overflow-hidden`}
         >
           <img
             src={child.profileImage ?? ProfilePhoto}
@@ -29,13 +31,13 @@ export function ChildProfileCircle({ child, token }: Props) {
           />
         </div>
 
-        {needsAttention && (
+        {needsAttention && !compact && (
           <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-kfk-red flex items-center justify-center text-white">
             <ExclamationCircleIcon className="size-5" />
           </div>
         )}
       </div>
-      <span className="text-sm font-medium">{child.name}</span>
+      {!compact && <span className="text-sm font-medium">{child.name}</span>}
     </Link>
   );
 }

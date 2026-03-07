@@ -49,7 +49,8 @@ function FamilyRoute() {
           return (
             <ChildProfileCircle
               key={child.id}
-              child={{ ...child, ringClass }}
+              child={child}
+              ringClass={ringClass}
               token={family.token}
             />
           );

@@ -16,9 +16,8 @@ function FamilyHome() {
       .filter((gift: any) => gift.status === "delivered")
       .map((gift: any) => ({
         id: gift.id,
-        childName: child.name,
+        child: child,
         giftTitle: gift.name,
-        accentColor: child.color,
       })),
   );
 
@@ -47,7 +46,7 @@ function FamilyHome() {
         <img src={RedGift} alt="Gift Box" className="w-48 mt-4" />
       </div>
 
-      <div className="py-8 mt-4 flex flex justify-between items-center">
+      <div className="py-4 mt-4 flex flex justify-between items-center">
         <h3 className="text-lg font-semibold mx-2">Notifications</h3>
         <Button variant="outline" className="rounded-full border-ring text-foreground"> 
           Clear All 
@@ -58,9 +57,9 @@ function FamilyHome() {
         {notifications.map((n) => (
           <NotificationCard
             key={n.id}
-            childName={n.childName}
+            child={n.child}
             giftTitle={n.giftTitle}
-            accentColor={n.accentColor}
+            token={family.token}
           />
         ))}
       </div>
