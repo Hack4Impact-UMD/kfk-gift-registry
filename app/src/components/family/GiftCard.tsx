@@ -4,8 +4,8 @@ import { ConfirmGiftModal } from "./ConfirmGiftModal"
 import { ThankYouNoteModal } from "./ThankYouNoteModal";
 import { ExclamationCircleIcon } from "@/components/icons";
 
-const GIFT_STEPS = ["Unordered", "Claimed", "In Transit", "Delivered", "Recieved"] as const;
-const GIFT_STATUS_ORDER = ["unordered", "claimed", "in_transit", "delivered", "received"] as const;
+const GIFT_STEPS = ["Unordered", "Claimed", "In Transit", "Delivered", "Recieved"];
+const GIFT_STATUS_ORDER = ["unordered", "claimed", "in_transit", "delivered", "received"];
 
 type Props = {
   gift: Gift;
@@ -28,6 +28,7 @@ export function GiftCard({ gift, color }: Props) {
   const filledTo = currentStep >= 0 ? currentStep + 1 : 0;
   const fillWidthPercent =
     filledTo > 0 ? TRACK_WIDTH * ((filledTo - 1) / (GIFT_STEPS.length - 1)) : 0;
+  const progressColor = gift.status === "received" ? "bg-kfk-green" : "bg-kfk-yellow";
 
   return (
     <>
@@ -90,11 +91,11 @@ export function GiftCard({ gift, color }: Props) {
         <div className="mt-5 mb-3 w-full">
           <div className="relative h-8 flex items-center w-full">
             <div
-              className="absolute h-2 rounded-full bg-muted"
+              className="absolute h-[9px] rounded-full bg-muted"
               style={{ left: `${TRACK_START}%`, width: `${TRACK_WIDTH}%` }}
             />
             <div
-              className="absolute h-2 rounded-full bg-kfk-yellow transition-[width]"
+              className={`absolute h-[9px] rounded-full transition-[width] ${progressColor}`}
               style={{ left: `${TRACK_START}%`, width: `${fillWidthPercent}%` }}
             />
             <div className="relative z-10 flex w-full">
@@ -102,7 +103,7 @@ export function GiftCard({ gift, color }: Props) {
                 <div key={label} className="flex-1 flex justify-center">
                   <div
                     className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-white text-sm font-medium ${
-                      i < filledTo ? "bg-kfk-yellow" : "bg-muted"
+                      i < filledTo ? progressColor : "bg-muted"
                     }`}
                   >
                     {i + 1}

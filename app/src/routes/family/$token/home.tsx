@@ -1,6 +1,7 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Route as FamilyTokenRoute } from "../$token";
-import { createFileRoute } from "@tanstack/react-router";
+import { NotificationCard } from "@/components/family/NotificationCard";
 import RedGift from "@/assets/red-gift.png";
 
 export const Route = createFileRoute("/family/$token/home")({
@@ -9,6 +10,17 @@ export const Route = createFileRoute("/family/$token/home")({
 
 function FamilyHome() {
   const family = FamilyTokenRoute.useLoaderData();
+
+  const notifications = family.children.flatMap((child: any) =>
+    child.gifts
+      .filter((gift: any) => gift.status === "delivered")
+      .map((gift: any) => ({
+        id: gift.id,
+        childName: child.name,
+        giftTitle: gift.name,
+        accentColor: child.color,
+      })),
+  );
 
   return (
     <div className="px-4 py-8 mt-2 flex flex-col"> 
@@ -31,6 +43,17 @@ function FamilyHome() {
         <Button variant="outline" className="rounded-full border-ring text-foreground"> 
           Clear All 
         </Button> 
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {notifications.map((n) => (
+          <NotificationCard
+            key={n.id}
+            childName={n.childName}
+            giftTitle={n.giftTitle}
+            accentColor={n.accentColor}
+          />
+        ))}
       </div>
     </div>
   );
