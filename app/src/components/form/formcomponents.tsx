@@ -75,7 +75,7 @@ export function FormCheckbox({
     <div className="flex items-start gap-3 text-left">
       <Checkbox
         id={checkboxId}
-        checked={field.state.value || value}
+        checked={field.state.value ?? value}
         onCheckedChange={(checked) => field.handleChange(!!checked)}
         disabled={disabled}
         className="mt-0.5"
@@ -226,7 +226,7 @@ export const FormFieldInput = ({
           autoComplete={autoComplete}
           name={field.name}
           id={field.name}
-          value={field.state.value || "" || value}
+          value={field.state.value || value || ""}
           placeholder={placeholder}
           onChange={(e) => field.handleChange(e.target.value)}
           onBlur={field.handleBlur}

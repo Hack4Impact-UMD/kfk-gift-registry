@@ -542,10 +542,10 @@ function RouteComponent() {
             selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
             children={([canSubmit, isSubmitting]) => (
               <Button 
-                type="submit" 
+                type="button"
                 disabled={!canSubmit}
                 size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
-                onClick={() => {alert("Submitted")}}
+                onClick={() => form.handleSubmit()}
               >
                 {isSubmitting ? '...' : 'Submit!'}
               </Button>
