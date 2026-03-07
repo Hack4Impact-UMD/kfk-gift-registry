@@ -9,6 +9,7 @@ import {
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useFormContext } from "@/components/providers/FormProvider";
 import { FormFieldInput, FormSelect, FormButton, FormCheckbox } from "@/components/form/formcomponents";
+import { PhotoUpload } from "@/components/form/PhotoUpload";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import "@/styles.css";
@@ -22,11 +23,10 @@ export const Route = createFileRoute('/family/form/children')({
 })
 
 function ChildrenPageComponent() {
-  const { formState, updateSection } = useFormContext();
+  const { updateSection } = useFormContext();
   const navigate = useNavigate();
 
-  const form = useChildrenForm();
-
+  const { form, handleNext } = useChildrenForm();
 
   const handleProgressBarNavigate = useProgressBarNavigation(
     "children",
@@ -51,8 +51,7 @@ function ChildrenPageComponent() {
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          form.validateAllFields('submit');
-          form.handleSubmit();
+          handleNext();
         }}
         className="flex flex-col gap-10"
       >
@@ -75,14 +74,10 @@ function ChildrenPageComponent() {
                     name="hasMultipleChildren"
                     checked={field.state.value === false}
                     onChange={() => {
-                      field.handleChange(false);
                       const firstChild = form.getFieldValue('children')?.[0];
-                      form.reset({
-                        ...form.state.values,
-                        hasMultipleChildren: false,
-                        numChildren: 1,
-                        children: [firstChild || { name: "", age: "", diagnosis: "", hospitalTreatedAt: "", socialWorkerName: "", photoUrl: "" }],
-                      });
+                      form.setFieldValue('hasMultipleChildren', false);
+                      form.setFieldValue('numChildren', 1);
+                      form.setFieldValue('children', [firstChild || { name: "", age: "", diagnosis: "", hospitalTreatedAt: "", socialWorkerName: "", photoUrl: "" }]);
                     }}
                     className="mt-0.5"
                   />
@@ -128,13 +123,6 @@ function ChildrenPageComponent() {
                       label="# of Children Diagnosed"
                       placeholder="Select number of children"
                       values={["2", "3", "4"]}
-                      onValueChange={(val: string) => {
-                        const newCount = Number(val);
-                        const currentChildren = form.getFieldValue('children') || [];
-                        if (currentChildren.length > newCount) {
-                          form.setFieldValue('children', currentChildren.slice(0, newCount));
-                        }
-                      }}
                       required
                     />
                   )}
@@ -263,15 +251,16 @@ function ChildrenPageComponent() {
 
                       
                       {/* Photo Upload Section */}
-                      <div className="bg-slate-50 p-4 rounded-lg border border-dashed border-slate-300">
-                        <p className="text-sm font-medium mb-1">Child Photo</p>
-                        <p className="text-xs text-gray-500 mb-3">
-                          Photos increase the chance of gift fulfillment.
-                        </p>
-                        <Button type="button" variant="outline" className="w-full bg-white">
-                          📷 Upload Photo for {form.state.values.children?.[index]?.name || "Child"}
-                        </Button>
-                      </div>
+                      <form.Field
+                        name={`children[${index}].photoUrl` as any}
+                        children={(field) => (
+                          <PhotoUpload
+                            field={field}
+                            label="Child Photo"
+                            childName={form.state.values.children?.[index]?.name || `Child ${index + 1}`}
+                          />
+                        )}
+                      />
                     </div>
                   </div>
                 ))}
@@ -312,13 +301,9 @@ function ChildrenPageComponent() {
                         name="hasSiblings"
                         checked={field.state.value === false}
                         onChange={() => {
-                          field.handleChange(false);
-                          form.reset({
-                            ...form.state.values,
-                            hasSiblings: false,
-                            numSiblings: 0,
-                            siblings: [],
-                          });
+                          form.setFieldValue('hasSiblings', false);
+                          form.setFieldValue('numSiblings', 0);
+                          form.setFieldValue('siblings', []);
                         }}
                         className="mt-0.5"
                       />
@@ -353,13 +338,6 @@ function ChildrenPageComponent() {
                           label="How many siblings?"
                           placeholder="Select amount"
                           values={["1", "2", "3", "4"]}
-                          onValueChange={(val: string) => {
-                            const newCount = Number(val);
-                            const currentSiblings = form.getFieldValue('siblings') || [];
-                            if (currentSiblings.length > newCount) {
-                              form.setFieldValue('siblings', currentSiblings.slice(0, newCount));
-                            }
-                          }}
                           required
                         />
                       )}
@@ -423,13 +401,16 @@ function ChildrenPageComponent() {
                             )}
                           />
 
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
-                          >
-                            📷 Upload Photo for {form.state.values.siblings?.[index]?.name || "Sibling"}
-                          </Button>
+                          <form.Field
+                            name={`siblings[${index}].photoUrl` as any}
+                            children={(field) => (
+                              <PhotoUpload
+                                field={field}
+                                label="Sibling Photo"
+                                childName={form.state.values.siblings?.[index]?.name || `Sibling ${index + 1}`}
+                              />
+                            )}
+                          />
                         </div>
                       </div>
                     ))}
@@ -463,19 +444,14 @@ function ChildrenPageComponent() {
             <ChevronLeftIcon className="mr-2 h-6 w-6" />
             Back
           </Button>
-          <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}
-            children={([canSubmit, isSubmitting]) => (
-              <Button 
-                type="submit" 
-                disabled={isSubmitting}
-                size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
-              >
-                {isSubmitting ? '...' : 'Next'}
-                <ChevronRightIcon className="ml-2 h-6 w-6" />
-              </Button>
-            )}
-          />
+          <Button
+            type="submit"
+            size="lg"
+            className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
+          >
+            Next
+            <ChevronRightIcon className="ml-2 h-6 w-6" />
+          </Button>
         </CardFooter>
       </form>
     </Card>

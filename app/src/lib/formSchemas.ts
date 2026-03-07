@@ -61,27 +61,36 @@ export const generalInfoSchema = z
   });
 
 
+// Accepts an empty string, a data URL (local preview), or an https:// URL (after Firebase upload)
+const photoUrlSchema = z.union([
+  z.literal(""),
+  z.string().startsWith("data:", "Must be a valid image"),
+  z.string().url("Must be a valid URL"),
+]).optional();
+
 export const childInfoSchema = z.object({
   name: z.string().min(1, "Child's name is required").max(100, "Name is too long"),
   age: z.string().min(1, "Age is required"),
   diagnosis: z.string().min(1, "Diagnosis is required").max(200, "Diagnosis is too long"),
   hospitalTreatedAt: z.string().min(1, "Hospital name is required").max(200, "Hospital name is too long"),
   socialWorkerName: z.string().min(1, "Social worker name is required").max(100, "Name is too long"),
-  photoUrl: z.string().url("Invalid photo URL").optional().or(z.literal("")),
+  photoUrl: photoUrlSchema,
 });
 
 export const siblingInfoSchema = z.object({
   name: z.string().min(1, "Sibling's name is required").max(100, "Name is too long"),
   age: z.string().min(1, "Age is required"),
-  photoUrl: z.string().url("Invalid photo URL").optional().or(z.literal("")),
+  photoUrl: photoUrlSchema,
 });
 
 export const childrenFormSchema = z.object({
   hasMultipleChildren: z.boolean(),
   children: z.array(childInfoSchema).min(1, "At least one child is required"),
-  numChildren: z.number().min(1).max(4),
+  // coerce handles the string values that come from FormSelect ("2", "3", "4")
+  numChildren: z.coerce.number().min(1).max(4),
   hasSiblings: z.boolean(),
-  numSiblings: z.number().min(0).max(10),
+  // coerce handles the string values that come from FormSelect ("1", "2", ...)
+  numSiblings: z.coerce.number().min(0).max(10),
   siblings: z.array(siblingInfoSchema),
   consentPhotosPublic: z.boolean(),
 }).refine((data) => {
