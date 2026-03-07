@@ -6,7 +6,6 @@ import {
   requireRolesMiddleware,
 } from "@/server/middleware/authMiddleware";
 import { getServerAuth, getServerDB } from "@/lib/firebase.server";
-import { INVITE_COLLECTION } from "@/data/collections";
 import { DateTime } from 'luxon';
 
 const uidSchema = z.object({ uid: z.string().min(1) });
@@ -204,8 +203,9 @@ export const registerStaffMemberWithInvite = createServerFn({method: "POST"})
 .handler(
     async ({data}) => {
       const db = getServerDB();
+      const auth = getServerAuth();
 
-      const inviteSnap = await db.collection(INVITE_COLLECTION).doc(data.inviteId).get();
+      const inviteSnap = await db.invites.doc(data.inviteId).get();
       if (!inviteSnap.exists){ 
         throw new Error("Invite not found");
       }
@@ -226,15 +226,32 @@ export const registerStaffMemberWithInvite = createServerFn({method: "POST"})
       }
       // if no errors, data is valid
       const userEmail = invite.email
-      const authUser = await db.auth.createUser({
+      const authUser = await auth.createUser({
         displayName: `${data.firstName} ${data.lastName}`,
         email: userEmail,
         password: data.password,
         phoneNumber: data.phone,
       });
 
-    await db.auth.setCustomUserClaims(authUser.uid, {
-      role: invite.role,
-    });
+      await auth.setCustomUserClaims(authUser.uid, {
+        role: invite.role,
+      });
+
+      // creates the user profile doc with the same ID as the Auth user
+      const userDoc = {
+        id: authUser.uid,
+        email: userEmail,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        role: invite.role,
+        phone: data.phone,
+        createdAt: DateTime.now().toISO(),
+        enabled: true,
+      };
+
+      await db.users.doc(authUser.uid).set(userDoc);
+      await db.invites.doc(data.inviteId).update({ used: true })
+
+      return userDoc;
     }
   )
