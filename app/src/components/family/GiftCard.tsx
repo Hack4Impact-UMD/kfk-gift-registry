@@ -9,13 +9,12 @@ const GIFT_STATUS_ORDER = ["unordered", "claimed", "in_transit", "delivered", "r
 
 type Props = {
   gift: Gift;
-  color: string;
 };
 
 const TRACK_START = 10;
 const TRACK_WIDTH = 80;
 
-export function GiftCard({ gift, color }: Props) {
+export function GiftCard({ gift }: Props) {
   const formattedStatus =
     gift.status
       .replaceAll("_", " ")
@@ -102,9 +101,7 @@ export function GiftCard({ gift, color }: Props) {
               {GIFT_STEPS.map((label, i) => (
                 <div key={label} className="flex-1 flex justify-center">
                   <div
-                    className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-white text-sm font-medium ${
-                      i < filledTo ? progressColor : "bg-muted"
-                    }`}
+                    className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-white text-sm font-medium ${i < filledTo ? progressColor : "bg-muted"}`}
                   >
                     {i + 1}
                   </div>

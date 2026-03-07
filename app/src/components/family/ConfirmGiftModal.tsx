@@ -17,7 +17,7 @@ export function ConfirmGiftModal({ open, onOpenChange }: Props) {
         onClick={() => onOpenChange(false)}
       />
 
-      <div className="relative flex flex-col items-center border-2 border-kfk-blue bg-white shadow-xl rounded-xl p-6 w-[360px] z-10">
+      <div className="relative flex flex-col items-center border-2 border-kfk-blue bg-white shadow-xl rounded-xl p-6 w-[313px] z-10">
 
         <Button
           onClick={() => onOpenChange(false)}
