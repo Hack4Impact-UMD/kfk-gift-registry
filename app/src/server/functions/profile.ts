@@ -6,6 +6,7 @@ import {
   requireRolesMiddleware,
 } from "@/server/middleware/authMiddleware";
 import { getServerAuth, getServerDB } from "@/lib/firebase.server";
+import { INVITE_COLLECTION, USER_COLLECTION } from "@/data/collections";
 
 const uidSchema = z.object({ uid: z.string().min(1) });
 
@@ -179,15 +180,21 @@ export const deleteUserProfile = createServerFn({
   });
 
 const relevantStaffFields = z.object({
-  inviteID: z.string(),
+  inviteId: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   password: z.string(),
   phone: z.string().optional()
 })
+
 export const registerStaffMemberWithInvite = createServerFn({method: "POST"})
-  .handler(
-    async () => {
-      
+.inputValidator(relevantStaffFields)
+.handler(
+    async ({data}) => {
+      const db = getServerDB();
+      const inviteSnap = await db.collection(INVITE_COLLECTION).doc(data.inviteId).get();
+      if (!inviteSnap.exists) throw new Error("Invite not found");
+      const invite = inviteSnap.data();
+      if (invite.used) throw new Error("Invite already used");
     }
   )
