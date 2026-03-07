@@ -1,5 +1,6 @@
 import { createMiddleware } from "@tanstack/react-start";
-import { verifySession } from "../auth";
+import type { UserRole } from "common";
+import { verifySession } from "@/server/auth";
 
 export const authMiddleware = createMiddleware({ type: "function" }).server(
   async ({ next }) => {
@@ -15,3 +16,14 @@ export const authMiddleware = createMiddleware({ type: "function" }).server(
     }
   },
 );
+
+export const requireRolesMiddleware = (allowedRoles: Array<UserRole>) =>
+  createMiddleware({ type: "function" })
+    .middleware([authMiddleware])
+    .server(async ({ context, next }) => {
+      if (allowedRoles.includes(context.authUser.role)) {
+        return next();
+      } else {
+        throw new Error(`[role middleware]: invalid roles`);
+      }
+    });
