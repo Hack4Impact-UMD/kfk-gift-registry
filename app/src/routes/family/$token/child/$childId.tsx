@@ -68,7 +68,7 @@ function ChildPage() {
                         : "bg-kfk-muted-red/30 text-kfk-red"
                     }`}
                   >
-                    {received ? "Recieved" : "Not Recieved"}
+                    {received ? "Received" : "Not Received"}
                   </div>
 
                   <p className="text-center text-sm font-gaegu">

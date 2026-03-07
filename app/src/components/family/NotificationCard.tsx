@@ -22,7 +22,7 @@ export function NotificationCard({
   }[child.color] ?? { bar: "bg-kfk-red", ring: "ring-kfk-red" };
 
   return (
-    <div className="flex items-stretch rounded-r-[20px] bg-card overflow-hidden border border-[2px] border-[#ececec]">
+    <div className="flex items-stretch rounded-r-[20px] bg-card overflow-hidden border-[2px] border-[#ececec]">
 
       <div className={`w-2 ${colorClasses.bar}`} />
 
@@ -54,6 +54,7 @@ export function NotificationCard({
           variant="ghost"
           aria-label="Dismiss notification"
           className="text-black flex items-center justify-center self-start"
+          //TODO: implement dismiss functionality
         >
           <X size={16} />
         </Button>

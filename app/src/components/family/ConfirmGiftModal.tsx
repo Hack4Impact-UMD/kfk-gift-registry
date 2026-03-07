@@ -28,7 +28,7 @@ export function ConfirmGiftModal({ open, onOpenChange }: Props) {
         </Button>
 
         <p className="my-6">
-          Are you sure you recevied the gift?
+          Are you sure you received the gift?
         </p>
 
         <Button 

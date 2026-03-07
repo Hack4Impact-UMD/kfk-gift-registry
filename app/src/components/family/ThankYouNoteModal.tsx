@@ -46,6 +46,7 @@ export function ThankYouNoteModal({ open, onOpenChange }: Props) {
           <Button
             onClick={() => onOpenChange(false)}
             className="bg-kfk-blue text-white"
+            // TODO: implement send functionality
           >
             Send
           </Button>

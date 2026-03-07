@@ -46,11 +46,15 @@ function FamilyHome() {
         <img src={RedGift} alt="Gift Box" className="w-48 mt-4" />
       </div>
 
-      <div className="py-4 mt-4 flex flex justify-between items-center">
+      <div className="py-4 mt-4 flex justify-between items-center">
         <h3 className="text-lg font-semibold mx-2">Notifications</h3>
-        <Button variant="outline" className="rounded-full border-ring text-foreground"> 
+        <Button 
+          variant="outline" 
+          className="rounded-full border-ring text-foreground"
+          // TODO: implement clear functionality
+         > 
           Clear All 
-        </Button> 
+        </Button>
       </div>
 
       <div className="flex flex-col gap-3">

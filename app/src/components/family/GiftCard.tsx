@@ -4,7 +4,7 @@ import { ConfirmGiftModal } from "./ConfirmGiftModal"
 import { ThankYouNoteModal } from "./ThankYouNoteModal";
 import { ExclamationCircleIcon } from "@/components/icons";
 
-const GIFT_STEPS = ["Unordered", "Claimed", "In Transit", "Delivered", "Recieved"];
+const GIFT_STEPS = ["Unordered", "Claimed", "In Transit", "Delivered", "Received"];
 const GIFT_STATUS_ORDER = ["unordered", "claimed", "in_transit", "delivered", "received"];
 
 type Props = {
