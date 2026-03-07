@@ -19,7 +19,7 @@ function ChildPage() {
 
   return (
     <div>
-      <div className={`rounded-2xl bg-kfk-blue p-6 shadow-xl relative overflow-hidden my-6`}>
+      <div className={`rounded-2xl bg-kfk-blue p-6 relative overflow-hidden my-6`} style={{ boxShadow: "0 0 20px rgba(0,0,0,0.4)" }}>
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute w-32 h-32 bg-kfk-light-blue/10 rounded-full -top-10 -left-10"></div>
           <div className="absolute w-24 h-24 bg-kfk-light-blue/10 rounded-full top-16 -right-16"></div>
@@ -44,7 +44,7 @@ function ChildPage() {
             <span className={`px-4 py-1 rounded-full border border-foreground text-sm font-gaegu text-foreground
               ${
                 child.label === "Warrior"
-                  ? "bg-kfk-muted-yellow"
+                  ? "bg-kfk-muted-yellow" //TODO: ask about styles.css colors (this is #FFF8C2 in wireframe)
                   : "bg-kfk-light-blue"
               }`}
             >

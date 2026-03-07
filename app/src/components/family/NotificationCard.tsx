@@ -8,12 +8,14 @@ type NotificationCardProps = {
   child: Child;
   giftTitle: string;
   token: string;
+  onDismiss?: () => void
 };
 
 export function NotificationCard({
   child,
   giftTitle,
   token,
+  onDismiss,
 }: NotificationCardProps) {
   const colorClasses = {
     "kfk-red": { bar: "bg-kfk-red", ring: "ring-kfk-red" },
@@ -54,7 +56,11 @@ export function NotificationCard({
           variant="ghost"
           aria-label="Dismiss notification"
           className="text-black flex items-center justify-center self-start"
-          //TODO: implement dismiss functionality
+          onClick={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            onDismiss?.()
+          }}
         >
           <X size={16} />
         </Button>

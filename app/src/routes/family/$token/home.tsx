@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Route as FamilyTokenRoute } from "../$token";
@@ -20,6 +21,21 @@ function FamilyHome() {
         giftTitle: gift.name,
       })),
   );
+
+  // TODO: implement clear functionality (swap out local storage implementation)
+  const [visibleIds, setVisibleIds] = useState<string[]>(() =>
+    notifications.map((n) => n.id)
+  )
+
+  const visibleNotifications = notifications.filter((n) =>
+    visibleIds.includes(n.id)
+  )
+
+  const handleDismiss = (id: string) => {
+    setVisibleIds((prev) => prev.filter((i) => i !== id))
+  }
+
+  const handleClearAll = () => setVisibleIds([])
 
   return (
     <div className="px-4 py-8 mt-2 flex flex-col"> 
@@ -51,19 +67,21 @@ function FamilyHome() {
         <Button 
           variant="outline" 
           className="rounded-full border-ring text-foreground"
-          // TODO: implement clear functionality
+          // TODO: implement clear functionality (swap out local storage implementation)
+          onClick={handleClearAll}
          > 
           Clear All 
         </Button>
       </div>
 
       <div className="flex flex-col gap-3">
-        {notifications.map((n) => (
+        {visibleNotifications.map((n) => (
           <NotificationCard
             key={n.id}
             child={n.child}
             giftTitle={n.giftTitle}
             token={family.token}
+            onDismiss={() => handleDismiss(n.id)}
           />
         ))}
       </div>

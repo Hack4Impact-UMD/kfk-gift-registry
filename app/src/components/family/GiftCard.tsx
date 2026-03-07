@@ -28,24 +28,25 @@ export function GiftCard({ gift }: Props) {
   const fillWidthPercent =
     filledTo > 0 ? TRACK_WIDTH * ((filledTo - 1) / (GIFT_STEPS.length - 1)) : 0;
   const progressColor = gift.status === "received" ? "bg-kfk-green" : "bg-kfk-yellow";
+  const progressBorderColor = gift.status === "received" ? "border-kfk-green" : "border-kfk-yellow"
 
   return (
     <>
-      <div className="rounded-xl border p-4 mb-4 bg-card shadow-lg space-y-2">
+      <div className="rounded-xl border p-4 mb-4 bg-card space-y-2" style={{ boxShadow: "0 0 8px rgba(0,0,0,0.35)" }}>
 
         {gift.status === "received" && (
           <div className="-mx-4 mb-4 bg-kfk-green text-white text-center shrink-0">
-            <p className="p-2 font-semibold">Yay! You received this gift!</p>
+            <p className="p-2 font-bold">Yay! You received this gift!</p>
           </div>
         )}
         
         <p>
-          <span className="font-semibold">Gift Name:</span>{" "}
+          <span className="font-bold">Gift Name:</span>{" "}
           {gift.name}
         </p>
 
         <p>
-          <span className="font-semibold">Price:</span>{" "}
+          <span className="font-bold">Price:</span>{" "}
           ${gift.price.toFixed(2)}
         </p>
 
@@ -90,18 +91,18 @@ export function GiftCard({ gift }: Props) {
         <div className="mt-5 mb-3 w-full">
           <div className="relative h-8 flex items-center w-full">
             <div
-              className="absolute h-[9px] rounded-full bg-muted"
+              className={`absolute h-[14px] rounded-full border-2 ${progressBorderColor}`}
               style={{ left: `${TRACK_START}%`, width: `${TRACK_WIDTH}%` }}
             />
             <div
-              className={`absolute h-[9px] rounded-full transition-[width] ${progressColor}`}
+              className={`absolute h-[14px] rounded-full transition-[width] ${progressColor}`}
               style={{ left: `${TRACK_START}%`, width: `${fillWidthPercent}%` }}
             />
             <div className="relative z-10 flex w-full">
               {GIFT_STEPS.map((label, i) => (
                 <div key={label} className="flex-1 flex justify-center">
                   <div
-                    className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-white text-sm font-medium ${i < filledTo ? progressColor : "bg-muted"}`}
+                    className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-white text-sm font-medium ${progressColor}`}
                   >
                     {i + 1}
                   </div>
@@ -112,7 +113,7 @@ export function GiftCard({ gift }: Props) {
           <div className="flex w-full mt-1">
             {GIFT_STEPS.map((label) => (
               <div key={label} className="flex-1 min-w-0 flex justify-center">
-                <span className="text-md font-gaegu text-center block">
+                <span className="text-md font-gaegu font-semibold text-center block">
                   {label}
                 </span>
               </div>
@@ -121,23 +122,23 @@ export function GiftCard({ gift }: Props) {
         </div>
 
         <p>
-          <span className="font-semibold">Status:</span>{" "}
+          <span className="font-bold">Status:</span>{" "}
           {formattedStatus}
         </p>
 
         <p>
-          <span className="font-semibold">Tracking Number:</span>{" "}
+          <span className="font-bold">Tracking Number:</span>{" "}
           {gift.trackingNumber ?? "N/A"}
         </p>
 
         <p>
-          <span className="font-semibold">Date Delivered:</span>{" "}
+          <span className="font-bold">Date Delivered:</span>{" "}
           {gift.dateDelivered ?? "N/A"}
         </p>
 
         {gift.status === "received" && (
           <p>
-            <span className="font-semibold">Date Received:</span>{" "}
+            <span className="font-bold">Date Received:</span>{" "}
             {gift.dateReceived ?? "N/A"}
           </p>
         )}
