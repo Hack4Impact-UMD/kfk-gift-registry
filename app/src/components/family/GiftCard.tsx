@@ -134,6 +134,13 @@ export function GiftCard({ gift }: Props) {
           <span className="font-semibold">Date Delivered:</span>{" "}
           {gift.dateDelivered ?? "N/A"}
         </p>
+
+        {gift.status === "received" && (
+          <p>
+            <span className="font-semibold">Date Received:</span>{" "}
+            {gift.dateReceived ?? "N/A"}
+          </p>
+        )}
       </div>
 
       <ConfirmGiftModal

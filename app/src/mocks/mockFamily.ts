@@ -12,6 +12,7 @@ export type Gift = {
   status: GiftStatus;
   trackingNumber?: number;
   dateDelivered?: string;
+  dateReceived?: string;
 };
 
 export type Child = {
@@ -84,6 +85,7 @@ export const mockFamily: Family = {
           status: "received",
           trackingNumber: 564738291,
           dateDelivered: "2026-10-20",
+          dateReceived: "2026-10-23",
         },
       ],
     },
@@ -141,6 +143,7 @@ export const mockFamily: Family = {
           status: "received",
           trackingNumber: 564738291,
           dateDelivered: "2026-11-05",
+          dateReceived: "2026-11-10",
         },
       ],
     },

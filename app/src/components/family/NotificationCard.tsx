@@ -27,7 +27,6 @@ export function NotificationCard({
       <div className={`w-2 ${colorClasses.bar}`} />
 
       <div className="flex flex-1 items-center gap-4 px-4 py-3">
-=
         <Link
           to="/family/$token/child/$childId"
           params={{ token, childId: child.id }}
