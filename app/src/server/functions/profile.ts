@@ -6,7 +6,7 @@ import {
   requireRolesMiddleware,
 } from "@/server/middleware/authMiddleware";
 import { getServerAuth, getServerDB } from "@/lib/firebase.server";
-import { INVITE_COLLECTION, USER_COLLECTION } from "@/data/collections";
+import { INVITE_COLLECTION } from "@/data/collections";
 import { DateTime } from 'luxon';
 
 const uidSchema = z.object({ uid: z.string().min(1) });
@@ -186,7 +186,18 @@ const relevantStaffFields = z.object({
   lastName: z.string(),
   password: z.string(),
   phone: z.string().optional()
-})
+}) // validates request input
+
+const staffInviteSchema = z.object({
+  id: z.string(),
+  sentBy: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string(),
+  role: z.enum([UserRole.ADMIN, UserRole.VOLUNTEER]),
+  createdAt: z.string(),
+  used: z.boolean(),
+}) // validates firestore invite doc
 
 export const registerStaffMemberWithInvite = createServerFn({method: "POST"})
 .inputValidator(relevantStaffFields)
@@ -198,10 +209,9 @@ export const registerStaffMemberWithInvite = createServerFn({method: "POST"})
       if (!inviteSnap.exists){ 
         throw new Error("Invite not found");
       }
-      const invite = inviteSnap.data();
-      if (!invite){
-        throw new Error("Invite not found")
-      }
+
+      const invite = staffInviteSchema.parse(inviteSnap.data());
+
       if (invite.used){ 
         throw new Error("Invite already used");
       }
