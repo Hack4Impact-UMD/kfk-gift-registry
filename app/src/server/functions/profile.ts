@@ -7,6 +7,7 @@ import {
 } from "@/server/middleware/authMiddleware";
 import { getServerAuth, getServerDB } from "@/lib/firebase.server";
 import { INVITE_COLLECTION, USER_COLLECTION } from "@/data/collections";
+import { DateTime } from 'luxon';
 
 const uidSchema = z.object({ uid: z.string().min(1) });
 
@@ -192,9 +193,24 @@ export const registerStaffMemberWithInvite = createServerFn({method: "POST"})
 .handler(
     async ({data}) => {
       const db = getServerDB();
+
       const inviteSnap = await db.collection(INVITE_COLLECTION).doc(data.inviteId).get();
-      if (!inviteSnap.exists) throw new Error("Invite not found");
+      if (!inviteSnap.exists){ 
+        throw new Error("Invite not found");
+      }
       const invite = inviteSnap.data();
-      if (invite.used) throw new Error("Invite already used");
+      if (invite.used){ 
+        throw new Error("Invite already used");
+      }
+
+      const dateCreated = DateTime.fromISO(invite.createdAt);
+      if (!dateCreated.isValid){
+        throw new Error("Invalid invite createdAt")
+      }
+      const expired = dateCreated < DateTime.now().minus({days: 7})
+      if (expired){
+        throw new Error("Invite not created in past 7 days")
+      }
+
     }
   )

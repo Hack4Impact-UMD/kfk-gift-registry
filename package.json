@@ -19,6 +19,7 @@
     "prettier": "^3.8.1"
   },
   "dependencies": {
+    "luxon": "^3.7.2",
     "punycode": "^2.3.1"
   }
 }
