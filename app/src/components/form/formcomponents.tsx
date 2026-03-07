@@ -135,7 +135,11 @@ export const FormSelect = ({
   
   return (
     <FormItem className="relative mt-6 w-full max-w-[240px]">
-      <FieldLabel className="absolute -top-2 left-4 bg-white px-2 text-sm text-slate-600 z-10">
+      <FieldLabel className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
+        errorMessage ? "text-red-500" : "text-slate-600"
+      }
+
+         z-10`}>
         {label}
         {required && <span className="text-destructive"> *</span>}
       </FieldLabel>
@@ -149,7 +153,7 @@ export const FormSelect = ({
       >
         <SelectTrigger 
           className={`py-6 w-full rounded-xl border-1 ${
-            errorMessage ? "border-red-500" : "border-slate-700"
+            errorMessage ? "border-red-500 [&>span]:text-red-500" : "border-slate-700"
           } focus:ring-0 text-slate-400 font-medium`}
         >
           <SelectValue placeholder={placeholder} />
@@ -227,7 +231,7 @@ export const FormFieldInput = ({
             errorMessage ? "pr-12" : "pr-4"
           } rounded-xl border-1 ${
             errorMessage ? "border-red-500 text-red-500 placeholder:text-red-500" : "border-slate-700 placeholder:text-slate-400 focus-visible:placeholder:text-slate-700 group-hover:placeholder:text-slate-700"
-          } focus-visible:ring-0 focus-visible:border-[var(--color-kfk-blue)] font-medium`}
+          } focus-visible:ring-0 focus-visible:border-[var(--color-kfk-blue)] font-medium transition duration-200 ease-in-out`}
         />
         {errorMessage && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">

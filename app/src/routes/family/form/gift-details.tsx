@@ -11,7 +11,7 @@ import {
 } from "@heroicons/react/24/solid"
 import { useState } from 'react';
 import { useFormContext } from "@/components/providers/FormProvider";
-import { giftsFormSchema, childGiftSchema } from '@/lib/formSchemas'
+import { childGiftSchema, giftsFormSchema } from '@/lib/formSchemas'
 import { FormCheckbox, FormFieldInput, FormSelect } from "@/components/form/formcomponents"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,47 +30,26 @@ type GiftSelection = {
   giftName: string;
 };
 
-export type ChildInfo = {
-  name: string;
-  age: string;
-  diagnosis: string;
-  hospitalTreatedAt: string;
-  socialWorkerName: string;
-  photoUrl?: string;
-};
-
-const patient: ChildInfo = {
-  name: "Alex",
-  age: "8", 
-  diagnosis: "Leukemia",
-  hospitalTreatedAt: "Holy Cross",
-  socialWorkerName: "Jane Doe",
-  photoUrl: "https://example.com/photos/alex.jpg" 
-};
-
-const patient2: ChildInfo = {
-  name: "He",
-  age: "8", 
-  diagnosis: "Leukemia",
-  hospitalTreatedAt: "Holy Cross",
-  socialWorkerName: "Jane Doe",
-  photoUrl: "https://example.com/photos/alex.jpg" 
-};
 
 function GiftsStep() {
   const { updateSection, formState } = useFormContext();
   const navigate = useNavigate();
-  const childrenList = formState.children?.children || [patient, patient2];
-  
+  const children = formState.children?.children || [];
+  const siblings = formState.children?.siblings || [];
+  const childrenNameList = [
+    ...children.map(c => c.name),
+    ...siblings.map(s => s.name)
+  ]
+
   // -1: "Dashboard". 
-  // 0, 1, 2: Specific forms for that child
+  // 0, 1, 2, 3, ...: Specific forms for that child
   const [activeChildIndex, setActiveChildIndex] = useState<number>(-1);
 
   const form = useForm({
     defaultValues: {
       giftSelections: formState.gifts?.giftSelections ?? 
-        childrenList.map(c => ({ 
-          childName: c.name, 
+        childrenNameList.map(c => ({ 
+          childName: c, 
           gifts: [
             { giftName: '', giftUrl: '' },
             { giftName: '', giftUrl: '' },
@@ -124,7 +103,7 @@ function GiftsStep() {
     return "dirty";
   };
 
-  const allComplete = childrenList.every((_, index) => isChildComplete(index) === "completed");
+  const allComplete = childrenNameList.every((_, index) => isChildComplete(index) === "completed");
 
   if (activeChildIndex === -1) {
     return (
@@ -152,13 +131,13 @@ function GiftsStep() {
             <CardDescription className="font-bold text-center text-green-900">Thank you for helping us make this holiday special for every child!</CardDescription>
           </div>
 
-          {childrenList.map((child, index) => (
+          {childrenNameList.map((childName, index) => (
             <button 
               key={index}
               className={`flex flex-row cursor-pointer justify-around ${isChildComplete(index) == "completed" ? "bg-[var(--color-kfk-green)]" : isChildComplete(index) == "dirty" ? "bg-red-500" : "bg-yellow-300"} ${isChildComplete(index) == "dirty" && "text-white"} rounded-lg text-md p-4 mx-7 mt-7`}
               onClick={() => setActiveChildIndex(index)}
             >
-              <span className="my-auto">{child.name}'s Gift Selection</span>
+              <span className="my-auto">{childName}'s Gift Selection</span>
               {isChildComplete(index) == "completed" ? <CheckCircleIcon className="size-12"/> : isChildComplete(index) == "dirty" ? <XCircleIcon className="size-12"/> : <ArrowRightCircleIcon className="size-12"/>}
             </button>
           ))}
@@ -192,7 +171,7 @@ function GiftsStep() {
       <Card className="mx-auto w-full max-w-sm">
         <CardHeader className="flex flex-col justify-around gap-7">
           <FormProgressBar onNavigate={handleProgressBarNavigate} />
-          <CardTitle className="mx-auto text-2xl text-[var(--color-kfk-blue)] text-center">{childrenList[activeChildIndex].name}'s Gift Selection</CardTitle>
+          <CardTitle className="mx-auto text-2xl text-[var(--color-kfk-blue)] text-center">{childrenNameList[activeChildIndex]}'s Gift Selection</CardTitle>
           <CardDescription className="mx-auto"><em>Please choose up to 3 gifts for your child.</em></CardDescription>
         </CardHeader>
         <CardContent>
@@ -201,12 +180,38 @@ function GiftsStep() {
               {[0, 1, 2].map((i) => (
                 <div key={i}>
                   <CardDescription className="text-md text-[var(--color-kfk-blue)] -mb-2">Gift #{i + 1}</CardDescription>
-                  <form.Field name={`giftSelections[${activeChildIndex}].gifts[${i}].giftUrl`}>
+                  <form.Field
+                    name={`giftSelections[${activeChildIndex}].gifts[${i}].giftUrl`}
+                    validators={{
+                      onChange: ({ value }) => {
+                          if (!value) return 'URL is required';
+                          
+                          try {
+                            const url = new URL(value);
+                            if (!['http:', 'https:'].includes(url.protocol)) {
+                              return 'URL must start with http or https';
+                            }
+                            return undefined;
+                          } catch (e) {
+                            return 'Please enter a valid URL';
+                          }
+                        }
+                    }}
+                  >     
                     {(field) => 
                       <FormFieldInput field={field} Icon={GiftIcon} label={`Gift #${i+1} URL`} placeholder="e.g. amazon.com/Monopoly-Family-Board-Players" required={i==0}/>
                     }
                   </form.Field>
-                  <form.Field name={`giftSelections[${activeChildIndex}].gifts[${i}].giftName`}>
+                  <form.Field 
+                    name={`giftSelections[${activeChildIndex}].gifts[${i}].giftName`}
+                    validators={{
+                      onChange: ({ value }) => {
+                        if (!value) return "Gift name is required";
+                        if (value.length > 100) return "Gift name is too long";
+                        return undefined;
+                      }
+                    }}
+                  >
                     {(field) => 
                       <FormFieldInput field={field} Icon={GiftIcon} label={`Gift #${i+1} Name`} placeholder="e.g. Monopoly" required={i==0}/>            
                     }
@@ -219,12 +224,38 @@ function GiftsStep() {
             {[0, 1].map((i) => (
                 <div key={i}>
                   <CardDescription className="text-md text-[var(--color-kfk-blue)] -mb-2">Backup Gift #{i + 1}</CardDescription>
-                  <form.Field name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftUrl`}>
+                  <form.Field 
+                    name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftUrl`}
+                    validators={{
+                      onChange: ({ value }) => {
+                          if (!value) return 'URL is required';
+                          
+                          try {
+                            const url = new URL(value);
+                            if (!['http:', 'https:'].includes(url.protocol)) {
+                              return 'URL must start with http or https';
+                            }
+                            return undefined;
+                          } catch (e) {
+                            return 'Please enter a valid URL';
+                          }
+                        }
+                    }}
+                  >
                     {(field) => 
                     <FormFieldInput field={field} Icon={GiftIcon} label={`Backup Gift #${i+1} URL`} placeholder="e.g. amazon.com/Monopoly-Family-Board-Players" required/>
                     }
                   </form.Field>
-                  <form.Field name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftName`}>
+                  <form.Field 
+                    name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftName`}
+                    validators={{
+                      onChange: ({ value }) => {
+                        if (!value) return "Gift name is required";
+                        if (value.length > 100) return "Gift name is too long";
+                        return undefined;
+                      }
+                    }}
+                  >
                     {(field) => 
                       <FormFieldInput field={field} Icon={GiftIcon} label={`Backup Gift #${i+1} Name`} placeholder="e.g. Monopoly" required/> 
                     }

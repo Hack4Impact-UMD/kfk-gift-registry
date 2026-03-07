@@ -12,7 +12,7 @@ import {
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 
-import { User, Stethoscope, Building2, UserCog, GiftIcon } from "lucide-react"
+import { Building2, GiftIcon, Stethoscope, User, UserCog } from "lucide-react"
 import { FormCheckbox, FormFieldInput, FormSelect, US_STATES } from "@/components/form/formcomponents"
 
 import {
@@ -26,7 +26,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { generalInfoSchema } from "@/lib/formSchemas";
-import { useFormContext, FamilyFormState } from "@/components/providers/FormProvider";
+import { FamilyFormState, useFormContext } from "@/components/providers/FormProvider";
 import { FormItem } from "@/components/ui/form"
 import { FormProgressBar } from "@/components/form/FormProgressBar"
 import { useProgressBarNavigation } from "@/hooks/form/FormHooks"
