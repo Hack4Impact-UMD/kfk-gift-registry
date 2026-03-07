@@ -59,7 +59,7 @@ export const getAllUserProfiles = createServerFn({
     const db = getServerDB();
     const snapshot = await db.users.get();
 
-    return snapshot.docs.map((doc) => {
+    return snapshot.docs.map((doc: any) => {
       const data = doc.data();
       return data;
     });
@@ -177,3 +177,17 @@ export const deleteUserProfile = createServerFn({
       throw new Error(`Failed to delete: ${errors.join(", ")}`);
     }
   });
+
+const relevantStaffFields = z.object({
+  inviteID: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  password: z.string(),
+  phone: z.string().optional()
+})
+export const registerStaffMemberWithInvite = createServerFn({method: "POST"})
+  .handler(
+    async () => {
+      
+    }
+  )
