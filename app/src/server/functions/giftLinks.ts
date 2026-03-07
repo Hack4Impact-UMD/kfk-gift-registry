@@ -64,35 +64,67 @@ function assertNotBlocked(html: string) {
   }
 }
 
+function getAllowedHosts(platform: Platform): Set<string> {
+  return platform === "amazon"
+    ? new Set(["amazon.com", "www.amazon.com"])
+    : new Set(["macys.com", "www.macys.com"]);
+}
+
+function assertFinalHostAllowed(platform: Platform, finalUrl: string) {
+  const { hostname } = new URL(finalUrl);
+  const allowed = getAllowedHosts(platform);
+  if (!allowed.has(hostname)) {
+    throw new Error(
+      `Redirected to an unexpected host (${hostname}). Expected ${platform} domain.`,
+    );
+  }
+}
+
+function hasProductPageMarker(
+  platform: Platform,
+  $: cheerio.CheerioAPI,
+): boolean {
+  return platform === "amazon"
+    ? $("#productTitle").length > 0
+    : $("h1.product-title span.body").length > 0;
+}
+
 function extractAmazonProductName($: cheerio.CheerioAPI): string | null {
   const byId = $("#productTitle").first().text().trim();
   if (byId) return byId;
 
-  const titleTag = $("title").first().text().trim();
-  if (!titleTag) return null;
-
-  const m = titleTag.match(/^(.*?)\s*(?::|-)\s*Amazon\.com\s*$/i);
-  return (m?.[1] ?? titleTag).trim() || null;
+  return null;
 }
 
 function extractMacysProductName($: cheerio.CheerioAPI): string | null {
   const byH1 = $("h1.product-title span.body").first().text().trim();
   if (byH1) return byH1;
 
-  const titleTag = $("title").first().text().trim();
-  if (!titleTag) return null;
-
-  const m = titleTag.match(/^(.*?)\s*(?:-|\|)\s*(?:Macy's|macys\.com)\s*$/i);
-  return (m?.[1] ?? titleTag).trim() || null;
+  return null;
 }
 
 function extractProductName(
   platform: Platform,
   $: cheerio.CheerioAPI,
 ): string | null {
-  return platform === "amazon"
-    ? extractAmazonProductName($)
-    : extractMacysProductName($);
+  if (!hasProductPageMarker(platform, $)) return null;
+
+  const direct =
+    platform === "amazon"
+      ? extractAmazonProductName($)
+      : extractMacysProductName($);
+  if (direct) return direct;
+
+  const titleTag = $("title").first().text().trim();
+  if (!titleTag) return null;
+
+  if (platform === "amazon") {
+    const m = titleTag.match(/^(.*?)\s*(?::|-)\s*Amazon\.com\s*$/i);
+    return (m?.[1] ?? titleTag).trim() || null;
+  }
+
+  const m = titleTag.match(/^(.*?)\s*(?:-|\|)\s*(?:Macy's|macys\.com)\s*$/i);
+  return (m?.[1] ?? titleTag).trim() || null;
 }
 
 function getBrowserLikeHeaders(
@@ -161,10 +193,13 @@ async function fetchHtmlWithAxios(
 
   if (platform !== "macys") {
     const res = await axios.get(url, common);
+    assertFinalHostAllowed(
+      platform,
+      String(res.request?.res?.responseUrl ?? url),
+    );
     return toHtmlOrThrow(res.status, res.data, platform);
   }
 
-  // Macy's: use wrapper + CookieJar so cookies persist across requests
   const jar = new CookieJar();
   const client = wrapper(
     axios.create({
@@ -175,13 +210,21 @@ async function fetchHtmlWithAxios(
     }),
   );
 
-  // Macy's: warm up session cookies by requesting the homepage first
-  await client.get("https://www.macys.com/", {
+  const warm = await client.get("https://www.macys.com/", {
     ...common,
     headers: getBrowserLikeHeaders("macys", "https://www.macys.com/"),
   });
+  assertFinalHostAllowed(
+    "macys",
+    String(warm.request?.res?.responseUrl ?? "https://www.macys.com/"),
+  );
 
   const res = await client.get(url, common);
+  assertFinalHostAllowed(
+    platform,
+    String(res.request?.res?.responseUrl ?? url),
+  );
+
   return toHtmlOrThrow(res.status, res.data, platform);
 }
 
