@@ -58,12 +58,16 @@ type FormCheckboxProps = {
   field: any;
   children: ReactNode;
   id?: string;
+  value?: boolean;
+  disabled?: boolean;
 };
 
 export function FormCheckbox({
   field,
   children,
   id,
+  value,
+  disabled
 }: FormCheckboxProps) {
   const checkboxId = id || field.name;
   
@@ -71,8 +75,9 @@ export function FormCheckbox({
     <div className="flex items-start gap-3 text-left">
       <Checkbox
         id={checkboxId}
-        checked={field.state.value}
+        checked={field.state.value || value}
         onCheckedChange={(checked) => field.handleChange(!!checked)}
+        disabled={disabled}
         className="mt-0.5"
       />
       <label htmlFor={checkboxId} className="text-sm cursor-pointer">
@@ -111,6 +116,8 @@ interface FormSelectProps {
   values: Array<string>;
   onValueChange?: (value: string) => void;
   required?: boolean;
+  value?: string;
+  disabled?: boolean;
 }
 
 export const FormSelect = ({
@@ -119,7 +126,9 @@ export const FormSelect = ({
   placeholder,
   values,
   onValueChange,
-  required
+  required,
+  value,
+  disabled
 }: FormSelectProps) => {
   const errorMessage =
     field.state.meta.isTouched && field.state.meta.errors?.[0];
@@ -131,7 +140,8 @@ export const FormSelect = ({
         {required && <span className="text-destructive"> *</span>}
       </FieldLabel>
       <Select
-        value={field.state.value}
+        value={field.state.value || value}
+        disabled={disabled}
         onValueChange={(value) => {
           field.handleChange(value);
           if (onValueChange) onValueChange(value);
@@ -168,6 +178,8 @@ interface FormFieldProps {
   type?: string;
   inputMode?: "text" | "email" | "tel" | "numeric" | "decimal" | "search" | "url";
   autoComplete?: string;
+  value?: string;
+  disabled?: boolean;
 }
 
 export const FormFieldInput = ({
@@ -178,7 +190,9 @@ export const FormFieldInput = ({
   required = false,
   type = "text",
   inputMode,
-  autoComplete
+  autoComplete,
+  value,
+  disabled
 }: FormFieldProps) => {
   const errorMessage =
     field.state.meta.isTouched && field.state.meta.errors?.[0];
@@ -204,10 +218,11 @@ export const FormFieldInput = ({
           autoComplete={autoComplete}
           name={field.name}
           id={field.name}
-          value={field.state.value || ""}
+          value={field.state.value || "" || value}
           placeholder={placeholder}
           onChange={(e) => field.handleChange(e.target.value)}
           onBlur={field.handleBlur}
+          disabled={disabled}
           className={`h-14 pl-12 ${
             errorMessage ? "pr-12" : "pr-4"
           } rounded-xl border-1 ${

@@ -2,10 +2,12 @@ import { useForm } from '@tanstack/react-form'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 import { 
-  CheckIcon,
+  ArrowRightCircleIcon,
+  CheckCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  GiftIcon
+  GiftIcon,
+  XCircleIcon
 } from "@heroicons/react/24/solid"
 import { useState } from 'react';
 import { useFormContext } from "@/components/providers/FormProvider";
@@ -126,63 +128,62 @@ function GiftsStep() {
 
   if (activeChildIndex === -1) {
     return (
-      <div className="w-full">
-        {/* Progress Bar at top level */}
-        <FormProgressBar onNavigate={handleProgressBarNavigate} />
-        
-        <Card>
-          <CardContent className="flex flex-col justify-center">
-            <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
-              <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Gift Details</h2>
+      <Card className="mx-auto w-full max-w-sm">
+        <CardHeader>
+          <CardDescription className="text-center">
+            Fill all required fields to go to next step<span className="text-destructive">*</span>
+          </CardDescription>
+          <FormProgressBar onNavigate={handleProgressBarNavigate} />
+        </CardHeader>
+        <CardContent className="flex flex-col justify-center">
+          <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
+            <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Gift Details</h2>
+          </div>
+          <div className="flex flex-col border bg-green-50 border-green-500 text-green-900 p-5 rounded-lg gap-4">
+            <h2 className="text-center text-lg font-bold">Gift Guidelines</h2>
+            <div className="flex flex-col gap-3">
+              <CardDescription className="text-green-900">To help us spread the love to as many children as possible, please follow these guidelines:</CardDescription>
+              <ul className="flex flex-col gap-2 list-disc px-7">
+                <li>🎁 Gifts must be <strong>$25 or less</strong>, based on the <strong>original price</strong> (not the sale price).</li>
+                <li>🚫 <strong>No gift cards</strong> are allowed.</li>
+                <li>✅ Gifts must be selected from <a href="https://amazon.com" className="underline">Amazon.com</a> or <a href="https://macys.com" className="underline">Macy's.com</a></li>
+              </ul>
             </div>
-            <div className="flex flex-col border bg-green-50 border-green-500 text-green-900 p-5 rounded-lg gap-4">
-              <h2 className="text-center text-lg font-bold">Gift Guidelines</h2>
-              <div className="flex flex-col gap-3">
-                <CardDescription className="text-green-900">To help us spread the love to as many children as possible, please follow these guidelines:</CardDescription>
-                <ul className="flex flex-col gap-2 list-disc px-7">
-                  <li>🎁 Gifts must be <strong>$25 or less</strong>, based on the <strong>original price</strong> (not the sale price).</li>
-                  <li>🚫 <strong>No gift cards</strong> are allowed.</li>
-                  <li>✅ Gifts must be selected from <a href="https://amazon.com" className="underline">Amazon.com</a> or <a href="https://macys.com" className="underline">Macy's.com</a></li>
-                </ul>
-              </div>
-              <CardDescription className="font-bold text-center text-green-900">Thank you for helping us make this holiday special for every child!</CardDescription>
-            </div>
+            <CardDescription className="font-bold text-center text-green-900">Thank you for helping us make this holiday special for every child!</CardDescription>
+          </div>
 
-            {childrenList.map((child, index) => (
-              <button 
-                key={index}
-                className={`flex flex-row justify-around ${isChildComplete(index) == "completed" ? "bg-green-500" : "bg-yellow-300"} rounded-lg text-md p-4 mx-10 mt-7`}
-                onClick={() => setActiveChildIndex(index)}
-              >
-                <span className="my-auto">{child.name}'s Gift Selection</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-13 margin-auto">
-                  <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z" clipRule="evenodd" />
-                </svg>
-              </button>
-            ))}
-            <FormItem className="flex gap-4 pt-4 mx-5 mt-5">
-              <Button type="button" onClick={handleBack} variant="outline" className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg">
-                <ChevronLeftIcon className="mr-2 h-6 w-6" />
-                Back
-              </Button>
-              <form.Subscribe
-                selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
-                children={([canSubmit, isSubmitting]) => (
-                  <Button 
-                    type="submit" 
-                    disabled={!allComplete}
-                    onClick={() => form.handleSubmit()}
-                    size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
-                  >
-                    {isSubmitting ? '...' : 'Next'}
-                    <ChevronRightIcon className="ml-2 h-6 w-6" />
-                  </Button>
-                )}
-              />
-            </FormItem>
-          </CardContent>
-        </Card>
-      </div>
+          {childrenList.map((child, index) => (
+            <button 
+              key={index}
+              className={`flex flex-row justify-around ${isChildComplete(index) == "completed" ? "bg-green-500" : isChildComplete(index) == "dirty" ? "bg-red-500" : "bg-yellow-300"} ${isChildComplete(index) == "dirty" && "text-white"} rounded-lg text-md p-4 mx-7 mt-7`}
+              onClick={() => setActiveChildIndex(index)}
+            >
+              <span className="my-auto">{child.name}'s Gift Selection</span>
+              {isChildComplete(index) == "completed" ? <CheckCircleIcon className="size-12"/> : isChildComplete(index) == "dirty" ? <XCircleIcon className="size-12"/> : <ArrowRightCircleIcon className="size-12"/>}
+            </button>
+          ))}
+          <FormItem className="flex gap-4 pt-4 mx-5 mt-5">
+            <Button type="button" onClick={handleBack} variant="outline" className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg">
+              <ChevronLeftIcon className="mr-2 h-6 w-6" />
+              Back
+            </Button>
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
+              children={([canSubmit, isSubmitting]) => (
+                <Button 
+                  type="submit" 
+                  disabled={!allComplete}
+                  onClick={() => form.handleSubmit()}
+                  size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
+                >
+                  {isSubmitting ? '...' : 'Next'}
+                  <ChevronRightIcon className="ml-2 h-6 w-6" />
+                </Button>
+              )}
+            />
+          </FormItem>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -234,20 +235,9 @@ function GiftsStep() {
 
             <form.Field name={`giftSelections[${activeChildIndex}].verified` as any}>
               {(field) => (
-                <div className="verification-row">
-                  <input
-                    type="checkbox"
-                    id={`verify-${activeChildIndex}`}
-                    checked={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.checked)}
-                  />
-                  <label htmlFor={`verify-${activeChildIndex}`}>
-                    I verify that all selected gifts are $25 or under based on the original price.
-                  </label>
-                  {field.state.meta.errors && (
-                    <span className="error-text">{field.state.meta.errors}</span>
-                  )}
-                </div>
+                <FormCheckbox field={field}>
+                  I verify that all selected gifts are $25 or under based on the original price.
+                </FormCheckbox>
               )}
             </form.Field>
             

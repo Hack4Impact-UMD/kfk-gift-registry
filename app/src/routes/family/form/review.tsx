@@ -12,7 +12,7 @@ import {
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 
-import { FormCheckbox, FormFieldInput, FormSelect } from "@/components/form/formcomponents"
+import { FormCheckbox, FormFieldInput, FormSelect, US_STATES } from "@/components/form/formcomponents"
 
 import {
   Card,
@@ -42,7 +42,6 @@ function RouteComponent() {
     const { updateSection, formState } = useFormContext();
     const navigate = useNavigate();
     const form = useForm({
-    defaultValues: formState,
     onSubmit: async ({ value }) => {
         alert("Submitted!")
     },
@@ -55,8 +54,8 @@ function RouteComponent() {
     
 
     const handleBack = () => {
-    const currentValues = form.state.values;
-    navigate({ to: "/family/form/consent" });
+      const currentValues = form.state.values;
+      navigate({ to: "/family/form/consent" });
     }
 
 
@@ -64,7 +63,9 @@ function RouteComponent() {
 
     
     <Card className="mx-auto w-full max-w-sm">
-      <FormProgressBar onNavigate={handleProgressBarNavigate} />
+      <CardHeader>
+        <FormProgressBar onNavigate={handleProgressBarNavigate} />
+      </CardHeader>
       <CardContent>
         <form 
           onSubmit={(e) => {
@@ -77,32 +78,32 @@ function RouteComponent() {
           <div>
             <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Information</h2>
-              <button type="button" className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+              <button type="button" onClick={() => {navigate({ to: "/family/form/general-info" })}} className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
             </div>
           <form.Field
             name="parentName"
             children={(field) => (
-              <FormFieldInput field={field} Icon={UsersIcon} label="Your Name (Parent/Guardian)" placeholder="Jane Doe" required/>
+              <FormFieldInput field={field} Icon={UsersIcon} label="Your Name (Parent/Guardian)" placeholder="Jane Doe" value={formState.generalInfo?.parentName} disabled required/>
             )}
           />
           <form.Field
             name="email"
             children={(field) => (
-              <FormFieldInput field={field} Icon={EnvelopeIcon} label="Enter Email" placeholder="e.g. janedoe@gmail.com" required/>
+              <FormFieldInput field={field} Icon={EnvelopeIcon} label="Enter Email" placeholder="e.g. janedoe@gmail.com" value={formState.generalInfo?.email} disabled required/>
             )}
           />
           <form.Field
             name="emailConfirm"
             children={(field) => (
-              <FormFieldInput field={field} Icon={EnvelopeIcon} label="Re-enter Email" placeholder="e.g. janedoe@gmail.com" required/>
+              <FormFieldInput field={field} Icon={EnvelopeIcon} label="Re-enter Email" placeholder="e.g. janedoe@gmail.com" value={formState.generalInfo?.emailConfirm} disabled required/>
             )}
           />
           <form.Field name="phoneNumber" children={(field) => (
-              <FormFieldInput field={field} Icon={PhoneIcon} label="Phone Number" placeholder="(555)-5555-555" required/>
+              <FormFieldInput field={field} Icon={PhoneIcon} label="Phone Number" placeholder="(555)-5555-555" value={formState.generalInfo?.phoneNumber} disabled required/>
             )}
           />
           <form.Field name="phoneNumberConfirm" children={(field) => (
-              <FormFieldInput field={field} Icon={PhoneIcon} label="Re-enter Phone Number" placeholder="(555)-5555-555" required/>
+              <FormFieldInput field={field} Icon={PhoneIcon} label="Re-enter Phone Number" placeholder="(555)-5555-555" value={formState.generalInfo?.phoneNumber} disabled required/>
             )}
           />
           </div>
@@ -110,49 +111,38 @@ function RouteComponent() {
           <div>
             <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Address</h2>
-              <button type="button" className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+              <button type="button" onClick={() => {navigate({ to: "/family/form/general-info" })}} className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
             </div>
             <form.Field name="streetAddress" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="Street Address" placeholder="10 Mountain View Way" required/>
+              <FormFieldInput field={field} Icon={MapPinIcon} label="Street Address" placeholder="10 Mountain View Way" value={formState.generalInfo?.streetAddress} disabled required/>
               )}
             />
             <form.Field name="addressLine2" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="Address Line 2" placeholder="Apt. J" required/>
+              <FormFieldInput field={field} Icon={MapPinIcon} label="Address Line 2" placeholder="Apt. J" value={formState.generalInfo?.addressLine2} disabled required/>
               )}
             />
             <form.Field name="city" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="City" placeholder="Baltimore" required/>
+              <FormFieldInput field={field} Icon={MapPinIcon} label="City" placeholder="Baltimore" value={formState.generalInfo?.city} disabled required/>
               )}
             />
             <form.Field name="state" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="State" placeholder="MD" required/>
+              <FormSelect
+                                field={field}
+                                label="State"
+                                placeholder="Select State"
+                                values={US_STATES}
+                                value={formState.generalInfo?.state}
+                                required
+                                disabled
+                              />
               )}
             />
             <form.Field name="zipCode" children={(field) => (
-              <FormFieldInput field={field} Icon={MapPinIcon} label="Zipcode" placeholder="10101" required/>
+              <FormFieldInput field={field} Icon={MapPinIcon} label="Zipcode" placeholder="10101" value={formState.generalInfo?.zipCode} disabled required/>
               )}
             />
           </div>
           
-          <FormItem className="flex gap-4 pt-4 mx-5">
-            <Button type="button" onClick={handleBack} variant="outline" className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg">
-              <ChevronLeftIcon className="mr-2 h-6 w-6" />
-              Back
-            </Button>
-            <form.Subscribe
-              selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
-              children={([canSubmit, isSubmitting]) => (
-                <Button 
-                  type="submit" 
-                  disabled={!canSubmit}
-                  size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
-                >
-                  {isSubmitting ? '...' : 'Next'}
-                  <ChevronRightIcon className="ml-2 h-6 w-6" />
-                </Button>
-              )}
-            />
-          </FormItem>
         </form>
       </CardContent>
 
@@ -161,7 +151,7 @@ function RouteComponent() {
       {/* Multiple Children Question */}
         <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
           <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">General Details</h2>
-          <button type="button" className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+          <button type="button" onClick={() => {navigate({ to: "/family/form/children" })}} className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
         </div>
         <div>
           <p className="text-sm font-medium mb-3">
@@ -177,6 +167,7 @@ function RouteComponent() {
                     name="hasMultipleChildren"
                     checked={formState.children?.hasMultipleChildren === false}
                     className="mt-0.5"
+                    disabled
                   />
                   <span className="text-sm">
                     No, only one child has been diagnosed with cancer.
@@ -188,6 +179,7 @@ function RouteComponent() {
                     name="hasMultipleChildren"
                     checked={formState.children?.hasMultipleChildren === true}
                     className="mt-0.5"
+                    disabled
                   />
                   <span className="text-sm">
                     Yes, more than one child has been diagnosed with cancer.
@@ -224,7 +216,7 @@ function RouteComponent() {
         />
 
         <form.Subscribe
-          selector={(state) => [formState.children.numChildren, formState.children.hasMultipleChildren]}
+          selector={(state) => [formState.children?.numChildren, formState.children?.hasMultipleChildren]}
           children={([numChildren, hasMultipleChildren]) => {
             // Determine how many sections to show. 
             // If "No" is selected, force 1. Otherwise, use numChildren.
@@ -248,6 +240,8 @@ function RouteComponent() {
                             field={field}
                             label="Child's Name"
                             placeholder="e.g. Jane Doe"
+                            value={formState.children?.children[index].name} 
+                            disabled 
                             required
                             Icon={User}
                           />
@@ -263,6 +257,8 @@ function RouteComponent() {
                             label="Age"
                             placeholder="Select Age"
                             values={Array.from({ length: 18 }, (_, i) => String(i + 1))}
+                            value={formState.children?.children[index].age}
+                            disabled
                             required
                           />
                         )}
@@ -276,6 +272,8 @@ function RouteComponent() {
                             field={field}
                             label="Diagnosis"
                             placeholder="e.g. Cancer"
+                            value={formState.children?.children[index].diagnosis} 
+                            disabled 
                             required
                             Icon={Stethoscope}
                           />
@@ -289,6 +287,8 @@ function RouteComponent() {
                             field={field}
                             label="Hospital Treated At"
                             placeholder="e.g. Johns Hopkins"
+                            value={formState.children?.children[index].hospitalTreatedAt} 
+                            disabled 
                             required
                             Icon={Building2}
                           />
@@ -302,6 +302,8 @@ function RouteComponent() {
                             field={field}
                             label="Social Worker Name"
                             placeholder="e.g. Sarah Smith"
+                            value={formState.children?.children[index].socialWorkerName} 
+                            disabled 
                             required
                             Icon={UserCog}
                           />
@@ -316,7 +318,7 @@ function RouteComponent() {
                           Photos increase the chance of gift fulfillment.
                         </p>
                         <Button type="button" variant="outline" className="w-full bg-white">
-                          📷 Upload Photo for {formState.children.children[index]?.name || "Child"}
+                          📷 Upload Photo for {formState.children?.children[index]?.name || "Child"}
                         </Button>
                       </div>
                     </div>
@@ -331,7 +333,7 @@ function RouteComponent() {
           <div className="border-t pt-6">
             <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8">
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Sibling Information</h2>
-              <button type="button" className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+              <button type="button" onClick={() => {navigate({ to: "/family/form/children" })}} className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
             </div>
 
             <div>
@@ -349,6 +351,7 @@ function RouteComponent() {
                         checked={formState.children?.hasSiblings === true}
                         onChange={() => field.handleChange(true)}
                         className="mt-0.5"
+                        disabled
                       />
                       <span className="text-sm">
                         Yes they have more sibling(s).
@@ -360,6 +363,7 @@ function RouteComponent() {
                         name="hasSiblings"
                         checked={formState.children?.hasSiblings === false}
                         className="mt-0.5"
+                        disabled
                       />
                       <span className="text-sm">
                         No they don't have more sibling(s).
@@ -396,7 +400,7 @@ function RouteComponent() {
             />
 
             <form.Subscribe
-              selector={(state) => [formState.children.hasSiblings, formState.children.numSiblings]}
+              selector={(state) => [formState.children?.hasSiblings, formState.children?.numSiblings]}
               children={([hasSiblings, numSiblings]) => {
                 if (!hasSiblings || !numSiblings || numSiblings === 0) return null;
 
@@ -418,6 +422,8 @@ function RouteComponent() {
                                 placeholder="e.g. Jane Doe"
                                 Icon={User}
                                 type="text"
+                                value={formState.children?.siblings[index].name} 
+                                disabled 
                                 required
                               />
                             )}
@@ -441,7 +447,7 @@ function RouteComponent() {
                             variant="outline"
                             className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
                           >
-                            📷 Upload Photo for {formState.children.siblings?.[index]?.name || "Sibling"}
+                            📷 Upload Photo for {formState.children?.siblings?.[index]?.name || "Sibling"}
                           </Button>
                         </div>
                       </div>
@@ -457,7 +463,7 @@ function RouteComponent() {
             <form.Field
               name="consentPhotosPublic"
               children={(field) => (
-                <FormCheckbox field={field}>
+                <FormCheckbox field={field} value={formState.children?.consentPhotosPublic} disabled>
                   I consent to having all photos publicly posted on the Kisses for Kyle Holiday Gift Drive website.
                 </FormCheckbox>
               )}
@@ -482,7 +488,7 @@ function RouteComponent() {
                     <>
                     <div className="flex justify-between border-b-1 border-[var(--color-kfk-blue)] w-full mb-8 mt-3">
           <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">{childSelect.childName}'s Gift Selection</h2>
-          <button type="button" className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
+          <button type="button" onClick={() => {navigate({ to: "/family/form/gift-details" })}} className="text-sm h-5 my-auto text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md">Review</button>
         </div>
                     <div className="flex flex-col gap-7">
             {[0, 1, 2].map((i) => (
@@ -490,55 +496,62 @@ function RouteComponent() {
                 <CardDescription className="text-md text-[var(--color-kfk-blue)] -mb-2">Gift #{i + 1}</CardDescription>
                 <form.Field name={`giftSelections[${activeChildIndex}].gifts[${i}].giftUrl`}>
                   {(field) => 
-                    <FormFieldInput field={field} Icon={GiftIcon} label={`Gift #${i+1} URL`} placeholder="e.g. amazon.com/Monopoly-Family-Board-Players" required={i==0}/>
+                    <FormFieldInput field={field} Icon={GiftIcon} label={`Gift #${i+1} URL`} placeholder="e.g. amazon.com/Monopoly-Family-Board-Players" value={formState.gifts?.giftSelections[activeChildIndex].gifts[i].giftUrl} disabled required={i==0}/>
                   }
                 </form.Field>
                 <form.Field name={`giftSelections[${activeChildIndex}].gifts[${i}].giftName`}>
                   {(field) => 
-                    <FormFieldInput field={field} Icon={GiftIcon} label={`Gift #${i+1} Name`} placeholder="e.g. Monopoly" required={i==0}/>            
+                    <FormFieldInput field={field} Icon={GiftIcon} label={`Gift #${i+1} Name`} placeholder="e.g. Monopoly" value={formState.gifts?.giftSelections[activeChildIndex].gifts[i].giftName} disabled required={i==0}/>            
                   }
                 </form.Field>
               </div>
             ))}
           </div>
 
-          <div className="flex flex-col gap-7 mt-10">
+          <div className="flex flex-col gap-7 mt-10 mb-4">
           {[0, 1].map((i) => (
               <div key={i}>
                 <CardDescription className="text-md text-[var(--color-kfk-blue)] -mb-2">Backup Gift #{i + 1}</CardDescription>
                 <form.Field name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftUrl`}>
                   {(field) => 
-                  <FormFieldInput field={field} Icon={GiftIcon} label={`Backup Gift #${i+1} URL`} placeholder="e.g. amazon.com/Monopoly-Family-Board-Players" required/>
+                  <FormFieldInput field={field} Icon={GiftIcon} label={`Backup Gift #${i+1} URL`} placeholder="e.g. amazon.com/Monopoly-Family-Board-Players" value={formState.gifts?.giftSelections[activeChildIndex].backupGifts[i].giftUrl} disabled required/>
                   }
                 </form.Field>
                 <form.Field name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftName`}>
                   {(field) => 
-                    <FormFieldInput field={field} Icon={GiftIcon} label={`Backup Gift #${i+1} Name`} placeholder="e.g. Monopoly" required/> 
+                    <FormFieldInput field={field} Icon={GiftIcon} label={`Backup Gift #${i+1} Name`} placeholder="e.g. Monopoly" value={formState.gifts?.giftSelections[activeChildIndex].backupGifts[i].giftName} disabled required/> 
                   }
                 </form.Field>
               </div>
             ))}
           </div>
 
-          <form.Field name={`giftSelections[${activeChildIndex}].verified` as any}>
+          <form.Field name={`giftSelections[${activeChildIndex}].verified`}>
             {(field) => (
-              <div className="verification-row">
-                <input
-                  type="checkbox"
-                  id={`verify-${activeChildIndex}`}
-                  checked={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.checked)}
-                />
-                <label htmlFor={`verify-${activeChildIndex}`}>
-                  I verify that all selected gifts are $25 or under based on the original price.
-                </label>
-              </div>
+              <FormCheckbox field={field} value={formState.gifts?.giftSelections[activeChildIndex].verified} disabled>
+                I verify that all selected gifts are $25 or under based on the original price.
+              </FormCheckbox>
             )}
           </form.Field>
           </>
                 )
             })}
       </form>
+      <FormItem className="flex gap-4 pt-4 mx-5 mt-10">
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
+            children={([canSubmit, isSubmitting]) => (
+              <Button 
+                type="submit" 
+                disabled={!canSubmit}
+                size="lg" className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
+                onClick={() => {alert("Submitted")}}
+              >
+                {isSubmitting ? '...' : 'Submit!'}
+              </Button>
+            )}
+          />
+        </FormItem>
     </CardContent>
     </Card>
   )
