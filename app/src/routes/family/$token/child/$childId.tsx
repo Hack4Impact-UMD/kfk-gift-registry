@@ -20,7 +20,15 @@ function ChildPage() {
   return (
     <div>
       <div className={`rounded-2xl bg-kfk-blue p-6 shadow-xl relative overflow-hidden my-6`}>
-        <div className="flex gap-6 items-center">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute w-32 h-32 bg-kfk-light-blue/10 rounded-full -top-10 -left-10"></div>
+          <div className="absolute w-24 h-24 bg-kfk-light-blue/10 rounded-full top-16 -right-16"></div>
+          <div className="absolute w-28 h-28 bg-kfk-light-blue/10 rounded-full -top-14 right-26"></div>
+          <div className="absolute w-24 h-24 bg-kfk-light-blue/10 rounded-full bottom-10 left-10"></div>
+          <div className="absolute w-36 h-36 bg-kfk-light-blue/10 rounded-full bottom-[-40px] right-20"></div>
+        </div>
+
+        <div className="relative z-10 flex gap-6 items-center">
 
           <div className="flex flex-col items-center gap-3 min-w-[140px]">
             <div className="w-28 h-32">
@@ -84,7 +92,6 @@ function ChildPage() {
         <GiftCard
           key={gift.id}
           gift={gift}
-          color={child.color}
         />
       ))}
     </div>

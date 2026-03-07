@@ -21,7 +21,7 @@ export function ThankYouNoteModal({ open, onOpenChange }: Props) {
         onClick={() => onOpenChange(false)}
       />
 
-      <div className="relative bg-card shadow-xl rounded-xl p-6 w-[420px] z-10 flex flex-col">
+      <div className="relative bg-card border-2 border-kfk-blue shadow-xl rounded-xl p-6 w-[331px] z-10 flex flex-col">
 
         <Button
           onClick={() => onOpenChange(false)}
