@@ -114,8 +114,6 @@ export function useChildrenForm() {
     },
   });
 
-  // FormSelect always stores strings. Coerce to number so array-sync comparisons
-  // use actual numeric values and so the useEffect dependency triggers correctly.
   useEffect(() => {
     const numChildren = Number(form.state.values.numChildren ?? 1);
     const children = form.state.values.children ?? [];
@@ -138,9 +136,7 @@ export function useChildrenForm() {
     }
   }, [form.state.values.numSiblings]);
 
-  // handleNext bypasses form.handleSubmit() entirely (which gates on canSubmit and
-  // can be blocked by stale field errors). We validate directly via Zod on the
-  // current live values so stale errors never prevent navigation.
+
   const handleNext = async () => {
     const values = form.state.values;
 
@@ -148,11 +144,7 @@ export function useChildrenForm() {
     const numChildren = Number(values.numChildren ?? 1);
     const numSiblings = Number(values.numSiblings ?? 0);
 
-    // The useEffect that trims children/siblings runs asynchronously after each
-    // render, so there is a window where the user can click Next before the
-    // trim has been applied (e.g. dropdown changed 3→2 but children array is
-    // still length 3). Normalise the arrays here so Zod always sees consistent
-    // data regardless of the effect timing.
+    
     const expectedChildCount = values.hasMultipleChildren ? numChildren : 1;
     const normalizedChildren = (values.children ?? []).slice(0, expectedChildCount);
     const normalizedSiblings = values.hasSiblings

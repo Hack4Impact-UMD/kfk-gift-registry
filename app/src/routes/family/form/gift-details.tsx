@@ -45,11 +45,7 @@ function GiftsStep() {
   // 0, 1, 2, 3, ...: Specific forms for that child
   const [activeChildIndex, setActiveChildIndex] = useState<number>(-1);
 
-  // Reconcile saved gift selections against the current children/siblings list.
-  // This handles the case where the user went back and changed the number of
-  // children or toggled siblings — stale entries are dropped and new children
-  // get empty gift slots. Matching is done by childName so existing data is
-  // preserved for children whose names haven't changed.
+  
   const reconciledGiftSelections = childrenNameList.map(childName => {
     const existing = formState.gifts?.giftSelections?.find(g => g.childName === childName);
     if (existing) return existing;
@@ -169,7 +165,6 @@ function GiftsStep() {
     <div className="w-full">
       <Card className="mx-auto w-full max-w-sm">
         <CardHeader className="flex flex-col justify-around gap-7">
-          <FormProgressBar onNavigate={handleProgressBarNavigate} />
           <CardTitle className="mx-auto text-2xl text-[var(--color-kfk-blue)] text-center">{childrenNameList[activeChildIndex]}'s Gift Selection</CardTitle>
           <CardDescription className="mx-auto"><em>Please choose up to 3 gifts for your child.</em></CardDescription>
         </CardHeader>

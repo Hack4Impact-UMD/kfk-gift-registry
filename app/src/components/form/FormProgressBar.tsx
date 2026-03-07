@@ -110,7 +110,6 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
       return;
     }
 
-    // If onNavigate prop is provided, call it first
     // This allows the parent form to save current state before navigating
     if (onNavigate) {
       await onNavigate(step.path);
@@ -123,8 +122,6 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
   const getStepStyles = (state: StepState, underlyingState: StepState) => {
     switch (state) {
       case "current":
-        // For current step, use gold border and underline
-        // but fill color based on underlying validation state
         let fillColor = "bg-gray-300"; // default
         let iconColor = "text-gray-500";
         

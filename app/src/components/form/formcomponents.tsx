@@ -145,11 +145,6 @@ export const FormSelect = ({
       </FieldLabel>
       <Select
         value={
-          // Radix UI Select requires a string value. field.state.value can be a
-          // number when defaultValues are restored from FormProvider (which saves
-          // numbers via z.coerce.number). String-ify so the correct item is
-          // highlighted. Falsy values (0, "", undefined) fall back to undefined
-          // so the placeholder is shown instead of a blank selected item.
           (field.state.value !== undefined && field.state.value !== null && field.state.value !== '' && field.state.value !== 0)
             ? String(field.state.value)
             : (value || undefined)
@@ -314,14 +309,3 @@ export function FormButton({
     </Button>
   );
 }
-
-/**
- * US States data for FormSelect
- */
-export const US_STATES = [
-  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
-];

@@ -11,7 +11,8 @@ import {
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 
-import { FormFieldInput, FormSelect, US_STATES } from "@/components/form/formcomponents"
+import { FormFieldInput, FormSelect } from "@/components/form/formcomponents"
+import { US_STATES } from "@/lib/formSchemas"
 
 import {
   Card,
@@ -21,7 +22,6 @@ import {
 } from "@/components/ui/card"
 
 import { Button } from "@/components/ui/button"
-import { generalInfoSchema } from "@/lib/formSchemas"
 import { useFormContext } from "@/components/providers/FormProvider"
 import { FormItem } from "@/components/ui/form"
 import { FormProgressBar } from "@/components/form/FormProgressBar"

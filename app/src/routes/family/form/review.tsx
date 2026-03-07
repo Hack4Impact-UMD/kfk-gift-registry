@@ -13,7 +13,8 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 
 import { Building2, GiftIcon, Stethoscope, User, UserCog } from "lucide-react"
-import { FormCheckbox, FormFieldInput, FormSelect, US_STATES } from "@/components/form/formcomponents"
+import { FormCheckbox, FormFieldInput, FormSelect } from "@/components/form/formcomponents"
+import { US_STATES } from "@/lib/formSchemas"
 
 import {
   Card,
