@@ -199,6 +199,9 @@ export const registerStaffMemberWithInvite = createServerFn({method: "POST"})
         throw new Error("Invite not found");
       }
       const invite = inviteSnap.data();
+      if (!invite){
+        throw new Error("Invite not found")
+      }
       if (invite.used){ 
         throw new Error("Invite already used");
       }
@@ -211,6 +214,17 @@ export const registerStaffMemberWithInvite = createServerFn({method: "POST"})
       if (expired){
         throw new Error("Invite not created in past 7 days")
       }
+      // if no errors, data is valid
+      const userEmail = invite.email
+      const authUser = await db.auth.createUser({
+        displayName: `${data.firstName} ${data.lastName}`,
+        email: userEmail,
+        password: data.password,
+        phoneNumber: data.phone,
+      });
 
+    await db.auth.setCustomUserClaims(authUser.uid, {
+      role: invite.role,
+    });
     }
   )
