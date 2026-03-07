@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/card"
 
 import { Button } from "@/components/ui/button"
-import { generalInfoSchema } from "@/lib/formSchemas";
 import { FamilyFormState, useFormContext } from "@/components/providers/FormProvider";
 import { FormItem } from "@/components/ui/form"
 import { FormProgressBar } from "@/components/form/FormProgressBar"

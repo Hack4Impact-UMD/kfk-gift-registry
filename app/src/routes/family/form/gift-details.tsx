@@ -12,12 +12,13 @@ import {
 import { useState } from 'react';
 import { useFormContext } from "@/components/providers/FormProvider";
 import { childGiftSchema, giftsFormSchema } from '@/lib/formSchemas'
-import { FormCheckbox, FormFieldInput, FormSelect } from "@/components/form/formcomponents"
+import { FormCheckbox, FormFieldInput } from "@/components/form/formcomponents"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FormItem } from '@/components/ui/form';
 import { FormProgressBar } from '@/components/form/FormProgressBar';
 import { useProgressBarNavigation } from '@/hooks/form/FormHooks';
+import LadyBug from '@/assets/form/ladybug.png'
 
 export const Route = createFileRoute('/family/form/gift-details')({
   component: GiftsStep,
@@ -110,8 +111,9 @@ function GiftsStep() {
           <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
             <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">Gift Details</h2>
           </div>
-          <div className="flex flex-col border bg-green-50 border-green-500 text-green-900 p-5 rounded-lg gap-4">
-            <h2 className="text-center text-lg font-bold">Gift Guidelines</h2>
+          <div className="flex flex-col relative border bg-green-50 border-green-500 text-green-900 p-5 rounded-lg gap-4">
+            <img src={LadyBug} className="w-8 object-cover absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"/>
+            <h2 className="text-center text-xl font-bold">Gift Guidelines</h2>
             <div className="flex flex-col gap-3">
               <CardDescription className="text-green-900">To help us spread the love to as many children as possible, please follow these guidelines:</CardDescription>
               <ul className="flex flex-col gap-2 list-disc px-7">
@@ -193,7 +195,7 @@ function GiftsStep() {
                     }}
                   >     
                     {(field) => 
-                      <FormFieldInput field={field} Icon={GiftIcon} label={`Gift #${i+1} URL`} placeholder="e.g. amazon.com/Monopoly-Family-Board-Players" required={i==0}/>
+                      <FormFieldInput field={field} Icon={GiftIcon} label={`Gift #${i+1} URL${i!=0 ? " (Optional)" : ""}`} placeholder="e.g. amazon.com/Monopoly-Family-Board-Players" required={i==0}/>
                     }
                   </form.Field>
                   <form.Field 
@@ -207,7 +209,7 @@ function GiftsStep() {
                     }}
                   >
                     {(field) => 
-                      <FormFieldInput field={field} Icon={GiftIcon} label={`Gift #${i+1} Name`} placeholder="e.g. Monopoly" required={i==0}/>            
+                      <FormFieldInput field={field} Icon={GiftIcon} label={`Gift #${i+1} Name${i!=0 ? " (Optional)" : ""}`} placeholder="e.g. Monopoly" required={i==0}/>            
                     }
                   </form.Field>
                 </div>
