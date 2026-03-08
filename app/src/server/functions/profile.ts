@@ -23,10 +23,7 @@ export const getUserProfileById = createServerFn({
   .inputValidator(uidSchema)
   .handler(async ({ data, context }) => {
     const uid = data.uid;
-    if (
-      uid === context.authUser.uid ||
-      context.authUser.role !== UserRole.VOLUNTEER
-    ) {
+    if (uid === context.authUser.uid || context.authUser.role === UserRole.VOLUNTEER) {
       const db = getServerDB();
       const userDoc = await db.users.doc(uid).get();
 
