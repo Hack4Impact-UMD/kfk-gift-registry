@@ -38,5 +38,27 @@ export async function createFamilyLink(link: NoId<FamilyLink>) {
 }
 
 export async function getFamilyLinkFromEmail(email: string) {
-  // TODO: implement
+  const db = getServerDB();
+
+  // Query the family by email
+  const familyQuery = await db.families.where("email", "==", email).limit(1).get();
+
+  if (familyQuery.empty) {
+    return null;
+  }
+
+  const family = familyQuery.docs[0].data();
+
+  // Return an active family link if one exists
+  const linkQuery = await db.familyLinks
+    .where("familyId", "==", family.id)
+    .where("active", "==", true)
+    .limit(1)
+    .get();
+
+  if (linkQuery.empty) {
+    return null;
+  }
+
+  return linkQuery.docs[0].data();
 }
