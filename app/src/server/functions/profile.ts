@@ -23,7 +23,10 @@ export const getUserProfileById = createServerFn({
   .inputValidator(uidSchema)
   .handler(async ({ data, context }) => {
     const uid = data.uid;
-    if (uid === context.authUser.uid || context.authUser.role === UserRole.VOLUNTEER) {
+    if (
+      uid === context.authUser.uid ||
+      context.authUser.role === UserRole.VOLUNTEER
+    ) {
       const db = getServerDB();
       const userDoc = await db.users.doc(uid).get();
 
@@ -234,33 +237,63 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
       throw new Error("Invite not created in past 7 days");
     }
 
+    // minimal race fix: atomically reserve the invite before creating Auth user
+    const inviteRef = db.invites.doc(cleaned.inviteId);
+    await db._instance.runTransaction(async (tx) => {
+      const snap = await tx.get(inviteRef);
+      if (!snap.exists) throw new Error("Invite not found");
+      const latest = staffInviteSchema.parse(snap.data());
+      if (latest.used) throw new Error("Invite already used");
+      tx.update(inviteRef, { used: true } as any);
+    });
+    // end minimal race fix
+
     // validation succesful, so auth creation is now safe
     const userEmail = invite.email;
-    const authUser = await auth.createUser({
-      displayName: `${cleaned.firstName} ${cleaned.lastName}`,
-      email: userEmail,
-      password: cleaned.password,
-      phoneNumber: cleaned.phone,
-    });
+    let authUser: { uid: string } | null = null;
 
-    await auth.setCustomUserClaims(authUser.uid, {
-      role: invite.role,
-    });
+    try {
+      authUser = await auth.createUser({
+        displayName: `${cleaned.firstName} ${cleaned.lastName}`,
+        email: userEmail,
+        password: cleaned.password,
+        phoneNumber: cleaned.phone,
+      });
 
-    // creates the user profile doc with the same ID as the Auth user
-    const userDoc = {
-      id: authUser.uid,
-      email: userEmail,
-      firstName: cleaned.firstName,
-      lastName: cleaned.lastName,
-      role: invite.role,
-      phone: cleaned.phone,
-      createdAt: DateTime.now().toISO(),
-      enabled: true,
-    };
+      await auth.setCustomUserClaims(authUser.uid, {
+        role: invite.role,
+      });
 
-    await db.users.doc(authUser.uid).set(userDoc);
-    await db.invites.doc(cleaned.inviteId).update({ used: true });
+      // creates the user profile doc with the same ID as the Auth user
+      const userDoc = {
+        id: authUser.uid,
+        email: userEmail,
+        firstName: cleaned.firstName,
+        lastName: cleaned.lastName,
+        role: invite.role,
+        phone: cleaned.phone,
+        createdAt: DateTime.now().toISO(),
+        enabled: true,
+      };
 
-    return userDoc;
+      await db.users.doc(authUser.uid).set(userDoc);
+
+      return userDoc;
+    } catch (err) {
+      // best-effort cleanup: delete auth user and unlock invite
+      if (authUser) {
+        try {
+          await auth.deleteUser(authUser.uid);
+        } catch {
+          // ignore
+        }
+      }
+      try {
+        await inviteRef.update({ used: false } as any);
+      } catch {
+        // ignore
+      }
+
+      throw err instanceof Error ? err : new Error("Registration failed");
+    }
   });
