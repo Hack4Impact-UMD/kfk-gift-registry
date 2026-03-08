@@ -39,6 +39,7 @@ export function NotificationCard({
             ringClass={colorClasses.ring}
             token={token}
             compact
+            disableLink
           />
 
           <div className="flex-1 min-w-0">

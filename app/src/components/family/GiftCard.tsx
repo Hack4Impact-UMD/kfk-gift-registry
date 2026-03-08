@@ -99,15 +99,23 @@ export function GiftCard({ gift }: Props) {
               style={{ left: `${TRACK_START}%`, width: `${fillWidthPercent}%` }}
             />
             <div className="relative z-10 flex w-full">
-              {GIFT_STEPS.map((label, i) => (
-                <div key={label} className="flex-1 flex justify-center">
-                  <div
-                    className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-white text-sm font-medium ${progressColor}`}
-                  >
-                    {i + 1}
+              {GIFT_STEPS.map((label, i) => {
+                const isComplete = i <= currentStep;
+                return (
+                  <div key={label} className="flex-1 flex justify-center">
+                    <div
+                      className={[
+                        "w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-sm font-medium relative z-10",
+                        isComplete
+                          ? `text-white ${progressColor}`
+                          : `border-2 ${progressBorderColor} bg-card text-foreground`,
+                      ].join(" ")}
+                    >
+                      {i + 1}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
           <div className="flex w-full mt-1">
