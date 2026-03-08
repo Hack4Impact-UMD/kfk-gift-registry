@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      luxon:
+        specifier: ^3.7.2
+        version: 3.7.2
       punycode:
         specifier: ^2.3.1
         version: 2.3.1
@@ -10505,7 +10508,7 @@ snapshots:
   h3@2.0.1-rc.14(crossws@0.4.4(srvx@0.11.2)):
     dependencies:
       rou3: 0.7.12
-      srvx: 0.11.2
+      srvx: 0.11.8
     optionalDependencies:
       crossws: 0.4.4(srvx@0.11.2)
 

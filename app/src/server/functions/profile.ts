@@ -187,8 +187,16 @@ const relevantStaffFields = z.object({
   firstName: z.string(),
   lastName: z.string(),
   password: z.string(),
-  phone: z.string().optional(),
-}); // validates request input
+  phone: z
+    .string()
+    // this is interesting. after testing with a mock register form,
+    // firebase auth expects the phone number in E.164 format (originally not accounted)
+    // for in this zod. so i'm adding this in order to not produce any misconfigs between firestore and auth
+    .regex(/^\+[1-9]\d{1,14}$/, {
+      message: "Phone must be in E.164 format (e.g. +12223334444)",
+    })
+    .optional(),
+});
 
 const staffInviteSchema = z.object({
   id: z.string(),
@@ -207,7 +215,9 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
     const db = getServerDB();
     const auth = getServerAuth();
 
-    const inviteSnap = await db.invites.doc(data.inviteId).get();
+    // makes sure request input is valid
+    const cleaned = relevantStaffFields.parse(data);
+    const inviteSnap = await db.invites.doc(cleaned.inviteId).get();
     if (!inviteSnap.exists) {
       throw new Error("Invite not found");
     }
@@ -226,13 +236,14 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
     if (expired) {
       throw new Error("Invite not created in past 7 days");
     }
-    // if no errors, data is valid
+
+    // validation succesful, so auth creation is now safe
     const userEmail = invite.email;
     const authUser = await auth.createUser({
-      displayName: `${data.firstName} ${data.lastName}`,
+      displayName: `${cleaned.firstName} ${cleaned.lastName}`,
       email: userEmail,
-      password: data.password,
-      phoneNumber: data.phone,
+      password: cleaned.password,
+      phoneNumber: cleaned.phone,
     });
 
     await auth.setCustomUserClaims(authUser.uid, {
@@ -243,16 +254,16 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
     const userDoc = {
       id: authUser.uid,
       email: userEmail,
-      firstName: data.firstName,
-      lastName: data.lastName,
+      firstName: cleaned.firstName,
+      lastName: cleaned.lastName,
       role: invite.role,
-      phone: data.phone,
+      phone: cleaned.phone,
       createdAt: DateTime.now().toISO(),
       enabled: true,
     };
 
     await db.users.doc(authUser.uid).set(userDoc);
-    await db.invites.doc(data.inviteId).update({ used: true });
+    await db.invites.doc(cleaned.inviteId).update({ used: true });
 
     return userDoc;
   });
