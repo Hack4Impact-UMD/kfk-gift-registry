@@ -198,17 +198,6 @@ const relevantStaffFields = z.object({
     .optional(),
 });
 
-const staffInviteSchema = z.object({
-  id: z.string(),
-  sentBy: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.string(),
-  role: z.enum([UserRole.ADMIN, UserRole.VOLUNTEER]),
-  createdAt: z.string(),
-  used: z.boolean(),
-}); // validates firestore invite doc
-
 export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
   .inputValidator(relevantStaffFields)
   .handler(async ({ data }) => {
@@ -222,7 +211,10 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
       throw new Error("Invite not found");
     }
 
-    const invite = staffInviteSchema.parse(inviteSnap.data());
+    const invite = inviteSnap.data();
+    if (!invite) {
+      throw new Error("Invite not found");
+    }
 
     if (invite.used) {
       throw new Error("Invite already used");
@@ -242,9 +234,10 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
     await db._instance.runTransaction(async (tx) => {
       const snap = await tx.get(inviteRef);
       if (!snap.exists) throw new Error("Invite not found");
-      const latest = staffInviteSchema.parse(snap.data());
+      const latest = snap.data();
+      if (!latest) throw new Error("Invite not found");
       if (latest.used) throw new Error("Invite already used");
-      tx.update(inviteRef, { used: true } as any);
+      tx.update(inviteRef, { used: true });
     });
     // end minimal race fix
 
@@ -284,14 +277,14 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
       if (authUser) {
         try {
           await auth.deleteUser(authUser.uid);
-        } catch {
-          // ignore
+        } catch (e) {
+          console.error("Failed to delete Auth user during rollback", e);
         }
       }
       try {
-        await inviteRef.update({ used: false } as any);
-      } catch {
-        // ignore
+        await inviteRef.update({ used: false });
+      } catch (e) {
+        console.error("Failed to revert invite.used during rollback", e);
       }
 
       throw err instanceof Error ? err : new Error("Registration failed");
