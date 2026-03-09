@@ -18,12 +18,14 @@ import { Route as FamilyTokenRouteImport } from './routes/family/$token'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
 import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
 import { Route as AuthenticatedDonorRouteRouteImport } from './routes/_authenticated/donor/route'
+import { Route as FamilyTokenHomeRouteImport } from './routes/family/$token/home'
 import { Route as AuthenticatedStaffProfileRouteImport } from './routes/_authenticated/staff/profile'
 import { Route as AuthenticatedStaffPendingRouteImport } from './routes/_authenticated/staff/pending'
 import { Route as AuthenticatedStaffHomeRouteImport } from './routes/_authenticated/staff/home'
 import { Route as AuthenticatedStaffApprovedRouteImport } from './routes/_authenticated/staff/approved'
 import { Route as AuthenticatedStaffVolunteerRouteRouteImport } from './routes/_authenticated/staff/volunteer/route'
 import { Route as AuthenticatedStaffAdminRouteRouteImport } from './routes/_authenticated/staff/admin/route'
+import { Route as FamilyTokenChildChildIdRouteImport } from './routes/family/$token/child/$childId'
 import { Route as AuthenticatedStaffAdminUsersRouteImport } from './routes/_authenticated/staff/admin/users'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -70,6 +72,11 @@ const AuthenticatedDonorRouteRoute = AuthenticatedDonorRouteRouteImport.update({
   path: '/donor',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const FamilyTokenHomeRoute = FamilyTokenHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => FamilyTokenRoute,
+} as any)
 const AuthenticatedStaffProfileRoute =
   AuthenticatedStaffProfileRouteImport.update({
     id: '/profile',
@@ -105,6 +112,11 @@ const AuthenticatedStaffAdminRouteRoute =
     path: '/admin',
     getParentRoute: () => AuthenticatedStaffRouteRoute,
   } as any)
+const FamilyTokenChildChildIdRoute = FamilyTokenChildChildIdRouteImport.update({
+  id: '/child/$childId',
+  path: '/child/$childId',
+  getParentRoute: () => FamilyTokenRoute,
+} as any)
 const AuthenticatedStaffAdminUsersRoute =
   AuthenticatedStaffAdminUsersRouteImport.update({
     id: '/users',
@@ -120,14 +132,16 @@ export interface FileRoutesByFullPath {
   '/donor': typeof AuthenticatedDonorRouteRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
-  '/family/$token': typeof FamilyTokenRoute
+  '/family/$token': typeof FamilyTokenRouteWithChildren
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
   '/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/staff/profile': typeof AuthenticatedStaffProfileRoute
+  '/family/$token/home': typeof FamilyTokenHomeRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
+  '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -137,14 +151,16 @@ export interface FileRoutesByTo {
   '/donor': typeof AuthenticatedDonorRouteRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
-  '/family/$token': typeof FamilyTokenRoute
+  '/family/$token': typeof FamilyTokenRouteWithChildren
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
   '/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/staff/profile': typeof AuthenticatedStaffProfileRoute
+  '/family/$token/home': typeof FamilyTokenHomeRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
+  '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -156,14 +172,16 @@ export interface FileRoutesById {
   '/_authenticated/donor': typeof AuthenticatedDonorRouteRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/_authenticated/hello': typeof AuthenticatedHelloRoute
-  '/family/$token': typeof FamilyTokenRoute
+  '/family/$token': typeof FamilyTokenRouteWithChildren
   '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
   '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/_authenticated/staff/home': typeof AuthenticatedStaffHomeRoute
   '/_authenticated/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/_authenticated/staff/profile': typeof AuthenticatedStaffProfileRoute
+  '/family/$token/home': typeof FamilyTokenHomeRoute
   '/_authenticated/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
+  '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -182,7 +200,9 @@ export interface FileRouteTypes {
     | '/staff/home'
     | '/staff/pending'
     | '/staff/profile'
+    | '/family/$token/home'
     | '/staff/admin/users'
+    | '/family/$token/child/$childId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,7 +219,9 @@ export interface FileRouteTypes {
     | '/staff/home'
     | '/staff/pending'
     | '/staff/profile'
+    | '/family/$token/home'
     | '/staff/admin/users'
+    | '/family/$token/child/$childId'
   id:
     | '__root__'
     | '/'
@@ -217,7 +239,9 @@ export interface FileRouteTypes {
     | '/_authenticated/staff/home'
     | '/_authenticated/staff/pending'
     | '/_authenticated/staff/profile'
+    | '/family/$token/home'
     | '/_authenticated/staff/admin/users'
+    | '/family/$token/child/$childId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -226,7 +250,7 @@ export interface RootRouteChildren {
   DataRoute: typeof DataRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
-  FamilyTokenRoute: typeof FamilyTokenRoute
+  FamilyTokenRoute: typeof FamilyTokenRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -294,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDonorRouteRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/family/$token/home': {
+      id: '/family/$token/home'
+      path: '/home'
+      fullPath: '/family/$token/home'
+      preLoaderRoute: typeof FamilyTokenHomeRouteImport
+      parentRoute: typeof FamilyTokenRoute
+    }
     '/_authenticated/staff/profile': {
       id: '/_authenticated/staff/profile'
       path: '/profile'
@@ -335,6 +366,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/staff/admin'
       preLoaderRoute: typeof AuthenticatedStaffAdminRouteRouteImport
       parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/family/$token/child/$childId': {
+      id: '/family/$token/child/$childId'
+      path: '/child/$childId'
+      fullPath: '/family/$token/child/$childId'
+      preLoaderRoute: typeof FamilyTokenChildChildIdRouteImport
+      parentRoute: typeof FamilyTokenRoute
     }
     '/_authenticated/staff/admin/users': {
       id: '/_authenticated/staff/admin/users'
@@ -402,13 +440,27 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface FamilyTokenRouteChildren {
+  FamilyTokenHomeRoute: typeof FamilyTokenHomeRoute
+  FamilyTokenChildChildIdRoute: typeof FamilyTokenChildChildIdRoute
+}
+
+const FamilyTokenRouteChildren: FamilyTokenRouteChildren = {
+  FamilyTokenHomeRoute: FamilyTokenHomeRoute,
+  FamilyTokenChildChildIdRoute: FamilyTokenChildChildIdRoute,
+}
+
+const FamilyTokenRouteWithChildren = FamilyTokenRoute._addFileChildren(
+  FamilyTokenRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   DataRoute: DataRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
-  FamilyTokenRoute: FamilyTokenRoute,
+  FamilyTokenRoute: FamilyTokenRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

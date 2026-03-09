@@ -26,7 +26,10 @@ importers:
       "@fontsource-variable/nunito":
         specifier: ^5.2.7
         version: 5.2.7
-      "@lukemorales/query-key-factory":
+      '@fontsource/gaegu':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@lukemorales/query-key-factory':
         specifier: ^1.3.4
         version: 1.3.4(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))
       "@tailwindcss/vite":
@@ -1559,76 +1562,49 @@ packages:
         integrity: sha512-0tLRojf/1Go2JgEVm+3Frg9A3IW8bJgKgdO0BN5RkF//ufuz2joZM63Npau2ff3J6lUVYgDSNzNkR+aH3IVfjg==,
       }
     peerDependencies:
-      react: ">=16.8.0"
-      react-dom: ">=16.8.0"
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
-  "@floating-ui/utils@0.2.10":
-    resolution:
-      {
-        integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==,
-      }
+  '@floating-ui/utils@0.2.10':
+    resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
 
-  "@fontsource-variable/nunito@5.2.7":
-    resolution:
-      {
-        integrity: sha512-2N8QhatkyKgSUbAGZO2FYLioxA32+RyI1EplVLawbpkGjUeui9Qg9VMrpkCaik1ydjFjfLV+kzQ0cGEsMrMenQ==,
-      }
+  '@fontsource-variable/nunito@5.2.7':
+    resolution: {integrity: sha512-2N8QhatkyKgSUbAGZO2FYLioxA32+RyI1EplVLawbpkGjUeui9Qg9VMrpkCaik1ydjFjfLV+kzQ0cGEsMrMenQ==}
 
-  "@google-cloud/firestore@7.11.6":
-    resolution:
-      {
-        integrity: sha512-EW/O8ktzwLfyWBOsNuhRoMi8lrC3clHM5LVFhGvO1HCsLozCOOXRAlHrYBoE6HL42Sc8yYMuCb2XqcnJ4OOEpw==,
-      }
-    engines: { node: ">=14.0.0" }
+  '@fontsource/gaegu@5.2.8':
+    resolution: {integrity: sha512-3rjyZGlUOQJo5zx0/1YFiFYKv4SZtaPiORncSXX4guo2P/sTMbxUIJRJWe14IS+CbkSrDppu24Y/KpXyQSFyhA==}
 
-  "@google-cloud/paginator@5.0.2":
-    resolution:
-      {
-        integrity: sha512-DJS3s0OVH4zFDB1PzjxAsHqJT6sKVbRwwML0ZBP9PbU7Yebtu/7SWMRzvO2J3nUi9pRNITCfu4LJeooM2w4pjg==,
-      }
-    engines: { node: ">=14.0.0" }
+  '@google-cloud/firestore@7.11.6':
+    resolution: {integrity: sha512-EW/O8ktzwLfyWBOsNuhRoMi8lrC3clHM5LVFhGvO1HCsLozCOOXRAlHrYBoE6HL42Sc8yYMuCb2XqcnJ4OOEpw==}
+    engines: {node: '>=14.0.0'}
 
-  "@google-cloud/projectify@4.0.0":
-    resolution:
-      {
-        integrity: sha512-MmaX6HeSvyPbWGwFq7mXdo0uQZLGBYCwziiLIGq5JVX+/bdI3SAq6bP98trV5eTWfLuvsMcIC1YJOF2vfteLFA==,
-      }
-    engines: { node: ">=14.0.0" }
+  '@google-cloud/paginator@5.0.2':
+    resolution: {integrity: sha512-DJS3s0OVH4zFDB1PzjxAsHqJT6sKVbRwwML0ZBP9PbU7Yebtu/7SWMRzvO2J3nUi9pRNITCfu4LJeooM2w4pjg==}
+    engines: {node: '>=14.0.0'}
 
-  "@google-cloud/promisify@4.0.0":
-    resolution:
-      {
-        integrity: sha512-Orxzlfb9c67A15cq2JQEyVc7wEsmFBmHjZWZYQMUyJ1qivXyMwdyNOs9odi79hze+2zqdTtu1E19IM/FtqZ10g==,
-      }
-    engines: { node: ">=14" }
+  '@google-cloud/projectify@4.0.0':
+    resolution: {integrity: sha512-MmaX6HeSvyPbWGwFq7mXdo0uQZLGBYCwziiLIGq5JVX+/bdI3SAq6bP98trV5eTWfLuvsMcIC1YJOF2vfteLFA==}
+    engines: {node: '>=14.0.0'}
 
-  "@google-cloud/storage@7.19.0":
-    resolution:
-      {
-        integrity: sha512-n2FjE7NAOYyshogdc7KQOl/VZb4sneqPjWouSyia9CMDdMhRX5+RIbqalNmC7LOLzuLAN89VlF2HvG8na9G+zQ==,
-      }
-    engines: { node: ">=14" }
+  '@google-cloud/promisify@4.0.0':
+    resolution: {integrity: sha512-Orxzlfb9c67A15cq2JQEyVc7wEsmFBmHjZWZYQMUyJ1qivXyMwdyNOs9odi79hze+2zqdTtu1E19IM/FtqZ10g==}
+    engines: {node: '>=14'}
 
-  "@grpc/grpc-js@1.14.3":
-    resolution:
-      {
-        integrity: sha512-Iq8QQQ/7X3Sac15oB6p0FmUg/klxQvXLeileoqrTRGJYLV+/9tubbr9ipz0GKHjmXVsgFPo/+W+2cA8eNcR+XA==,
-      }
-    engines: { node: ">=12.10.0" }
+  '@google-cloud/storage@7.19.0':
+    resolution: {integrity: sha512-n2FjE7NAOYyshogdc7KQOl/VZb4sneqPjWouSyia9CMDdMhRX5+RIbqalNmC7LOLzuLAN89VlF2HvG8na9G+zQ==}
+    engines: {node: '>=14'}
 
-  "@grpc/grpc-js@1.9.15":
-    resolution:
-      {
-        integrity: sha512-nqE7Hc0AzI+euzUwDAy0aY5hCp10r734gMGRdU+qOPX0XSceI2ULrcXB5U2xSc5VkWwalCj4M7GzCAygZl2KoQ==,
-      }
-    engines: { node: ^8.13.0 || >=10.10.0 }
+  '@grpc/grpc-js@1.14.3':
+    resolution: {integrity: sha512-Iq8QQQ/7X3Sac15oB6p0FmUg/klxQvXLeileoqrTRGJYLV+/9tubbr9ipz0GKHjmXVsgFPo/+W+2cA8eNcR+XA==}
+    engines: {node: '>=12.10.0'}
 
-  "@grpc/proto-loader@0.7.15":
-    resolution:
-      {
-        integrity: sha512-tMXdRCfYVixjuFK+Hk0Q1s38gV9zDiDJfWL3h1rv4Qc39oILCu1TRTDt7+fGUI8K4G1Fj125Hx/ru3azECWTyQ==,
-      }
-    engines: { node: ">=6" }
+  '@grpc/grpc-js@1.9.15':
+    resolution: {integrity: sha512-nqE7Hc0AzI+euzUwDAy0aY5hCp10r734gMGRdU+qOPX0XSceI2ULrcXB5U2xSc5VkWwalCj4M7GzCAygZl2KoQ==}
+    engines: {node: ^8.13.0 || >=10.10.0}
+
+  '@grpc/proto-loader@0.7.15':
+    resolution: {integrity: sha512-tMXdRCfYVixjuFK+Hk0Q1s38gV9zDiDJfWL3h1rv4Qc39oILCu1TRTDt7+fGUI8K4G1Fj125Hx/ru3azECWTyQ==}
+    engines: {node: '>=6'}
     hasBin: true
 
   "@grpc/proto-loader@0.8.0":
@@ -11920,7 +11896,9 @@ snapshots:
 
   "@fontsource-variable/nunito@5.2.7": {}
 
-  "@google-cloud/firestore@7.11.6":
+  '@fontsource/gaegu@5.2.8': {}
+
+  '@google-cloud/firestore@7.11.6':
     dependencies:
       "@opentelemetry/api": 1.9.0
       fast-deep-equal: 3.1.3
@@ -15850,7 +15828,7 @@ snapshots:
   h3@2.0.1-rc.14(crossws@0.4.4(srvx@0.11.2)):
     dependencies:
       rou3: 0.7.12
-      srvx: 0.11.7
+      srvx: 0.11.8
     optionalDependencies:
       crossws: 0.4.4(srvx@0.11.2)
 
