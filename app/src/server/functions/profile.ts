@@ -1,12 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { UserRole } from "common";
 import z from "zod";
+import { DateTime } from "luxon";
 import {
   authMiddleware,
   requireRolesMiddleware,
 } from "@/server/middleware/authMiddleware";
 import { getServerAuth, getServerDB } from "@/lib/firebase.server";
-import { DateTime } from "luxon";
 
 const uidSchema = z.object({ uid: z.string().min(1) });
 
@@ -25,7 +25,9 @@ export const getUserProfileById = createServerFn({
     const uid = data.uid;
     if (
       uid === context.authUser.uid ||
-      context.authUser.role === UserRole.VOLUNTEER
+      [UserRole.ADMIN, UserRole.VOLUNTEER, UserRole.DIRECTOR].includes(
+        context.authUser.role,
+      )
     ) {
       const db = getServerDB();
       const userDoc = await db.users.doc(uid).get();
@@ -186,7 +188,7 @@ const relevantStaffFields = z.object({
   inviteId: z.string().trim().min(1),
   firstName: z.string().trim().min(1),
   lastName: z.string().trim().min(1),
-  password: z.string().trim().min(6, "Password must be at least 6 characters long"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
   phone: z
     .string()
     // this is interesting. after testing with a mock register form,
