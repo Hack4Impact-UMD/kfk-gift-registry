@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import "@/styles.css";
 import KFKLogo from "@/assets/kisses-for-kyle-logo.png";
 
 export const Route = createFileRoute("/family/form/consent")({
@@ -56,7 +55,7 @@ function ConsentPageComponent() {
             <form.Field
               name="consentGiven"
               children={(field) => (
-                <FormAgreement 
+                <FormAgreement
                   field={field}
                   checkboxLabel="I agree to the sharing of my mailing address"
                 >
@@ -72,7 +71,7 @@ function ConsentPageComponent() {
             <form.Field
               name="shareMailingAddress"
               children={(field) => (
-                <FormAgreement 
+                <FormAgreement
                   field={field}
                   checkboxLabel="I certify my legal guardianship and residency"
                 >

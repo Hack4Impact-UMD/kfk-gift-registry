@@ -24,10 +24,15 @@ import { Route as FamilyFormGiftDetailsRouteImport } from './routes/family/form/
 import { Route as FamilyFormGeneralInfoRouteImport } from './routes/family/form/general-info'
 import { Route as FamilyFormConsentRouteImport } from './routes/family/form/consent'
 import { Route as FamilyFormChildrenRouteImport } from './routes/family/form/children'
+import { Route as FamilyTokenHomeRouteImport } from './routes/family/$token/home'
+import { Route as AuthenticatedStaffProfileRouteImport } from './routes/_authenticated/staff/profile'
+import { Route as AuthenticatedStaffPendingRouteImport } from './routes/_authenticated/staff/pending'
 import { Route as AuthenticatedStaffHomeRouteImport } from './routes/_authenticated/staff/home'
 import { Route as AuthenticatedStaffApprovedRouteImport } from './routes/_authenticated/staff/approved'
 import { Route as AuthenticatedStaffVolunteerRouteRouteImport } from './routes/_authenticated/staff/volunteer/route'
 import { Route as AuthenticatedStaffAdminRouteRouteImport } from './routes/_authenticated/staff/admin/route'
+import { Route as FamilyTokenChildChildIdRouteImport } from './routes/family/$token/child/$childId'
+import { Route as AuthenticatedStaffAdminUsersRouteImport } from './routes/_authenticated/staff/admin/users'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -103,6 +108,23 @@ const FamilyFormChildrenRoute = FamilyFormChildrenRouteImport.update({
   path: '/children',
   getParentRoute: () => FamilyFormRoute,
 } as any)
+const FamilyTokenHomeRoute = FamilyTokenHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => FamilyTokenRoute,
+} as any)
+const AuthenticatedStaffProfileRoute =
+  AuthenticatedStaffProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
+const AuthenticatedStaffPendingRoute =
+  AuthenticatedStaffPendingRouteImport.update({
+    id: '/pending',
+    path: '/pending',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
 const AuthenticatedStaffHomeRoute = AuthenticatedStaffHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -126,6 +148,17 @@ const AuthenticatedStaffAdminRouteRoute =
     path: '/admin',
     getParentRoute: () => AuthenticatedStaffRouteRoute,
   } as any)
+const FamilyTokenChildChildIdRoute = FamilyTokenChildChildIdRouteImport.update({
+  id: '/child/$childId',
+  path: '/child/$childId',
+  getParentRoute: () => FamilyTokenRoute,
+} as any)
+const AuthenticatedStaffAdminUsersRoute =
+  AuthenticatedStaffAdminUsersRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => AuthenticatedStaffAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -135,17 +168,22 @@ export interface FileRoutesByFullPath {
   '/donor': typeof AuthenticatedDonorRouteRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
-  '/family/$token': typeof FamilyTokenRoute
+  '/family/$token': typeof FamilyTokenRouteWithChildren
   '/family/form': typeof FamilyFormRouteWithChildren
-  '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
+  '/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
+  '/staff/pending': typeof AuthenticatedStaffPendingRoute
+  '/staff/profile': typeof AuthenticatedStaffProfileRoute
+  '/family/$token/home': typeof FamilyTokenHomeRoute
   '/family/form/children': typeof FamilyFormChildrenRoute
   '/family/form/consent': typeof FamilyFormConsentRoute
   '/family/form/general-info': typeof FamilyFormGeneralInfoRoute
   '/family/form/gift-details': typeof FamilyFormGiftDetailsRoute
   '/family/form/review': typeof FamilyFormReviewRoute
+  '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
+  '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -155,17 +193,22 @@ export interface FileRoutesByTo {
   '/donor': typeof AuthenticatedDonorRouteRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
-  '/family/$token': typeof FamilyTokenRoute
+  '/family/$token': typeof FamilyTokenRouteWithChildren
   '/family/form': typeof FamilyFormRouteWithChildren
-  '/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
+  '/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
+  '/staff/pending': typeof AuthenticatedStaffPendingRoute
+  '/staff/profile': typeof AuthenticatedStaffProfileRoute
+  '/family/$token/home': typeof FamilyTokenHomeRoute
   '/family/form/children': typeof FamilyFormChildrenRoute
   '/family/form/consent': typeof FamilyFormConsentRoute
   '/family/form/general-info': typeof FamilyFormGeneralInfoRoute
   '/family/form/gift-details': typeof FamilyFormGiftDetailsRoute
   '/family/form/review': typeof FamilyFormReviewRoute
+  '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
+  '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -177,17 +220,22 @@ export interface FileRoutesById {
   '/_authenticated/donor': typeof AuthenticatedDonorRouteRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/_authenticated/hello': typeof AuthenticatedHelloRoute
-  '/family/$token': typeof FamilyTokenRoute
+  '/family/$token': typeof FamilyTokenRouteWithChildren
   '/family/form': typeof FamilyFormRouteWithChildren
-  '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRoute
+  '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
   '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/_authenticated/staff/home': typeof AuthenticatedStaffHomeRoute
+  '/_authenticated/staff/pending': typeof AuthenticatedStaffPendingRoute
+  '/_authenticated/staff/profile': typeof AuthenticatedStaffProfileRoute
+  '/family/$token/home': typeof FamilyTokenHomeRoute
   '/family/form/children': typeof FamilyFormChildrenRoute
   '/family/form/consent': typeof FamilyFormConsentRoute
   '/family/form/general-info': typeof FamilyFormGeneralInfoRoute
   '/family/form/gift-details': typeof FamilyFormGiftDetailsRoute
   '/family/form/review': typeof FamilyFormReviewRoute
+  '/_authenticated/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
+  '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -205,11 +253,16 @@ export interface FileRouteTypes {
     | '/staff/volunteer'
     | '/staff/approved'
     | '/staff/home'
+    | '/staff/pending'
+    | '/staff/profile'
+    | '/family/$token/home'
     | '/family/form/children'
     | '/family/form/consent'
     | '/family/form/general-info'
     | '/family/form/gift-details'
     | '/family/form/review'
+    | '/staff/admin/users'
+    | '/family/$token/child/$childId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -225,11 +278,16 @@ export interface FileRouteTypes {
     | '/staff/volunteer'
     | '/staff/approved'
     | '/staff/home'
+    | '/staff/pending'
+    | '/staff/profile'
+    | '/family/$token/home'
     | '/family/form/children'
     | '/family/form/consent'
     | '/family/form/general-info'
     | '/family/form/gift-details'
     | '/family/form/review'
+    | '/staff/admin/users'
+    | '/family/$token/child/$childId'
   id:
     | '__root__'
     | '/'
@@ -246,11 +304,16 @@ export interface FileRouteTypes {
     | '/_authenticated/staff/volunteer'
     | '/_authenticated/staff/approved'
     | '/_authenticated/staff/home'
+    | '/_authenticated/staff/pending'
+    | '/_authenticated/staff/profile'
+    | '/family/$token/home'
     | '/family/form/children'
     | '/family/form/consent'
     | '/family/form/general-info'
     | '/family/form/gift-details'
     | '/family/form/review'
+    | '/_authenticated/staff/admin/users'
+    | '/family/$token/child/$childId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -259,7 +322,7 @@ export interface RootRouteChildren {
   DataRoute: typeof DataRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
-  FamilyTokenRoute: typeof FamilyTokenRoute
+  FamilyTokenRoute: typeof FamilyTokenRouteWithChildren
   FamilyFormRoute: typeof FamilyFormRouteWithChildren
 }
 
@@ -370,6 +433,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FamilyFormChildrenRouteImport
       parentRoute: typeof FamilyFormRoute
     }
+    '/family/$token/home': {
+      id: '/family/$token/home'
+      path: '/home'
+      fullPath: '/family/$token/home'
+      preLoaderRoute: typeof FamilyTokenHomeRouteImport
+      parentRoute: typeof FamilyTokenRoute
+    }
+    '/_authenticated/staff/profile': {
+      id: '/_authenticated/staff/profile'
+      path: '/profile'
+      fullPath: '/staff/profile'
+      preLoaderRoute: typeof AuthenticatedStaffProfileRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/staff/pending': {
+      id: '/_authenticated/staff/pending'
+      path: '/pending'
+      fullPath: '/staff/pending'
+      preLoaderRoute: typeof AuthenticatedStaffPendingRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
     '/_authenticated/staff/home': {
       id: '/_authenticated/staff/home'
       path: '/home'
@@ -398,23 +482,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffAdminRouteRouteImport
       parentRoute: typeof AuthenticatedStaffRouteRoute
     }
+    '/family/$token/child/$childId': {
+      id: '/family/$token/child/$childId'
+      path: '/child/$childId'
+      fullPath: '/family/$token/child/$childId'
+      preLoaderRoute: typeof FamilyTokenChildChildIdRouteImport
+      parentRoute: typeof FamilyTokenRoute
+    }
+    '/_authenticated/staff/admin/users': {
+      id: '/_authenticated/staff/admin/users'
+      path: '/users'
+      fullPath: '/staff/admin/users'
+      preLoaderRoute: typeof AuthenticatedStaffAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedStaffAdminRouteRoute
+    }
   }
 }
 
+interface AuthenticatedStaffAdminRouteRouteChildren {
+  AuthenticatedStaffAdminUsersRoute: typeof AuthenticatedStaffAdminUsersRoute
+}
+
+const AuthenticatedStaffAdminRouteRouteChildren: AuthenticatedStaffAdminRouteRouteChildren =
+  {
+    AuthenticatedStaffAdminUsersRoute: AuthenticatedStaffAdminUsersRoute,
+  }
+
+const AuthenticatedStaffAdminRouteRouteWithChildren =
+  AuthenticatedStaffAdminRouteRoute._addFileChildren(
+    AuthenticatedStaffAdminRouteRouteChildren,
+  )
+
 interface AuthenticatedStaffRouteRouteChildren {
-  AuthenticatedStaffAdminRouteRoute: typeof AuthenticatedStaffAdminRouteRoute
+  AuthenticatedStaffAdminRouteRoute: typeof AuthenticatedStaffAdminRouteRouteWithChildren
   AuthenticatedStaffVolunteerRouteRoute: typeof AuthenticatedStaffVolunteerRouteRoute
   AuthenticatedStaffApprovedRoute: typeof AuthenticatedStaffApprovedRoute
   AuthenticatedStaffHomeRoute: typeof AuthenticatedStaffHomeRoute
+  AuthenticatedStaffPendingRoute: typeof AuthenticatedStaffPendingRoute
+  AuthenticatedStaffProfileRoute: typeof AuthenticatedStaffProfileRoute
 }
 
 const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren =
   {
-    AuthenticatedStaffAdminRouteRoute: AuthenticatedStaffAdminRouteRoute,
+    AuthenticatedStaffAdminRouteRoute:
+      AuthenticatedStaffAdminRouteRouteWithChildren,
     AuthenticatedStaffVolunteerRouteRoute:
       AuthenticatedStaffVolunteerRouteRoute,
     AuthenticatedStaffApprovedRoute: AuthenticatedStaffApprovedRoute,
     AuthenticatedStaffHomeRoute: AuthenticatedStaffHomeRoute,
+    AuthenticatedStaffPendingRoute: AuthenticatedStaffPendingRoute,
+    AuthenticatedStaffProfileRoute: AuthenticatedStaffProfileRoute,
   }
 
 const AuthenticatedStaffRouteRouteWithChildren =
@@ -436,6 +553,20 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
+)
+
+interface FamilyTokenRouteChildren {
+  FamilyTokenHomeRoute: typeof FamilyTokenHomeRoute
+  FamilyTokenChildChildIdRoute: typeof FamilyTokenChildChildIdRoute
+}
+
+const FamilyTokenRouteChildren: FamilyTokenRouteChildren = {
+  FamilyTokenHomeRoute: FamilyTokenHomeRoute,
+  FamilyTokenChildChildIdRoute: FamilyTokenChildChildIdRoute,
+}
+
+const FamilyTokenRouteWithChildren = FamilyTokenRoute._addFileChildren(
+  FamilyTokenRouteChildren,
 )
 
 interface FamilyFormRouteChildren {
@@ -464,7 +595,7 @@ const rootRouteChildren: RootRouteChildren = {
   DataRoute: DataRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
-  FamilyTokenRoute: FamilyTokenRoute,
+  FamilyTokenRoute: FamilyTokenRouteWithChildren,
   FamilyFormRoute: FamilyFormRouteWithChildren,
 }
 export const routeTree = rootRouteImport

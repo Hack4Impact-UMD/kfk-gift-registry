@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState } from "react";
+import type { ReactNode } from "react";
 
 // Define the structure for each form section
 export type ConsentFormData = {
@@ -36,10 +37,10 @@ export type SiblingInfo = {
 export type ChildrenFormData = {
   hasMultipleChildren: boolean;
   numChildren: number;
-  children: ChildInfo[];
+  children: Array<ChildInfo>;
   hasSiblings: boolean;
   numSiblings: number;
-  siblings: SiblingInfo[];
+  siblings: Array<SiblingInfo>;
   consentPhotosPublic: boolean;
 };
 
@@ -50,13 +51,13 @@ export type GiftSelection = {
 
 export type ChildGiftSelections = {
   childName: string;
-  gifts: GiftSelection[];
-  backupGifts: GiftSelection[];
+  gifts: Array<GiftSelection>;
+  backupGifts: Array<GiftSelection>;
   verified: boolean;
 };
 
 export type GiftsFormData = {
-  giftSelections: ChildGiftSelections[];
+  giftSelections: Array<ChildGiftSelections>;
 };
 
 // Central form state - organized by section

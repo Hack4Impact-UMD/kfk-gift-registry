@@ -1,8 +1,9 @@
 import { useForm } from "@tanstack/react-form";
-import { useFormContext, type FamilyFormState, type ChildInfo, type SiblingInfo } from "@/components/providers/FormProvider";
 import { useNavigate } from "@tanstack/react-router";
-import { consentSchema, generalInfoSchema, childrenFormSchema } from "@/lib/formSchemas";
 import { useEffect } from "react";
+import type {ChildInfo, FamilyFormState, SiblingInfo} from "@/components/providers/FormProvider";
+import {    useFormContext } from "@/components/providers/FormProvider";
+import { childrenFormSchema, consentSchema, generalInfoSchema } from "@/lib/formSchemas";
 
 const defaultChild = (): ChildInfo => ({
   name: "",

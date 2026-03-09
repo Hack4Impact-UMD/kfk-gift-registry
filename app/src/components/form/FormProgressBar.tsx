@@ -1,11 +1,12 @@
-import { useFormContext, type FamilyFormState } from "@/components/providers/FormProvider";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { 
-  UserIcon, 
-  UsersIcon, 
+  DocumentCheckIcon, 
   GiftIcon, 
-  DocumentCheckIcon 
+  UserIcon, 
+  UsersIcon 
 } from "@heroicons/react/24/solid";
+import type {FamilyFormState} from "@/components/providers/FormProvider";
+import {  useFormContext } from "@/components/providers/FormProvider";
 import { SECTION_SCHEMAS } from "@/lib/formSchemas";
 
 type FormStep = {
@@ -17,7 +18,7 @@ type FormStep = {
   isReviewPage?: boolean; // Flag for pages without their own form data
 };
 
-const FORM_STEPS: FormStep[] = [
+const FORM_STEPS: Array<FormStep> = [
   {
     id: "general",
     label: "General",

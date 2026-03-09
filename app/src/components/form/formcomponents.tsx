@@ -1,12 +1,12 @@
-import { ReactNode } from "react";
+import { CardDescription } from "../ui/card";
+import { FieldLabel } from "../ui/field";
+import { FormItem } from "../ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import type { ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { CardDescription } from "../ui/card";
-import { FieldLabel } from "../ui/field";
-import { FormItem } from "../ui/form";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
 
 type FormInputProps = {
   field: any;

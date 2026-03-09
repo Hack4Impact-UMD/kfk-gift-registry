@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { FormProvider } from "@/components/providers/FormProvider";
 
 export const Route = createFileRoute("/family/form")({

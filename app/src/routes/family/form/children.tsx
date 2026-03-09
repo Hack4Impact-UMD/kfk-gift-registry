@@ -1,19 +1,18 @@
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { Building2, Stethoscope, User, UserCog } from 'lucide-react';
 import { 
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
-  CardDescription
+  CardTitle
 } from '@/components/ui/card'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useFormContext } from "@/components/providers/FormProvider";
-import { FormFieldInput, FormSelect, FormButton, FormCheckbox } from "@/components/form/formcomponents";
+import { FormButton, FormCheckbox, FormFieldInput, FormSelect } from "@/components/form/formcomponents";
 import { PhotoUpload } from "@/components/form/PhotoUpload";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
-import "@/styles.css";
-import { User, Stethoscope, Building2, UserCog } from 'lucide-react';
 import { FormProgressBar } from '@/components/form/FormProgressBar';
 import { useChildrenForm, useProgressBarNavigation } from '@/hooks/form/FormHooks';
 
