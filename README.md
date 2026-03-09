@@ -12,6 +12,7 @@ This repository contains the source code for the Kisses for Kyle Gift registry p
 - **Data Fetching:** [TanStack Query](https://tanstack.com/query/latest)
 - **Routing:** [TanStack Router](https://tanstack.com/router/latest)
 - **Schema Validation:** [Zod](https://zod.dev/)
+- **BaaS:** [Firebase](https://firebase.google.com/)
 
 ## Directory Structure
 

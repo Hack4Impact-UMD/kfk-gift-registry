@@ -1,7 +1,8 @@
 export enum UserRole {
+  DIRECTOR = "DIRECTOR",
   ADMIN = "ADMIN",
-  DONOR = "DONOR",
   VOLUNTEER = "VOLUNTEER",
+  DONOR = "DONOR",
 }
 
 export interface UserProfile {
