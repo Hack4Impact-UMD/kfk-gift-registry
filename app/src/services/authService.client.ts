@@ -6,7 +6,7 @@ export async function login(email: string, password: string) {
   const auth = getClientAuth();
   const result = await signInWithEmailAndPassword(auth, email, password);
 
-  await loginWithToken({
+  return await loginWithToken({
     data: {
       token: await result.user.getIdToken(),
     },
