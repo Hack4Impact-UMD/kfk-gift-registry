@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
 import { Route as FamilyTokenRoute } from "../$token";
+import { Button } from "@/components/ui/button";
 import { NotificationCard } from "@/components/family/NotificationCard";
 import RedGift from "@/assets/red-gift.png";
 
@@ -23,7 +23,7 @@ function FamilyHome() {
   );
 
   // TODO: implement clear functionality (swap out local storage implementation)
-  const [visibleIds, setVisibleIds] = useState<string[]>(() =>
+  const [visibleIds, setVisibleIds] = useState<Array<string>>(() =>
     notifications.map((n) => n.id)
   )
 
@@ -38,8 +38,7 @@ function FamilyHome() {
   const handleClearAll = () => setVisibleIds([])
 
   return (
-    <div className="px-4 py-8 mt-2 flex flex-col"> 
-
+    <div className="py-8 mt-2 flex flex-col overflow-x-hidden">
       <div className="relative bg-kfk-blue text-white rounded-2xl p-6 shadow-xl flex items-center justify-between gap-2">
 
         <div className="absolute inset-0 pointer-events-none">
@@ -58,19 +57,19 @@ function FamilyHome() {
             Track your gifts, confirm deliveries, & thank your donors!
           </p>
         </div>
-        
-        <img src={RedGift} alt="Gift Box" className="w-48 mt-4" />
+
+        <img src={RedGift} alt="Gift Box" className="max-w-32 mt-4 z-20" />
       </div>
 
       <div className="py-4 mt-4 flex justify-between items-center">
         <h3 className="text-lg font-semibold mx-2">Notifications</h3>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="rounded-full border-ring text-foreground"
           // TODO: implement clear functionality (swap out local storage implementation)
           onClick={handleClearAll}
-         > 
-          Clear All 
+        >
+          Clear All
         </Button>
       </div>
 
