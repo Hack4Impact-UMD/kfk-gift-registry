@@ -183,10 +183,10 @@ export const deleteUserProfile = createServerFn({
   });
 
 const relevantStaffFields = z.object({
-  inviteId: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  password: z.string(),
+  inviteId: z.string().trim().min(1),
+  firstName: z.string().trim().min(1),
+  lastName: z.string().trim().min(1),
+  password: z.string().trim().min(6, "Password must be at least 6 characters long"),
   phone: z
     .string()
     // this is interesting. after testing with a mock register form,
