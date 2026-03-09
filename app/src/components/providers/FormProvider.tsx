@@ -11,7 +11,7 @@ export type GeneralInfoFormData = {
   parentName: string;
   email: string;
   emailConfirm: string;
-  phoneNumber?: string;  // Made optional to match Zod
+  phoneNumber?: string; // Made optional to match Zod
   streetAddress: string;
   addressLine2?: string;
   city: string;
@@ -72,7 +72,7 @@ type FormContextType = {
   formState: FamilyFormState;
   updateSection: <K extends keyof FamilyFormState>(
     section: K,
-    data: FamilyFormState[K]
+    data: FamilyFormState[K],
   ) => void;
   resetForm: () => void;
   isComplete: (section: keyof FamilyFormState) => boolean;
@@ -85,7 +85,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
   const updateSection = <K extends keyof FamilyFormState>(
     section: K,
-    data: FamilyFormState[K]
+    data: FamilyFormState[K],
   ) => {
     setFormState((prev) => ({
       ...prev,
@@ -102,7 +102,9 @@ export function FormProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <FormContext.Provider value={{ formState, updateSection, resetForm, isComplete }}>
+    <FormContext.Provider
+      value={{ formState, updateSection, resetForm, isComplete }}
+    >
       {children}
     </FormContext.Provider>
   );

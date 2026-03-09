@@ -1,9 +1,17 @@
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import type {ChildInfo, FamilyFormState, SiblingInfo} from "@/components/providers/FormProvider";
-import {    useFormContext } from "@/components/providers/FormProvider";
-import { childrenFormSchema, consentSchema, generalInfoSchema } from "@/lib/formSchemas";
+import type {
+  ChildInfo,
+  FamilyFormState,
+  SiblingInfo,
+} from "@/components/providers/FormProvider";
+import { useFormContext } from "@/components/providers/FormProvider";
+import {
+  childrenFormSchema,
+  consentSchema,
+  generalInfoSchema,
+} from "@/lib/formSchemas";
 
 const defaultChild = (): ChildInfo => ({
   name: "",
@@ -20,10 +28,9 @@ const defaultSibling = (): SiblingInfo => ({
   photoUrl: "",
 });
 
-
 export function useProgressBarNavigation<K extends keyof FamilyFormState>(
   sectionKey: K,
-  getCurrentValues: () => FamilyFormState[K]
+  getCurrentValues: () => FamilyFormState[K],
 ) {
   const { updateSection } = useFormContext();
   const navigate = useNavigate();
@@ -31,10 +38,10 @@ export function useProgressBarNavigation<K extends keyof FamilyFormState>(
   const handleProgressBarNavigate = async (targetPath: string) => {
     // Get current form values
     const currentValues = getCurrentValues();
-    
+
     // Save to form state (even if incomplete/invalid)
     updateSection(sectionKey, currentValues);
-    
+
     // Navigate to target
     navigate({ to: targetPath as any });
   };
@@ -59,7 +66,7 @@ export function useConsentForm() {
       }
 
       updateSection("consentScreen", result.data);
-      
+
       navigate({ to: "/family/form/general-info" });
     },
   });
@@ -90,7 +97,7 @@ export function useGeneralInfoForm() {
         console.error("Validation failed:", result.error);
         return;
       }
-      
+
       updateSection("generalInfo", result.data);
       navigate({ to: "/family/form/children" });
     },
@@ -122,7 +129,10 @@ export function useChildrenForm() {
       form.setFieldValue("children", children.slice(0, numChildren));
     } else if (children.length < numChildren) {
       const toAdd = numChildren - children.length;
-      form.setFieldValue("children", [...children, ...Array.from({ length: toAdd }, defaultChild)]);
+      form.setFieldValue("children", [
+        ...children,
+        ...Array.from({ length: toAdd }, defaultChild),
+      ]);
     }
   }, [form.state.values.numChildren]);
 
@@ -133,10 +143,12 @@ export function useChildrenForm() {
       form.setFieldValue("siblings", siblings.slice(0, numSiblings));
     } else if (siblings.length < numSiblings) {
       const toAdd = numSiblings - siblings.length;
-      form.setFieldValue("siblings", [...siblings, ...Array.from({ length: toAdd }, defaultSibling)]);
+      form.setFieldValue("siblings", [
+        ...siblings,
+        ...Array.from({ length: toAdd }, defaultSibling),
+      ]);
     }
   }, [form.state.values.numSiblings]);
-
 
   const handleNext = async () => {
     const values = form.state.values;
@@ -145,9 +157,11 @@ export function useChildrenForm() {
     const numChildren = Number(values.numChildren ?? 1);
     const numSiblings = Number(values.numSiblings ?? 0);
 
-    
     const expectedChildCount = values.hasMultipleChildren ? numChildren : 1;
-    const normalizedChildren = (values.children ?? []).slice(0, expectedChildCount);
+    const normalizedChildren = (values.children ?? []).slice(
+      0,
+      expectedChildCount,
+    );
     const normalizedSiblings = values.hasSiblings
       ? (values.siblings ?? []).slice(0, numSiblings)
       : [];

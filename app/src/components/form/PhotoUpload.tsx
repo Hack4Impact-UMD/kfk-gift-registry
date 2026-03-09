@@ -19,7 +19,7 @@ export function PhotoUpload({
   // Restore preview from form state (e.g. user navigated back to this page)
   const existingValue = field.state.value as string | undefined;
   const [preview, setPreview] = useState<string | null>(
-    existingValue && existingValue.startsWith("data:") ? existingValue : null
+    existingValue && existingValue.startsWith("data:") ? existingValue : null,
   );
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -145,9 +145,7 @@ export function PhotoUpload({
         </div>
       )}
 
-      {error && (
-        <p className="text-xs text-red-600">{error}</p>
-      )}
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }

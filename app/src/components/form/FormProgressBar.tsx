@@ -1,12 +1,12 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { 
-  DocumentCheckIcon, 
-  GiftIcon, 
-  UserIcon, 
-  UsersIcon 
+import {
+  DocumentCheckIcon,
+  GiftIcon,
+  UserIcon,
+  UsersIcon,
 } from "@heroicons/react/24/solid";
-import type {FamilyFormState} from "@/components/providers/FormProvider";
-import {  useFormContext } from "@/components/providers/FormProvider";
+import type { FamilyFormState } from "@/components/providers/FormProvider";
+import { useFormContext } from "@/components/providers/FormProvider";
 import { SECTION_SCHEMAS } from "@/lib/formSchemas";
 
 type FormStep = {
@@ -24,7 +24,7 @@ const FORM_STEPS: Array<FormStep> = [
     label: "General",
     path: "/family/form/general-info",
     icon: UserIcon,
-    sectionKey: "generalInfo",  
+    sectionKey: "generalInfo",
   },
   {
     id: "children",
@@ -95,12 +95,13 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
     return "complete";
   };
 
-
   const isStepClickable = (step: FormStep, index: number): boolean => {
     if (getStepState(step, index) === "current") return false;
 
-    const firstUnvisitedIndex = FORM_STEPS.findIndex((s, i) => getUnderlyingState(s, i) === "incomplete");
-    
+    const firstUnvisitedIndex = FORM_STEPS.findIndex(
+      (s, i) => getUnderlyingState(s, i) === "incomplete",
+    );
+
     if (firstUnvisitedIndex === -1) return true;
 
     return index < firstUnvisitedIndex;
@@ -125,7 +126,7 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
       case "current":
         let fillColor = "bg-gray-300"; // default
         let iconColor = "text-gray-500";
-        
+
         if (underlyingState === "complete") {
           fillColor = "bg-[var(--color-kfk-blue)]";
           iconColor = "text-white";
@@ -133,7 +134,7 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
           fillColor = "bg-red-500";
           iconColor = "text-white";
         }
-        
+
         return {
           iconBg: fillColor,
           iconBorder: "border-[#F4D03F] border-[3px]", // Gold border
@@ -175,21 +176,26 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
         <div className="relative flex items-center justify-between">
           {/* Connecting lines background */}
           <div className="absolute top-[22px] left-[10%] right-[10%] h-[2px] bg-gray-300 -z-10" />
-          
+
           {/* Colored connecting lines for completed steps */}
           <div className="absolute top-[22px] left-[10%] right-[10%] h-[2px] -z-10">
             <div className="absolute inset-0 flex">
               {FORM_STEPS.slice(0, -1).map((step, index) => {
                 const currentState = getStepState(step, index);
-                const nextState = getStepState(FORM_STEPS[index + 1], index + 1);
-                
+                const nextState = getStepState(
+                  FORM_STEPS[index + 1],
+                  index + 1,
+                );
+
                 // Line is colored if current step is complete or current
-                const shouldColor = currentState === "complete" || currentState === "current";
-                const lineColor = currentState === "error"
-                  ? "bg-red-500"
-                  : shouldColor
-                  ? "bg-[var(--color-kfk-blue)]"
-                  : "bg-transparent";
+                const shouldColor =
+                  currentState === "complete" || currentState === "current";
+                const lineColor =
+                  currentState === "error"
+                    ? "bg-red-500"
+                    : shouldColor
+                      ? "bg-[var(--color-kfk-blue)]"
+                      : "bg-transparent";
 
                 return (
                   <div
@@ -210,8 +216,8 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
             const clickable = isStepClickable(step, index);
 
             return (
-              <div 
-                key={step.id} 
+              <div
+                key={step.id}
                 className="flex flex-col items-center relative z-10"
                 onClick={() => handleStepClick(step, index)}
               >
@@ -224,7 +230,7 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
                     flex items-center justify-center
                     transition-all duration-300
                     shadow-sm
-                    ${clickable ? 'cursor-pointer hover:scale-110 hover:shadow-md' : 'cursor-default'}
+                    ${clickable ? "cursor-pointer hover:scale-110 hover:shadow-md" : "cursor-default"}
                   `}
                 >
                   <Icon className={`w-5 h-5 ${styles.iconColor}`} />
@@ -239,7 +245,7 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
                       inline-block pb-0.5
                       transition-colors duration-300
                       whitespace-nowrap
-                      ${clickable ? 'cursor-pointer' : 'cursor-default'}
+                      ${clickable ? "cursor-pointer" : "cursor-default"}
                     `}
                   >
                     {step.label}
