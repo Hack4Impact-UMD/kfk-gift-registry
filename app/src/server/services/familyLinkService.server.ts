@@ -41,17 +41,20 @@ export async function getFamilyLinkFromEmail(email: string) {
   const db = getServerDB();
 
   // Query the family by email
-  const familyQuery = await db.families.where("email", "==", email).limit(1).get();
+  const familyQuery = await db.families
+    .where("email", "==", email)
+    .limit(1)
+    .get();
 
   if (familyQuery.empty) {
     return null;
   }
 
-  const family = familyQuery.docs[0].data();
+  const familyId = familyQuery.docs[0].id;
 
   // Return an active family link if one exists
   const linkQuery = await db.familyLinks
-    .where("familyId", "==", family.id)
+    .where("familyId", "==", familyId)
     .where("active", "==", true)
     .limit(1)
     .get();
