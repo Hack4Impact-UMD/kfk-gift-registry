@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   createFileRoute,
+  redirect,
   useNavigate,
   useRouter,
 } from "@tanstack/react-router";
@@ -33,6 +34,13 @@ const loginSchema = z.object({
 });
 
 export const Route = createFileRoute("/login")({
+  beforeLoad: ({ context }) => {
+    if (context.auth.isAuthed) {
+      throw redirect({
+        to: context.auth.authUser.role === UserRole.DONOR ? "/donor" : "/staff/home"
+      });
+    }
+  },
   validateSearch: searchSchema,
   component: RouteComponent,
 });
@@ -76,7 +84,6 @@ function issueToMessage(issue: unknown): string {
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const { auth } = Route.useRouteContext();
   const router = useRouter();
   const { redirect } = Route.useSearch();
 
@@ -92,7 +99,7 @@ function RouteComponent() {
       onSubmit: loginSchema,
     },
     onSubmit: async ({ value }) => {
-      await loginMutation.mutateAsync({
+      const authUser = await loginMutation.mutateAsync({
         email: value.email,
         password: value.password,
       });
@@ -101,7 +108,7 @@ function RouteComponent() {
       await navigate({
         to:
           redirect ??
-          (auth.authUser?.role === UserRole.DONOR ? "/donor" : "/staff/home"),
+          (authUser.role === UserRole.DONOR ? "/donor" : "/staff/home"),
       });
     },
   });
