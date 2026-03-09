@@ -10513,7 +10513,7 @@ snapshots:
   h3@2.0.1-rc.14(crossws@0.4.4(srvx@0.11.2)):
     dependencies:
       rou3: 0.7.12
-      srvx: 0.11.2
+      srvx: 0.11.8
     optionalDependencies:
       crossws: 0.4.4(srvx@0.11.2)
 

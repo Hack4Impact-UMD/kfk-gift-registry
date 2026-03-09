@@ -1,35 +1,22 @@
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { X } from "lucide-react";
 
-type Props = {
+type ThankYouNoteModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-export function ThankYouNoteModal({ open, onOpenChange }: Props) {
+export function ThankYouNoteModal({ open, onOpenChange }: ThankYouNoteModalProps) {
   const [note, setNote] = useState("");
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={() => onOpenChange(false)}
-      />
-
-      <div className="relative bg-card border-2 border-kfk-blue shadow-xl rounded-xl p-6 w-[331px] z-10 flex flex-col">
-
-        <Button
-          onClick={() => onOpenChange(false)}
-          variant={"ghost"}
-          className="absolute top-4 right-4"
-        >
-          <X size={20} />
-        </Button>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-card border-2 border-kfk-blue shadow-xl rounded-xl p-6 w-[331px] flex flex-col">
 
         <p className="text-sm my-4">
           <span className="font-semibold">Optional:</span> Write a thank you note to your donor
@@ -46,13 +33,12 @@ export function ThankYouNoteModal({ open, onOpenChange }: Props) {
           <Button
             onClick={() => onOpenChange(false)}
             className="bg-kfk-blue text-white"
-            // TODO: implement send functionality
           >
             Send
           </Button>
         </div>
 
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

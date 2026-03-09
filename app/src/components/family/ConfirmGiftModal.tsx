@@ -1,44 +1,31 @@
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
 
-type Props = {
+type ConfirmGiftModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export function ConfirmGiftModal({ open, onOpenChange }: Props) {
-  if (!open) return null
-
+export function ConfirmGiftModal({ open, onOpenChange }: ConfirmGiftModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="flex flex-col items-center border-2 border-kfk-blue bg-card shadow-xl rounded-xl p-6 w-[313px]">
 
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={() => onOpenChange(false)}
-      />
-
-      <div className="relative flex flex-col items-center border-2 border-kfk-blue bg-white shadow-xl rounded-xl p-6 w-[313px] z-10">
-
-        <Button
-          onClick={() => onOpenChange(false)}
-          variant={"ghost"}
-          className="absolute top-4 right-4"
-        >
-          <X size={20} />
-        </Button>
-
-        <p className="my-6">
+        <p className="my-6 text-center">
           Are you sure you received the gift?
         </p>
 
-        <Button 
-            className="bg-kfk-blue font-gaegu text-white px-4 py-2 rounded"
-            onClick={() => onOpenChange(false)}
+        <Button
+          className="bg-kfk-blue font-gaegu text-white px-4 py-2 rounded"
+          onClick={() => onOpenChange(false)}
         >
           Yes, I got the gift!
         </Button>
 
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

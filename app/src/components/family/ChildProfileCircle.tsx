@@ -3,7 +3,7 @@ import ProfilePhoto from "@/assets/default-profile-photo.png";
 import { ExclamationCircleIcon } from "../icons";
 import type { Child } from "@/mocks/mockFamily";
 
-type Props = {
+type ChildProfileCircleProps = {
   child: Child;
   ringClass: string;
   token: string;
@@ -11,7 +11,7 @@ type Props = {
   disableLink?: boolean;
 };
 
-export function ChildProfileCircle({ child, ringClass, token, compact, disableLink }: Props) {
+export function ChildProfileCircle({ child, ringClass, token, compact, disableLink }: ChildProfileCircleProps) {
   const needsAttention = child.gifts.some(
   (gift) => gift.status === "delivered"
 );

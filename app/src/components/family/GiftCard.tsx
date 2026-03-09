@@ -3,18 +3,19 @@ import type { Gift } from "@/mocks/mockFamily";
 import { ConfirmGiftModal } from "./ConfirmGiftModal"
 import { ThankYouNoteModal } from "./ThankYouNoteModal";
 import { ExclamationCircleIcon } from "@/components/icons";
+import { Button } from "../ui/button";
 
 const GIFT_STEPS = ["Unordered", "Claimed", "In Transit", "Delivered", "Received"];
 const GIFT_STATUS_ORDER = ["unordered", "claimed", "in_transit", "delivered", "received"];
 
-type Props = {
+type GiftCardProps = {
   gift: Gift;
 };
 
 const TRACK_START = 10;
 const TRACK_WIDTH = 80;
 
-export function GiftCard({ gift }: Props) {
+export function GiftCard({ gift }: GiftCardProps) {
   const formattedStatus =
     gift.status
       .replaceAll("_", " ")
@@ -54,7 +55,6 @@ export function GiftCard({ gift }: Props) {
           <div className="grid grid-cols-2 gap-4 my-6 relative">
 
             <div
-              onClick={() => setConfirmOpen(true)}
               className="relative cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition"
             >
               <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red/50 blur-sm animate-ping"></span>
@@ -65,22 +65,27 @@ export function GiftCard({ gift }: Props) {
                 Please confirm if you have received this gift!
               </p>
 
-              <button className="bg-kfk-blue text-white px-4 py-2 rounded-md font-gaegu">
+              <Button 
+                onClick={() => setConfirmOpen(true)}
+                className="bg-kfk-blue text-white px-2 py-2 rounded-md font-gaegu"
+              >
                 Yes, I got the gift!
-              </button>
+              </Button>
             </div>
 
             <div
-              onClick={() => setNoteOpen(true)}
               className="cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition"
             >
               <p className="mb-3">
                 Send a thank you note to your donor
               </p>
 
-              <button className="bg-kfk-blue text-white px-4 py-2 rounded-md font-gaegu">
+              <Button 
+                onClick={() => setNoteOpen(true)}
+                className="bg-kfk-blue text-white px-2 py-2 rounded-md font-gaegu"
+              >
                 Write your note
-              </button>
+              </Button>
             </div>
 
           </div>
