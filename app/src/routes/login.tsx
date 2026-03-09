@@ -116,8 +116,8 @@ function RouteComponent() {
   const isSubmitting = form.state.isSubmitting || loginMutation.isPending;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-muted/30 p-4 sm:p-6">
-      <div className="flex w-full max-w-5xl flex-col items-stretch lg:flex-row">
+    <div className="h-full flex items-center justify-center bg-muted/30 p-4 sm:p-6">
+      <div className="flex w-full max-w-5xl max-h-164 h-full flex-col items-stretch lg:flex-row">
         {/* Image section: hidden on small screens */}
         <div
           className="hidden lg:block lg:flex-1 lg:rounded-2xl bg-cover bg-center bg-kfk-blue/10"
@@ -226,11 +226,13 @@ function RouteComponent() {
                 {isSubmitting ? "Logging in…" : "Login"}
               </Button>
 
-              {loginMutation.isError && (
-                <p className="text-sm text-kfk-red text-center">
-                  {getLoginErrorMessage(loginMutation.error)}
-                </p>
-              )}
+              <div className="min-h-5">
+                {loginMutation.isError && (
+                  <p className="text-sm text-kfk-red text-center">
+                    {getLoginErrorMessage(loginMutation.error)}
+                  </p>
+                )}
+              </div>
             </form>
           </div>
         </div>
