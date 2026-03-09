@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { UserRole } from "common";
 import z from "zod";
+import { DateTime } from "luxon";
 import {
   authMiddleware,
   requireRolesMiddleware,
@@ -22,7 +23,12 @@ export const getUserProfileById = createServerFn({
   .inputValidator(uidSchema)
   .handler(async ({ data, context }) => {
     const uid = data.uid;
-    if (uid === context.authUser.uid || context.authUser.role !== UserRole.VOLUNTEER) {
+    if (
+      uid === context.authUser.uid ||
+      [UserRole.ADMIN, UserRole.VOLUNTEER, UserRole.DIRECTOR].includes(
+        context.authUser.role,
+      )
+    ) {
       const db = getServerDB();
       const userDoc = await db.users.doc(uid).get();
 
@@ -59,7 +65,7 @@ export const getAllUserProfiles = createServerFn({
     const db = getServerDB();
     const snapshot = await db.users.get();
 
-    return snapshot.docs.map((doc) => {
+    return snapshot.docs.map((doc: any) => {
       const data = doc.data();
       return data;
     });
@@ -175,5 +181,114 @@ export const deleteUserProfile = createServerFn({
 
     if (errors.length > 0) {
       throw new Error(`Failed to delete: ${errors.join(", ")}`);
+    }
+  });
+
+const relevantStaffFields = z.object({
+  inviteId: z.string().trim().min(1),
+  firstName: z.string().trim().min(1),
+  lastName: z.string().trim().min(1),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+  phone: z
+    .string()
+    // this is interesting. after testing with a mock register form,
+    // firebase auth expects the phone number in E.164 format (originally not accounted)
+    // for in this zod. so i'm adding this in order to not produce any misconfigs between firestore and auth
+    .regex(/^\+[1-9]\d{1,14}$/, {
+      message: "Phone must be in E.164 format (e.g. +12223334444)",
+    })
+    .optional(),
+});
+
+export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
+  .inputValidator(relevantStaffFields)
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const auth = getServerAuth();
+
+    // makes sure request input is valid
+    const cleaned = relevantStaffFields.parse(data);
+    const inviteSnap = await db.invites.doc(cleaned.inviteId).get();
+    if (!inviteSnap.exists) {
+      throw new Error("Invite not found");
+    }
+
+    const invite = inviteSnap.data();
+    if (!invite) {
+      throw new Error("Invite not found");
+    }
+
+    if (invite.used) {
+      throw new Error("Invite already used");
+    }
+
+    const dateCreated = DateTime.fromISO(invite.createdAt);
+    if (!dateCreated.isValid) {
+      throw new Error("Invalid invite createdAt");
+    }
+    const expired = dateCreated < DateTime.now().minus({ days: 7 });
+    if (expired) {
+      throw new Error("Invite not created in past 7 days");
+    }
+
+    // minimal race fix: atomically reserve the invite before creating Auth user
+    const inviteRef = db.invites.doc(cleaned.inviteId);
+    await db._instance.runTransaction(async (tx) => {
+      const snap = await tx.get(inviteRef);
+      if (!snap.exists) throw new Error("Invite not found");
+      const latest = snap.data();
+      if (!latest) throw new Error("Invite not found");
+      if (latest.used) throw new Error("Invite already used");
+      tx.update(inviteRef, { used: true });
+    });
+    // end minimal race fix
+
+    // validation succesful, so auth creation is now safe
+    const userEmail = invite.email;
+    let authUser: { uid: string } | null = null;
+
+    try {
+      authUser = await auth.createUser({
+        displayName: `${cleaned.firstName} ${cleaned.lastName}`,
+        email: userEmail,
+        password: cleaned.password,
+        phoneNumber: cleaned.phone,
+      });
+
+      await auth.setCustomUserClaims(authUser.uid, {
+        role: invite.role,
+      });
+
+      // creates the user profile doc with the same ID as the Auth user
+      const userDoc = {
+        id: authUser.uid,
+        email: userEmail,
+        firstName: cleaned.firstName,
+        lastName: cleaned.lastName,
+        role: invite.role,
+        phone: cleaned.phone,
+        createdAt: DateTime.now().toISO(),
+        enabled: true,
+      };
+
+      await db.users.doc(authUser.uid).set(userDoc);
+
+      return userDoc;
+    } catch (err) {
+      // best-effort cleanup: delete auth user and unlock invite
+      if (authUser) {
+        try {
+          await auth.deleteUser(authUser.uid);
+        } catch (e) {
+          console.error("Failed to delete Auth user during rollback", e);
+        }
+      }
+      try {
+        await inviteRef.update({ used: false });
+      } catch (e) {
+        console.error("Failed to revert invite.used during rollback", e);
+      }
+
+      throw err instanceof Error ? err : new Error("Registration failed");
     }
   });

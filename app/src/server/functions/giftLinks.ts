@@ -230,7 +230,7 @@ async function fetchHtmlWithAxios(
 
 export const fetchProductDetails = createServerFn({ method: "POST" })
   .inputValidator((data: { url: string }) => {
-    if (!data?.url || typeof data.url !== "string") {
+    if (!data.url || typeof data.url !== "string") {
       throw new Error("Product URL is required");
     }
 

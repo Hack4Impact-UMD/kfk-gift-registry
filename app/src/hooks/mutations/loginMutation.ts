@@ -12,7 +12,7 @@ type LoginInput = {
 export function useLoginMutation() {
   return useMutation({
     mutationFn: async ({ email, password }: LoginInput) => {
-      await login(email, password);
+      return await login(email, password);
     },
   });
 }
