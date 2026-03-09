@@ -29,7 +29,9 @@ function RouteComponent() {
       ) : (
         <p>Profile ID: {profile.id}</p>
       )}
-      <Button onClick={handleLogout}>Logout</Button>
+      <div className="mt-4">
+        <Button onClick={handleLogout}>Logout</Button>
+      </div>
     </div>
   );
 }
