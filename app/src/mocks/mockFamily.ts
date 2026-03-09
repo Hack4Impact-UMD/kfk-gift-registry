@@ -21,7 +21,7 @@ export type Child = {
   label: string;
   color: string;
   profileImage?: string;
-  gifts: Gift[];
+  gifts: Array<Gift>;
 };
 
 export type Family = {
@@ -30,7 +30,7 @@ export type Family = {
   email: string;
   familyName: string;
   diagnosis: string;
-  children: Child[];
+  children: Array<Child>;
 };
 
 export const mockFamily: Family = {

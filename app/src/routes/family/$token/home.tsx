@@ -24,38 +24,43 @@ function FamilyHome() {
 
   // TODO: implement clear functionality (swap out local storage implementation)
   const [visibleIds, setVisibleIds] = useState<Array<string>>(() =>
-    notifications.map((n) => n.id)
-  )
+    notifications.map((n) => n.id),
+  );
 
   const visibleNotifications = notifications.filter((n) =>
-    visibleIds.includes(n.id)
-  )
+    visibleIds.includes(n.id),
+  );
 
   const handleDismiss = (id: string) => {
-    setVisibleIds((prev) => prev.filter((i) => i !== id))
-  }
+    setVisibleIds((prev) => prev.filter((i) => i !== id));
+  };
 
-  const handleClearAll = () => setVisibleIds([])
+  const handleClearAll = () => setVisibleIds([]);
 
   return (
     <div className="py-8 mt-2 flex flex-col overflow-x-hidden">
-      <div className="relative bg-kfk-blue text-white rounded-2xl p-6 shadow-xl flex items-center justify-between gap-2">
-
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute w-32 h-32 bg-kfk-light-blue/10 rounded-full -top-10 -left-10"></div>
-          <div className="absolute w-24 h-24 bg-kfk-light-blue/10 rounded-full top-16 -right-16"></div>
-          <div className="absolute w-28 h-28 bg-kfk-light-blue/10 rounded-full -top-14 right-26"></div>
-          <div className="absolute w-16 h-16 bg-kfk-light-blue/10 rounded-full bottom-6 left-8"></div>
-          <div className="absolute w-36 h-36 bg-kfk-light-blue/10 rounded-full bottom-[-40px] right-20"></div>
-        </div>
+      <div className="relative bg-kfk-blue overflow-hidden text-white rounded-2xl p-6 shadow-xl flex items-center justify-between gap-2">
+        <svg
+          className="absolute inset-0 w-full h-full pointer-events-none z-0"
+          viewBox="0 0 364 194"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <circle cx="84" cy="22" r="25" fill="#0A43CE" />
+          <circle cx="335" cy="183" r="25" fill="#0A43CE" />
+          <circle cx="147.5" cy="96.5" r="19.5" fill="#0A43CE" />
+          <circle cx="238.5" cy="144.5" r="19.5" fill="#0A43CE" />
+          <ellipse cx="109.5" cy="182" rx="37.5" ry="37" fill="#0A43CE" />
+          <ellipse cx="219.5" cy="34" rx="37.5" ry="37" fill="#0A43CE" />
+          <ellipse cx="310.5" cy="65.5" rx="24.5" ry="23.5" fill="#0A43CE" />
+          <ellipse cx="24" cy="109.5" rx="37" ry="35.5" fill="#0A43CE" />
+        </svg>
 
         <div className="relative z-10 flex flex-col gap-2">
           <h2 className="text-3xl font-semibold font-gaegu">
             Welcome, {family.familyName} Family!
           </h2>
-          <p>
-            Track your gifts, confirm deliveries, & thank your donors!
-          </p>
+          <p>Track your gifts, confirm deliveries, & thank your donors!</p>
         </div>
 
         <img src={RedGift} alt="Gift Box" className="max-w-32 mt-4 z-20" />

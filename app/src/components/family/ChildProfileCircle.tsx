@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import ProfilePhoto from "@/assets/default-profile-photo.png";
 import { ExclamationCircleIcon } from "../icons";
 import type { Child } from "@/mocks/mockFamily";
+import ProfilePhoto from "@/assets/default-profile-photo.png";
 
 type ChildProfileCircleProps = {
   child: Child;
@@ -11,15 +11,23 @@ type ChildProfileCircleProps = {
   disableLink?: boolean;
 };
 
-export function ChildProfileCircle({ child, ringClass, token, compact, disableLink }: ChildProfileCircleProps) {
+export function ChildProfileCircle({
+  child,
+  ringClass,
+  token,
+  compact,
+  disableLink,
+}: ChildProfileCircleProps) {
   const needsAttention = child.gifts.some(
-  (gift) => gift.status === "delivered"
-);
+    (gift) => gift.status === "delivered",
+  );
 
   const content = (
     <>
       <div className="relative w-16 h-16">
-        <div className={`w-16 h-16 rounded-full border-2 border-background ring-2 ${ringClass} flex items-center justify-center overflow-hidden`}>
+        <div
+          className={`w-16 h-16 rounded-full border-2 border-background ring-2 ${ringClass} flex items-center justify-center overflow-hidden`}
+        >
           <img
             src={child.profileImage ?? ProfilePhoto}
             alt={child.name}
@@ -37,7 +45,9 @@ export function ChildProfileCircle({ child, ringClass, token, compact, disableLi
   );
 
   if (disableLink) {
-    return <div className="flex flex-col items-center gap-2 shrink-0">{content}</div>;
+    return (
+      <div className="flex flex-col items-center gap-2 shrink-0">{content}</div>
+    );
   }
 
   return (
