@@ -38,7 +38,7 @@ import { FormItem } from "@/components/ui/form";
 import { FormProgressBar } from "@/components/form/FormProgressBar";
 import { useProgressBarNavigation } from "@/hooks/form/FormHooks";
 
-export const Route = createFileRoute("/family/form/review")({
+export const Route = createFileRoute("/family/drive/$driveId/form/review")({
   component: RouteComponent,
 });
 

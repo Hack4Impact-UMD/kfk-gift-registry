@@ -26,7 +26,7 @@ import { FormProgressBar } from "@/components/form/FormProgressBar";
 import { useProgressBarNavigation } from "@/hooks/form/FormHooks";
 import LadyBug from "@/assets/form/ladybug.png";
 
-export const Route = createFileRoute("/family/form/gift-details")({
+export const Route = createFileRoute("/family/drive/$driveId/form/gift-details")({
   component: GiftsStep,
 });
 

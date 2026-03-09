@@ -24,7 +24,7 @@ import {
   useProgressBarNavigation,
 } from "@/hooks/form/FormHooks";
 
-export const Route = createFileRoute("/family/form/children")({
+export const Route = createFileRoute("/family/drive/$driveId/form/children")({
   component: ChildrenPageComponent,
 });
 

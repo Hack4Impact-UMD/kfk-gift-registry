@@ -28,7 +28,7 @@ import {
   useProgressBarNavigation,
 } from "@/hooks/form/FormHooks";
 
-export const Route = createFileRoute("/family/form/general-info")({
+export const Route = createFileRoute("/family/drive/$driveId/form/general-info")({
   component: GeneralRouteComponent,
 });
 
@@ -341,5 +341,5 @@ function GeneralRouteComponent() {
         </form>
       </CardContent>
     </Card>
-  );
+  )
 }

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import KFKLogo from "@/assets/kisses-for-kyle-logo.png";
 
-export const Route = createFileRoute("/family/form/consent")({
+export const Route = createFileRoute("/family/drive/$driveId/form/consent")({
   component: ConsentPageComponent,
 });
 
