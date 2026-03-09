@@ -39,7 +39,7 @@ export const getFamilyByToken = createServerFn({ method: "GET" })
     const db = getServerDB();
     const familyDoc = await db.families.doc(link.familyId).get();
 
-    //throw if family is mising
+    //throw if family is missing
     if (!familyDoc.exists) {
       throw new Error("Family not found");
     }
