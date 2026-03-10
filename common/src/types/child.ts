@@ -4,7 +4,7 @@ export const treatmentLevelToLetter = (level: TreatmentLevel) =>
   String.fromCharCode(65 + level);
 
 export type ChildCategory = "warrior" | "super_sib";
-
+export type ChildStatus = "recently_diagnosed" | "diagnosed_"
 export interface Child {
   id: string;
   firstName: string;
