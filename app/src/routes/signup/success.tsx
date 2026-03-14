@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
-import Ladybug from "@/assets/ladybug.png";
+import Ladybug from "@/assets/ladybug-success.png";
 
 export const Route = createFileRoute("/signup/success")({
   component: RouteComponent,
