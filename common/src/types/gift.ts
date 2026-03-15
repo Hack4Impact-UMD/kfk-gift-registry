@@ -16,4 +16,5 @@ export interface Gift {
   createdAt: string;
   privateNotes?: string;
   backup: boolean;
+  active: boolean;
 }

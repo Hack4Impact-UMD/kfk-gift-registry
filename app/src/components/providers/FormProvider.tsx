@@ -70,9 +70,9 @@ export type FamilyFormState = {
 
 type FormContextType = {
   formState: FamilyFormState;
-  updateSection: <K extends keyof FamilyFormState>(
-    section: K,
-    data: FamilyFormState[K],
+  updateSection: <TFormKey extends keyof FamilyFormState>(
+    section: TFormKey,
+    data: FamilyFormState[TFormKey],
   ) => void;
   resetForm: () => void;
   isComplete: (section: keyof FamilyFormState) => boolean;
@@ -83,9 +83,9 @@ const FormContext = createContext<FormContextType | undefined>(undefined);
 export function FormProvider({ children }: { children: ReactNode }) {
   const [formState, setFormState] = useState<FamilyFormState>({});
 
-  const updateSection = <K extends keyof FamilyFormState>(
-    section: K,
-    data: FamilyFormState[K],
+  const updateSection = <TFromKey extends keyof FamilyFormState>(
+    section: TFromKey,
+    data: FamilyFormState[TFromKey],
   ) => {
     setFormState((prev) => ({
       ...prev,

@@ -71,8 +71,8 @@ export function PhotoUpload({
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) handleFile(file);
+    const file = e.dataTransfer.files[0];
+    handleFile(file);
   };
 
   const handleRemovePhoto = () => {

@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
 import type {
   ChildInfo,
@@ -28,10 +28,9 @@ const defaultSibling = (): SiblingInfo => ({
   photoUrl: "",
 });
 
-export function useProgressBarNavigation<K extends keyof FamilyFormState>(
-  sectionKey: K,
-  getCurrentValues: () => FamilyFormState[K],
-) {
+export function useProgressBarNavigation<
+  TFormKey extends keyof FamilyFormState,
+>(sectionKey: TFormKey, getCurrentValues: () => FamilyFormState[TFormKey]) {
   const { updateSection } = useFormContext();
   const navigate = useNavigate();
 
@@ -52,13 +51,14 @@ export function useProgressBarNavigation<K extends keyof FamilyFormState>(
 export function useConsentForm() {
   const { formState, updateSection } = useFormContext();
   const navigate = useNavigate();
+  const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
   const form = useForm({
     defaultValues: formState.consentScreen || {
       consentGiven: false,
       shareMailingAddress: false,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: ({ value }) => {
       const result = consentSchema.safeParse(value);
       if (!result.success) {
         console.error("Validation failed:", result.error);
@@ -67,7 +67,12 @@ export function useConsentForm() {
 
       updateSection("consentScreen", result.data);
 
-      navigate({ to: "/family/form/general-info" });
+      navigate({
+        to: `/family/drive/$driveId/form/general-info`,
+        params: {
+          driveId: driveId,
+        },
+      });
     },
   });
 
@@ -77,6 +82,7 @@ export function useConsentForm() {
 export function useGeneralInfoForm() {
   const { formState, updateSection } = useFormContext();
   const navigate = useNavigate();
+  const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
   const form = useForm({
     defaultValues: formState.generalInfo || {
@@ -91,7 +97,7 @@ export function useGeneralInfoForm() {
       state: "",
       zipCode: "",
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: ({ value }) => {
       const result = generalInfoSchema.safeParse(value);
       if (!result.success) {
         console.error("Validation failed:", result.error);
@@ -99,7 +105,12 @@ export function useGeneralInfoForm() {
       }
 
       updateSection("generalInfo", result.data);
-      navigate({ to: "/family/form/children" });
+      navigate({
+        to: "/family/drive/$driveId/form/children",
+        params: {
+          driveId,
+        },
+      });
     },
   });
 
@@ -109,6 +120,7 @@ export function useGeneralInfoForm() {
 export function useChildrenForm() {
   const { formState, updateSection } = useFormContext();
   const navigate = useNavigate();
+  const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
   const form = useForm({
     defaultValues: formState.children || {
@@ -123,8 +135,8 @@ export function useChildrenForm() {
   });
 
   useEffect(() => {
-    const numChildren = Number(form.state.values.numChildren ?? 1);
-    const children = form.state.values.children ?? [];
+    const numChildren = Number(form.state.values.numChildren);
+    const children = form.state.values.children;
     if (children.length > numChildren) {
       form.setFieldValue("children", children.slice(0, numChildren));
     } else if (children.length < numChildren) {
@@ -134,11 +146,11 @@ export function useChildrenForm() {
         ...Array.from({ length: toAdd }, defaultChild),
       ]);
     }
-  }, [form.state.values.numChildren]);
+  }, [form, form.state.values.numChildren]);
 
   useEffect(() => {
-    const numSiblings = Number(form.state.values.numSiblings ?? 0);
-    const siblings = form.state.values.siblings ?? [];
+    const numSiblings = Number(form.state.values.numSiblings);
+    const siblings = form.state.values.siblings;
     if (siblings.length > numSiblings) {
       form.setFieldValue("siblings", siblings.slice(0, numSiblings));
     } else if (siblings.length < numSiblings) {
@@ -148,22 +160,19 @@ export function useChildrenForm() {
         ...Array.from({ length: toAdd }, defaultSibling),
       ]);
     }
-  }, [form.state.values.numSiblings]);
+  }, [form, form.state.values.numSiblings]);
 
   const handleNext = async () => {
     const values = form.state.values;
 
     // Coerce counts to numbers — FormSelect stores strings ("2", "3", …).
-    const numChildren = Number(values.numChildren ?? 1);
-    const numSiblings = Number(values.numSiblings ?? 0);
+    const numChildren = Number(values.numChildren);
+    const numSiblings = Number(values.numSiblings);
 
     const expectedChildCount = values.hasMultipleChildren ? numChildren : 1;
-    const normalizedChildren = (values.children ?? []).slice(
-      0,
-      expectedChildCount,
-    );
+    const normalizedChildren = values.children.slice(0, expectedChildCount);
     const normalizedSiblings = values.hasSiblings
-      ? (values.siblings ?? []).slice(0, numSiblings)
+      ? values.siblings.slice(0, numSiblings)
       : [];
 
     const normalized = {
@@ -177,7 +186,12 @@ export function useChildrenForm() {
     const result = childrenFormSchema.safeParse(normalized);
     if (result.success) {
       updateSection("children", result.data);
-      navigate({ to: "/family/form/gift-details" });
+      navigate({
+        to: "/family/drive/$driveId/form/gift-details",
+        params: {
+          driveId,
+        },
+      });
     } else {
       // Touch all rendered fields so inline error messages appear
       await form.validateAllFields("submit");

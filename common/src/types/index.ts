@@ -6,5 +6,6 @@ export * from "./gift";
 export * from "./gift-drive";
 export * from "./user";
 export * from "./family-link";
+export * from "./profile-update";
 
 export type NoId<T> = Omit<T, "id">;

@@ -69,14 +69,14 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
   };
 
   // Helper to get the underlying state (ignoring current status)
-  const getUnderlyingState = (step: FormStep, index: number): StepState => {
+  const getUnderlyingState = (step: FormStep, _: number): StepState => {
     // Special handling for review step
     if (step.id === "review") {
       const allPreviousComplete = FORM_STEPS.slice(0, -1).every((s) => {
         const data = formState[s.sectionKey];
         if (!data) return false;
         const schema = SECTION_SCHEMAS[s.sectionKey];
-        return schema ? schema.safeParse(data).success : true;
+        return schema.safeParse(data).success;
       });
       return allPreviousComplete ? "complete" : "incomplete";
     }
@@ -89,10 +89,7 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
 
     // Validate with schema if available
     const schema = SECTION_SCHEMAS[step.sectionKey];
-    if (schema) {
-      return schema.safeParse(stepData).success ? "complete" : "error";
-    }
-    return "complete";
+    return schema.safeParse(stepData).success ? "complete" : "error";
   };
 
   const isStepClickable = (step: FormStep, index: number): boolean => {
@@ -123,7 +120,7 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
 
   const getStepStyles = (state: StepState, underlyingState: StepState) => {
     switch (state) {
-      case "current":
+      case "current": {
         let fillColor = "bg-gray-300"; // default
         let iconColor = "text-gray-500";
 
@@ -142,6 +139,7 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
           labelColor: "text-gray-900",
           underline: "border-b-2 border-[#F4D03F]", // Gold underline
         };
+      }
       case "complete":
         return {
           iconBg: "bg-[var(--color-kfk-blue)]",
@@ -182,10 +180,6 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
             <div className="absolute inset-0 flex">
               {FORM_STEPS.slice(0, -1).map((step, index) => {
                 const currentState = getStepState(step, index);
-                const nextState = getStepState(
-                  FORM_STEPS[index + 1],
-                  index + 1,
-                );
 
                 // Line is colored if current step is complete or current
                 const shouldColor =

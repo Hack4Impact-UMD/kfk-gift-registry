@@ -78,12 +78,12 @@ export const generalInfoSchema = z
       .email("Please enter a valid email address"),
     phoneNumber: z
       .string()
-      .regex(/^[\d\s\-\(\)]+$/, "Please enter a valid phone number")
+      .regex(/^[\d\s\-()]+$/, "Please enter a valid phone number")
       .optional()
       .or(z.literal("")),
     phoneNumberConfirm: z
       .string()
-      .regex(/^[\d\s\-\(\)]+$/, "Please enter a valid phone number")
+      .regex(/^[\d\s\-()]+$/, "Please enter a valid phone number")
       .optional()
       .or(z.literal("")),
     streetAddress: z
