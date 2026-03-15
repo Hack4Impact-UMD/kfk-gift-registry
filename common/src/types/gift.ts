@@ -10,9 +10,11 @@ export interface Gift {
   childId: string;
   title: string;
   productUrl: string;
-  listedPrice: number;
+  listedPrice?: number;
   status: GiftStatus;
   claimedByDonorId?: string;
   createdAt: string;
   privateNotes?: string;
+  backup: boolean;
+  active: boolean;
 }

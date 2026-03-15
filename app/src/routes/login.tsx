@@ -37,7 +37,10 @@ export const Route = createFileRoute("/login")({
   beforeLoad: ({ context }) => {
     if (context.auth.isAuthed) {
       throw redirect({
-        to: context.auth.authUser.role === UserRole.DONOR ? "/donor" : "/staff/home"
+        to:
+          context.auth.authUser.role === UserRole.DONOR
+            ? "/donor"
+            : "/staff/home",
       });
     }
   },

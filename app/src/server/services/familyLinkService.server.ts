@@ -35,6 +35,7 @@ export async function createFamilyLink(link: NoId<FamilyLink>) {
     ...link,
   };
   await db.familyLinks.doc(id).set(linkDoc);
+  return linkDoc;
 }
 
 export async function getFamilyLinkFromEmail(email: string) {

@@ -1,10 +1,11 @@
-export * from "./child.js";
-export * from "./claim.js";
-export * from "./family.js";
-export * from "./invite.js";
-export * from "./gift.js";
-export * from "./gift-drive.js";
-export * from "./user.js";
-export * from "./family-link.js";
+export * from "./child";
+export * from "./claim";
+export * from "./family";
+export * from "./invite";
+export * from "./gift";
+export * from "./gift-drive";
+export * from "./user";
+export * from "./family-link";
+export * from "./profile-update";
 
 export type NoId<T> = Omit<T, "id">;
