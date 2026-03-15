@@ -166,7 +166,7 @@ function ChildrenPageComponent() {
                     How many children are you applying for?
                     <span className="text-destructive"> *</span>
                   </label>
-                  <div className="relative">
+                  <div className="relative py-2">
                     <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-700" />
                     <input
                       type="number"
@@ -193,14 +193,9 @@ function ChildrenPageComponent() {
           </div>
 
           <form.Subscribe
-            selector={(state) => [
-              state.values.numChildren,
-              state.values.hasMultipleChildren,
-            ]}
-            children={([numChildren, hasMultipleChildren]) => {
-              const displayCount = hasMultipleChildren
-                ? Number(numChildren) || 1
-                : 1;
+            selector={(state) => state.values.numChildren}
+            children={(numChildren) => {
+              const displayCount = Number(numChildren) || 1;
 
               return (
                 <div className="space-y-8">
@@ -468,58 +463,6 @@ function ChildrenPageComponent() {
                             );
                           }}
                         />
-
-                        {/* Additional Comments */}
-                        <form.Field
-                          name={`children[${index}].additionalNotes` as any}
-                          validators={{
-                            onChange: ({ value }) => {
-                              if (!value) return undefined;
-                              const wordCount = value
-                                .trim()
-                                .split(/\s+/)
-                                .filter(Boolean).length;
-                              if (wordCount > 100)
-                                return "Please keep your notes to 100 words or less";
-                              return undefined;
-                            },
-                          }}
-                          children={(field) => {
-                            const wordCount = field.state.value
-                              ? field.state.value
-                                  .trim()
-                                  .split(/\s+/)
-                                  .filter(Boolean).length
-                              : 0;
-                            return (
-                              <div className="space-y-2">
-                                <p className="text-sm font-medium text-[var(--color-kfk-blue)]">
-                                  Do you have any additional notes for the
-                                  Kisses for Kyle team? These will not appear
-                                  on the gift drive page.
-                                </p>
-                                <Textarea
-                                  placeholder="e.g. Any information you would like the Kisses for Kyle team to know."
-                                  value={field.state.value || ""}
-                                  onChange={(e) =>
-                                    field.handleChange(e.target.value as any)
-                                  }
-                                  onBlur={field.handleBlur}
-                                  className="resize-none min-h-[120px]"
-                                />
-                                <p className="text-xs text-right text-slate-500">
-                                  {wordCount} out of 100
-                                </p>
-                                {field.state.meta.isTouched &&
-                                  field.state.meta.errors?.[0] && (
-                                    <span className="text-sm text-red-500">
-                                      {field.state.meta.errors[0]}
-                                    </span>
-                                  )}
-                              </div>
-                            );
-                          }}
-                        />
                       </div>
                     </div>
                   ))}
@@ -528,170 +471,57 @@ function ChildrenPageComponent() {
             }}
           />
 
-          {/* Sibling Details */}
-          <div className="border-t pt-6">
-            <h3 className="font-semibold text-lg mb-4 text-[var(--color-kfk-blue)]">
-              Sibling Details
-            </h3>
-
-            <div>
-              <p className="text-sm font-medium mb-3">
-                Does your child(ren) have any other siblings?
-              </p>
-              <form.Field
-                name="hasSiblings"
-                children={(field) => (
-                  <div className="space-y-2">
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="hasSiblings"
-                        checked={field.state.value === true}
-                        onChange={() => field.handleChange(true)}
-                        className="mt-0.5"
-                      />
-                      <span className="text-sm">
-                        Yes they have more sibling(s).
+          {/* Additional Comments */}
+          <form.Field
+            name={"additionalNotes" as any}
+            validators={{
+              onChange: ({ value }) => {
+                if (!value) return undefined;
+                const wordCount = value
+                  .trim()
+                  .split(/\s+/)
+                  .filter(Boolean).length;
+                if (wordCount > 100)
+                  return "Please keep your notes to 100 words or less";
+                return undefined;
+              },
+            }}
+            children={(field) => {
+              const wordCount = field.state.value
+                ? field.state.value
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean).length
+                : 0;
+              return (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-[var(--color-kfk-blue)]">
+                    Do you have any additional notes for the
+                    Kisses for Kyle team? These will not appear
+                    on the gift drive page.
+                  </p>
+                  <Textarea
+                    placeholder="e.g. Any information you would like the Kisses for Kyle team to know."
+                    value={field.state.value || ""}
+                    onChange={(e) =>
+                      field.handleChange(e.target.value as any)
+                    }
+                    onBlur={field.handleBlur}
+                    className="resize-none min-h-[120px]"
+                  />
+                  <p className="text-xs text-right text-slate-500">
+                    {wordCount} out of 100
+                  </p>
+                  {field.state.meta.isTouched &&
+                    field.state.meta.errors?.[0] && (
+                      <span className="text-sm text-red-500">
+                        {field.state.meta.errors[0]}
                       </span>
-                    </label>
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="hasSiblings"
-                        checked={field.state.value === false}
-                        onChange={() => {
-                          form.setFieldValue("hasSiblings", false);
-                          form.setFieldValue("numSiblings", 0);
-                          form.setFieldValue("siblings", []);
-                        }}
-                        className="mt-0.5"
-                      />
-                      <span className="text-sm">
-                        No they don't have more sibling(s).
-                      </span>
-                    </label>
-                  </div>
-                )}
-              />
-            </div>
-
-            {/* Show sibling fields if hasSiblings is true */}
-            <form.Subscribe
-              selector={(state) => state.values.hasSiblings}
-              children={(hasSiblings) => {
-                if (!hasSiblings) return null;
-
-                return (
-                  <div className="mt-4">
-                    <form.Field
-                      name="numSiblings"
-                      validators={{
-                        onChange: ({ value }) => {
-                          if (!value || value === 0)
-                            return "Please select number of siblings";
-                          return undefined;
-                        },
-                      }}
-                      children={(field) => (
-                        <FormSelect
-                          field={field}
-                          label="How many siblings?"
-                          placeholder="Select amount"
-                          values={["1", "2", "3", "4"]}
-                          required
-                        />
-                      )}
-                    />
-                  </div>
-                );
-              }}
-            />
-
-            <form.Subscribe
-              selector={(state) => [
-                state.values.hasSiblings,
-                state.values.numSiblings,
-              ]}
-              children={([hasSiblings, numSiblings]) => {
-                if (!hasSiblings || !numSiblings || numSiblings === 0)
-                  return null;
-
-                return (
-                  <div className="mt-6 space-y-6">
-                    {Array.from({ length: Number(numSiblings || 0) }).map(
-                      (_, index) => (
-                        <div key={index} className="border-t pt-4">
-                          <h4 className="font-medium mb-3 text-[var(--color-kfk-blue)]">
-                            Sibling #{index + 1} Information
-                          </h4>
-
-                          <div className="space-y-4">
-                            <form.Field
-                              name={`siblings[${index}].name` as any}
-                              validators={{
-                                onChange: ({ value }) => {
-                                  if (!value)
-                                    return "Sibling's name is required";
-                                  if (value.length > 100)
-                                    return "Name is too long";
-                                  return undefined;
-                                },
-                              }}
-                              children={(field) => (
-                                <FormFieldInput
-                                  field={field}
-                                  label={`Sibling Name #${index + 1}`}
-                                  placeholder="e.g. Jane Doe"
-                                  Icon={User}
-                                  type="text"
-                                  required
-                                />
-                              )}
-                            />
-
-                            <form.Field
-                              name={`siblings[${index}].age` as any}
-                              validators={{
-                                onChange: ({ value }) => {
-                                  if (!value) return "Age is required";
-                                  return undefined;
-                                },
-                              }}
-                              children={(field) => (
-                                <FormSelect
-                                  field={field}
-                                  label={`Sibling #${index + 1} Age`}
-                                  placeholder="Select Age"
-                                  values={Array.from({ length: 18 }, (_, i) =>
-                                    String(i + 1),
-                                  )}
-                                  required
-                                />
-                              )}
-                            />
-
-                            <form.Field
-                              name={`siblings[${index}].photoUrl` as any}
-                              children={(field) => (
-                                <PhotoUpload
-                                  field={field}
-                                  label="Sibling Photo"
-                                  childName={
-                                    form.state.values.siblings[index]?.name ||
-                                    `Sibling ${index + 1}`
-                                  }
-                                />
-                              )}
-                            />
-                          </div>
-                        </div>
-                      ),
                     )}
-                  </div>
-                );
-              }}
-            />
-          </div>
+                </div>
+              );
+            }}
+          />
 
           {/* Photo Consent */}
           <div className="border-t pt-6">
@@ -705,9 +535,9 @@ function ChildrenPageComponent() {
               )}
             />
             <p className="text-xs text-gray-500 mt-2">
-              *All photos or placards please email us at:{" "}
+              For any questions or concerns please email us at:{" "}
               <a
-                href="mailto:holidaygiftdrive@kissesforkyle.org"
+                href="mailto:info@kissesforkyle.org"
                 className="underline text-blue-600"
               >
                 holidaygiftdrive@kissesforkyle.org
