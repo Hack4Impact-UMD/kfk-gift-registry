@@ -1,7 +1,7 @@
-import type { Child } from "./child.js";
-import type { Gift } from "./gift.js";
+import type { Child } from "./child";
+import type { Gift } from "./gift";
 
-export type ProfileUpdateGift = Pick<Gift, "id" | "title" | "productUrl" | "backup">;
+export type ProfileUpdateGift = Pick<Gift, "id" | "title" | "productUrl" | "backup" | "active" | "privateNotes">;
 
 export type ChildProfileUpdate = Partial<Omit<Child, "id">> & {
   diagnosisLength?: string;

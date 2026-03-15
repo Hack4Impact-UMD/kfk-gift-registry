@@ -27,24 +27,24 @@ export const getFamilyByToken = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { token } = data;
 
-    //load link by token id
+    // load link by token id
     const link = await getFamilyLinkById(token);
 
-    //reject missing/inactive links
+    // reject missing/inactive links
     if (!link || !link.active) {
       throw new Error("Invalid or expired link");
     }
 
-    //load family by familyId
+    // load family by familyId
     const db = getServerDB();
     const familyDoc = await db.families.doc(link.familyId).get();
 
-    //throw if family is missing
+    // throw if family is missing
     if (!familyDoc.exists) {
       throw new Error("Family not found");
     }
 
-    //return family payload
+    // return family payload
     return familyDoc.data();
   });
 
