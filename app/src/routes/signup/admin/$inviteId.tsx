@@ -22,11 +22,59 @@ export const Route = createFileRoute("/signup/admin/$inviteId")({
   component: RouteComponent,
 });
 
+type InviteFieldProps = {
+  type?: string,
+  field: any,
+  placeholder: string,
+  disabled?: boolean,
+};
+
+function InviteFieldInput({
+  type,
+  field,
+  placeholder,
+  disabled
+}: InviteFieldProps) {
+  const errorMessage = field.state.meta.isTouched && field.state.meta.errors?.[0];
+  
+  return (
+    <>
+      <Input
+        type={type}
+        name={field.name}
+        id={field.id}
+        value={field.state.value}
+        placeholder={placeholder}
+        className={`w-full border border-muted-foreground rounded-md px-3 py-2 mt-1 
+          ${errorMessage ? "border-red-500 bg-[#FFF0F0] placeholder:text-red-500 text-red-500" : ""}`}
+        onChange={(e) => field.handleChange(e.target.value)}
+        disabled={disabled}
+      />
+      {errorMessage && (
+        <span className="text-xs text-red-500 mt-1 -mb-2 block pl-1">{errorMessage}</span>
+      )}
+    </>
+  )
+} 
+
 function RouteComponent() {
   const invite = Route.useLoaderData();
 
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
+
+  const form = useForm({
+    defaultValues: {
+      fullName: invite.firstName + " " + invite.lastName,
+      phoneNumber: "",
+      email: invite.email,
+      password: "",
+      confirmPassword: "",
+    },
+    onSubmit: ({value}) => {
+      console.log("Subbmited Data: ", value);
+    }
+  })
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-muted/30 p-6 overflow-hidden">
@@ -68,10 +116,18 @@ function RouteComponent() {
               <label className="font-semibold">
                 Full Name <span className="text-red-500">*</span>
               </label>
-              <Input
-                placeholder="e.g. Jane Doe"
-                defaultValue={invite.firstName + " " + invite.lastName}
-                className="w-full border border-muted-foreground rounded-md px-3 py-2 mt-1"
+              <form.Field
+                name="fullName"
+                validators={{
+                  onChange: ({ value }) => 
+                    !value ? "This field is required" : value.length > 100 ? "Name is too long" : undefined
+                }}
+                children={(field) => (
+                  <InviteFieldInput
+                    field={field}
+                    placeholder="e.g. Jane Doe"
+                  />
+                )}
               />
             </div>
 
@@ -79,9 +135,22 @@ function RouteComponent() {
               <label className="font-semibold">
                 Phone Number <span className="text-red-500">*</span>
               </label>
-              <Input
-                placeholder="e.g. (555)-555-5555"
-                className="w-full border border-muted-foreground rounded-md px-3 py-2 mt-1"
+              <form.Field
+                name="phoneNumber"
+                validators={{
+                  onChange: ({ value }) => {
+                    if (!value || value  === "") return "This field is required";
+                    if (!/^\(\d{3}\)-\d{3}-\d{4}$/.test(value))
+                      return "Format must be (555)-555-5555";
+                    return undefined;
+                  }  
+                }}
+                children={(field) => (
+                  <InviteFieldInput
+                    field={field}
+                    placeholder="e.g. (555)-555-5555"
+                  />
+                )}
               />
             </div>
 
@@ -89,10 +158,16 @@ function RouteComponent() {
               <label className="font-semibold">
                 Email <span className="text-red-500">*</span>
               </label>
-              <Input
-                value={invite.email}
-                disabled
-                className="w-full border border-muted-foreground rounded-md px-3 py-2 mt-1 bg-gray-100 text-muted-foreground"
+              <form.Field
+                name="email"
+                children={(field) => (
+                  <Input
+                    value={invite.email}
+                    disabled
+                    className="w-full border border-muted-foreground rounded-md px-3 py-2 mt-1 bg-gray-100 text-muted-foreground"
+                  />
+                )}
+                
               />
             </div>
 
@@ -100,12 +175,26 @@ function RouteComponent() {
               <label className="font-semibold">
                 Password <span className="text-red-500">*</span>
               </label>
-              <Input
-                type="password"
-                placeholder="e.g. ••••••••••••••••••••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-muted-foreground rounded-md px-3 py-2 mt-1"
+              <form.Field
+                name="password"
+                validators={{
+                  onChange: ({ value }) => {
+                    if (!value || value  === "") return "This field is required";
+                    if (value.length < 8) return "Must be at least 8 characters";
+                    if (!/[A-Z]/.test(value)) return "Missing an uppercase letter";
+                    if (!/[a-z]/.test(value)) return "Missing a lowercase letter";
+                    if (!/\d/.test(value)) return "Missing a number";
+                    if (!/[@$!%*?&]/.test(value)) return "Missing a special character";
+                    return undefined;
+                  }  
+                }}
+                children={(field) => (
+                  <InviteFieldInput
+                    type="password"
+                    field={field}
+                    placeholder="e.g. ••••••••••••••••••••••••••"
+                  />
+                )}
               />
             </div>
 
@@ -113,12 +202,22 @@ function RouteComponent() {
               <label className="font-semibold">
                 Confirm Password <span className="text-red-500">*</span>
               </label>
-              <Input
-                type="password"
-                placeholder="e.g. ••••••••••••••••••••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full border border-muted-foreground rounded-md px-3 py-2 mt-1"
+              <form.Field
+                name="confirmPassword"
+                validators={{
+                  onChange: ({ value, fieldApi }) => {
+                    if (value !== fieldApi.form.getFieldValue("password"))
+                      return "Password does not match"
+                    return undefined;
+                  }  
+                }}
+                children={(field) => (
+                  <InviteFieldInput
+                    type="password"
+                    field={field}
+                    placeholder="e.g. ••••••••••••••••••••••••••"
+                  />
+                )}
               />
             </div>
 
