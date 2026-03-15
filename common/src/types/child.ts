@@ -38,7 +38,7 @@ export interface Child {
   };
   diagnosis: string;
   diagnosisLengthYears?: number;
-  offTreatmentDurationYears: number;
+  offTreatmentDurationYears?: number;
   livesAtHome: boolean;
   publicBlurb?: string;
   createdAt: string;

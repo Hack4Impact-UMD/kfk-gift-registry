@@ -6,20 +6,15 @@ export type ProfileUpdateGift = Pick<
   "id" | "title" | "productUrl" | "backup" | "active" | "privateNotes"
 >;
 
-export type ChildProfileUpdate = Partial<Omit<Child, "id">> & {
-  diagnosisLength?: string;
-  bereaved?: boolean;
-  livesAtHome?: boolean;
-  gifts?: Array<ProfileUpdateGift>;
-};
+export type ChildProfileUpdateData = Partial<Omit<Child, "id">>;
 
 export type ProfileUpdateStatus = "PENDING" | "APPROVED" | "REJECTED";
 
-export interface ProfileUpdate {
+export interface ChildProfileUpdate {
   id: string;
   childId: string;
   requestedBy: string;
-  changes: ChildProfileUpdate;
+  changes: ChildProfileUpdateData;
   status: ProfileUpdateStatus;
   requestedAt: string;
   reviewedAt?: string;
