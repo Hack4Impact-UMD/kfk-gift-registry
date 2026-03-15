@@ -1,16 +1,12 @@
-"use client";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 
 import {
   EnvelopeIcon,
-  EnvelopeOpenIcon,
   MapPinIcon,
   PhoneIcon,
   UsersIcon,
 } from "@heroicons/react/24/solid";
-
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 import { Building2, GiftIcon, Stethoscope, User, UserCog } from "lucide-react";
 import {
@@ -24,40 +20,30 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
-import {
-  FamilyFormState,
-  useFormContext,
-} from "@/components/providers/FormProvider";
+import { useFormContext } from "@/components/providers/FormProvider";
 import { FormItem } from "@/components/ui/form";
 import { FormProgressBar } from "@/components/form/FormProgressBar";
-import { useProgressBarNavigation } from "@/hooks/form/FormHooks";
 
 export const Route = createFileRoute("/family/drive/$driveId/form/review")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { updateSection, formState } = useFormContext();
+  const { formState } = useFormContext();
   const navigate = useNavigate();
   const form = useForm({
-    onSubmit: async ({ value }) => {
+    onSubmit: () => {
       alert("Submitted!");
     },
   });
+  const { driveId } = Route.useParams();
 
-  const handleProgressBarNavigate = async (targetPath: string) => {
+  const handleProgressBarNavigate = (targetPath: string) => {
     navigate({ to: targetPath as any });
-  };
-
-  const handleBack = () => {
-    const currentValues = form.state.values;
-    navigate({ to: "/family/form/consent" });
   };
 
   return (
@@ -79,15 +65,20 @@ function RouteComponent() {
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">
                 General Information
               </h2>
-              <button
+              <Button
                 type="button"
                 onClick={() => {
-                  navigate({ to: "/family/form/general-info" });
+                  navigate({
+                    to: "/family/drive/$driveId/form/general-info",
+                    params: {
+                      driveId,
+                    },
+                  });
                 }}
                 className="text-sm h-5 my-auto cursor-pointer transition duration-200 ease-in-out hover:bg-[var(--color-kfk-blue)] hover:text-white text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md"
               >
                 Review
-              </button>
+              </Button>
             </div>
             <form.Field
               name="parentName"
@@ -169,7 +160,12 @@ function RouteComponent() {
               <button
                 type="button"
                 onClick={() => {
-                  navigate({ to: "/family/form/general-info" });
+                  navigate({
+                    to: "/family/drive/$driveId/form/general-info",
+                    params: {
+                      driveId,
+                    },
+                  });
                 }}
                 className="text-sm h-5 my-auto cursor-pointer transition duration-200 ease-in-out hover:bg-[var(--color-kfk-blue)] hover:text-white text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md"
               >
@@ -259,7 +255,12 @@ function RouteComponent() {
           <button
             type="button"
             onClick={() => {
-              navigate({ to: "/family/form/children" });
+              navigate({
+                to: "/family/drive/$driveId/form/children",
+                params: {
+                  driveId,
+                },
+              });
             }}
             className="text-sm h-5 my-auto cursor-pointer transition duration-200 ease-in-out hover:bg-[var(--color-kfk-blue)] hover:text-white text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md"
           >
@@ -272,7 +273,7 @@ function RouteComponent() {
           </p>
           <form.Field
             name="hasMultipleChildren"
-            children={(field) => (
+            children={() => (
               <div className="space-y-2">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
@@ -304,7 +305,7 @@ function RouteComponent() {
         </div>
 
         <form.Subscribe
-          selector={(state) => formState.children?.hasMultipleChildren}
+          selector={() => formState.children?.hasMultipleChildren}
           children={(hasMultipleChildren) => {
             // If "No" is selected (false), don't show the dropdown
             if (!hasMultipleChildren) return null;
@@ -329,7 +330,7 @@ function RouteComponent() {
         />
 
         <form.Subscribe
-          selector={(state) => [
+          selector={() => [
             formState.children?.numChildren,
             formState.children?.hasMultipleChildren,
           ]}
@@ -474,7 +475,12 @@ function RouteComponent() {
             <button
               type="button"
               onClick={() => {
-                navigate({ to: "/family/form/children" });
+                navigate({
+                  to: "/family/drive/$driveId/form/children",
+                  params: {
+                    driveId,
+                  },
+                });
               }}
               className="text-sm h-5 my-auto cursor-pointer transition duration-200 ease-in-out hover:bg-[var(--color-kfk-blue)] hover:text-white text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md"
             >
@@ -522,7 +528,7 @@ function RouteComponent() {
 
           {/* Show sibling fields if hasSiblings is true */}
           <form.Subscribe
-            selector={(state) => formState.children?.hasSiblings}
+            selector={() => formState.children?.hasSiblings}
             children={(hasSiblings) => {
               if (!hasSiblings) return null;
 
@@ -546,7 +552,7 @@ function RouteComponent() {
           />
 
           <form.Subscribe
-            selector={(state) => [
+            selector={() => [
               formState.children?.hasSiblings,
               formState.children?.numSiblings,
             ]}
@@ -587,7 +593,7 @@ function RouteComponent() {
                                 field={field}
                                 label={`Sibling #${index + 1} Age`}
                                 placeholder="Select Age"
-                                values={Array.from({ length: 18 }, (_, i) =>
+                                values={Array.from({ length: 18 }, (__, i) =>
                                   String(i + 1),
                                 )}
                                 required
@@ -654,7 +660,12 @@ function RouteComponent() {
                     <button
                       type="button"
                       onClick={() => {
-                        navigate({ to: "/family/form/gift-details" });
+                        navigate({
+                          to: "/family/drive/$driveId/form/gift-details",
+                          params: {
+                            driveId,
+                          },
+                        });
                       }}
                       className="text-sm h-5 my-auto cursor-pointer transition duration-200 ease-in-out hover:bg-[var(--color-kfk-blue)] hover:text-white text-[var(--color-kfk-blue)] border border-[var(--color-kfk-blue)] px-4 rounded-md"
                     >

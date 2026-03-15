@@ -1,6 +1,5 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { z } from "zod";
 import {
   ArrowRightCircleIcon,
   CheckCircleIcon,
@@ -26,7 +25,9 @@ import { FormProgressBar } from "@/components/form/FormProgressBar";
 import { useProgressBarNavigation } from "@/hooks/form/FormHooks";
 import LadyBug from "@/assets/form/ladybug.png";
 
-export const Route = createFileRoute("/family/drive/$driveId/form/gift-details")({
+export const Route = createFileRoute(
+  "/family/drive/$driveId/form/gift-details",
+)({
   component: GiftsStep,
 });
 
@@ -40,19 +41,20 @@ function GiftsStep() {
   const navigate = useNavigate();
   const children = formState.children?.children || [];
   const siblings = formState.children?.hasSiblings
-    ? formState.children?.siblings || []
+    ? formState.children.siblings
     : [];
   const childrenNameList = [
     ...children.map((c) => c.name),
     ...siblings.map((s) => s.name),
   ];
+  const { driveId } = Route.useParams();
 
   // -1: "Dashboard".
   // 0, 1, 2, 3, ...: Specific forms for that child
   const [activeChildIndex, setActiveChildIndex] = useState<number>(-1);
 
   const reconciledGiftSelections = childrenNameList.map((childName) => {
-    const existing = formState.gifts?.giftSelections?.find(
+    const existing = formState.gifts?.giftSelections.find(
       (g) => g.childName === childName,
     );
     if (existing) return existing;
@@ -85,7 +87,12 @@ function GiftsStep() {
   const handleBack = () => {
     const currentValues = form.state.values;
     updateSection("gifts", currentValues);
-    navigate({ to: "/family/form/children" });
+    navigate({
+      to: "/family/drive/$driveId/form/children",
+      params: {
+        driveId,
+      },
+    });
   };
 
   const isChildComplete = (
@@ -196,7 +203,12 @@ function GiftsStep() {
                 const result = giftsFormSchema.safeParse(values);
                 if (result.success) {
                   updateSection("gifts", result.data);
-                  navigate({ to: "/family/form/review" });
+                  navigate({
+                    to: "/family/drive/$driveId/form/review",
+                    params: {
+                      driveId,
+                    },
+                  });
                 }
               }}
               size="lg"

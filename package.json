@@ -9,7 +9,8 @@
     "dev": "firebase emulators:start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "pnpm exec prettier . --write",
-    "format:check": "pnpm exec prettier . --check"
+    "format:check": "pnpm exec prettier . --check",
+    "typecheck": "pnpm -r run typecheck"
   },
   "keywords": [],
   "author": "",

@@ -8,542 +8,542 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as DataRouteImport } from './routes/data'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as FamilyTokenRouteImport } from './routes/family/$token'
-import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
-import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
-import { Route as AuthenticatedDonorRouteRouteImport } from './routes/_authenticated/donor/route'
-import { Route as FamilyDriveDriveIdRouteImport } from './routes/family/drive/$driveId'
-import { Route as FamilyTokenHomeRouteImport } from './routes/family/$token/home'
-import { Route as AuthenticatedStaffProfileRouteImport } from './routes/_authenticated/staff/profile'
-import { Route as AuthenticatedStaffPendingRouteImport } from './routes/_authenticated/staff/pending'
-import { Route as AuthenticatedStaffHomeRouteImport } from './routes/_authenticated/staff/home'
-import { Route as AuthenticatedStaffApprovedRouteImport } from './routes/_authenticated/staff/approved'
-import { Route as AuthenticatedStaffVolunteerRouteRouteImport } from './routes/_authenticated/staff/volunteer/route'
-import { Route as AuthenticatedStaffAdminRouteRouteImport } from './routes/_authenticated/staff/admin/route'
-import { Route as FamilyDriveDriveIdFormRouteImport } from './routes/family/drive/$driveId/form'
-import { Route as FamilyTokenChildChildIdRouteImport } from './routes/family/$token/child/$childId'
-import { Route as AuthenticatedStaffAdminUsersRouteImport } from './routes/_authenticated/staff/admin/users'
-import { Route as FamilyDriveDriveIdFormReviewRouteImport } from './routes/family/drive/$driveId/form/review'
-import { Route as FamilyDriveDriveIdFormGiftDetailsRouteImport } from './routes/family/drive/$driveId/form/gift-details'
-import { Route as FamilyDriveDriveIdFormGeneralInfoRouteImport } from './routes/family/drive/$driveId/form/general-info'
-import { Route as FamilyDriveDriveIdFormConsentRouteImport } from './routes/family/drive/$driveId/form/consent'
-import { Route as FamilyDriveDriveIdFormChildrenRouteImport } from './routes/family/drive/$driveId/form/children'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as RegisterRouteImport } from "./routes/register";
+import { Route as LoginRouteImport } from "./routes/login";
+import { Route as DataRouteImport } from "./routes/data";
+import { Route as AuthenticatedRouteImport } from "./routes/_authenticated";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as FamilyTokenRouteImport } from "./routes/family/$token";
+import { Route as AuthenticatedHelloRouteImport } from "./routes/_authenticated/hello";
+import { Route as AuthenticatedStaffRouteRouteImport } from "./routes/_authenticated/staff/route";
+import { Route as AuthenticatedDonorRouteRouteImport } from "./routes/_authenticated/donor/route";
+import { Route as FamilyDriveDriveIdRouteImport } from "./routes/family/drive/$driveId";
+import { Route as FamilyTokenHomeRouteImport } from "./routes/family/$token/home";
+import { Route as AuthenticatedStaffProfileRouteImport } from "./routes/_authenticated/staff/profile";
+import { Route as AuthenticatedStaffPendingRouteImport } from "./routes/_authenticated/staff/pending";
+import { Route as AuthenticatedStaffHomeRouteImport } from "./routes/_authenticated/staff/home";
+import { Route as AuthenticatedStaffApprovedRouteImport } from "./routes/_authenticated/staff/approved";
+import { Route as AuthenticatedStaffVolunteerRouteRouteImport } from "./routes/_authenticated/staff/volunteer/route";
+import { Route as AuthenticatedStaffAdminRouteRouteImport } from "./routes/_authenticated/staff/admin/route";
+import { Route as FamilyDriveDriveIdFormRouteImport } from "./routes/family/drive/$driveId/form";
+import { Route as FamilyTokenChildChildIdRouteImport } from "./routes/family/$token/child/$childId";
+import { Route as AuthenticatedStaffAdminUsersRouteImport } from "./routes/_authenticated/staff/admin/users";
+import { Route as FamilyDriveDriveIdFormReviewRouteImport } from "./routes/family/drive/$driveId/form/review";
+import { Route as FamilyDriveDriveIdFormGiftDetailsRouteImport } from "./routes/family/drive/$driveId/form/gift-details";
+import { Route as FamilyDriveDriveIdFormGeneralInfoRouteImport } from "./routes/family/drive/$driveId/form/general-info";
+import { Route as FamilyDriveDriveIdFormConsentRouteImport } from "./routes/family/drive/$driveId/form/consent";
+import { Route as FamilyDriveDriveIdFormChildrenRouteImport } from "./routes/family/drive/$driveId/form/children";
 
 const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
+  id: "/register",
+  path: "/register",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+  id: "/login",
+  path: "/login",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const DataRoute = DataRouteImport.update({
-  id: '/data',
-  path: '/data',
+  id: "/data",
+  path: "/data",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
+  id: "/_authenticated",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const FamilyTokenRoute = FamilyTokenRouteImport.update({
-  id: '/family/$token',
-  path: '/family/$token',
+  id: "/family/$token",
+  path: "/family/$token",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AuthenticatedHelloRoute = AuthenticatedHelloRouteImport.update({
-  id: '/hello',
-  path: '/hello',
+  id: "/hello",
+  path: "/hello",
   getParentRoute: () => AuthenticatedRoute,
-} as any)
+} as any);
 const AuthenticatedStaffRouteRoute = AuthenticatedStaffRouteRouteImport.update({
-  id: '/staff',
-  path: '/staff',
+  id: "/staff",
+  path: "/staff",
   getParentRoute: () => AuthenticatedRoute,
-} as any)
+} as any);
 const AuthenticatedDonorRouteRoute = AuthenticatedDonorRouteRouteImport.update({
-  id: '/donor',
-  path: '/donor',
+  id: "/donor",
+  path: "/donor",
   getParentRoute: () => AuthenticatedRoute,
-} as any)
+} as any);
 const FamilyDriveDriveIdRoute = FamilyDriveDriveIdRouteImport.update({
-  id: '/family/drive/$driveId',
-  path: '/family/drive/$driveId',
+  id: "/family/drive/$driveId",
+  path: "/family/drive/$driveId",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const FamilyTokenHomeRoute = FamilyTokenHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
+  id: "/home",
+  path: "/home",
   getParentRoute: () => FamilyTokenRoute,
-} as any)
+} as any);
 const AuthenticatedStaffProfileRoute =
   AuthenticatedStaffProfileRouteImport.update({
-    id: '/profile',
-    path: '/profile',
+    id: "/profile",
+    path: "/profile",
     getParentRoute: () => AuthenticatedStaffRouteRoute,
-  } as any)
+  } as any);
 const AuthenticatedStaffPendingRoute =
   AuthenticatedStaffPendingRouteImport.update({
-    id: '/pending',
-    path: '/pending',
+    id: "/pending",
+    path: "/pending",
     getParentRoute: () => AuthenticatedStaffRouteRoute,
-  } as any)
+  } as any);
 const AuthenticatedStaffHomeRoute = AuthenticatedStaffHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
+  id: "/home",
+  path: "/home",
   getParentRoute: () => AuthenticatedStaffRouteRoute,
-} as any)
+} as any);
 const AuthenticatedStaffApprovedRoute =
   AuthenticatedStaffApprovedRouteImport.update({
-    id: '/approved',
-    path: '/approved',
+    id: "/approved",
+    path: "/approved",
     getParentRoute: () => AuthenticatedStaffRouteRoute,
-  } as any)
+  } as any);
 const AuthenticatedStaffVolunteerRouteRoute =
   AuthenticatedStaffVolunteerRouteRouteImport.update({
-    id: '/volunteer',
-    path: '/volunteer',
+    id: "/volunteer",
+    path: "/volunteer",
     getParentRoute: () => AuthenticatedStaffRouteRoute,
-  } as any)
+  } as any);
 const AuthenticatedStaffAdminRouteRoute =
   AuthenticatedStaffAdminRouteRouteImport.update({
-    id: '/admin',
-    path: '/admin',
+    id: "/admin",
+    path: "/admin",
     getParentRoute: () => AuthenticatedStaffRouteRoute,
-  } as any)
+  } as any);
 const FamilyDriveDriveIdFormRoute = FamilyDriveDriveIdFormRouteImport.update({
-  id: '/form',
-  path: '/form',
+  id: "/form",
+  path: "/form",
   getParentRoute: () => FamilyDriveDriveIdRoute,
-} as any)
+} as any);
 const FamilyTokenChildChildIdRoute = FamilyTokenChildChildIdRouteImport.update({
-  id: '/child/$childId',
-  path: '/child/$childId',
+  id: "/child/$childId",
+  path: "/child/$childId",
   getParentRoute: () => FamilyTokenRoute,
-} as any)
+} as any);
 const AuthenticatedStaffAdminUsersRoute =
   AuthenticatedStaffAdminUsersRouteImport.update({
-    id: '/users',
-    path: '/users',
+    id: "/users",
+    path: "/users",
     getParentRoute: () => AuthenticatedStaffAdminRouteRoute,
-  } as any)
+  } as any);
 const FamilyDriveDriveIdFormReviewRoute =
   FamilyDriveDriveIdFormReviewRouteImport.update({
-    id: '/review',
-    path: '/review',
+    id: "/review",
+    path: "/review",
     getParentRoute: () => FamilyDriveDriveIdFormRoute,
-  } as any)
+  } as any);
 const FamilyDriveDriveIdFormGiftDetailsRoute =
   FamilyDriveDriveIdFormGiftDetailsRouteImport.update({
-    id: '/gift-details',
-    path: '/gift-details',
+    id: "/gift-details",
+    path: "/gift-details",
     getParentRoute: () => FamilyDriveDriveIdFormRoute,
-  } as any)
+  } as any);
 const FamilyDriveDriveIdFormGeneralInfoRoute =
   FamilyDriveDriveIdFormGeneralInfoRouteImport.update({
-    id: '/general-info',
-    path: '/general-info',
+    id: "/general-info",
+    path: "/general-info",
     getParentRoute: () => FamilyDriveDriveIdFormRoute,
-  } as any)
+  } as any);
 const FamilyDriveDriveIdFormConsentRoute =
   FamilyDriveDriveIdFormConsentRouteImport.update({
-    id: '/consent',
-    path: '/consent',
+    id: "/consent",
+    path: "/consent",
     getParentRoute: () => FamilyDriveDriveIdFormRoute,
-  } as any)
+  } as any);
 const FamilyDriveDriveIdFormChildrenRoute =
   FamilyDriveDriveIdFormChildrenRouteImport.update({
-    id: '/children',
-    path: '/children',
+    id: "/children",
+    path: "/children",
     getParentRoute: () => FamilyDriveDriveIdFormRoute,
-  } as any)
+  } as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/data': typeof DataRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
-  '/donor': typeof AuthenticatedDonorRouteRoute
-  '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
-  '/hello': typeof AuthenticatedHelloRoute
-  '/family/$token': typeof FamilyTokenRouteWithChildren
-  '/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
-  '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
-  '/staff/approved': typeof AuthenticatedStaffApprovedRoute
-  '/staff/home': typeof AuthenticatedStaffHomeRoute
-  '/staff/pending': typeof AuthenticatedStaffPendingRoute
-  '/staff/profile': typeof AuthenticatedStaffProfileRoute
-  '/family/$token/home': typeof FamilyTokenHomeRoute
-  '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
-  '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
-  '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
-  '/family/drive/$driveId/form': typeof FamilyDriveDriveIdFormRouteWithChildren
-  '/family/drive/$driveId/form/children': typeof FamilyDriveDriveIdFormChildrenRoute
-  '/family/drive/$driveId/form/consent': typeof FamilyDriveDriveIdFormConsentRoute
-  '/family/drive/$driveId/form/general-info': typeof FamilyDriveDriveIdFormGeneralInfoRoute
-  '/family/drive/$driveId/form/gift-details': typeof FamilyDriveDriveIdFormGiftDetailsRoute
-  '/family/drive/$driveId/form/review': typeof FamilyDriveDriveIdFormReviewRoute
+  "/": typeof IndexRoute;
+  "/data": typeof DataRoute;
+  "/login": typeof LoginRoute;
+  "/register": typeof RegisterRoute;
+  "/donor": typeof AuthenticatedDonorRouteRoute;
+  "/staff": typeof AuthenticatedStaffRouteRouteWithChildren;
+  "/hello": typeof AuthenticatedHelloRoute;
+  "/family/$token": typeof FamilyTokenRouteWithChildren;
+  "/staff/admin": typeof AuthenticatedStaffAdminRouteRouteWithChildren;
+  "/staff/volunteer": typeof AuthenticatedStaffVolunteerRouteRoute;
+  "/staff/approved": typeof AuthenticatedStaffApprovedRoute;
+  "/staff/home": typeof AuthenticatedStaffHomeRoute;
+  "/staff/pending": typeof AuthenticatedStaffPendingRoute;
+  "/staff/profile": typeof AuthenticatedStaffProfileRoute;
+  "/family/$token/home": typeof FamilyTokenHomeRoute;
+  "/family/drive/$driveId": typeof FamilyDriveDriveIdRouteWithChildren;
+  "/staff/admin/users": typeof AuthenticatedStaffAdminUsersRoute;
+  "/family/$token/child/$childId": typeof FamilyTokenChildChildIdRoute;
+  "/family/drive/$driveId/form": typeof FamilyDriveDriveIdFormRouteWithChildren;
+  "/family/drive/$driveId/form/children": typeof FamilyDriveDriveIdFormChildrenRoute;
+  "/family/drive/$driveId/form/consent": typeof FamilyDriveDriveIdFormConsentRoute;
+  "/family/drive/$driveId/form/general-info": typeof FamilyDriveDriveIdFormGeneralInfoRoute;
+  "/family/drive/$driveId/form/gift-details": typeof FamilyDriveDriveIdFormGiftDetailsRoute;
+  "/family/drive/$driveId/form/review": typeof FamilyDriveDriveIdFormReviewRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/data': typeof DataRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
-  '/donor': typeof AuthenticatedDonorRouteRoute
-  '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
-  '/hello': typeof AuthenticatedHelloRoute
-  '/family/$token': typeof FamilyTokenRouteWithChildren
-  '/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
-  '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
-  '/staff/approved': typeof AuthenticatedStaffApprovedRoute
-  '/staff/home': typeof AuthenticatedStaffHomeRoute
-  '/staff/pending': typeof AuthenticatedStaffPendingRoute
-  '/staff/profile': typeof AuthenticatedStaffProfileRoute
-  '/family/$token/home': typeof FamilyTokenHomeRoute
-  '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
-  '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
-  '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
-  '/family/drive/$driveId/form': typeof FamilyDriveDriveIdFormRouteWithChildren
-  '/family/drive/$driveId/form/children': typeof FamilyDriveDriveIdFormChildrenRoute
-  '/family/drive/$driveId/form/consent': typeof FamilyDriveDriveIdFormConsentRoute
-  '/family/drive/$driveId/form/general-info': typeof FamilyDriveDriveIdFormGeneralInfoRoute
-  '/family/drive/$driveId/form/gift-details': typeof FamilyDriveDriveIdFormGiftDetailsRoute
-  '/family/drive/$driveId/form/review': typeof FamilyDriveDriveIdFormReviewRoute
+  "/": typeof IndexRoute;
+  "/data": typeof DataRoute;
+  "/login": typeof LoginRoute;
+  "/register": typeof RegisterRoute;
+  "/donor": typeof AuthenticatedDonorRouteRoute;
+  "/staff": typeof AuthenticatedStaffRouteRouteWithChildren;
+  "/hello": typeof AuthenticatedHelloRoute;
+  "/family/$token": typeof FamilyTokenRouteWithChildren;
+  "/staff/admin": typeof AuthenticatedStaffAdminRouteRouteWithChildren;
+  "/staff/volunteer": typeof AuthenticatedStaffVolunteerRouteRoute;
+  "/staff/approved": typeof AuthenticatedStaffApprovedRoute;
+  "/staff/home": typeof AuthenticatedStaffHomeRoute;
+  "/staff/pending": typeof AuthenticatedStaffPendingRoute;
+  "/staff/profile": typeof AuthenticatedStaffProfileRoute;
+  "/family/$token/home": typeof FamilyTokenHomeRoute;
+  "/family/drive/$driveId": typeof FamilyDriveDriveIdRouteWithChildren;
+  "/staff/admin/users": typeof AuthenticatedStaffAdminUsersRoute;
+  "/family/$token/child/$childId": typeof FamilyTokenChildChildIdRoute;
+  "/family/drive/$driveId/form": typeof FamilyDriveDriveIdFormRouteWithChildren;
+  "/family/drive/$driveId/form/children": typeof FamilyDriveDriveIdFormChildrenRoute;
+  "/family/drive/$driveId/form/consent": typeof FamilyDriveDriveIdFormConsentRoute;
+  "/family/drive/$driveId/form/general-info": typeof FamilyDriveDriveIdFormGeneralInfoRoute;
+  "/family/drive/$driveId/form/gift-details": typeof FamilyDriveDriveIdFormGiftDetailsRoute;
+  "/family/drive/$driveId/form/review": typeof FamilyDriveDriveIdFormReviewRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/data': typeof DataRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
-  '/_authenticated/donor': typeof AuthenticatedDonorRouteRoute
-  '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
-  '/_authenticated/hello': typeof AuthenticatedHelloRoute
-  '/family/$token': typeof FamilyTokenRouteWithChildren
-  '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
-  '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
-  '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
-  '/_authenticated/staff/home': typeof AuthenticatedStaffHomeRoute
-  '/_authenticated/staff/pending': typeof AuthenticatedStaffPendingRoute
-  '/_authenticated/staff/profile': typeof AuthenticatedStaffProfileRoute
-  '/family/$token/home': typeof FamilyTokenHomeRoute
-  '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
-  '/_authenticated/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
-  '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
-  '/family/drive/$driveId/form': typeof FamilyDriveDriveIdFormRouteWithChildren
-  '/family/drive/$driveId/form/children': typeof FamilyDriveDriveIdFormChildrenRoute
-  '/family/drive/$driveId/form/consent': typeof FamilyDriveDriveIdFormConsentRoute
-  '/family/drive/$driveId/form/general-info': typeof FamilyDriveDriveIdFormGeneralInfoRoute
-  '/family/drive/$driveId/form/gift-details': typeof FamilyDriveDriveIdFormGiftDetailsRoute
-  '/family/drive/$driveId/form/review': typeof FamilyDriveDriveIdFormReviewRoute
+  __root__: typeof rootRouteImport;
+  "/": typeof IndexRoute;
+  "/_authenticated": typeof AuthenticatedRouteWithChildren;
+  "/data": typeof DataRoute;
+  "/login": typeof LoginRoute;
+  "/register": typeof RegisterRoute;
+  "/_authenticated/donor": typeof AuthenticatedDonorRouteRoute;
+  "/_authenticated/staff": typeof AuthenticatedStaffRouteRouteWithChildren;
+  "/_authenticated/hello": typeof AuthenticatedHelloRoute;
+  "/family/$token": typeof FamilyTokenRouteWithChildren;
+  "/_authenticated/staff/admin": typeof AuthenticatedStaffAdminRouteRouteWithChildren;
+  "/_authenticated/staff/volunteer": typeof AuthenticatedStaffVolunteerRouteRoute;
+  "/_authenticated/staff/approved": typeof AuthenticatedStaffApprovedRoute;
+  "/_authenticated/staff/home": typeof AuthenticatedStaffHomeRoute;
+  "/_authenticated/staff/pending": typeof AuthenticatedStaffPendingRoute;
+  "/_authenticated/staff/profile": typeof AuthenticatedStaffProfileRoute;
+  "/family/$token/home": typeof FamilyTokenHomeRoute;
+  "/family/drive/$driveId": typeof FamilyDriveDriveIdRouteWithChildren;
+  "/_authenticated/staff/admin/users": typeof AuthenticatedStaffAdminUsersRoute;
+  "/family/$token/child/$childId": typeof FamilyTokenChildChildIdRoute;
+  "/family/drive/$driveId/form": typeof FamilyDriveDriveIdFormRouteWithChildren;
+  "/family/drive/$driveId/form/children": typeof FamilyDriveDriveIdFormChildrenRoute;
+  "/family/drive/$driveId/form/consent": typeof FamilyDriveDriveIdFormConsentRoute;
+  "/family/drive/$driveId/form/general-info": typeof FamilyDriveDriveIdFormGeneralInfoRoute;
+  "/family/drive/$driveId/form/gift-details": typeof FamilyDriveDriveIdFormGiftDetailsRoute;
+  "/family/drive/$driveId/form/review": typeof FamilyDriveDriveIdFormReviewRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/data'
-    | '/login'
-    | '/register'
-    | '/donor'
-    | '/staff'
-    | '/hello'
-    | '/family/$token'
-    | '/staff/admin'
-    | '/staff/volunteer'
-    | '/staff/approved'
-    | '/staff/home'
-    | '/staff/pending'
-    | '/staff/profile'
-    | '/family/$token/home'
-    | '/family/drive/$driveId'
-    | '/staff/admin/users'
-    | '/family/$token/child/$childId'
-    | '/family/drive/$driveId/form'
-    | '/family/drive/$driveId/form/children'
-    | '/family/drive/$driveId/form/consent'
-    | '/family/drive/$driveId/form/general-info'
-    | '/family/drive/$driveId/form/gift-details'
-    | '/family/drive/$driveId/form/review'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/data"
+    | "/login"
+    | "/register"
+    | "/donor"
+    | "/staff"
+    | "/hello"
+    | "/family/$token"
+    | "/staff/admin"
+    | "/staff/volunteer"
+    | "/staff/approved"
+    | "/staff/home"
+    | "/staff/pending"
+    | "/staff/profile"
+    | "/family/$token/home"
+    | "/family/drive/$driveId"
+    | "/staff/admin/users"
+    | "/family/$token/child/$childId"
+    | "/family/drive/$driveId/form"
+    | "/family/drive/$driveId/form/children"
+    | "/family/drive/$driveId/form/consent"
+    | "/family/drive/$driveId/form/general-info"
+    | "/family/drive/$driveId/form/gift-details"
+    | "/family/drive/$driveId/form/review";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/data'
-    | '/login'
-    | '/register'
-    | '/donor'
-    | '/staff'
-    | '/hello'
-    | '/family/$token'
-    | '/staff/admin'
-    | '/staff/volunteer'
-    | '/staff/approved'
-    | '/staff/home'
-    | '/staff/pending'
-    | '/staff/profile'
-    | '/family/$token/home'
-    | '/family/drive/$driveId'
-    | '/staff/admin/users'
-    | '/family/$token/child/$childId'
-    | '/family/drive/$driveId/form'
-    | '/family/drive/$driveId/form/children'
-    | '/family/drive/$driveId/form/consent'
-    | '/family/drive/$driveId/form/general-info'
-    | '/family/drive/$driveId/form/gift-details'
-    | '/family/drive/$driveId/form/review'
+    | "/"
+    | "/data"
+    | "/login"
+    | "/register"
+    | "/donor"
+    | "/staff"
+    | "/hello"
+    | "/family/$token"
+    | "/staff/admin"
+    | "/staff/volunteer"
+    | "/staff/approved"
+    | "/staff/home"
+    | "/staff/pending"
+    | "/staff/profile"
+    | "/family/$token/home"
+    | "/family/drive/$driveId"
+    | "/staff/admin/users"
+    | "/family/$token/child/$childId"
+    | "/family/drive/$driveId/form"
+    | "/family/drive/$driveId/form/children"
+    | "/family/drive/$driveId/form/consent"
+    | "/family/drive/$driveId/form/general-info"
+    | "/family/drive/$driveId/form/gift-details"
+    | "/family/drive/$driveId/form/review";
   id:
-    | '__root__'
-    | '/'
-    | '/_authenticated'
-    | '/data'
-    | '/login'
-    | '/register'
-    | '/_authenticated/donor'
-    | '/_authenticated/staff'
-    | '/_authenticated/hello'
-    | '/family/$token'
-    | '/_authenticated/staff/admin'
-    | '/_authenticated/staff/volunteer'
-    | '/_authenticated/staff/approved'
-    | '/_authenticated/staff/home'
-    | '/_authenticated/staff/pending'
-    | '/_authenticated/staff/profile'
-    | '/family/$token/home'
-    | '/family/drive/$driveId'
-    | '/_authenticated/staff/admin/users'
-    | '/family/$token/child/$childId'
-    | '/family/drive/$driveId/form'
-    | '/family/drive/$driveId/form/children'
-    | '/family/drive/$driveId/form/consent'
-    | '/family/drive/$driveId/form/general-info'
-    | '/family/drive/$driveId/form/gift-details'
-    | '/family/drive/$driveId/form/review'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/_authenticated"
+    | "/data"
+    | "/login"
+    | "/register"
+    | "/_authenticated/donor"
+    | "/_authenticated/staff"
+    | "/_authenticated/hello"
+    | "/family/$token"
+    | "/_authenticated/staff/admin"
+    | "/_authenticated/staff/volunteer"
+    | "/_authenticated/staff/approved"
+    | "/_authenticated/staff/home"
+    | "/_authenticated/staff/pending"
+    | "/_authenticated/staff/profile"
+    | "/family/$token/home"
+    | "/family/drive/$driveId"
+    | "/_authenticated/staff/admin/users"
+    | "/family/$token/child/$childId"
+    | "/family/drive/$driveId/form"
+    | "/family/drive/$driveId/form/children"
+    | "/family/drive/$driveId/form/consent"
+    | "/family/drive/$driveId/form/general-info"
+    | "/family/drive/$driveId/form/gift-details"
+    | "/family/drive/$driveId/form/review";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  DataRoute: typeof DataRoute
-  LoginRoute: typeof LoginRoute
-  RegisterRoute: typeof RegisterRoute
-  FamilyTokenRoute: typeof FamilyTokenRouteWithChildren
-  FamilyDriveDriveIdRoute: typeof FamilyDriveDriveIdRouteWithChildren
+  IndexRoute: typeof IndexRoute;
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren;
+  DataRoute: typeof DataRoute;
+  LoginRoute: typeof LoginRoute;
+  RegisterRoute: typeof RegisterRoute;
+  FamilyTokenRoute: typeof FamilyTokenRouteWithChildren;
+  FamilyDriveDriveIdRoute: typeof FamilyDriveDriveIdRouteWithChildren;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/data': {
-      id: '/data'
-      path: '/data'
-      fullPath: '/data'
-      preLoaderRoute: typeof DataRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/family/$token': {
-      id: '/family/$token'
-      path: '/family/$token'
-      fullPath: '/family/$token'
-      preLoaderRoute: typeof FamilyTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/hello': {
-      id: '/_authenticated/hello'
-      path: '/hello'
-      fullPath: '/hello'
-      preLoaderRoute: typeof AuthenticatedHelloRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/staff': {
-      id: '/_authenticated/staff'
-      path: '/staff'
-      fullPath: '/staff'
-      preLoaderRoute: typeof AuthenticatedStaffRouteRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/donor': {
-      id: '/_authenticated/donor'
-      path: '/donor'
-      fullPath: '/donor'
-      preLoaderRoute: typeof AuthenticatedDonorRouteRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/family/drive/$driveId': {
-      id: '/family/drive/$driveId'
-      path: '/family/drive/$driveId'
-      fullPath: '/family/drive/$driveId'
-      preLoaderRoute: typeof FamilyDriveDriveIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/family/$token/home': {
-      id: '/family/$token/home'
-      path: '/home'
-      fullPath: '/family/$token/home'
-      preLoaderRoute: typeof FamilyTokenHomeRouteImport
-      parentRoute: typeof FamilyTokenRoute
-    }
-    '/_authenticated/staff/profile': {
-      id: '/_authenticated/staff/profile'
-      path: '/profile'
-      fullPath: '/staff/profile'
-      preLoaderRoute: typeof AuthenticatedStaffProfileRouteImport
-      parentRoute: typeof AuthenticatedStaffRouteRoute
-    }
-    '/_authenticated/staff/pending': {
-      id: '/_authenticated/staff/pending'
-      path: '/pending'
-      fullPath: '/staff/pending'
-      preLoaderRoute: typeof AuthenticatedStaffPendingRouteImport
-      parentRoute: typeof AuthenticatedStaffRouteRoute
-    }
-    '/_authenticated/staff/home': {
-      id: '/_authenticated/staff/home'
-      path: '/home'
-      fullPath: '/staff/home'
-      preLoaderRoute: typeof AuthenticatedStaffHomeRouteImport
-      parentRoute: typeof AuthenticatedStaffRouteRoute
-    }
-    '/_authenticated/staff/approved': {
-      id: '/_authenticated/staff/approved'
-      path: '/approved'
-      fullPath: '/staff/approved'
-      preLoaderRoute: typeof AuthenticatedStaffApprovedRouteImport
-      parentRoute: typeof AuthenticatedStaffRouteRoute
-    }
-    '/_authenticated/staff/volunteer': {
-      id: '/_authenticated/staff/volunteer'
-      path: '/volunteer'
-      fullPath: '/staff/volunteer'
-      preLoaderRoute: typeof AuthenticatedStaffVolunteerRouteRouteImport
-      parentRoute: typeof AuthenticatedStaffRouteRoute
-    }
-    '/_authenticated/staff/admin': {
-      id: '/_authenticated/staff/admin'
-      path: '/admin'
-      fullPath: '/staff/admin'
-      preLoaderRoute: typeof AuthenticatedStaffAdminRouteRouteImport
-      parentRoute: typeof AuthenticatedStaffRouteRoute
-    }
-    '/family/drive/$driveId/form': {
-      id: '/family/drive/$driveId/form'
-      path: '/form'
-      fullPath: '/family/drive/$driveId/form'
-      preLoaderRoute: typeof FamilyDriveDriveIdFormRouteImport
-      parentRoute: typeof FamilyDriveDriveIdRoute
-    }
-    '/family/$token/child/$childId': {
-      id: '/family/$token/child/$childId'
-      path: '/child/$childId'
-      fullPath: '/family/$token/child/$childId'
-      preLoaderRoute: typeof FamilyTokenChildChildIdRouteImport
-      parentRoute: typeof FamilyTokenRoute
-    }
-    '/_authenticated/staff/admin/users': {
-      id: '/_authenticated/staff/admin/users'
-      path: '/users'
-      fullPath: '/staff/admin/users'
-      preLoaderRoute: typeof AuthenticatedStaffAdminUsersRouteImport
-      parentRoute: typeof AuthenticatedStaffAdminRouteRoute
-    }
-    '/family/drive/$driveId/form/review': {
-      id: '/family/drive/$driveId/form/review'
-      path: '/review'
-      fullPath: '/family/drive/$driveId/form/review'
-      preLoaderRoute: typeof FamilyDriveDriveIdFormReviewRouteImport
-      parentRoute: typeof FamilyDriveDriveIdFormRoute
-    }
-    '/family/drive/$driveId/form/gift-details': {
-      id: '/family/drive/$driveId/form/gift-details'
-      path: '/gift-details'
-      fullPath: '/family/drive/$driveId/form/gift-details'
-      preLoaderRoute: typeof FamilyDriveDriveIdFormGiftDetailsRouteImport
-      parentRoute: typeof FamilyDriveDriveIdFormRoute
-    }
-    '/family/drive/$driveId/form/general-info': {
-      id: '/family/drive/$driveId/form/general-info'
-      path: '/general-info'
-      fullPath: '/family/drive/$driveId/form/general-info'
-      preLoaderRoute: typeof FamilyDriveDriveIdFormGeneralInfoRouteImport
-      parentRoute: typeof FamilyDriveDriveIdFormRoute
-    }
-    '/family/drive/$driveId/form/consent': {
-      id: '/family/drive/$driveId/form/consent'
-      path: '/consent'
-      fullPath: '/family/drive/$driveId/form/consent'
-      preLoaderRoute: typeof FamilyDriveDriveIdFormConsentRouteImport
-      parentRoute: typeof FamilyDriveDriveIdFormRoute
-    }
-    '/family/drive/$driveId/form/children': {
-      id: '/family/drive/$driveId/form/children'
-      path: '/children'
-      fullPath: '/family/drive/$driveId/form/children'
-      preLoaderRoute: typeof FamilyDriveDriveIdFormChildrenRouteImport
-      parentRoute: typeof FamilyDriveDriveIdFormRoute
-    }
+    "/register": {
+      id: "/register";
+      path: "/register";
+      fullPath: "/register";
+      preLoaderRoute: typeof RegisterRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/login": {
+      id: "/login";
+      path: "/login";
+      fullPath: "/login";
+      preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/data": {
+      id: "/data";
+      path: "/data";
+      fullPath: "/data";
+      preLoaderRoute: typeof DataRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_authenticated": {
+      id: "/_authenticated";
+      path: "";
+      fullPath: "/";
+      preLoaderRoute: typeof AuthenticatedRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/family/$token": {
+      id: "/family/$token";
+      path: "/family/$token";
+      fullPath: "/family/$token";
+      preLoaderRoute: typeof FamilyTokenRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_authenticated/hello": {
+      id: "/_authenticated/hello";
+      path: "/hello";
+      fullPath: "/hello";
+      preLoaderRoute: typeof AuthenticatedHelloRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    "/_authenticated/staff": {
+      id: "/_authenticated/staff";
+      path: "/staff";
+      fullPath: "/staff";
+      preLoaderRoute: typeof AuthenticatedStaffRouteRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    "/_authenticated/donor": {
+      id: "/_authenticated/donor";
+      path: "/donor";
+      fullPath: "/donor";
+      preLoaderRoute: typeof AuthenticatedDonorRouteRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
+    "/family/drive/$driveId": {
+      id: "/family/drive/$driveId";
+      path: "/family/drive/$driveId";
+      fullPath: "/family/drive/$driveId";
+      preLoaderRoute: typeof FamilyDriveDriveIdRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/family/$token/home": {
+      id: "/family/$token/home";
+      path: "/home";
+      fullPath: "/family/$token/home";
+      preLoaderRoute: typeof FamilyTokenHomeRouteImport;
+      parentRoute: typeof FamilyTokenRoute;
+    };
+    "/_authenticated/staff/profile": {
+      id: "/_authenticated/staff/profile";
+      path: "/profile";
+      fullPath: "/staff/profile";
+      preLoaderRoute: typeof AuthenticatedStaffProfileRouteImport;
+      parentRoute: typeof AuthenticatedStaffRouteRoute;
+    };
+    "/_authenticated/staff/pending": {
+      id: "/_authenticated/staff/pending";
+      path: "/pending";
+      fullPath: "/staff/pending";
+      preLoaderRoute: typeof AuthenticatedStaffPendingRouteImport;
+      parentRoute: typeof AuthenticatedStaffRouteRoute;
+    };
+    "/_authenticated/staff/home": {
+      id: "/_authenticated/staff/home";
+      path: "/home";
+      fullPath: "/staff/home";
+      preLoaderRoute: typeof AuthenticatedStaffHomeRouteImport;
+      parentRoute: typeof AuthenticatedStaffRouteRoute;
+    };
+    "/_authenticated/staff/approved": {
+      id: "/_authenticated/staff/approved";
+      path: "/approved";
+      fullPath: "/staff/approved";
+      preLoaderRoute: typeof AuthenticatedStaffApprovedRouteImport;
+      parentRoute: typeof AuthenticatedStaffRouteRoute;
+    };
+    "/_authenticated/staff/volunteer": {
+      id: "/_authenticated/staff/volunteer";
+      path: "/volunteer";
+      fullPath: "/staff/volunteer";
+      preLoaderRoute: typeof AuthenticatedStaffVolunteerRouteRouteImport;
+      parentRoute: typeof AuthenticatedStaffRouteRoute;
+    };
+    "/_authenticated/staff/admin": {
+      id: "/_authenticated/staff/admin";
+      path: "/admin";
+      fullPath: "/staff/admin";
+      preLoaderRoute: typeof AuthenticatedStaffAdminRouteRouteImport;
+      parentRoute: typeof AuthenticatedStaffRouteRoute;
+    };
+    "/family/drive/$driveId/form": {
+      id: "/family/drive/$driveId/form";
+      path: "/form";
+      fullPath: "/family/drive/$driveId/form";
+      preLoaderRoute: typeof FamilyDriveDriveIdFormRouteImport;
+      parentRoute: typeof FamilyDriveDriveIdRoute;
+    };
+    "/family/$token/child/$childId": {
+      id: "/family/$token/child/$childId";
+      path: "/child/$childId";
+      fullPath: "/family/$token/child/$childId";
+      preLoaderRoute: typeof FamilyTokenChildChildIdRouteImport;
+      parentRoute: typeof FamilyTokenRoute;
+    };
+    "/_authenticated/staff/admin/users": {
+      id: "/_authenticated/staff/admin/users";
+      path: "/users";
+      fullPath: "/staff/admin/users";
+      preLoaderRoute: typeof AuthenticatedStaffAdminUsersRouteImport;
+      parentRoute: typeof AuthenticatedStaffAdminRouteRoute;
+    };
+    "/family/drive/$driveId/form/review": {
+      id: "/family/drive/$driveId/form/review";
+      path: "/review";
+      fullPath: "/family/drive/$driveId/form/review";
+      preLoaderRoute: typeof FamilyDriveDriveIdFormReviewRouteImport;
+      parentRoute: typeof FamilyDriveDriveIdFormRoute;
+    };
+    "/family/drive/$driveId/form/gift-details": {
+      id: "/family/drive/$driveId/form/gift-details";
+      path: "/gift-details";
+      fullPath: "/family/drive/$driveId/form/gift-details";
+      preLoaderRoute: typeof FamilyDriveDriveIdFormGiftDetailsRouteImport;
+      parentRoute: typeof FamilyDriveDriveIdFormRoute;
+    };
+    "/family/drive/$driveId/form/general-info": {
+      id: "/family/drive/$driveId/form/general-info";
+      path: "/general-info";
+      fullPath: "/family/drive/$driveId/form/general-info";
+      preLoaderRoute: typeof FamilyDriveDriveIdFormGeneralInfoRouteImport;
+      parentRoute: typeof FamilyDriveDriveIdFormRoute;
+    };
+    "/family/drive/$driveId/form/consent": {
+      id: "/family/drive/$driveId/form/consent";
+      path: "/consent";
+      fullPath: "/family/drive/$driveId/form/consent";
+      preLoaderRoute: typeof FamilyDriveDriveIdFormConsentRouteImport;
+      parentRoute: typeof FamilyDriveDriveIdFormRoute;
+    };
+    "/family/drive/$driveId/form/children": {
+      id: "/family/drive/$driveId/form/children";
+      path: "/children";
+      fullPath: "/family/drive/$driveId/form/children";
+      preLoaderRoute: typeof FamilyDriveDriveIdFormChildrenRouteImport;
+      parentRoute: typeof FamilyDriveDriveIdFormRoute;
+    };
   }
 }
 
 interface AuthenticatedStaffAdminRouteRouteChildren {
-  AuthenticatedStaffAdminUsersRoute: typeof AuthenticatedStaffAdminUsersRoute
+  AuthenticatedStaffAdminUsersRoute: typeof AuthenticatedStaffAdminUsersRoute;
 }
 
 const AuthenticatedStaffAdminRouteRouteChildren: AuthenticatedStaffAdminRouteRouteChildren =
   {
     AuthenticatedStaffAdminUsersRoute: AuthenticatedStaffAdminUsersRoute,
-  }
+  };
 
 const AuthenticatedStaffAdminRouteRouteWithChildren =
   AuthenticatedStaffAdminRouteRoute._addFileChildren(
     AuthenticatedStaffAdminRouteRouteChildren,
-  )
+  );
 
 interface AuthenticatedStaffRouteRouteChildren {
-  AuthenticatedStaffAdminRouteRoute: typeof AuthenticatedStaffAdminRouteRouteWithChildren
-  AuthenticatedStaffVolunteerRouteRoute: typeof AuthenticatedStaffVolunteerRouteRoute
-  AuthenticatedStaffApprovedRoute: typeof AuthenticatedStaffApprovedRoute
-  AuthenticatedStaffHomeRoute: typeof AuthenticatedStaffHomeRoute
-  AuthenticatedStaffPendingRoute: typeof AuthenticatedStaffPendingRoute
-  AuthenticatedStaffProfileRoute: typeof AuthenticatedStaffProfileRoute
+  AuthenticatedStaffAdminRouteRoute: typeof AuthenticatedStaffAdminRouteRouteWithChildren;
+  AuthenticatedStaffVolunteerRouteRoute: typeof AuthenticatedStaffVolunteerRouteRoute;
+  AuthenticatedStaffApprovedRoute: typeof AuthenticatedStaffApprovedRoute;
+  AuthenticatedStaffHomeRoute: typeof AuthenticatedStaffHomeRoute;
+  AuthenticatedStaffPendingRoute: typeof AuthenticatedStaffPendingRoute;
+  AuthenticatedStaffProfileRoute: typeof AuthenticatedStaffProfileRoute;
 }
 
 const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren =
@@ -556,49 +556,49 @@ const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren
     AuthenticatedStaffHomeRoute: AuthenticatedStaffHomeRoute,
     AuthenticatedStaffPendingRoute: AuthenticatedStaffPendingRoute,
     AuthenticatedStaffProfileRoute: AuthenticatedStaffProfileRoute,
-  }
+  };
 
 const AuthenticatedStaffRouteRouteWithChildren =
   AuthenticatedStaffRouteRoute._addFileChildren(
     AuthenticatedStaffRouteRouteChildren,
-  )
+  );
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedDonorRouteRoute: typeof AuthenticatedDonorRouteRoute
-  AuthenticatedStaffRouteRoute: typeof AuthenticatedStaffRouteRouteWithChildren
-  AuthenticatedHelloRoute: typeof AuthenticatedHelloRoute
+  AuthenticatedDonorRouteRoute: typeof AuthenticatedDonorRouteRoute;
+  AuthenticatedStaffRouteRoute: typeof AuthenticatedStaffRouteRouteWithChildren;
+  AuthenticatedHelloRoute: typeof AuthenticatedHelloRoute;
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDonorRouteRoute: AuthenticatedDonorRouteRoute,
   AuthenticatedStaffRouteRoute: AuthenticatedStaffRouteRouteWithChildren,
   AuthenticatedHelloRoute: AuthenticatedHelloRoute,
-}
+};
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
-)
+);
 
 interface FamilyTokenRouteChildren {
-  FamilyTokenHomeRoute: typeof FamilyTokenHomeRoute
-  FamilyTokenChildChildIdRoute: typeof FamilyTokenChildChildIdRoute
+  FamilyTokenHomeRoute: typeof FamilyTokenHomeRoute;
+  FamilyTokenChildChildIdRoute: typeof FamilyTokenChildChildIdRoute;
 }
 
 const FamilyTokenRouteChildren: FamilyTokenRouteChildren = {
   FamilyTokenHomeRoute: FamilyTokenHomeRoute,
   FamilyTokenChildChildIdRoute: FamilyTokenChildChildIdRoute,
-}
+};
 
 const FamilyTokenRouteWithChildren = FamilyTokenRoute._addFileChildren(
   FamilyTokenRouteChildren,
-)
+);
 
 interface FamilyDriveDriveIdFormRouteChildren {
-  FamilyDriveDriveIdFormChildrenRoute: typeof FamilyDriveDriveIdFormChildrenRoute
-  FamilyDriveDriveIdFormConsentRoute: typeof FamilyDriveDriveIdFormConsentRoute
-  FamilyDriveDriveIdFormGeneralInfoRoute: typeof FamilyDriveDriveIdFormGeneralInfoRoute
-  FamilyDriveDriveIdFormGiftDetailsRoute: typeof FamilyDriveDriveIdFormGiftDetailsRoute
-  FamilyDriveDriveIdFormReviewRoute: typeof FamilyDriveDriveIdFormReviewRoute
+  FamilyDriveDriveIdFormChildrenRoute: typeof FamilyDriveDriveIdFormChildrenRoute;
+  FamilyDriveDriveIdFormConsentRoute: typeof FamilyDriveDriveIdFormConsentRoute;
+  FamilyDriveDriveIdFormGeneralInfoRoute: typeof FamilyDriveDriveIdFormGeneralInfoRoute;
+  FamilyDriveDriveIdFormGiftDetailsRoute: typeof FamilyDriveDriveIdFormGiftDetailsRoute;
+  FamilyDriveDriveIdFormReviewRoute: typeof FamilyDriveDriveIdFormReviewRoute;
 }
 
 const FamilyDriveDriveIdFormRouteChildren: FamilyDriveDriveIdFormRouteChildren =
@@ -610,23 +610,23 @@ const FamilyDriveDriveIdFormRouteChildren: FamilyDriveDriveIdFormRouteChildren =
     FamilyDriveDriveIdFormGiftDetailsRoute:
       FamilyDriveDriveIdFormGiftDetailsRoute,
     FamilyDriveDriveIdFormReviewRoute: FamilyDriveDriveIdFormReviewRoute,
-  }
+  };
 
 const FamilyDriveDriveIdFormRouteWithChildren =
   FamilyDriveDriveIdFormRoute._addFileChildren(
     FamilyDriveDriveIdFormRouteChildren,
-  )
+  );
 
 interface FamilyDriveDriveIdRouteChildren {
-  FamilyDriveDriveIdFormRoute: typeof FamilyDriveDriveIdFormRouteWithChildren
+  FamilyDriveDriveIdFormRoute: typeof FamilyDriveDriveIdFormRouteWithChildren;
 }
 
 const FamilyDriveDriveIdRouteChildren: FamilyDriveDriveIdRouteChildren = {
   FamilyDriveDriveIdFormRoute: FamilyDriveDriveIdFormRouteWithChildren,
-}
+};
 
 const FamilyDriveDriveIdRouteWithChildren =
-  FamilyDriveDriveIdRoute._addFileChildren(FamilyDriveDriveIdRouteChildren)
+  FamilyDriveDriveIdRoute._addFileChildren(FamilyDriveDriveIdRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -636,17 +636,17 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   FamilyTokenRoute: FamilyTokenRouteWithChildren,
   FamilyDriveDriveIdRoute: FamilyDriveDriveIdRouteWithChildren,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
+import type { getRouter } from "./router.tsx";
+import type { startInstance } from "./start.ts";
+declare module "@tanstack/react-start" {
   interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+    ssr: true;
+    router: Awaited<ReturnType<typeof getRouter>>;
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>;
   }
 }

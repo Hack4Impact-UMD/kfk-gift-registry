@@ -14,7 +14,13 @@ export type ChildCategory = "warrior" | "super_sib";
  *- Sibling of child diagnosed with cancer (in or off treatment)
  *- Bereaved sibling
  */
-export type ChildStatus = "recently_diagnosed_relapse" | "diagnosed_in_treatment_1yr+" | "recently_off_treatment" | "off_treatment_1yr+" | "sibling_in_treatment" | "bereaved_sibling";
+export type ChildStatus =
+  | "recently_diagnosed_relapse"
+  | "diagnosed_in_treatment_1yr+"
+  | "recently_off_treatment"
+  | "off_treatment_1yr+"
+  | "sibling_in_treatment"
+  | "bereaved_sibling";
 
 export interface Child {
   id: string;

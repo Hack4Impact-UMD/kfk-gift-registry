@@ -14,7 +14,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch"
+    "build:watch": "tsc --watch",
+    "typecheck": "tsc --noEmit -p ."
   },
   "devDependencies": {
     "typescript": "^5.7.2"

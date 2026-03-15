@@ -3,7 +3,6 @@ import { getCookies, setCookie } from "@tanstack/react-start/server";
 import z from "zod";
 import { Duration } from "luxon";
 import { UserRole } from "common";
-import { i } from "node_modules/vite/dist/node/chunks/moduleRunnerTransport";
 import { authMiddleware } from "./middleware/authMiddleware";
 import type { UserRecord } from "firebase-admin/auth";
 import { getServerAuth, getServerDB } from "@/lib/firebase.server";

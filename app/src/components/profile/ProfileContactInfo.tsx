@@ -11,7 +11,7 @@ interface ContactInfoSectionProps {
 }
 
 export function ContactInfoSection({ user, phone }: ContactInfoSectionProps) {
-  const [contactData, setContactData] = useState({
+  const [contactData] = useState({
     email: user.email || "",
     phone: phone ?? "",
   });

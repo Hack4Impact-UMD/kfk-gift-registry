@@ -14,11 +14,9 @@ const tokenInputSchema = z.object({
   token: z.string().min(1),
 });
 
-type FamilyInput = z.infer<typeof familyInputSchema>;
-
 export const createFamily = createServerFn({ method: "POST" })
   .inputValidator(familyInputSchema)
-  .handler(async ({ data }) => {
+  .handler(async () => {
     // TODO: implement
   });
 
