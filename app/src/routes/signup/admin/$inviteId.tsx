@@ -1,10 +1,13 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid'
 import KFKLogo from "@/assets/kfk-logo.png";
 import Ladybug from "@/assets/ladybug-signup.png";
 import { Input } from "@/components/ui/input";
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
+
+import "@/styles.css"
 
 export const Route = createFileRoute("/signup/admin/$inviteId")({
   loader: async ({ params }) => {
@@ -62,6 +65,7 @@ function RouteComponent() {
 
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [passwordCriterias, setPasswordCriterias] = React.useState<Array<boolean>>([false, false, false, false, false])
 
   const form = useForm({
     defaultValues: {
@@ -75,6 +79,10 @@ function RouteComponent() {
       console.log("Subbmited Data: ", value);
     }
   })
+
+  const isPasswordPristine = useStore(form.store, (state) => 
+    state.fieldMeta['password']?.isPristine
+  )
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-muted/30 p-6 overflow-hidden">
@@ -179,13 +187,30 @@ function RouteComponent() {
                 name="password"
                 validators={{
                   onChange: ({ value }) => {
-                    if (!value || value  === "") return "This field is required";
-                    if (value.length < 8) return "Must be at least 8 characters";
-                    if (!/[A-Z]/.test(value)) return "Missing an uppercase letter";
-                    if (!/[a-z]/.test(value)) return "Missing a lowercase letter";
-                    if (!/\d/.test(value)) return "Missing a number";
-                    if (!/[@$!%*?&]/.test(value)) return "Missing a special character";
-                    return undefined;
+                    const newCriterias: Array<boolean> = [false, false, false, false, false]
+                    if (!value || value  === "") {
+                      setPasswordCriterias(newCriterias);
+                      return "This field is required";
+                    }
+
+                    if (value.length < 8) newCriterias[0] = false;
+                    else newCriterias[0] = true;
+
+                    if (!/[A-Z]/.test(value)) newCriterias[1] = false;
+                    else newCriterias[1] = true;
+
+                    if (!/[a-z]/.test(value)) newCriterias[2] = false;
+                    else newCriterias[2] = true;
+
+                    if (!/\d/.test(value)) newCriterias[3] = false;
+                    else newCriterias[3] = true;
+
+                    if (!/[@$!%*?&]/.test(value)) newCriterias[4] = false;
+                    else newCriterias[4] = true;
+
+                    setPasswordCriterias(newCriterias);
+
+                    return newCriterias.every(val => val === true) ? undefined : "Password does not meet the requirements";
                   }  
                 }}
                 children={(field) => (
@@ -219,6 +244,21 @@ function RouteComponent() {
                   />
                 )}
               />
+            </div>
+
+            <div>
+              <ul className={`flex flex-col gap-3 text-sm ml-4 mt-2 ${isPasswordPristine ? "[&_li]:!text-gray-800" : ""}`}>
+                <li className={`flex gap-1 ${!passwordCriterias[0] ? "text-[var(--color-kfk-red)]" : ""}`}>
+                  {passwordCriterias[0] ? <CheckCircleIcon className="size-5 m-0 text-[var(--color-kfk-green)]"/> : <XCircleIcon className="size-5 m-0"/>}Password contains at least 8 characters</li>
+                <li className={`flex gap-1 ${!passwordCriterias[1] ? "text-[var(--color-kfk-red)]" : ""}`}>
+                  {passwordCriterias[1] ? <CheckCircleIcon className="size-5 m-0 text-[var(--color-kfk-green)]"/> : <XCircleIcon className="size-5 m-0"/>}Password contains at least 1 uppercase character</li>
+                <li className={`flex gap-1 ${!passwordCriterias[2] ? "text-[var(--color-kfk-red)]" : ""}`}>
+                  {passwordCriterias[2] ? <CheckCircleIcon className="size-5 m-0 text-[var(--color-kfk-green)]"/> : <XCircleIcon className="size-5 m-0"/>}Password contains at least 1 lowercase character</li>
+                <li className={`flex gap-1 ${!passwordCriterias[3] ? "text-[var(--color-kfk-red)]" : ""}`}>
+                  {passwordCriterias[3] ? <CheckCircleIcon className="size-5 m-0 text-[var(--color-kfk-green)]"/> : <XCircleIcon className="size-5 m-0"/>}Password contains at least 1 number</li>
+                <li className={`flex gap-1 ${!passwordCriterias[4] ? "text-[var(--color-kfk-red)]" : ""}`}>
+                  {passwordCriterias[4] ? <CheckCircleIcon className="size-5 m-0 text-[var(--color-kfk-green)]"/> : <XCircleIcon className="size-5 m-0"/>}Password contains at least 1 special character</li>
+              </ul>
             </div>
 
             <div className="flex justify-center">
