@@ -130,57 +130,25 @@ const photoUrlSchema = z
   .optional();
 
 export const childInfoSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Child's name is required")
-    .max(100, "Name is too long"),
+  name: z.string().min(1, "Child's name is required").max(100, "Name is too long"),
   age: z.string().min(1, "Age is required"),
-  diagnosis: z
-    .string()
-    .min(1, "Diagnosis is required")
-    .max(200, "Diagnosis is too long"),
-  hospitalTreatedAt: z
-    .string()
-    .min(1, "Hospital name is required")
-    .max(200, "Hospital name is too long"),
-  socialWorkerName: z
-    .string()
-    .min(1, "Social worker name is required")
-    .max(100, "Name is too long"),
+  status: z.string().min(1, "Please select an option"),
+  isSibling: z.boolean(),
+  // Not required for siblings
+  diagnosis: z.string().max(200, "Diagnosis is too long").optional().or(z.literal("")),
+  hospitalTreatedAt: z.string().max(200, "Hospital name is too long").optional().or(z.literal("")),
+  socialWorkerName: z.string().max(100, "Name is too long").optional().or(z.literal("")),
+  treatmentLength: z.string().optional().or(z.literal("")),
   photoUrl: photoUrlSchema,
+  blurb: z.string().max(500, "Blurb is too long").optional().or(z.literal("")),
 });
 
-export const siblingInfoSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Sibling's name is required")
-    .max(100, "Name is too long"),
-  age: z.string().min(1, "Age is required"),
-  photoUrl: photoUrlSchema,
+export const childrenFormSchema = z.object({
+  numChildren: z.coerce.number().min(1).max(10),
+  children: z.array(childInfoSchema).min(1, "At least one child is required"),
+  additionalNotes: z.string().optional().or(z.literal("")),
+  consentPhotosPublic: z.boolean(),
 });
-
-export const childrenFormSchema = z
-  .object({
-    hasMultipleChildren: z.boolean(),
-    children: z.array(childInfoSchema).min(1, "At least one child is required"),
-    // coerce handles the string values that come from FormSelect ("2", "3", "4")
-    numChildren: z.coerce.number().min(1).max(4),
-    hasSiblings: z.boolean(),
-    // coerce handles the string values that come from FormSelect ("1", "2", ...)
-    numSiblings: z.coerce.number().min(0).max(10),
-    siblings: z.array(siblingInfoSchema),
-    consentPhotosPublic: z.boolean(),
-  })
-  .refine(
-    (data) => {
-      const expected = data.hasMultipleChildren ? data.numChildren : 1;
-      return data.children.length === expected;
-    },
-    {
-      message: "Number of children filled must match selected count",
-      path: ["children"],
-    },
-  );
 
 const giftSchema = z
   .object({

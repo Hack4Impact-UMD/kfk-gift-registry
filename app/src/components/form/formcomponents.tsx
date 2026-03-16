@@ -58,7 +58,7 @@ export function FormInput({
         value={field.state.value}
         onBlur={field.handleBlur}
         onChange={(e) => field.handleChange(e.target.value)}
-        className={`text-base h-11 ${errorMessage ? "border-red-500" : ""}`}
+        className={`truncate text-base h-11 ${errorMessage ? "border-red-500" : ""}`}
       />
       {errorMessage && (
         <span className="text-sm text-red-500">{errorMessage}</span>
@@ -177,13 +177,13 @@ export const FormSelect = ({
         }}
       >
         <SelectTrigger
-          className={`py-6 w-full rounded-xl border-1 ${
+          className={`truncate py-6 w-full rounded-xl border-1 ${
             errorMessage
               ? "border-red-500 [&>span]:text-red-500"
               : "border-slate-700"
           } focus:ring-0 data-[placeholder]:text-slate-400 font-medium`}
         >
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={placeholder} className="truncate" />
         </SelectTrigger>
         <SelectContent>
           {values.map((value) => (
@@ -263,7 +263,7 @@ export const FormFieldInput = ({
           onChange={(e) => field.handleChange(e.target.value)}
           onBlur={field.handleBlur}
           disabled={disabled}
-          className={`h-14 pl-12 ${
+          className={`truncate h-14 pl-12 ${
             errorMessage ? "pr-12" : "pr-4"
           } rounded-xl border-1 ${
             errorMessage

@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import type {
   ChildInfo,
   FamilyFormState,
-  SiblingInfo,
 } from "@/components/providers/FormProvider";
 import { useFormContext } from "@/components/providers/FormProvider";
 import {
@@ -20,12 +19,10 @@ const defaultChild = (): ChildInfo => ({
   hospitalTreatedAt: "",
   socialWorkerName: "",
   photoUrl: "",
-});
-
-const defaultSibling = (): SiblingInfo => ({
-  name: "",
-  age: "",
-  photoUrl: "",
+  status: "",
+  treatmentLength: "",
+  blurb: "",
+  isSibling: false,
 });
 
 export function useProgressBarNavigation<
@@ -124,12 +121,9 @@ export function useChildrenForm() {
 
   const form = useForm({
     defaultValues: formState.children || {
-      hasMultipleChildren: false,
       numChildren: 1,
       children: [defaultChild()],
-      hasSiblings: false,
-      numSiblings: 0,
-      siblings: [],
+      additionalNotes: "",
       consentPhotosPublic: false,
     },
   });
@@ -148,52 +142,40 @@ export function useChildrenForm() {
     }
   }, [form, form.state.values.numChildren]);
 
-  useEffect(() => {
-    const numSiblings = Number(form.state.values.numSiblings);
-    const siblings = form.state.values.siblings;
-    if (siblings.length > numSiblings) {
-      form.setFieldValue("siblings", siblings.slice(0, numSiblings));
-    } else if (siblings.length < numSiblings) {
-      const toAdd = numSiblings - siblings.length;
-      form.setFieldValue("siblings", [
-        ...siblings,
-        ...Array.from({ length: toAdd }, defaultSibling),
-      ]);
-    }
-  }, [form, form.state.values.numSiblings]);
-
   const handleNext = async () => {
     const values = form.state.values;
-
-    // Coerce counts to numbers — FormSelect stores strings ("2", "3", …).
     const numChildren = Number(values.numChildren);
-    const numSiblings = Number(values.numSiblings);
 
-    const expectedChildCount = values.hasMultipleChildren ? numChildren : 1;
-    const normalizedChildren = values.children.slice(0, expectedChildCount);
-    const normalizedSiblings = values.hasSiblings
-      ? values.siblings.slice(0, numSiblings)
-      : [];
+    const normalizedChildren = values.children.slice(0, numChildren).map((child: any) => {
+      const isSibling =
+        child.status === "Sibling of child diagnosed with cancer (in or off treatment)" ||
+        child.status === "Bereaved sibling";
+
+      const requiresTreatmentLength =
+        child.status === "Recently off treatment (within 1 year)" ||
+        child.status === "Off treatment (more than 1 year)";
+
+      return {
+        ...child,
+        isSibling,
+        treatmentLength: requiresTreatmentLength ? child.treatmentLength : "N/A",
+      };
+    });
 
     const normalized = {
       ...values,
       numChildren,
-      numSiblings,
       children: normalizedChildren,
-      siblings: normalizedSiblings,
     };
 
     const result = childrenFormSchema.safeParse(normalized);
     if (result.success) {
-      updateSection("children", result.data);
+      updateSection("children", result.data as any);
       navigate({
         to: "/family/drive/$driveId/form/gift-details",
-        params: {
-          driveId,
-        },
+        params: { driveId },
       });
     } else {
-      // Touch all rendered fields so inline error messages appear
       await form.validateAllFields("submit");
     }
   };

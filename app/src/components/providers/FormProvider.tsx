@@ -26,21 +26,16 @@ export type ChildInfo = {
   hospitalTreatedAt: string;
   socialWorkerName: string;
   photoUrl?: string;
-};
-
-export type SiblingInfo = {
-  name: string;
-  age: string;
-  photoUrl?: string;
+  status: string;
+  treatmentLength: string;
+  blurb?: string;
+  isSibling: boolean;
 };
 
 export type ChildrenFormData = {
-  hasMultipleChildren: boolean;
   numChildren: number;
   children: Array<ChildInfo>;
-  hasSiblings: boolean;
-  numSiblings: number;
-  siblings: Array<SiblingInfo>;
+  additionalNotes?: string;
   consentPhotosPublic: boolean;
 };
 

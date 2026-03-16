@@ -39,14 +39,7 @@ type GiftSelection = {
 function GiftsStep() {
   const { updateSection, formState } = useFormContext();
   const navigate = useNavigate();
-  const children = formState.children?.children || [];
-  const siblings = formState.children?.hasSiblings
-    ? formState.children.siblings
-    : [];
-  const childrenNameList = [
-    ...children.map((c) => c.name),
-    ...siblings.map((s) => s.name),
-  ];
+  const childrenNameList = (formState.children?.children || []).map((c) => c.name);
   const { driveId } = Route.useParams();
 
   // -1: "Dashboard".

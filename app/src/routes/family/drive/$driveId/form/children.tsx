@@ -87,62 +87,6 @@ function ChildrenPageComponent() {
         className="flex flex-col gap-10"
       >
         <CardContent className="space-y-6">
-          {/* Multiple Children Question */}
-          {/* <div>
-            <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
-              <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">
-                Child Details
-              </h2>
-            </div>
-            <p className="text-sm font-medium mb-3">
-              How many children are you applying for?
-            </p>
-            <form.Field
-              name="hasMultipleChildren"
-              children={(field) => (
-                <div className="space-y-2">
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="hasMultipleChildren"
-                      checked={field.state.value === false}
-                      onChange={() => {
-                        form.setFieldValue("hasMultipleChildren", false);
-                        form.setFieldValue("numChildren", 1);
-                        form.setFieldValue("children", [
-                          {
-                            name: "",
-                            age: "",
-                            diagnosis: "",
-                            hospitalTreatedAt: "",
-                            socialWorkerName: "",
-                            photoUrl: "",
-                          },
-                        ]);
-                      }}
-                      className="mt-0.5"
-                    />
-                    <span className="text-sm">
-                      No, only one child has been diagnosed with cancer.
-                    </span>
-                  </label>
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="hasMultipleChildren"
-                      checked={field.state.value === true}
-                      onChange={() => field.handleChange(true)}
-                      className="mt-0.5"
-                    />
-                    <span className="text-sm">
-                      Yes, more than one child has been diagnosed with cancer.
-                    </span>
-                  </label>
-                </div>
-              )}
-            />
-          </div> */}
-
           <div>
             <div className="border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
               <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">
@@ -163,7 +107,7 @@ function ChildrenPageComponent() {
               children={(field) => (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    How many children are you applying for?
+                    How many children from your family are participating in the gift drive?
                     <span className="text-destructive"> *</span>
                   </label>
                   <div className="relative py-2">
@@ -174,11 +118,25 @@ function ChildrenPageComponent() {
                       max={10}
                       placeholder="e.g. 2"
                       value={field.state.value || ""}
-                      onChange={(e) =>
-                        field.handleChange(Number(e.target.value))
-                      }
+                      onChange={(e) => {
+                        const num = Number(e.target.value);
+                        field.handleChange(num);
+                        const current = form.state.values.children || [];
+                        const newChildren = Array.from({ length: num }, (_, i) => current[i] ?? {
+                          name: "",
+                          age: "",
+                          diagnosis: "",
+                          hospitalTreatedAt: "",
+                          socialWorkerName: "",
+                          photoUrl: "",
+                          status: "",
+                          treatmentLength: "",
+                          blurb: "",
+                        });
+                        form.setFieldValue("children", newChildren as any);
+                      }}
                       onBlur={field.handleBlur}
-                      className="w-32 h-11 pl-12 pr-4 rounded-xl border border-slate-700 text-sm focus:outline-none focus:border-[var(--color-kfk-blue)]"
+                      className="w-32 h-11 pl-12 pr-4 rounded-xl border border-slate-700 text-sm focus:outline-none focus:border-[var(--color-kfk-blue)] truncate"
                     />
                   </div>
                   {field.state.meta.isTouched &&
@@ -227,13 +185,15 @@ function ChildrenPageComponent() {
                                 your child.
                                 <span className="text-destructive"> *</span>
                               </label>
-                              <FormSelect
-                                field={field}
-                                label="Select"
-                                placeholder="Select"
-                                values={CHILD_STATUS_OPTIONS}
-                                required
-                              />
+                              <div className="-mt-2 w-full [&>div]:max-w-full [&>div]:w-full">
+                                <FormSelect
+                                  field={field}
+                                  label="Select"
+                                  placeholder="Select"
+                                  values={CHILD_STATUS_OPTIONS}
+                                  required
+                                />
+                              </div>
                             </div>
                           )}
                         />
@@ -242,7 +202,7 @@ function ChildrenPageComponent() {
                         <form.Field
                           name={`children[${index}].name` as any}
                           validators={{
-                            onChange: ({ value }) => {
+                            onChange: ({ value }: { value: string }) => {
                               if (!value) return "Child's name is required";
                               if (value.length > 100) return "Name is too long";
                               return undefined;
@@ -289,95 +249,114 @@ function ChildrenPageComponent() {
                           )}
                         />
 
-                        {/* Diagnosis */}
-                        <form.Field
-                          name={`children[${index}].diagnosis` as any}
-                          validators={{
-                            onChange: ({ value }) => {
-                              if (!value) return "Diagnosis is required";
-                              if (value.length > 200)
-                                return "Diagnosis is too long";
-                              return undefined;
-                            },
-                          }}
-                          children={(field) => (
-                            <FormFieldInput
-                              field={field}
-                              label="Diagnosis"
-                              placeholder="e.g. Leukemia"
-                              required
-                              Icon={Stethoscope}
-                            />
-                          )}
-                        />
+                        {/* Diagnosis, Treatment, Hospital, Social Worker - hidden for siblings */}
+                        <form.Subscribe
+                          selector={(state) => (state.values.children as any)[index]?.status}
+                          children={(status) => {
+                            const isSibling =
+                              status === "Sibling of child diagnosed with cancer (in or off treatment)" ||
+                              status === "Bereaved sibling";
 
-                        {/* Length of Treatment */}
-                        <form.Field
-                          name={`children[${index}].treatmentLength` as any}
-                          validators={{
-                            onChange: ({ value }) => {
-                              if (!value)
-                                return "Please select treatment length";
-                              return undefined;
-                            },
-                          }}
-                          children={(field) => (
-                            <div className="space-y-1">
-                              <label className="text-sm font-medium">
-                                How long has your child been off of treatment?
-                                <span className="text-destructive"> *</span>
-                              </label>
-                              <FormSelect
-                                field={field}
-                                label="Select"
-                                placeholder="Select"
-                                values={TREATMENT_LENGTH_OPTIONS}
-                                required
-                              />
-                            </div>
-                          )}
-                        />
+                            if (isSibling) return null;
 
-                        <form.Field
-                          name={`children[${index}].hospitalTreatedAt` as any}
-                          validators={{
-                            onChange: ({ value }) => {
-                              if (!value) return "Hospital name is required";
-                              if (value.length > 200)
-                                return "Hospital name is too long";
-                              return undefined;
-                            },
-                          }}
-                          children={(field) => (
-                            <FormFieldInput
-                              field={field}
-                              label="Hospital Treated At"
-                              placeholder="e.g. Johns Hopkins"
-                              required
-                              Icon={Building2}
-                            />
-                          )}
-                        />
+                            return (
+                              <div className="space-y-4">
+                                {/* Diagnosis */}
+                                <form.Field
+                                  name={`children[${index}].diagnosis` as any}
+                                  validators={{
+                                    onChange: ({ value }: { value: string }) => {
+                                      if (!value) return "Diagnosis is required";
+                                      if (value.length > 200) return "Diagnosis is too long";
+                                      return undefined;
+                                    },
+                                  }}
+                                  children={(field) => (
+                                    <FormFieldInput
+                                      field={field}
+                                      label="Diagnosis"
+                                      placeholder="e.g. Leukemia"
+                                      required
+                                      Icon={Stethoscope}
+                                    />
+                                  )}
+                                />
 
-                        <form.Field
-                          name={`children[${index}].socialWorkerName` as any}
-                          validators={{
-                            onChange: ({ value }) => {
-                              if (!value)
-                                return "Social worker name is required";
-                              if (value.length > 100) return "Name is too long";
-                              return undefined;
-                            },
+                                {/* Length of Treatment */}
+                                {(status === "Recently off treatment (within 1 year)" ||
+                                  status === "Off treatment (more than 1 year)") && (
+                                  <form.Field
+                                    name={`children[${index}].treatmentLength` as any}
+                                    validators={{
+                                      onChange: ({ value }) => {
+                                        if (!value) return "Please select treatment length";
+                                        return undefined;
+                                      },
+                                    }}
+                                    children={(field) => (
+                                      <div className="space-y-1">
+                                        <label className="text-sm font-medium">
+                                          How long has your child been off of treatment?
+                                          <span className="text-destructive"> *</span>
+                                        </label>
+                                        <div className="-mt-2">
+                                          <FormSelect
+                                            field={field}
+                                            label="Select"
+                                            placeholder="Select"
+                                            values={TREATMENT_LENGTH_OPTIONS}
+                                            required
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+                                  />
+                                )}
+
+                                {/* Hospital */}
+                                <form.Field
+                                  name={`children[${index}].hospitalTreatedAt` as any}
+                                  validators={{
+                                    onChange: ({ value }: { value: string }) => {
+                                      if (!value) return "Hospital name is required";
+                                      if (value.length > 200) return "Hospital name is too long";
+                                      return undefined;
+                                    },
+                                  }}
+                                  children={(field) => (
+                                    <FormFieldInput
+                                      field={field}
+                                      label="Hospital Treated At"
+                                      placeholder="e.g. Johns Hopkins"
+                                      required
+                                      Icon={Building2}
+                                    />
+                                  )}
+                                />
+
+                                {/* Social Worker */}
+                                <form.Field
+                                  name={`children[${index}].socialWorkerName` as any}
+                                  validators={{
+                                    onChange: ({ value }: { value: string }) => {
+                                      if (!value) return "Social worker name is required";
+                                      if (value.length > 100) return "Name is too long";
+                                      return undefined;
+                                    },
+                                  }}
+                                  children={(field) => (
+                                    <FormFieldInput
+                                      field={field}
+                                      label="Social Worker Name"
+                                      placeholder="e.g. Sarah Smith"
+                                      required
+                                      Icon={UserCog}
+                                    />
+                                  )}
+                                />
+                              </div>
+                            );
                           }}
-                          children={(field) => (
-                            <FormFieldInput
-                              field={field}
-                              label="Social Worker Name"
-                              placeholder="e.g. Sarah Smith"
-                              required
-                              Icon={UserCog}
-                            />
-                          )}
                         />
 
                         {/* Child Photo + Note */}
@@ -416,7 +395,7 @@ function ChildrenPageComponent() {
                         <form.Field
                           name={`children[${index}].blurb` as any}
                           validators={{
-                            onChange: ({ value }) => {
+                            onChange: ({ value }: { value: string }) => {
                               if (!value) return undefined;
                               const wordCount = value
                                 .trim()
@@ -429,7 +408,7 @@ function ChildrenPageComponent() {
                           }}
                           children={(field) => {
                             const wordCount = field.state.value
-                              ? field.state.value
+                              ? (field.state.value as string)
                                   .trim()
                                   .split(/\s+/)
                                   .filter(Boolean).length
@@ -475,7 +454,7 @@ function ChildrenPageComponent() {
           <form.Field
             name={"additionalNotes" as any}
             validators={{
-              onChange: ({ value }) => {
+              onChange: ({ value }: { value: string }) => {
                 if (!value) return undefined;
                 const wordCount = value
                   .trim()
@@ -488,7 +467,7 @@ function ChildrenPageComponent() {
             }}
             children={(field) => {
               const wordCount = field.state.value
-                ? field.state.value
+                ? (field.state.value as string)
                     .trim()
                     .split(/\s+/)
                     .filter(Boolean).length
