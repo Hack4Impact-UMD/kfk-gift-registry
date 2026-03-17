@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid'
+import { CheckCircleIcon, EyeIcon, EyeSlashIcon, InboxIcon, KeyIcon, PhoneIcon, UserIcon, XCircleIcon } from '@heroicons/react/24/solid'
 import KFKLogo from "@/assets/kfk-logo.png";
 import Ladybug from "@/assets/ladybug-signup.png";
 import { Input } from "@/components/ui/input";
@@ -30,29 +30,52 @@ type InviteFieldProps = {
   field: any,
   placeholder: string,
   disabled?: boolean,
+  startIcon: React.ReactNode;
 };
 
 function InviteFieldInput({
   type,
   field,
   placeholder,
-  disabled
+  disabled,
+  startIcon
 }: InviteFieldProps) {
+  const [showPassword, setShowPassword] = React.useState(false);
   const errorMessage = field.state.meta.isTouched && field.state.meta.errors?.[0];
   
+  const isPassword = type === "password";
+  const inputType = isPassword && showPassword ? "text" : type;
   return (
     <>
-      <Input
-        type={type}
-        name={field.name}
-        id={field.id}
-        value={field.state.value}
-        placeholder={placeholder}
-        className={`w-full border border-muted-foreground rounded-md px-3 py-2 mt-1 
-          ${errorMessage ? "border-red-500 bg-[#FFF0F0] placeholder:text-red-500 text-red-500" : ""}`}
-        onChange={(e) => field.handleChange(e.target.value)}
-        disabled={disabled}
-      />
+      <div className="relative w-full">
+        <div className={`absolute left-2 top-1/2 -translate-y-1/2 mt-0.5 ${errorMessage ? "text-red-500" : "text-foreground"}`}>
+          {startIcon}
+        </div>
+
+        <Input
+          type={inputType}
+          name={field.name}
+          id={field.id}
+          value={field.state.value}
+          placeholder={placeholder}
+          className={`w-full border border-muted-foreground rounded-md px-3 pl-8 py-2 mt-1 
+            ${errorMessage ? "border-red-500 bg-[#FFF0F0] placeholder:text-red-500 text-red-500" : ""}`}
+          onChange={(e) => field.handleChange(e.target.value)}
+          disabled={disabled}
+        />
+
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 mt-0.5 text-muted-foreground hover:text-foreground"
+            
+          >
+            {showPassword ? <EyeSlashIcon className="size-5" /> : <EyeIcon className="size-5" />}
+          </button>
+        )}
+
+      </div>
       {errorMessage && (
         <span className="text-xs text-red-500 mt-1 -mb-2 block pl-1">{errorMessage}</span>
       )}
@@ -134,6 +157,7 @@ function RouteComponent() {
                   <InviteFieldInput
                     field={field}
                     placeholder="e.g. Jane Doe"
+                    startIcon={<UserIcon className="size-5"/>}
                   />
                 )}
               />
@@ -157,6 +181,7 @@ function RouteComponent() {
                   <InviteFieldInput
                     field={field}
                     placeholder="e.g. (555)-555-5555"
+                    startIcon={<PhoneIcon className="size-5"/>}
                   />
                 )}
               />
@@ -169,11 +194,17 @@ function RouteComponent() {
               <form.Field
                 name="email"
                 children={(field) => (
-                  <Input
-                    value={invite.email}
-                    disabled
-                    className="w-full border border-muted-foreground rounded-md px-3 py-2 mt-1 bg-gray-100 text-muted-foreground"
-                  />
+                  <div className="relative w-full">
+                    <div className="absolute left-2 top-1/2 -translate-y-1/2 mt-0.5 text-foreground">
+                      <InboxIcon className="size-5"/>
+                    </div>
+
+                    <Input
+                      value={invite.email}
+                      className="w-full border border-muted-foreground rounded-md px-3 pl-8 py-2 mt-1 bg-gray-100 text-muted-foreground"
+                      disabled
+                    />
+                  </div>
                 )}
                 
               />
@@ -218,7 +249,8 @@ function RouteComponent() {
                     type="password"
                     field={field}
                     placeholder="e.g. ••••••••••••••••••••••••••"
-                  />
+                    startIcon={<KeyIcon className="size-5"/>}
+                  ></InviteFieldInput>
                 )}
               />
             </div>
@@ -241,6 +273,7 @@ function RouteComponent() {
                     type="password"
                     field={field}
                     placeholder="e.g. ••••••••••••••••••••••••••"
+                    startIcon={<KeyIcon className="size-5"/>}
                   />
                 )}
               />
