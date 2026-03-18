@@ -120,7 +120,6 @@ export function useGeneralInfoForm() {
       }
     },
     onSubmit: ({ value }) => {
-      console.log(value);
       const result = generalInfoSchema.safeParse(value);
       if (!result.success) {
         console.error("Validation failed:", result.error);

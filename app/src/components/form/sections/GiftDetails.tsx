@@ -17,30 +17,31 @@ export function GiftDetailsForm({
   return (
     <div className="flex flex-col gap-7">
       <div className="flex flex-col gap-7">
-        {[0, 1, 2].map((i) => (
+        {([0, 1, 2] as const).map((i) => (
           <div key={i}>
-            <CardDescription className="text-md text-[var(--color-kfk-blue)] -mb-2">
+            <CardDescription className="text-md text-kfk-blue -mb-2">
               Gift #{i + 1}
             </CardDescription>
             <form.AppField
-              name={`giftSelections[${childIndex}].gifts[${i}].giftUrl` as any}
+              name={`giftSelections[${childIndex}].gifts[${i}].giftUrl`}
               validators={
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        if (!value) return "URL is required";
-                        try {
-                          const url = new URL(value);
-                          if (!["http:", "https:"].includes(url.protocol)) {
-                            return "URL must start with http or https";
-                          }
-                          return undefined;
-                        } catch {
-                          return "Please enter a valid URL";
+                    onChange: ({ value }) => {
+                      if (i !== 0 && !value) return undefined;
+                      if (!value) return "URL is required";
+                      try {
+                        const url = new URL(value);
+                        if (!["http:", "https:"].includes(url.protocol)) {
+                          return "URL must start with http or https";
                         }
-                      },
-                    }
+                        return undefined;
+                      } catch {
+                        return "Please enter a valid URL";
+                      }
+                    },
+                  }
               }
             >
               {(field) => (
@@ -54,18 +55,18 @@ export function GiftDetailsForm({
               )}
             </form.AppField>
             <form.AppField
-              name={`giftSelections[${childIndex}].gifts[${i}].giftName` as any}
+              name={`giftSelections[${childIndex}].gifts[${i}].giftName`}
               validators={
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        const str = value as string;
-                        if (!str) return "Gift name is required";
-                        if (str.length > 100) return "Gift name is too long";
-                        return undefined;
-                      },
-                    }
+                    onChange: ({ value }) => {
+                      if (i !== 0 && !value) return undefined;
+                      if (!value) return "Gift name is required";
+                      if (value.length > 100) return "Gift name is too long";
+                      return undefined;
+                    },
+                  }
               }
             >
               {(field) => (
@@ -83,32 +84,32 @@ export function GiftDetailsForm({
       </div>
 
       <div className="flex flex-col gap-7">
-        {[0, 1].map((i) => (
+        {([0, 1] as const).map((i) => (
           <div key={i}>
             <CardDescription className="text-md text-[var(--color-kfk-blue)] -mb-2">
               Backup Gift #{i + 1}
             </CardDescription>
             <form.AppField
               name={
-                `giftSelections[${childIndex}].backupGifts[${i}].giftUrl` as any
+                `giftSelections[${childIndex}].backupGifts[${i}].giftUrl`
               }
               validators={
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        if (!value) return "URL is required";
-                        try {
-                          const url = new URL(value);
-                          if (!["http:", "https:"].includes(url.protocol)) {
-                            return "URL must start with http or https";
-                          }
-                          return undefined;
-                        } catch {
-                          return "Please enter a valid URL";
+                    onChange: ({ value }) => {
+                      if (!value) return "URL is required";
+                      try {
+                        const url = new URL(value);
+                        if (!["http:", "https:"].includes(url.protocol)) {
+                          return "URL must start with http or https";
                         }
-                      },
-                    }
+                        return undefined;
+                      } catch {
+                        return "Please enter a valid URL";
+                      }
+                    },
+                  }
               }
             >
               {(field) => (
@@ -123,19 +124,19 @@ export function GiftDetailsForm({
             </form.AppField>
             <form.AppField
               name={
-                `giftSelections[${childIndex}].backupGifts[${i}].giftName` as any
+                `giftSelections[${childIndex}].backupGifts[${i}].giftName`
               }
               validators={
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        const str = value as string;
-                        if (!str) return "Gift name is required";
-                        if (str.length > 100) return "Gift name is too long";
-                        return undefined;
-                      },
-                    }
+                    onChange: ({ value }) => {
+                      const str = value;
+                      if (!str) return "Gift name is required";
+                      if (str.length > 100) return "Gift name is too long";
+                      return undefined;
+                    },
+                  }
               }
             >
               {(field) => (
@@ -153,7 +154,7 @@ export function GiftDetailsForm({
       </div>
 
       <form.AppField
-        name={`giftSelections[${childIndex}].verified` as any}
+        name={`giftSelections[${childIndex}].verified`}
       >
         {(field) => (
           <field.FormCheckbox disabled={disabled}>

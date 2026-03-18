@@ -126,10 +126,11 @@ export function GeneralInfoForm({ form, disabled = false }: GeneralInfoFormProps
           validators={{
             onChangeListenTo: ["phoneNumber"],
             onChange: ({ value, fieldApi }) => {
-              if (!value || value === "") return undefined;
+              const phoneNumber = fieldApi.form.getFieldValue("phoneNumber");
+              if (!phoneNumber && !value) return undefined;
+              if (!value) return "Please confirm your phone number";
               if (!/^[\d\s\-()]+$/.test(value))
                 return "Please enter a valid phone number";
-              const phoneNumber = fieldApi.form.getFieldValue("phoneNumber");
               if (value !== phoneNumber) return "Phone numbers do not match";
               return undefined;
             },

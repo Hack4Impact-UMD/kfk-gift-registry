@@ -8,6 +8,7 @@ export const Route = createFileRoute("/family/drive/$driveId/form")({
 });
 
 function FormLayoutComponent() {
+  const { driveId } = Route.useParams();
   return (
     <FormProvider>
       <div className="min-h-screen p-4 bg-gray-50 flex flex-col items-center">
@@ -18,7 +19,7 @@ function FormLayoutComponent() {
                 Fill all required fields to go to next step
                 <span className="text-destructive">*</span>
               </CardDescription>
-              <FormProgressBar />
+              <FormProgressBar driveId={driveId} />
             </CardHeader>
             <CardContent>
               <Outlet />

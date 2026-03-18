@@ -101,10 +101,9 @@ function StepLink({ stepId, driveId, className, children }: StepLinkProps) {
 
 type StepState = "current" | "complete" | "error" | "incomplete";
 
-export function FormProgressBar() {
+export function FormProgressBar({ driveId }: { driveId: string }) {
   const { formState } = useFormContext();
   const location = useLocation();
-  const { driveId } = useParams({ strict: false });
   const currentPath = location.pathname;
 
   const getStepState = (step: FormStep, index: number): StepState => {

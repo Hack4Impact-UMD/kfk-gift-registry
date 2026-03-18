@@ -95,11 +95,11 @@ function GiftsStep() {
               </li>
               <li>
                 ✅ Gifts must be selected from{" "}
-                <a href="https://amazon.com" className="underline">
+                <a href="https://amazon.com" target="_blank" rel="noopener noreferrer" className="underline">
                   Amazon.com
                 </a>{" "}
                 or{" "}
-                <a href="https://macys.com" className="underline">
+                <a href="https://macys.com" target="_blank" rel="noopener noreferrer" className="underline">
                   Macy's.com
                 </a>
               </li>

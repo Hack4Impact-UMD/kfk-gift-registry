@@ -79,9 +79,10 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                           status: "",
                           treatmentLength: "",
                           blurb: "",
+                          isSibling: false
                         },
                     );
-                    form.setFieldValue("children", newChildren as any);
+                    form.setFieldValue("children", newChildren);
                   }}
                   onBlur={field.handleBlur}
                   disabled={disabled}
@@ -315,13 +316,11 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                             {/* Social Worker */}
                             <form.AppField
                               name={
-                                `children[${index}].socialWorkerName` as any
+                                `children[${index}].socialWorkerName`
                               }
                               validators={{
                                 onChange: ({
                                   value,
-                                }: {
-                                  value: string;
                                 }) => {
                                   if (!value)
                                     return "Social worker name is required";
@@ -365,7 +364,7 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                           </p>
                         </div>
                         <form.AppField
-                          name={`children[${index}].photoUrl` as any}
+                          name={`children[${index}].photoUrl`}
                         >
                           {(field) => (
                             <PhotoUpload
@@ -400,9 +399,9 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                       {(field) => {
                         const wordCount = field.state.value
                           ? (field.state.value)
-                              .trim()
-                              .split(/\s+/)
-                              .filter(Boolean).length
+                            .trim()
+                            .split(/\s+/)
+                            .filter(Boolean).length
                           : 0;
                         return (
                           <div className="space-y-2">
@@ -463,9 +462,9 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
         {(field) => {
           const wordCount = field.state.value
             ? (field.state.value)
-                .trim()
-                .split(/\s+/)
-                .filter(Boolean).length
+              .trim()
+              .split(/\s+/)
+              .filter(Boolean).length
             : 0;
           return (
             <div className="space-y-2">
@@ -515,7 +514,7 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
             href="mailto:info@kissesforkyle.org"
             className="underline text-blue-600"
           >
-            holidaygiftdrive@kissesforkyle.org
+            info@kissesforkyle.org
           </a>
         </p>
       </div>
