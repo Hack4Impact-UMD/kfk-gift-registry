@@ -265,7 +265,7 @@ export function FormProgressBar({ driveId }: { driveId: string }) {
               <StepLink
                 key={step.id}
                 stepId={step.id}
-                driveId={driveId ?? ""}
+                driveId={driveId}
                 className="flex flex-col items-center relative z-10 cursor-pointer"
               >
                 {stepContent}

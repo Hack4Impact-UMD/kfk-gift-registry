@@ -19,13 +19,13 @@ type FormInputProps = {
   label: string;
   type?: string;
   inputMode?:
-    | "text"
-    | "email"
-    | "tel"
-    | "numeric"
-    | "decimal"
-    | "search"
-    | "url";
+  | "text"
+  | "email"
+  | "tel"
+  | "numeric"
+  | "decimal"
+  | "search"
+  | "url";
   autoComplete?: string;
   placeholder?: string;
   required?: boolean;
@@ -41,7 +41,7 @@ export function FormInput({
 }: FormInputProps) {
   const field = useFieldContext<string>();
   const errorMessage =
-    field.state.meta.isTouched && field.state.meta.errors?.[0];
+    field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
     <div className="space-y-2">
@@ -80,7 +80,7 @@ export function FormCheckbox({
   value,
   disabled,
 }: FormCheckboxProps) {
-  const field = useFieldContext<boolean>();
+  const field = useFieldContext<boolean | undefined>();
   const checkboxId = id || field.name;
 
   return (
@@ -150,14 +150,13 @@ export const FormSelect = ({
 }: FormSelectProps) => {
   const field = useFieldContext<string>();
   const errorMessage =
-    field.state.meta.isTouched && field.state.meta.errors?.[0];
+    field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
     <FormItem className="relative mt-6 w-full max-w-[240px]">
       <FieldLabel
-        className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
-          errorMessage ? "text-red-500" : "text-slate-600"
-        } z-10`}
+        className={`absolute -top-2 left-4 bg-white px-2 text-sm ${errorMessage ? "text-red-500" : "text-slate-600"
+          } z-10`}
       >
         {label}
         {required && <span className="text-destructive"> *</span>}
@@ -171,11 +170,10 @@ export const FormSelect = ({
         }}
       >
         <SelectTrigger
-          className={`truncate py-6 w-full rounded-xl border-1 ${
-            errorMessage
-              ? "border-red-500 [&>span]:text-red-500"
-              : "border-slate-700"
-          } focus:ring-0 data-[placeholder]:text-slate-400 font-medium`}
+          className={`truncate py-6 w-full rounded-xl border-1 ${errorMessage
+            ? "border-red-500 [&>span]:text-red-500"
+            : "border-slate-700"
+            } focus:ring-0 data-[placeholder]:text-slate-400 font-medium`}
         >
           <SelectValue placeholder={placeholder} className="truncate" />
         </SelectTrigger>
@@ -201,13 +199,13 @@ interface FormFieldInputProps {
   required?: boolean;
   type?: string;
   inputMode?:
-    | "text"
-    | "email"
-    | "tel"
-    | "numeric"
-    | "decimal"
-    | "search"
-    | "url";
+  | "text"
+  | "email"
+  | "tel"
+  | "numeric"
+  | "decimal"
+  | "search"
+  | "url";
   autoComplete?: string;
   value?: string;
   disabled?: boolean;
@@ -226,16 +224,15 @@ export const FormFieldInput = ({
 }: FormFieldInputProps) => {
   const field = useFieldContext<string>();
   const errorMessage =
-    field.state.meta.isTouched && field.state.meta.errors?.[0];
+    field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
     <FormItem className="group relative mt-6">
       <CardDescription
-        className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
-          errorMessage
-            ? "text-red-500"
-            : "text-slate-600 group-focus-within:text-[var(--color-kfk-blue)]"
-        } z-10`}
+        className={`absolute -top-2 left-4 bg-white px-2 text-sm ${errorMessage
+          ? "text-red-500"
+          : "text-slate-600 group-focus-within:text-[var(--color-kfk-blue)]"
+          } z-10`}
       >
         {label}
         {required && <span className="text-destructive"> *</span>}
@@ -256,13 +253,11 @@ export const FormFieldInput = ({
           onChange={(e) => field.handleChange(e.target.value)}
           onBlur={field.handleBlur}
           disabled={disabled}
-          className={`truncate h-14 pl-12 ${
-            errorMessage ? "pr-12" : "pr-4"
-          } rounded-xl border-1 ${
-            errorMessage
+          className={`truncate h-14 pl-12 ${errorMessage ? "pr-12" : "pr-4"
+            } rounded-xl border-1 ${errorMessage
               ? "border-red-500 text-red-500 placeholder:text-red-500"
               : "border-slate-700 placeholder:text-slate-400"
-          } focus-visible:ring-0 focus-visible:border-[var(--color-kfk-blue)] font-medium transition duration-200 ease-in-out`}
+            } focus-visible:ring-0 focus-visible:border-[var(--color-kfk-blue)] font-medium transition duration-200 ease-in-out`}
         />
         {errorMessage && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
