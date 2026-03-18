@@ -130,17 +130,42 @@ const photoUrlSchema = z
   .optional();
 
 export const childInfoSchema = z.object({
-  name: z.string().min(1, "Child's name is required").max(100, "Name is too long"),
+  name: z
+    .string()
+    .min(1, "Child's name is required")
+    .max(100, "Name is too long"),
   age: z.string().min(1, "Age is required"),
   status: z.string().min(1, "Please select an option"),
   isSibling: z.boolean(),
   // Not required for siblings
-  diagnosis: z.string().max(200, "Diagnosis is too long").optional().or(z.literal("")),
-  hospitalTreatedAt: z.string().max(200, "Hospital name is too long").optional().or(z.literal("")),
-  socialWorkerName: z.string().max(100, "Name is too long").optional().or(z.literal("")),
+  diagnosis: z
+    .string()
+    .max(200, "Diagnosis is too long")
+    .optional()
+    .or(z.literal("")),
+  hospitalTreatedAt: z
+    .string()
+    .max(200, "Hospital name is too long")
+    .optional()
+    .or(z.literal("")),
+  socialWorkerName: z
+    .string()
+    .max(100, "Name is too long")
+    .optional()
+    .or(z.literal("")),
   treatmentLength: z.string().optional().or(z.literal("")),
   photoUrl: photoUrlSchema,
-  blurb: z.string().max(500, "Blurb is too long").optional().or(z.literal("")),
+  blurb: z
+    .string()
+    .refine(
+      (value) => {
+        return value.trim().split(" ").length <= 50;
+      },
+      {
+        message: "Blurb must be at most 50 words",
+      },
+    )
+    .optional(),
 });
 
 export const childrenFormSchema = z.object({

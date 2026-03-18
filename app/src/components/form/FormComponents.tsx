@@ -13,9 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { useFieldContext } from "@/hooks/family-form/fieldContext";
 
 type FormInputProps = {
-  field: any;
   label: string;
   type?: string;
   inputMode?:
@@ -32,7 +32,6 @@ type FormInputProps = {
 };
 
 export function FormInput({
-  field,
   label,
   type = "text",
   inputMode,
@@ -40,8 +39,8 @@ export function FormInput({
   placeholder,
   required = false,
 }: FormInputProps) {
-  const errorMessage =
-    field.state.meta.isTouched && field.state.meta.errors?.[0];
+  const field = useFieldContext<string>();
+  const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
     <div className="space-y-2">
@@ -68,7 +67,6 @@ export function FormInput({
 }
 
 type FormCheckboxProps = {
-  field: any;
   children: ReactNode;
   id?: string;
   value?: boolean;
@@ -76,12 +74,12 @@ type FormCheckboxProps = {
 };
 
 export function FormCheckbox({
-  field,
   children,
   id,
   value,
   disabled,
 }: FormCheckboxProps) {
+  const field = useFieldContext<boolean | undefined>();
   const checkboxId = id || field.name;
 
   return (
@@ -100,11 +98,16 @@ export function FormCheckbox({
   );
 }
 
+type FormBorderedCheckboxProps = {
+  children: ReactNode;
+  id?: string;
+};
+
 export function FormBorderedCheckbox({
-  field,
   children,
   id,
-}: FormCheckboxProps) {
+}: FormBorderedCheckboxProps) {
+  const field = useFieldContext<boolean>();
   const checkboxId = id || field.name;
 
   return (
@@ -126,7 +129,6 @@ export function FormBorderedCheckbox({
 }
 
 interface FormSelectProps {
-  field: any;
   label: string;
   placeholder: string;
   values: Array<string>;
@@ -137,7 +139,6 @@ interface FormSelectProps {
 }
 
 export const FormSelect = ({
-  field,
   label,
   placeholder,
   values,
@@ -146,34 +147,25 @@ export const FormSelect = ({
   value,
   disabled,
 }: FormSelectProps) => {
-  const errorMessage =
-    field.state.meta.isTouched && field.state.meta.errors?.[0];
+  const field = useFieldContext<string>();
+  const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
     <FormItem className="relative mt-6 w-full max-w-[240px]">
       <FieldLabel
         className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
           errorMessage ? "text-red-500" : "text-slate-600"
-        }
-
-         z-10`}
+        } z-10`}
       >
         {label}
         {required && <span className="text-destructive"> *</span>}
       </FieldLabel>
       <Select
-        value={
-          field.state.value !== undefined &&
-          field.state.value !== null &&
-          field.state.value !== "" &&
-          field.state.value !== 0
-            ? String(field.state.value)
-            : value || undefined
-        }
+        value={field.state.value || value || undefined}
         disabled={disabled}
-        onValueChange={(value) => {
-          field.handleChange(value);
-          if (onValueChange) onValueChange(value);
+        onValueChange={(val) => {
+          field.handleChange(val);
+          if (onValueChange) onValueChange(val);
         }}
       >
         <SelectTrigger
@@ -186,9 +178,9 @@ export const FormSelect = ({
           <SelectValue placeholder={placeholder} className="truncate" />
         </SelectTrigger>
         <SelectContent>
-          {values.map((value) => (
-            <SelectItem key={value} value={value}>
-              {value}
+          {values.map((val) => (
+            <SelectItem key={val} value={val}>
+              {val}
             </SelectItem>
           ))}
         </SelectContent>
@@ -200,8 +192,7 @@ export const FormSelect = ({
   );
 };
 
-interface FormFieldProps {
-  field: any;
+interface FormFieldInputProps {
   Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
   placeholder: string;
@@ -221,7 +212,6 @@ interface FormFieldProps {
 }
 
 export const FormFieldInput = ({
-  field,
   Icon,
   label,
   placeholder,
@@ -231,9 +221,9 @@ export const FormFieldInput = ({
   autoComplete,
   value,
   disabled,
-}: FormFieldProps) => {
-  const errorMessage =
-    field.state.meta.isTouched && field.state.meta.errors?.[0];
+}: FormFieldInputProps) => {
+  const field = useFieldContext<string>();
+  const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
     <FormItem className="group relative mt-6">
@@ -289,18 +279,19 @@ export const FormFieldInput = ({
 };
 
 type FormAgreementProps = {
-  field: any;
   children: ReactNode;
   checkboxLabel?: string;
   id?: string;
+  disabled?: boolean;
 };
 
 export function FormAgreement({
-  field,
   children,
   checkboxLabel = "I agree to the sharing of my mailing address",
   id,
+  disabled,
 }: FormAgreementProps) {
+  const field = useFieldContext<boolean>();
   const checkboxId = id || field.name;
 
   return (
@@ -311,6 +302,7 @@ export function FormAgreement({
           id={checkboxId}
           checked={field.state.value}
           onCheckedChange={(checked) => field.handleChange(!!checked)}
+          disabled={disabled}
           className="mt-0.5"
         />
         <label htmlFor={checkboxId} className="text-sm cursor-pointer">

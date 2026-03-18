@@ -1,9 +1,10 @@
-import { useForm } from "@tanstack/react-form";
+import { createFormHook } from "@tanstack/react-form";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { fieldContext, formContext } from "./fieldContext";
 import type {
   ChildInfo,
-  FamilyFormState,
+  GiftSelection,
 } from "@/components/providers/FormProvider";
 import { useFormContext } from "@/components/providers/FormProvider";
 import {
@@ -11,6 +12,28 @@ import {
   consentSchema,
   generalInfoSchema,
 } from "@/lib/formSchemas";
+import {
+  FormAgreement,
+  FormBorderedCheckbox,
+  FormCheckbox,
+  FormFieldInput,
+  FormInput,
+  FormSelect,
+} from "@/components/form/FormComponents";
+
+export const { useAppForm } = createFormHook({
+  fieldContext,
+  formContext,
+  fieldComponents: {
+    FormInput,
+    FormCheckbox,
+    FormBorderedCheckbox,
+    FormSelect,
+    FormFieldInput,
+    FormAgreement,
+  },
+  formComponents: {},
+});
 
 const defaultChild = (): ChildInfo => ({
   name: "",
@@ -25,35 +48,31 @@ const defaultChild = (): ChildInfo => ({
   isSibling: false,
 });
 
-export function useProgressBarNavigation<
-  TFormKey extends keyof FamilyFormState,
->(sectionKey: TFormKey, getCurrentValues: () => FamilyFormState[TFormKey]) {
-  const { updateSection } = useFormContext();
-  const navigate = useNavigate();
-
-  const handleProgressBarNavigate = async (targetPath: string) => {
-    // Get current form values
-    const currentValues = getCurrentValues();
-
-    // Save to form state (even if incomplete/invalid)
-    updateSection(sectionKey, currentValues);
-
-    // Navigate to target
-    navigate({ to: targetPath as any });
-  };
-
-  return handleProgressBarNavigate;
-}
-
 export function useConsentForm() {
   const { formState, updateSection } = useFormContext();
   const navigate = useNavigate();
   const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: formState.consentScreen || {
       consentGiven: false,
       shareMailingAddress: false,
+    },
+    listeners: {
+      onChange: ({ formApi }) => {
+        updateSection("consentScreen", formApi.state.values);
+      },
+    },
+    validators: {
+      onChange: ({ value }) => {
+        if (!value.consentGiven) {
+          return "You must provide consent to proceed";
+        }
+
+        if (!value.shareMailingAddress) {
+          return "You must consent to sharing your mailing address to participate in the drive";
+        }
+      },
     },
     onSubmit: ({ value }) => {
       const result = consentSchema.safeParse(value);
@@ -81,7 +100,7 @@ export function useGeneralInfoForm() {
   const navigate = useNavigate();
   const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: formState.generalInfo || {
       parentName: "",
       email: "",
@@ -93,6 +112,11 @@ export function useGeneralInfoForm() {
       city: "",
       state: "",
       zipCode: "",
+    },
+    listeners: {
+      onChange: ({ formApi }) => {
+        updateSection("generalInfo", formApi.state.values);
+      },
     },
     onSubmit: ({ value }) => {
       const result = generalInfoSchema.safeParse(value);
@@ -119,12 +143,17 @@ export function useChildrenForm() {
   const navigate = useNavigate();
   const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: formState.children || {
       numChildren: 1,
       children: [defaultChild()],
       additionalNotes: "",
       consentPhotosPublic: false,
+    },
+    listeners: {
+      onChange: ({ formApi }) => {
+        updateSection("children", formApi.state.values);
+      },
     },
   });
 
@@ -146,21 +175,28 @@ export function useChildrenForm() {
     const values = form.state.values;
     const numChildren = Number(values.numChildren);
 
-    const normalizedChildren = values.children.slice(0, numChildren).map((child: any) => {
-      const isSibling =
-        child.status === "Sibling of child diagnosed with cancer (in or off treatment)" ||
-        child.status === "Bereaved sibling";
+    const normalizedChildren = values.children
+      .slice(0, numChildren)
+      .map((child) => {
+        const isSibling =
+          child.status ===
+            "Sibling of child diagnosed with cancer (in or off treatment)" ||
+          child.status === "Bereaved sibling";
 
-      const requiresTreatmentLength =
-        child.status === "Recently off treatment (within 1 year)" ||
-        child.status === "Off treatment (more than 1 year)";
+        const requiresTreatmentLength =
+          child.status === "Recently off treatment (within 1 year)" ||
+          child.status === "Off treatment (more than 1 year)";
 
-      return {
-        ...child,
-        isSibling,
-        treatmentLength: requiresTreatmentLength ? child.treatmentLength : "N/A",
-      };
-    });
+        return {
+          ...child,
+          isSibling,
+          diagnosis: isSibling ? "" : child.diagnosis,
+          hospitalTreatedAt: isSibling ? "" : child.hospitalTreatedAt,
+          socialWorkerName: isSibling ? "" : child.socialWorkerName,
+          treatmentLength:
+            isSibling || !requiresTreatmentLength ? "" : child.treatmentLength,
+        };
+      });
 
     const normalized = {
       ...values,
@@ -170,7 +206,7 @@ export function useChildrenForm() {
 
     const result = childrenFormSchema.safeParse(normalized);
     if (result.success) {
-      updateSection("children", result.data as any);
+      updateSection("children", result.data);
       navigate({
         to: "/family/drive/$driveId/form/gift-details",
         params: { driveId },
@@ -181,4 +217,46 @@ export function useChildrenForm() {
   };
 
   return { form, handleNext };
+}
+
+export function useGiftsForm() {
+  const { formState, updateSection } = useFormContext();
+
+  const children = formState.children?.children || [];
+
+  const reconciledGiftSelections = children.map((child, index) => {
+    const existing = formState.gifts?.giftSelections[index];
+    if (existing) {
+      return {
+        ...existing,
+        childName: child.name,
+      };
+    }
+    return {
+      childName: child.name,
+      gifts: [
+        { giftName: "", giftUrl: "" },
+        { giftName: "", giftUrl: "" },
+        { giftName: "", giftUrl: "" },
+      ] as [GiftSelection, GiftSelection, GiftSelection],
+      backupGifts: [
+        { giftName: "", giftUrl: "" },
+        { giftName: "", giftUrl: "" },
+      ] as [GiftSelection, GiftSelection],
+      verified: false,
+    };
+  });
+
+  const form = useAppForm({
+    defaultValues: {
+      giftSelections: reconciledGiftSelections,
+    },
+    listeners: {
+      onChange: ({ formApi }) => {
+        updateSection("gifts", formApi.state.values);
+      },
+    },
+  });
+
+  return form;
 }

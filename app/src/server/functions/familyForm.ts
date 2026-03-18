@@ -1,1 +1,1 @@
-function submitFamilyForm(){};
+function submitFamilyForm() {}
