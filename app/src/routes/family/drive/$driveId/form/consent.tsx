@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useConsentForm } from "@/hooks/form/FormHooks";
-import { FormAgreement, FormButton } from "@/components/form/formcomponents";
+import { FormButton } from "@/components/form/FormComponents";
 import { FieldGroup } from "@/components/ui/field";
 import {
   Card,
@@ -52,30 +52,22 @@ function ConsentPageComponent() {
         <CardContent>
           <FieldGroup>
             {/* First checkbox - Address sharing consent */}
-            <form.Field
-              name="consentGiven"
-              children={(field) => (
-                <FormAgreement
-                  field={field}
-                  checkboxLabel="I agree to the sharing of my mailing address"
-                >
+            <form.AppField name="consentGiven">
+              {(field) => (
+                <field.FormAgreement checkboxLabel="I agree to the sharing of my mailing address">
                   By checking this box, I agree that Kisses for Kyle will share
                   my home/mailing address listed above with donors who will be
                   providing my child's holiday gift selections. I understand
                   that these gifts will be shipped directly to my home by the
                   donor
-                </FormAgreement>
+                </field.FormAgreement>
               )}
-            />
+            </form.AppField>
 
             {/* Second checkbox - Legal guardian certification */}
-            <form.Field
-              name="shareMailingAddress"
-              children={(field) => (
-                <FormAgreement
-                  field={field}
-                  checkboxLabel="I certify my legal guardianship and residency"
-                >
+            <form.AppField name="shareMailingAddress">
+              {(field) => (
+                <field.FormAgreement checkboxLabel="I certify my legal guardianship and residency">
                   By checking this box, I certify that I am the legal parent or
                   court-appointed guardian of the child(ren) listed in this
                   application and that the child(ren) currently reside in my
@@ -84,9 +76,9 @@ function ConsentPageComponent() {
                   Kisses for Kyle Holiday Gift Drive, and I acknowledge that
                   providing false information may result in removal from the
                   program.
-                </FormAgreement>
+                </field.FormAgreement>
               )}
-            />
+            </form.AppField>
           </FieldGroup>
         </CardContent>
 

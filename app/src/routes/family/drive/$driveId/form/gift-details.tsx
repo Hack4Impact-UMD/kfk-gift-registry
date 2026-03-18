@@ -1,4 +1,3 @@
-import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRightCircleIcon,
@@ -11,7 +10,6 @@ import {
 import { useState } from "react";
 import { useFormContext } from "@/components/providers/FormProvider";
 import { childGiftSchema, giftsFormSchema } from "@/lib/formSchemas";
-import { FormCheckbox, FormFieldInput } from "@/components/form/formcomponents";
 import {
   Card,
   CardContent,
@@ -22,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { FormItem } from "@/components/ui/form";
 import { FormProgressBar } from "@/components/form/FormProgressBar";
-import { useProgressBarNavigation } from "@/hooks/form/FormHooks";
+import { useAppForm, useProgressBarNavigation } from "@/hooks/form/FormHooks";
 import LadyBug from "@/assets/form/ladybug.png";
 
 export const Route = createFileRoute(
@@ -39,7 +37,9 @@ type GiftSelection = {
 function GiftsStep() {
   const { updateSection, formState } = useFormContext();
   const navigate = useNavigate();
-  const childrenNameList = (formState.children?.children || []).map((c) => c.name);
+  const childrenNameList = (formState.children?.children || []).map(
+    (c) => c.name,
+  );
   const { driveId } = Route.useParams();
 
   // -1: "Dashboard".
@@ -66,7 +66,7 @@ function GiftsStep() {
     };
   });
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: {
       giftSelections: reconciledGiftSelections,
     },
@@ -235,8 +235,8 @@ function GiftsStep() {
                   <CardDescription className="text-md text-[var(--color-kfk-blue)] -mb-2">
                     Gift #{i + 1}
                   </CardDescription>
-                  <form.Field
-                    name={`giftSelections[${activeChildIndex}].gifts[${i}].giftUrl`}
+                  <form.AppField
+                    name={`giftSelections[${activeChildIndex}].gifts[${i}].giftUrl` as any}
                     validators={{
                       onChange: ({ value }) => {
                         if (!value) return "URL is required";
@@ -254,35 +254,34 @@ function GiftsStep() {
                     }}
                   >
                     {(field) => (
-                      <FormFieldInput
-                        field={field}
+                      <field.FormFieldInput
                         Icon={GiftIcon}
                         label={`Gift #${i + 1} URL${i != 0 ? " (Optional)" : ""}`}
                         placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
                         required={i == 0}
                       />
                     )}
-                  </form.Field>
-                  <form.Field
-                    name={`giftSelections[${activeChildIndex}].gifts[${i}].giftName`}
+                  </form.AppField>
+                  <form.AppField
+                    name={`giftSelections[${activeChildIndex}].gifts[${i}].giftName` as any}
                     validators={{
                       onChange: ({ value }) => {
-                        if (!value) return "Gift name is required";
-                        if (value.length > 100) return "Gift name is too long";
+                        const str = value as string;
+                        if (!str) return "Gift name is required";
+                        if (str.length > 100) return "Gift name is too long";
                         return undefined;
                       },
                     }}
                   >
                     {(field) => (
-                      <FormFieldInput
-                        field={field}
+                      <field.FormFieldInput
                         Icon={GiftIcon}
                         label={`Gift #${i + 1} Name${i != 0 ? " (Optional)" : ""}`}
                         placeholder="e.g. Monopoly"
                         required={i == 0}
                       />
                     )}
-                  </form.Field>
+                  </form.AppField>
                 </div>
               ))}
             </div>
@@ -293,8 +292,8 @@ function GiftsStep() {
                   <CardDescription className="text-md text-[var(--color-kfk-blue)] -mb-2">
                     Backup Gift #{i + 1}
                   </CardDescription>
-                  <form.Field
-                    name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftUrl`}
+                  <form.AppField
+                    name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftUrl` as any}
                     validators={{
                       onChange: ({ value }) => {
                         if (!value) return "URL is required";
@@ -312,49 +311,48 @@ function GiftsStep() {
                     }}
                   >
                     {(field) => (
-                      <FormFieldInput
-                        field={field}
+                      <field.FormFieldInput
                         Icon={GiftIcon}
                         label={`Backup Gift #${i + 1} URL`}
                         placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
                         required
                       />
                     )}
-                  </form.Field>
-                  <form.Field
-                    name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftName`}
+                  </form.AppField>
+                  <form.AppField
+                    name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftName` as any}
                     validators={{
                       onChange: ({ value }) => {
-                        if (!value) return "Gift name is required";
-                        if (value.length > 100) return "Gift name is too long";
+                        const str = value as string;
+                        if (!str) return "Gift name is required";
+                        if (str.length > 100) return "Gift name is too long";
                         return undefined;
                       },
                     }}
                   >
                     {(field) => (
-                      <FormFieldInput
-                        field={field}
+                      <field.FormFieldInput
                         Icon={GiftIcon}
                         label={`Backup Gift #${i + 1} Name`}
                         placeholder="e.g. Monopoly"
                         required
                       />
                     )}
-                  </form.Field>
+                  </form.AppField>
                 </div>
               ))}
             </div>
 
-            <form.Field
+            <form.AppField
               name={`giftSelections[${activeChildIndex}].verified` as any}
             >
               {(field) => (
-                <FormCheckbox field={field}>
-                  I verify that all selected gifts are $25 or under based on the
-                  original price.
-                </FormCheckbox>
+                <field.FormCheckbox>
+                  I verify that all selected gifts are $25 or under based on
+                  the original price.
+                </field.FormCheckbox>
               )}
-            </form.Field>
+            </form.AppField>
 
             <Button
               type="button"

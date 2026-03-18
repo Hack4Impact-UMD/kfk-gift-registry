@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useForm } from "@tanstack/react-form";
 
 import {
   EnvelopeIcon,
@@ -9,11 +8,6 @@ import {
 } from "@heroicons/react/24/solid";
 
 import { Building2, GiftIcon, Stethoscope, User, UserCog } from "lucide-react";
-import {
-  FormCheckbox,
-  FormFieldInput,
-  FormSelect,
-} from "@/components/form/formcomponents";
 import { US_STATES } from "@/lib/formSchemas";
 
 import {
@@ -27,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { useFormContext } from "@/components/providers/FormProvider";
 import { FormItem } from "@/components/ui/form";
 import { FormProgressBar } from "@/components/form/FormProgressBar";
+import { useAppForm } from "@/hooks/form/FormHooks";
 
 export const Route = createFileRoute("/family/drive/$driveId/form/review")({
   component: RouteComponent,
@@ -34,8 +29,12 @@ export const Route = createFileRoute("/family/drive/$driveId/form/review")({
 
 function RouteComponent() {
   const { formState } = useFormContext();
+  // review.tsx accesses legacy fields (hasMultipleChildren, hasSiblings, etc.)
+  // that no longer exist in the current ChildrenFormData schema.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const legacyChildren = formState.children as any;
   const navigate = useNavigate();
-  const form = useForm({
+  const form = useAppForm({
     onSubmit: () => {
       alert("Submitted!");
     },
@@ -80,11 +79,9 @@ function RouteComponent() {
                 Review
               </Button>
             </div>
-            <form.Field
-              name="parentName"
-              children={(field) => (
-                <FormFieldInput
-                  field={field}
+            <form.AppField name="parentName">
+              {(field) => (
+                <field.FormFieldInput
                   Icon={UsersIcon}
                   label="Your Name (Parent/Guardian)"
                   placeholder="Jane Doe"
@@ -93,12 +90,10 @@ function RouteComponent() {
                   required
                 />
               )}
-            />
-            <form.Field
-              name="email"
-              children={(field) => (
-                <FormFieldInput
-                  field={field}
+            </form.AppField>
+            <form.AppField name="email">
+              {(field) => (
+                <field.FormFieldInput
                   Icon={EnvelopeIcon}
                   label="Enter Email"
                   placeholder="e.g. janedoe@gmail.com"
@@ -107,12 +102,10 @@ function RouteComponent() {
                   required
                 />
               )}
-            />
-            <form.Field
-              name="emailConfirm"
-              children={(field) => (
-                <FormFieldInput
-                  field={field}
+            </form.AppField>
+            <form.AppField name="emailConfirm">
+              {(field) => (
+                <field.FormFieldInput
                   Icon={EnvelopeIcon}
                   label="Re-enter Email"
                   placeholder="e.g. janedoe@gmail.com"
@@ -121,12 +114,10 @@ function RouteComponent() {
                   required
                 />
               )}
-            />
-            <form.Field
-              name="phoneNumber"
-              children={(field) => (
-                <FormFieldInput
-                  field={field}
+            </form.AppField>
+            <form.AppField name="phoneNumber">
+              {(field) => (
+                <field.FormFieldInput
                   Icon={PhoneIcon}
                   label="Phone Number"
                   placeholder="(555)-5555-555"
@@ -135,12 +126,10 @@ function RouteComponent() {
                   required
                 />
               )}
-            />
-            <form.Field
-              name="phoneNumberConfirm"
-              children={(field) => (
-                <FormFieldInput
-                  field={field}
+            </form.AppField>
+            <form.AppField name="phoneNumberConfirm">
+              {(field) => (
+                <field.FormFieldInput
                   Icon={PhoneIcon}
                   label="Re-enter Phone Number"
                   placeholder="(555)-5555-555"
@@ -149,7 +138,7 @@ function RouteComponent() {
                   required
                 />
               )}
-            />
+            </form.AppField>
           </div>
 
           <div>
@@ -172,11 +161,9 @@ function RouteComponent() {
                 Review
               </button>
             </div>
-            <form.Field
-              name="streetAddress"
-              children={(field) => (
-                <FormFieldInput
-                  field={field}
+            <form.AppField name="streetAddress">
+              {(field) => (
+                <field.FormFieldInput
                   Icon={MapPinIcon}
                   label="Street Address"
                   placeholder="10 Mountain View Way"
@@ -185,12 +172,10 @@ function RouteComponent() {
                   required
                 />
               )}
-            />
-            <form.Field
-              name="addressLine2"
-              children={(field) => (
-                <FormFieldInput
-                  field={field}
+            </form.AppField>
+            <form.AppField name="addressLine2">
+              {(field) => (
+                <field.FormFieldInput
                   Icon={MapPinIcon}
                   label="Address Line 2"
                   placeholder="Apt. J"
@@ -199,12 +184,10 @@ function RouteComponent() {
                   required
                 />
               )}
-            />
-            <form.Field
-              name="city"
-              children={(field) => (
-                <FormFieldInput
-                  field={field}
+            </form.AppField>
+            <form.AppField name="city">
+              {(field) => (
+                <field.FormFieldInput
                   Icon={MapPinIcon}
                   label="City"
                   placeholder="Baltimore"
@@ -213,12 +196,10 @@ function RouteComponent() {
                   required
                 />
               )}
-            />
-            <form.Field
-              name="state"
-              children={(field) => (
-                <FormSelect
-                  field={field}
+            </form.AppField>
+            <form.AppField name="state">
+              {(field) => (
+                <field.FormSelect
                   label="State"
                   placeholder="Select State"
                   values={US_STATES}
@@ -227,12 +208,10 @@ function RouteComponent() {
                   disabled
                 />
               )}
-            />
-            <form.Field
-              name="zipCode"
-              children={(field) => (
-                <FormFieldInput
-                  field={field}
+            </form.AppField>
+            <form.AppField name="zipCode">
+              {(field) => (
+                <field.FormFieldInput
                   Icon={MapPinIcon}
                   label="Zipcode"
                   placeholder="10101"
@@ -241,7 +220,7 @@ function RouteComponent() {
                   required
                 />
               )}
-            />
+            </form.AppField>
           </div>
         </form>
       </CardContent>
@@ -271,15 +250,14 @@ function RouteComponent() {
           <p className="text-sm font-medium mb-3">
             Have more than one of your children been diagnosed with cancer?
           </p>
-          <form.Field
-            name="hasMultipleChildren"
-            children={() => (
+          <form.AppField name="hasMultipleChildren">
+            {() => (
               <div className="space-y-2">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="radio"
                     name="hasMultipleChildren"
-                    checked={formState.children?.hasMultipleChildren === false}
+                    checked={legacyChildren?.hasMultipleChildren === false}
                     className="mt-0.5"
                     disabled
                   />
@@ -291,7 +269,7 @@ function RouteComponent() {
                   <input
                     type="radio"
                     name="hasMultipleChildren"
-                    checked={formState.children?.hasMultipleChildren === true}
+                    checked={legacyChildren?.hasMultipleChildren === true}
                     className="mt-0.5"
                     disabled
                   />
@@ -301,29 +279,27 @@ function RouteComponent() {
                 </label>
               </div>
             )}
-          />
+          </form.AppField>
         </div>
 
         <form.Subscribe
-          selector={() => formState.children?.hasMultipleChildren}
+          selector={() => legacyChildren?.hasMultipleChildren}
           children={(hasMultipleChildren) => {
             // If "No" is selected (false), don't show the dropdown
             if (!hasMultipleChildren) return null;
 
             return (
               <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
-                <form.Field
-                  name="numChildren"
-                  children={(field) => (
-                    <FormSelect
-                      field={field}
+                <form.AppField name="numChildren">
+                  {(field) => (
+                    <field.FormSelect
                       label="# of Children Diagnosed"
                       placeholder="Select number of children"
                       values={["2", "3", "4"]}
                       required
                     />
                   )}
-                />
+                </form.AppField>
               </div>
             );
           }}
@@ -332,7 +308,7 @@ function RouteComponent() {
         <form.Subscribe
           selector={() => [
             formState.children?.numChildren,
-            formState.children?.hasMultipleChildren,
+            legacyChildren?.hasMultipleChildren,
           ]}
           children={([numChildren, hasMultipleChildren]) => {
             // Determine how many sections to show.
@@ -356,11 +332,9 @@ function RouteComponent() {
 
                     <div className="space-y-4">
                       {/* Child Name */}
-                      <form.Field
-                        name={`children[${index}].name`}
-                        children={(field) => (
-                          <FormFieldInput
-                            field={field}
+                      <form.AppField name={`children[${index}].name`}>
+                        {(field) => (
+                          <field.FormFieldInput
                             label="Child's Name"
                             placeholder="e.g. Jane Doe"
                             value={formState.children?.children[index].name}
@@ -369,14 +343,12 @@ function RouteComponent() {
                             Icon={User}
                           />
                         )}
-                      />
+                      </form.AppField>
 
                       {/* Child Age */}
-                      <form.Field
-                        name={`children[${index}].age`}
-                        children={(field) => (
-                          <FormSelect
-                            field={field}
+                      <form.AppField name={`children[${index}].age`}>
+                        {(field) => (
+                          <field.FormSelect
                             label="Age"
                             placeholder="Select Age"
                             values={Array.from({ length: 18 }, (_, i) =>
@@ -387,14 +359,12 @@ function RouteComponent() {
                             required
                           />
                         )}
-                      />
+                      </form.AppField>
 
                       {/* Diagnosis */}
-                      <form.Field
-                        name={`children[${index}].diagnosis`}
-                        children={(field) => (
-                          <FormFieldInput
-                            field={field}
+                      <form.AppField name={`children[${index}].diagnosis`}>
+                        {(field) => (
+                          <field.FormFieldInput
                             label="Diagnosis"
                             placeholder="e.g. Cancer"
                             value={
@@ -405,13 +375,13 @@ function RouteComponent() {
                             Icon={Stethoscope}
                           />
                         )}
-                      />
+                      </form.AppField>
 
-                      <form.Field
+                      <form.AppField
                         name={`children[${index}].hospitalTreatedAt`}
-                        children={(field) => (
-                          <FormFieldInput
-                            field={field}
+                      >
+                        {(field) => (
+                          <field.FormFieldInput
                             label="Hospital Treated At"
                             placeholder="e.g. Johns Hopkins"
                             value={
@@ -423,13 +393,11 @@ function RouteComponent() {
                             Icon={Building2}
                           />
                         )}
-                      />
+                      </form.AppField>
 
-                      <form.Field
-                        name={`children[${index}].socialWorkerName`}
-                        children={(field) => (
-                          <FormFieldInput
-                            field={field}
+                      <form.AppField name={`children[${index}].socialWorkerName`}>
+                        {(field) => (
+                          <field.FormFieldInput
                             label="Social Worker Name"
                             placeholder="e.g. Sarah Smith"
                             value={
@@ -441,7 +409,7 @@ function RouteComponent() {
                             Icon={UserCog}
                           />
                         )}
-                      />
+                      </form.AppField>
 
                       {/* Photo Upload Section */}
                       <div className="bg-slate-50 p-4 rounded-lg border border-dashed border-slate-300">
@@ -455,7 +423,8 @@ function RouteComponent() {
                           className="w-full bg-white"
                         >
                           📷 Upload Photo for{" "}
-                          {formState.children?.children[index]?.name || "Child"}
+                          {formState.children?.children[index]?.name ||
+                            "Child"}
                         </Button>
                       </div>
                     </div>
@@ -492,15 +461,14 @@ function RouteComponent() {
             <p className="text-sm font-medium mb-3">
               Does your child(ren) have any other siblings?
             </p>
-            <form.Field
-              name="hasSiblings"
-              children={(field) => (
+            <form.AppField name="hasSiblings">
+              {(field) => (
                 <div className="space-y-2">
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
                       type="radio"
                       name="hasSiblings"
-                      checked={formState.children?.hasSiblings === true}
+                      checked={legacyChildren?.hasSiblings === true}
                       onChange={() => field.handleChange(true)}
                       className="mt-0.5"
                       disabled
@@ -513,7 +481,7 @@ function RouteComponent() {
                     <input
                       type="radio"
                       name="hasSiblings"
-                      checked={formState.children?.hasSiblings === false}
+                      checked={legacyChildren?.hasSiblings === false}
                       className="mt-0.5"
                       disabled
                     />
@@ -523,29 +491,27 @@ function RouteComponent() {
                   </label>
                 </div>
               )}
-            />
+            </form.AppField>
           </div>
 
           {/* Show sibling fields if hasSiblings is true */}
           <form.Subscribe
-            selector={() => formState.children?.hasSiblings}
+            selector={() => legacyChildren?.hasSiblings}
             children={(hasSiblings) => {
               if (!hasSiblings) return null;
 
               return (
                 <div className="mt-4">
-                  <form.Field
-                    name="numSiblings"
-                    children={(field) => (
-                      <FormSelect
-                        field={field}
+                  <form.AppField name="numSiblings">
+                    {(field) => (
+                      <field.FormSelect
                         label="How many siblings?"
                         placeholder="Select amount"
                         values={["1", "2", "3", "4"]}
                         required
                       />
                     )}
-                  />
+                  </form.AppField>
                 </div>
               );
             }}
@@ -553,8 +519,8 @@ function RouteComponent() {
 
           <form.Subscribe
             selector={() => [
-              formState.children?.hasSiblings,
-              formState.children?.numSiblings,
+              legacyChildren?.hasSiblings,
+              legacyChildren?.numSiblings,
             ]}
             children={([hasSiblings, numSiblings]) => {
               if (!hasSiblings || !numSiblings || numSiblings === 0)
@@ -570,27 +536,25 @@ function RouteComponent() {
                         </h4>
 
                         <div className="space-y-4">
-                          <form.Field
-                            name={`siblings[${index}].name`}
-                            children={(field) => (
-                              <FormFieldInput
-                                field={field}
+                          <form.AppField name={`siblings[${index}].name`}>
+                            {(field) => (
+                              <field.FormFieldInput
                                 label={`Sibling Name #${index + 1}`}
                                 placeholder="e.g. Jane Doe"
                                 Icon={User}
                                 type="text"
-                                value={formState.children?.siblings[index].name}
+                                value={
+                                  legacyChildren?.siblings[index].name
+                                }
                                 disabled
                                 required
                               />
                             )}
-                          />
+                          </form.AppField>
 
-                          <form.Field
-                            name={`siblings[${index}].age`}
-                            children={(field) => (
-                              <FormSelect
-                                field={field}
+                          <form.AppField name={`siblings[${index}].age`}>
+                            {(field) => (
+                              <field.FormSelect
                                 label={`Sibling #${index + 1} Age`}
                                 placeholder="Select Age"
                                 values={Array.from({ length: 18 }, (__, i) =>
@@ -599,7 +563,7 @@ function RouteComponent() {
                                 required
                               />
                             )}
-                          />
+                          </form.AppField>
 
                           <Button
                             type="button"
@@ -607,7 +571,7 @@ function RouteComponent() {
                             className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
                           >
                             📷 Upload Photo for{" "}
-                            {formState.children?.siblings[index]?.name ||
+                            {legacyChildren?.siblings[index]?.name ||
                               "Sibling"}
                           </Button>
                         </div>
@@ -622,19 +586,17 @@ function RouteComponent() {
 
         {/* Photo Consent */}
         <div className="border-t pt-6">
-          <form.Field
-            name="consentPhotosPublic"
-            children={(field) => (
-              <FormCheckbox
-                field={field}
+          <form.AppField name="consentPhotosPublic">
+            {(field) => (
+              <field.FormCheckbox
                 value={formState.children?.consentPhotosPublic}
                 disabled
               >
-                I consent to having all photos publicly posted on the Kisses for
-                Kyle Holiday Gift Drive website.
-              </FormCheckbox>
+                I consent to having all photos publicly posted on the Kisses
+                for Kyle Holiday Gift Drive website.
+              </field.FormCheckbox>
             )}
-          />
+          </form.AppField>
           <p className="text-xs text-gray-500 mt-2">
             *All photos or placards please email us at:{" "}
             <a
@@ -678,12 +640,11 @@ function RouteComponent() {
                         <CardDescription className="text-md text-[var(--color-kfk-blue)] -mb-2">
                           Gift #{i + 1}
                         </CardDescription>
-                        <form.Field
+                        <form.AppField
                           name={`giftSelections[${activeChildIndex}].gifts[${i}].giftUrl`}
                         >
                           {(field) => (
-                            <FormFieldInput
-                              field={field}
+                            <field.FormFieldInput
                               Icon={GiftIcon}
                               label={`Gift #${i + 1} URL`}
                               placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
@@ -696,13 +657,12 @@ function RouteComponent() {
                               required={i == 0}
                             />
                           )}
-                        </form.Field>
-                        <form.Field
+                        </form.AppField>
+                        <form.AppField
                           name={`giftSelections[${activeChildIndex}].gifts[${i}].giftName`}
                         >
                           {(field) => (
-                            <FormFieldInput
-                              field={field}
+                            <field.FormFieldInput
                               Icon={GiftIcon}
                               label={`Gift #${i + 1} Name`}
                               placeholder="e.g. Monopoly"
@@ -715,7 +675,7 @@ function RouteComponent() {
                               required={i == 0}
                             />
                           )}
-                        </form.Field>
+                        </form.AppField>
                       </div>
                     ))}
                   </div>
@@ -726,12 +686,11 @@ function RouteComponent() {
                         <CardDescription className="text-md text-[var(--color-kfk-blue)] -mb-2">
                           Backup Gift #{i + 1}
                         </CardDescription>
-                        <form.Field
+                        <form.AppField
                           name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftUrl`}
                         >
                           {(field) => (
-                            <FormFieldInput
-                              field={field}
+                            <field.FormFieldInput
                               Icon={GiftIcon}
                               label={`Backup Gift #${i + 1} URL`}
                               placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
@@ -744,13 +703,12 @@ function RouteComponent() {
                               required
                             />
                           )}
-                        </form.Field>
-                        <form.Field
+                        </form.AppField>
+                        <form.AppField
                           name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftName`}
                         >
                           {(field) => (
-                            <FormFieldInput
-                              field={field}
+                            <field.FormFieldInput
                               Icon={GiftIcon}
                               label={`Backup Gift #${i + 1} Name`}
                               placeholder="e.g. Monopoly"
@@ -763,17 +721,16 @@ function RouteComponent() {
                               required
                             />
                           )}
-                        </form.Field>
+                        </form.AppField>
                       </div>
                     ))}
                   </div>
 
-                  <form.Field
+                  <form.AppField
                     name={`giftSelections[${activeChildIndex}].verified`}
                   >
                     {(field) => (
-                      <FormCheckbox
-                        field={field}
+                      <field.FormCheckbox
                         value={
                           formState.gifts?.giftSelections[activeChildIndex]
                             .verified
@@ -782,9 +739,9 @@ function RouteComponent() {
                       >
                         I verify that all selected gifts are $25 or under based
                         on the original price.
-                      </FormCheckbox>
+                      </field.FormCheckbox>
                     )}
-                  </form.Field>
+                  </form.AppField>
                 </>
               );
             },

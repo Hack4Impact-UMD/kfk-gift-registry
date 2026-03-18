@@ -1,43 +1,12 @@
 import { createContext, useContext, useState } from "react";
+import type z from "zod";
 import type { ReactNode } from "react";
+import type { childInfoSchema, childrenFormSchema, consentSchema, generalInfoSchema, giftsFormSchema } from "@/lib/formSchemas";
 
-// Define the structure for each form section
-export type ConsentFormData = {
-  consentGiven: boolean;
-  shareMailingAddress: boolean;
-};
-
-export type GeneralInfoFormData = {
-  parentName: string;
-  email: string;
-  emailConfirm: string;
-  phoneNumber?: string; // Made optional to match Zod
-  streetAddress: string;
-  addressLine2?: string;
-  city: string;
-  state: string;
-  zipCode: string;
-};
-
-export type ChildInfo = {
-  name: string;
-  age: string;
-  diagnosis: string;
-  hospitalTreatedAt: string;
-  socialWorkerName: string;
-  photoUrl?: string;
-  status: string;
-  treatmentLength: string;
-  blurb?: string;
-  isSibling: boolean;
-};
-
-export type ChildrenFormData = {
-  numChildren: number;
-  children: Array<ChildInfo>;
-  additionalNotes?: string;
-  consentPhotosPublic: boolean;
-};
+export type ConsentFormData = z.infer<typeof consentSchema>;
+export type GeneralInfoFormData = z.infer<typeof generalInfoSchema>;
+export type ChildInfo = z.infer<typeof childInfoSchema>;
+export type ChildrenFormData = z.infer<typeof childrenFormSchema>;
 
 export type GiftSelection = {
   giftUrl: string;
@@ -51,9 +20,7 @@ export type ChildGiftSelections = {
   verified: boolean;
 };
 
-export type GiftsFormData = {
-  giftSelections: Array<ChildGiftSelections>;
-};
+export type GiftsFormData = z.infer<typeof giftsFormSchema>;
 
 // Central form state - organized by section
 export type FamilyFormState = {

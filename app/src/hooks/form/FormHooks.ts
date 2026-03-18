@@ -1,4 +1,4 @@
-import { useForm } from "@tanstack/react-form";
+import { createFormHook } from "@tanstack/react-form";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
 import type {
@@ -11,6 +11,29 @@ import {
   consentSchema,
   generalInfoSchema,
 } from "@/lib/formSchemas";
+import { fieldContext, formContext } from "./fieldContext";
+import {
+  FormAgreement,
+  FormBorderedCheckbox,
+  FormCheckbox,
+  FormFieldInput,
+  FormInput,
+  FormSelect,
+} from "@/components/form/FormComponents";
+
+export const { useAppForm } = createFormHook({
+  fieldContext,
+  formContext,
+  fieldComponents: {
+    FormInput,
+    FormCheckbox,
+    FormBorderedCheckbox,
+    FormSelect,
+    FormFieldInput,
+    FormAgreement,
+  },
+  formComponents: {},
+});
 
 const defaultChild = (): ChildInfo => ({
   name: "",
@@ -50,10 +73,21 @@ export function useConsentForm() {
   const navigate = useNavigate();
   const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: formState.consentScreen || {
       consentGiven: false,
       shareMailingAddress: false,
+    },
+    validators: {
+      onChange: ({ value }) => {
+        if (!value.consentGiven) {
+          return "You must provide consent to proceed";
+        }
+
+        if (!value.shareMailingAddress) {
+          return "You must consent to sharing your mailing address to participate in the drive";
+        }
+      },
     },
     onSubmit: ({ value }) => {
       const result = consentSchema.safeParse(value);
@@ -81,7 +115,7 @@ export function useGeneralInfoForm() {
   const navigate = useNavigate();
   const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: formState.generalInfo || {
       parentName: "",
       email: "",
@@ -95,6 +129,7 @@ export function useGeneralInfoForm() {
       zipCode: "",
     },
     onSubmit: ({ value }) => {
+      console.log(value);
       const result = generalInfoSchema.safeParse(value);
       if (!result.success) {
         console.error("Validation failed:", result.error);
@@ -119,7 +154,7 @@ export function useChildrenForm() {
   const navigate = useNavigate();
   const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: formState.children || {
       numChildren: 1,
       children: [defaultChild()],
@@ -146,21 +181,26 @@ export function useChildrenForm() {
     const values = form.state.values;
     const numChildren = Number(values.numChildren);
 
-    const normalizedChildren = values.children.slice(0, numChildren).map((child: any) => {
-      const isSibling =
-        child.status === "Sibling of child diagnosed with cancer (in or off treatment)" ||
-        child.status === "Bereaved sibling";
+    const normalizedChildren = values.children
+      .slice(0, numChildren)
+      .map((child) => {
+        const isSibling =
+          child.status ===
+            "Sibling of child diagnosed with cancer (in or off treatment)" ||
+          child.status === "Bereaved sibling";
 
-      const requiresTreatmentLength =
-        child.status === "Recently off treatment (within 1 year)" ||
-        child.status === "Off treatment (more than 1 year)";
+        const requiresTreatmentLength =
+          child.status === "Recently off treatment (within 1 year)" ||
+          child.status === "Off treatment (more than 1 year)";
 
-      return {
-        ...child,
-        isSibling,
-        treatmentLength: requiresTreatmentLength ? child.treatmentLength : "N/A",
-      };
-    });
+        return {
+          ...child,
+          isSibling,
+          treatmentLength: requiresTreatmentLength
+            ? child.treatmentLength
+            : "N/A",
+        };
+      });
 
     const normalized = {
       ...values,
