@@ -285,12 +285,14 @@ type FormAgreementProps = {
   children: ReactNode;
   checkboxLabel?: string;
   id?: string;
+  disabled?: boolean;
 };
 
 export function FormAgreement({
   children,
   checkboxLabel = "I agree to the sharing of my mailing address",
   id,
+  disabled,
 }: FormAgreementProps) {
   const field = useFieldContext<boolean>();
   const checkboxId = id || field.name;
@@ -303,6 +305,7 @@ export function FormAgreement({
           id={checkboxId}
           checked={field.state.value}
           onCheckedChange={(checked) => field.handleChange(!!checked)}
+          disabled={disabled}
           className="mt-0.5"
         />
         <label htmlFor={checkboxId} className="text-sm cursor-pointer">

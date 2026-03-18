@@ -1,9 +1,10 @@
 import { createFormHook } from "@tanstack/react-form";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { fieldContext, formContext } from "./fieldContext";
 import type {
   ChildInfo,
-  FamilyFormState,
+  GiftSelection,
 } from "@/components/providers/FormProvider";
 import { useFormContext } from "@/components/providers/FormProvider";
 import {
@@ -11,7 +12,6 @@ import {
   consentSchema,
   generalInfoSchema,
 } from "@/lib/formSchemas";
-import { fieldContext, formContext } from "./fieldContext";
 import {
   FormAgreement,
   FormBorderedCheckbox,
@@ -48,25 +48,6 @@ const defaultChild = (): ChildInfo => ({
   isSibling: false,
 });
 
-export function useProgressBarNavigation<
-  TFormKey extends keyof FamilyFormState,
->(sectionKey: TFormKey, getCurrentValues: () => FamilyFormState[TFormKey]) {
-  const { updateSection } = useFormContext();
-  const navigate = useNavigate();
-
-  const handleProgressBarNavigate = async (targetPath: string) => {
-    // Get current form values
-    const currentValues = getCurrentValues();
-
-    // Save to form state (even if incomplete/invalid)
-    updateSection(sectionKey, currentValues);
-
-    // Navigate to target
-    navigate({ to: targetPath as any });
-  };
-
-  return handleProgressBarNavigate;
-}
 
 export function useConsentForm() {
   const { formState, updateSection } = useFormContext();
@@ -77,6 +58,11 @@ export function useConsentForm() {
     defaultValues: formState.consentScreen || {
       consentGiven: false,
       shareMailingAddress: false,
+    },
+    listeners: {
+      onChange: ({ formApi }) => {
+        updateSection("consentScreen", formApi.state.values);
+      }
     },
     validators: {
       onChange: ({ value }) => {
@@ -128,6 +114,11 @@ export function useGeneralInfoForm() {
       state: "",
       zipCode: "",
     },
+    listeners: {
+      onChange: ({ formApi }) => {
+        updateSection("generalInfo", formApi.state.values);
+      }
+    },
     onSubmit: ({ value }) => {
       console.log(value);
       const result = generalInfoSchema.safeParse(value);
@@ -161,6 +152,11 @@ export function useChildrenForm() {
       additionalNotes: "",
       consentPhotosPublic: false,
     },
+    listeners: {
+      onChange: ({ formApi }) => {
+        updateSection("children", formApi.state.values);
+      }
+    },
   });
 
   useEffect(() => {
@@ -186,7 +182,7 @@ export function useChildrenForm() {
       .map((child) => {
         const isSibling =
           child.status ===
-            "Sibling of child diagnosed with cancer (in or off treatment)" ||
+          "Sibling of child diagnosed with cancer (in or off treatment)" ||
           child.status === "Bereaved sibling";
 
         const requiresTreatmentLength =
@@ -210,7 +206,7 @@ export function useChildrenForm() {
 
     const result = childrenFormSchema.safeParse(normalized);
     if (result.success) {
-      updateSection("children", result.data as any);
+      updateSection("children", result.data);
       navigate({
         to: "/family/drive/$driveId/form/gift-details",
         params: { driveId },
@@ -221,4 +217,45 @@ export function useChildrenForm() {
   };
 
   return { form, handleNext };
+}
+
+export function useGiftsForm() {
+  const { formState, updateSection } = useFormContext();
+
+  const childrenNameList = (formState.children?.children || []).map(
+    (c) => c.name,
+  );
+
+  const reconciledGiftSelections = childrenNameList.map((childName) => {
+    const existing = formState.gifts?.giftSelections.find(
+      (g) => g.childName === childName,
+    );
+    if (existing) return existing;
+    return {
+      childName,
+      gifts: [
+        { giftName: "", giftUrl: "" },
+        { giftName: "", giftUrl: "" },
+        { giftName: "", giftUrl: "" },
+      ] as [GiftSelection, GiftSelection, GiftSelection],
+      backupGifts: [
+        { giftName: "", giftUrl: "" },
+        { giftName: "", giftUrl: "" },
+      ] as [GiftSelection, GiftSelection],
+      verified: false,
+    };
+  });
+
+  const form = useAppForm({
+    defaultValues: {
+      giftSelections: reconciledGiftSelections,
+    },
+    listeners: {
+      onChange: ({ formApi }) => {
+        updateSection("gifts", formApi.state.values);
+      },
+    },
+  });
+
+  return form;
 }

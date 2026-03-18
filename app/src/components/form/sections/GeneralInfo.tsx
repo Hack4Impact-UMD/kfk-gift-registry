@@ -4,17 +4,21 @@ import {
   PhoneIcon,
   UsersIcon,
 } from "@heroicons/react/24/solid";
+import type { useGeneralInfoForm } from "@/hooks/form/FormHooks";
 import { US_STATES } from "@/lib/formSchemas";
-import { useGeneralInfoForm } from "@/hooks/form/FormHooks";
 
-export function GeneralInfoForm() {
-  const form = useGeneralInfoForm();
+type GeneralInfoFormProps = {
+  disabled?: boolean;
+  form: ReturnType<typeof useGeneralInfoForm>;
+};
+
+export function GeneralInfoForm({ form, disabled = false }: GeneralInfoFormProps) {
   return (
     <>
       <div>
         <div className="border-b-2 border-kfk-blue w-full mb-8">
           <h2 className="text-xl font-bold text-kfk-blue pb-1">
-            General Information
+            Family Contact Information
           </h2>
         </div>
 
@@ -31,6 +35,7 @@ export function GeneralInfoForm() {
         >
           {(field) => (
             <field.FormFieldInput
+              disabled={disabled}
               Icon={UsersIcon}
               label="Your Name (Parent/Guardian)"
               placeholder="Jane Doe"
@@ -52,6 +57,7 @@ export function GeneralInfoForm() {
         >
           {(field) => (
             <field.FormFieldInput
+              disabled={disabled}
               Icon={EnvelopeIcon}
               label="Enter Email"
               placeholder="e.g. janedoe@gmail.com"
@@ -79,6 +85,7 @@ export function GeneralInfoForm() {
         >
           {(field) => (
             <field.FormFieldInput
+              disabled={disabled}
               Icon={EnvelopeIcon}
               label="Re-enter Email"
               placeholder="e.g. janedoe@gmail.com"
@@ -104,6 +111,7 @@ export function GeneralInfoForm() {
           {(field) => (
             <field.FormFieldInput
               Icon={PhoneIcon}
+              disabled={disabled}
               label="Phone Number"
               placeholder="(555)-555-5555"
               type="tel"
@@ -130,6 +138,7 @@ export function GeneralInfoForm() {
           {(field) => (
             <field.FormFieldInput
               Icon={PhoneIcon}
+              disabled={disabled}
               label="Re-enter Phone Number"
               placeholder="(555)-555-5555"
               type="tel"
@@ -159,6 +168,7 @@ export function GeneralInfoForm() {
           {(field) => (
             <field.FormFieldInput
               Icon={MapPinIcon}
+              disabled={disabled}
               label="Street Address"
               placeholder="10 Mountain View Way"
               autoComplete="street-address"
@@ -177,6 +187,7 @@ export function GeneralInfoForm() {
           {(field) => (
             <field.FormFieldInput
               Icon={MapPinIcon}
+              disabled={disabled}
               label="Address Line 2"
               placeholder="Apt. J"
               autoComplete="address-line2"
@@ -198,6 +209,7 @@ export function GeneralInfoForm() {
           {(field) => (
             <field.FormFieldInput
               Icon={MapPinIcon}
+              disabled={disabled}
               label="City"
               placeholder="Baltimore"
               autoComplete="address-level2"
@@ -216,6 +228,7 @@ export function GeneralInfoForm() {
           {(field) => (
             <field.FormSelect
               label="State"
+              disabled={disabled}
               placeholder="Select State"
               values={US_STATES}
               required
@@ -237,6 +250,7 @@ export function GeneralInfoForm() {
           {(field) => (
             <field.FormFieldInput
               Icon={MapPinIcon}
+              disabled={disabled}
               label="Zipcode"
               placeholder="20742"
               inputMode="numeric"
