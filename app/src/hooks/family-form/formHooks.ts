@@ -48,7 +48,6 @@ const defaultChild = (): ChildInfo => ({
   isSibling: false,
 });
 
-
 export function useConsentForm() {
   const { formState, updateSection } = useFormContext();
   const navigate = useNavigate();
@@ -62,7 +61,7 @@ export function useConsentForm() {
     listeners: {
       onChange: ({ formApi }) => {
         updateSection("consentScreen", formApi.state.values);
-      }
+      },
     },
     validators: {
       onChange: ({ value }) => {
@@ -117,7 +116,7 @@ export function useGeneralInfoForm() {
     listeners: {
       onChange: ({ formApi }) => {
         updateSection("generalInfo", formApi.state.values);
-      }
+      },
     },
     onSubmit: ({ value }) => {
       const result = generalInfoSchema.safeParse(value);
@@ -154,7 +153,7 @@ export function useChildrenForm() {
     listeners: {
       onChange: ({ formApi }) => {
         updateSection("children", formApi.state.values);
-      }
+      },
     },
   });
 
@@ -181,7 +180,7 @@ export function useChildrenForm() {
       .map((child) => {
         const isSibling =
           child.status ===
-          "Sibling of child diagnosed with cancer (in or off treatment)" ||
+            "Sibling of child diagnosed with cancer (in or off treatment)" ||
           child.status === "Bereaved sibling";
 
         const requiresTreatmentLength =
@@ -191,9 +190,11 @@ export function useChildrenForm() {
         return {
           ...child,
           isSibling,
-          treatmentLength: requiresTreatmentLength
-            ? child.treatmentLength
-            : "N/A",
+          diagnosis: isSibling ? "" : child.diagnosis,
+          hospitalTreatedAt: isSibling ? "" : child.hospitalTreatedAt,
+          socialWorkerName: isSibling ? "" : child.socialWorkerName,
+          treatmentLength:
+            isSibling || !requiresTreatmentLength ? "" : child.treatmentLength,
         };
       });
 
@@ -221,17 +222,18 @@ export function useChildrenForm() {
 export function useGiftsForm() {
   const { formState, updateSection } = useFormContext();
 
-  const childrenNameList = (formState.children?.children || []).map(
-    (c) => c.name,
-  );
+  const children = formState.children?.children || [];
 
-  const reconciledGiftSelections = childrenNameList.map((childName) => {
-    const existing = formState.gifts?.giftSelections.find(
-      (g) => g.childName === childName,
-    );
-    if (existing) return existing;
+  const reconciledGiftSelections = children.map((child, index) => {
+    const existing = formState.gifts?.giftSelections[index];
+    if (existing) {
+      return {
+        ...existing,
+        childName: child.name,
+      };
+    }
     return {
-      childName,
+      childName: child.name,
       gifts: [
         { giftName: "", giftUrl: "" },
         { giftName: "", giftUrl: "" },

@@ -4,7 +4,7 @@ import {
   PhoneIcon,
   UsersIcon,
 } from "@heroicons/react/24/solid";
-import type { useGeneralInfoForm } from "@/hooks/form/FormHooks";
+import type { useGeneralInfoForm } from "@/hooks/family-form/formHooks";
 import { US_STATES } from "@/lib/formSchemas";
 
 type GeneralInfoFormProps = {
@@ -12,7 +12,10 @@ type GeneralInfoFormProps = {
   form: ReturnType<typeof useGeneralInfoForm>;
 };
 
-export function GeneralInfoForm({ form, disabled = false }: GeneralInfoFormProps) {
+export function GeneralInfoForm({
+  form,
+  disabled = false,
+}: GeneralInfoFormProps) {
   return (
     <>
       <div>
@@ -222,8 +225,7 @@ export function GeneralInfoForm({ form, disabled = false }: GeneralInfoFormProps
         <form.AppField
           name="state"
           validators={{
-            onChange: ({ value }) =>
-              !value ? "State is required" : undefined,
+            onChange: ({ value }) => (!value ? "State is required" : undefined),
           }}
         >
           {(field) => (

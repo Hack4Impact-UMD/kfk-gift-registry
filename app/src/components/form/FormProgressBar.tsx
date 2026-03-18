@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import {
   DocumentCheckIcon,
   GiftIcon,
@@ -107,7 +107,8 @@ export function FormProgressBar({ driveId }: { driveId: string }) {
   const currentPath = location.pathname;
 
   const getStepState = (step: FormStep, index: number): StepState => {
-    if (currentPath.includes(`/form/${getPathSegment(step.id)}`)) return "current";
+    if (currentPath.includes(`/form/${getPathSegment(step.id)}`))
+      return "current";
     return getUnderlyingState(step, index);
   };
 
@@ -287,10 +288,15 @@ export function FormProgressBar({ driveId }: { driveId: string }) {
 
 function getPathSegment(stepId: string): string {
   switch (stepId) {
-    case "general": return "general-info";
-    case "children": return "children";
-    case "gifts": return "gift-details";
-    case "review": return "review";
-    default: return "";
+    case "general":
+      return "general-info";
+    case "children":
+      return "children";
+    case "gifts":
+      return "gift-details";
+    case "review":
+      return "review";
+    default:
+      return "";
   }
 }

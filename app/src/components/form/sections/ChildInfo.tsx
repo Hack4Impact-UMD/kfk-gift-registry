@@ -1,6 +1,6 @@
 import { Building2, Stethoscope, User, UserCog } from "lucide-react";
 import { PhotoUpload } from "../PhotoUpload";
-import type { useChildrenForm } from "@/hooks/form/FormHooks";
+import type { useChildrenForm } from "@/hooks/family-form/formHooks";
 import { Textarea } from "@/components/ui/textarea";
 
 const CHILD_STATUS_OPTIONS = [
@@ -25,7 +25,10 @@ type ChildInfoFormProps = {
   childForm: ReturnType<typeof useChildrenForm>;
 };
 
-export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProps) {
+export function ChildInfoForm({
+  childForm,
+  disabled = false,
+}: ChildInfoFormProps) {
   const form = childForm.form;
   return (
     <div className="flex flex-col gap-10">
@@ -50,8 +53,8 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
           {(field) => (
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                How many children from your family are participating in the
-                gift drive?
+                How many children from your family are participating in the gift
+                drive?
                 <span className="text-destructive"> *</span>
               </label>
               <div className="relative py-2">
@@ -61,7 +64,7 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                   min={1}
                   max={10}
                   placeholder="e.g. 2"
-                  value={field.state.value || ""}
+                  value={field.state.value || "1"}
                   onChange={(e) => {
                     const num = Number(e.target.value);
                     field.handleChange(num);
@@ -79,7 +82,7 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                           status: "",
                           treatmentLength: "",
                           blurb: "",
-                          isSibling: false
+                          isSibling: false,
                         },
                     );
                     form.setFieldValue("children", newChildren);
@@ -89,12 +92,11 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                   className="w-32 h-11 pl-12 pr-4 rounded-xl border border-slate-700 text-sm focus:outline-none focus:border-kfk-blue truncate disabled:opacity-50"
                 />
               </div>
-              {field.state.meta.isTouched &&
-                field.state.meta.errors[0] && (
-                  <span className="text-sm text-red-500">
-                    {field.state.meta.errors[0]}
-                  </span>
-                )}
+              {field.state.meta.isTouched && field.state.meta.errors[0] && (
+                <span className="text-sm text-red-500">
+                  {field.state.meta.errors[0]}
+                </span>
+              )}
             </div>
           )}
         </form.AppField>
@@ -114,8 +116,7 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                 >
                   <h3 className="font-semibold text-lg mb-4 text-kfk-blue flex items-center gap-2">
                     <User className="w-5 h-5" />
-                    Child {displayCount > 1 ? `#${index + 1}` : ""}{" "}
-                    Information
+                    Child {displayCount > 1 ? `#${index + 1}` : ""} Information
                   </h3>
 
                   <div className="space-y-4">
@@ -132,8 +133,8 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                       {(field) => (
                         <div className="space-y-2">
                           <label className="text-sm font-medium">
-                            Please indicate which option best applies to
-                            your child.
+                            Please indicate which option best applies to your
+                            child.
                             <span className="text-destructive"> *</span>
                           </label>
                           <div className="-mt-2 w-full [&>div]:max-w-full [&>div]:w-full">
@@ -155,8 +156,7 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                       validators={{
                         onChange: ({ value }: { value: string }) => {
                           if (!value) return "Child's name is required";
-                          if (value.length > 100)
-                            return "Name is too long";
+                          if (value.length > 100) return "Name is too long";
                           return undefined;
                         },
                       }}
@@ -189,9 +189,7 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                       {(field) => (
                         <field.FormSelect
                           label={
-                            displayCount > 1
-                              ? `Child #${index + 1} Age`
-                              : "Age"
+                            displayCount > 1 ? `Child #${index + 1} Age` : "Age"
                           }
                           placeholder="Select Age"
                           values={Array.from({ length: 18 }, (_, i) =>
@@ -205,13 +203,11 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
 
                     {/* Diagnosis, Treatment, Hospital, Social Worker - hidden for siblings */}
                     <form.Subscribe
-                      selector={(state) =>
-                        (state.values.children)[index]?.status
-                      }
+                      selector={(state) => state.values.children[index]?.status}
                       children={(status) => {
                         const isSibling =
                           status ===
-                          "Sibling of child diagnosed with cancer (in or off treatment)" ||
+                            "Sibling of child diagnosed with cancer (in or off treatment)" ||
                           status === "Bereaved sibling";
 
                         if (isSibling) return null;
@@ -222,11 +218,8 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                             <form.AppField
                               name={`children[${index}].diagnosis`}
                               validators={{
-                                onChange: ({
-                                  value,
-                                }) => {
-                                  if (!value)
-                                    return "Diagnosis is required";
+                                onChange: ({ value }) => {
+                                  if (!value) return "Diagnosis is required";
                                   if (value.length > 200)
                                     return "Diagnosis is too long";
                                   return undefined;
@@ -248,52 +241,46 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                             {(status ===
                               "Recently off treatment (within 1 year)" ||
                               status ===
-                              "Off treatment (more than 1 year)") && (
-                                <form.AppField
-                                  name={
-                                    `children[${index}].treatmentLength`
-                                  }
-                                  validators={{
-                                    onChange: ({ value }) => {
-                                      if (!value)
-                                        return "Please select treatment length";
-                                      return undefined;
-                                    },
-                                  }}
-                                >
-                                  {(field) => (
-                                    <div className="space-y-1">
-                                      <label className="text-sm font-medium">
-                                        How long has your child been off of
-                                        treatment?
-                                        <span className="text-destructive">
-                                          {" "}
-                                          *
-                                        </span>
-                                      </label>
-                                      <div className="-mt-2">
-                                        <field.FormSelect
-                                          label="Select"
-                                          placeholder="Select"
-                                          values={TREATMENT_LENGTH_OPTIONS}
-                                          required
-                                          disabled={disabled}
-                                        />
-                                      </div>
+                                "Off treatment (more than 1 year)") && (
+                              <form.AppField
+                                name={`children[${index}].treatmentLength`}
+                                validators={{
+                                  onChange: ({ value }) => {
+                                    if (!value)
+                                      return "Please select treatment length";
+                                    return undefined;
+                                  },
+                                }}
+                              >
+                                {(field) => (
+                                  <div className="space-y-1">
+                                    <label className="text-sm font-medium">
+                                      How long has your child been off of
+                                      treatment?
+                                      <span className="text-destructive">
+                                        {" "}
+                                        *
+                                      </span>
+                                    </label>
+                                    <div className="-mt-2">
+                                      <field.FormSelect
+                                        label="Select"
+                                        placeholder="Select"
+                                        values={TREATMENT_LENGTH_OPTIONS}
+                                        required
+                                        disabled={disabled}
+                                      />
                                     </div>
-                                  )}
-                                </form.AppField>
-                              )}
+                                  </div>
+                                )}
+                              </form.AppField>
+                            )}
 
                             {/* Hospital */}
                             <form.AppField
-                              name={
-                                `children[${index}].hospitalTreatedAt`
-                              }
+                              name={`children[${index}].hospitalTreatedAt`}
                               validators={{
-                                onChange: ({
-                                  value,
-                                }) => {
+                                onChange: ({ value }) => {
                                   if (!value)
                                     return "Hospital name is required";
                                   if (value.length > 200)
@@ -315,13 +302,9 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
 
                             {/* Social Worker */}
                             <form.AppField
-                              name={
-                                `children[${index}].socialWorkerName`
-                              }
+                              name={`children[${index}].socialWorkerName`}
                               validators={{
-                                onChange: ({
-                                  value,
-                                }) => {
+                                onChange: ({ value }) => {
                                   if (!value)
                                     return "Social worker name is required";
                                   if (value.length > 100)
@@ -359,13 +342,11 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                           <p>
                             While submitting a photo is not required to
                             participate, it increases your child's chances of
-                            receiving gifts. If no photo is provided, the
-                            Kisses for Kyle logo will be displayed instead.
+                            receiving gifts. If no photo is provided, the Kisses
+                            for Kyle logo will be displayed instead.
                           </p>
                         </div>
-                        <form.AppField
-                          name={`children[${index}].photoUrl`}
-                        >
+                        <form.AppField name={`children[${index}].photoUrl`}>
                           {(field) => (
                             <PhotoUpload
                               field={field}
@@ -398,17 +379,17 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                     >
                       {(field) => {
                         const wordCount = field.state.value
-                          ? (field.state.value)
-                            .trim()
-                            .split(/\s+/)
-                            .filter(Boolean).length
+                          ? field.state.value
+                              .trim()
+                              .split(/\s+/)
+                              .filter(Boolean).length
                           : 0;
                         return (
                           <div className="space-y-2">
                             <p className="text-sm font-medium text-kfk-blue">
                               You may write a blurb about your child to be
-                              displayed on the gift drive website (50 words
-                              or less)
+                              displayed on the gift drive website (50 words or
+                              less)
                             </p>
                             <Textarea
                               placeholder="You can share details like your child's activities, interests, favorite color, or anything else you'd like to include."
@@ -449,10 +430,7 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
         validators={{
           onChange: ({ value }) => {
             if (typeof value !== "string" || !value) return undefined;
-            const wordCount = value
-              .trim()
-              .split(/\s+/)
-              .filter(Boolean).length;
+            const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
             if (wordCount > 100)
               return "Please keep your notes to 100 words or less";
             return undefined;
@@ -461,23 +439,18 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
       >
         {(field) => {
           const wordCount = field.state.value
-            ? (field.state.value)
-              .trim()
-              .split(/\s+/)
-              .filter(Boolean).length
+            ? field.state.value.trim().split(/\s+/).filter(Boolean).length
             : 0;
           return (
             <div className="space-y-2">
               <p className="text-sm font-medium text-kfk-blue">
-                Do you have any additional notes for the Kisses for Kyle
-                team? These will not appear on the gift drive page.
+                Do you have any additional notes for the Kisses for Kyle team?
+                These will not appear on the gift drive page.
               </p>
               <Textarea
                 placeholder="e.g. Any information you would like the Kisses for Kyle team to know."
                 value={field.state.value || ""}
-                onChange={(e) =>
-                  field.handleChange(e.target.value)
-                }
+                onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
                 disabled={disabled}
                 className="resize-none min-h-30"
@@ -487,12 +460,11 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
                   {wordCount} out of 100
                 </p>
               )}
-              {field.state.meta.isTouched &&
-                field.state.meta.errors[0] && (
-                  <span className="text-sm text-red-500">
-                    {field.state.meta.errors[0]}
-                  </span>
-                )}
+              {field.state.meta.isTouched && field.state.meta.errors[0] && (
+                <span className="text-sm text-red-500">
+                  {field.state.meta.errors[0]}
+                </span>
+              )}
             </div>
           );
         }}
@@ -503,8 +475,8 @@ export function ChildInfoForm({ childForm, disabled = false }: ChildInfoFormProp
         <form.AppField name="consentPhotosPublic">
           {(field) => (
             <field.FormCheckbox disabled={disabled}>
-              I consent to having all photos publicly posted on the Kisses
-              for Kyle Holiday Gift Drive website.
+              I consent to having all photos publicly posted on the Kisses for
+              Kyle Holiday Gift Drive website.
             </field.FormCheckbox>
           )}
         </form.AppField>

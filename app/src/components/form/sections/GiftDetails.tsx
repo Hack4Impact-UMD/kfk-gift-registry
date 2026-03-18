@@ -1,5 +1,5 @@
 import { GiftIcon } from "@heroicons/react/24/solid";
-import type { useGiftsForm } from "@/hooks/form/FormHooks";
+import type { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { CardDescription } from "@/components/ui/card";
 
 type GiftDetailsFormProps = {
@@ -28,20 +28,20 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                    onChange: ({ value }) => {
-                      if (i !== 0 && !value) return undefined;
-                      if (!value) return "URL is required";
-                      try {
-                        const url = new URL(value);
-                        if (!["http:", "https:"].includes(url.protocol)) {
-                          return "URL must start with http or https";
+                      onChange: ({ value }) => {
+                        if (i !== 0 && !value) return undefined;
+                        if (!value) return "URL is required";
+                        try {
+                          const url = new URL(value);
+                          if (!["http:", "https:"].includes(url.protocol)) {
+                            return "URL must start with http or https";
+                          }
+                          return undefined;
+                        } catch {
+                          return "Please enter a valid URL";
                         }
-                        return undefined;
-                      } catch {
-                        return "Please enter a valid URL";
-                      }
-                    },
-                  }
+                      },
+                    }
               }
             >
               {(field) => (
@@ -60,13 +60,13 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                    onChange: ({ value }) => {
-                      if (i !== 0 && !value) return undefined;
-                      if (!value) return "Gift name is required";
-                      if (value.length > 100) return "Gift name is too long";
-                      return undefined;
-                    },
-                  }
+                      onChange: ({ value }) => {
+                        if (i !== 0 && !value) return undefined;
+                        if (!value) return "Gift name is required";
+                        if (value.length > 100) return "Gift name is too long";
+                        return undefined;
+                      },
+                    }
               }
             >
               {(field) => (
@@ -90,26 +90,24 @@ export function GiftDetailsForm({
               Backup Gift #{i + 1}
             </CardDescription>
             <form.AppField
-              name={
-                `giftSelections[${childIndex}].backupGifts[${i}].giftUrl`
-              }
+              name={`giftSelections[${childIndex}].backupGifts[${i}].giftUrl`}
               validators={
                 disabled
                   ? undefined
                   : {
-                    onChange: ({ value }) => {
-                      if (!value) return "URL is required";
-                      try {
-                        const url = new URL(value);
-                        if (!["http:", "https:"].includes(url.protocol)) {
-                          return "URL must start with http or https";
+                      onChange: ({ value }) => {
+                        if (!value) return "URL is required";
+                        try {
+                          const url = new URL(value);
+                          if (!["http:", "https:"].includes(url.protocol)) {
+                            return "URL must start with http or https";
+                          }
+                          return undefined;
+                        } catch {
+                          return "Please enter a valid URL";
                         }
-                        return undefined;
-                      } catch {
-                        return "Please enter a valid URL";
-                      }
-                    },
-                  }
+                      },
+                    }
               }
             >
               {(field) => (
@@ -123,20 +121,18 @@ export function GiftDetailsForm({
               )}
             </form.AppField>
             <form.AppField
-              name={
-                `giftSelections[${childIndex}].backupGifts[${i}].giftName`
-              }
+              name={`giftSelections[${childIndex}].backupGifts[${i}].giftName`}
               validators={
                 disabled
                   ? undefined
                   : {
-                    onChange: ({ value }) => {
-                      const str = value;
-                      if (!str) return "Gift name is required";
-                      if (str.length > 100) return "Gift name is too long";
-                      return undefined;
-                    },
-                  }
+                      onChange: ({ value }) => {
+                        const str = value;
+                        if (!str) return "Gift name is required";
+                        if (str.length > 100) return "Gift name is too long";
+                        return undefined;
+                      },
+                    }
               }
             >
               {(field) => (
@@ -153,13 +149,11 @@ export function GiftDetailsForm({
         ))}
       </div>
 
-      <form.AppField
-        name={`giftSelections[${childIndex}].verified`}
-      >
+      <form.AppField name={`giftSelections[${childIndex}].verified`}>
         {(field) => (
           <field.FormCheckbox disabled={disabled}>
-            I verify that all selected gifts are $25 or under based on
-            the original price.
+            I verify that all selected gifts are $25 or under based on the
+            original price.
           </field.FormCheckbox>
         )}
       </form.AppField>

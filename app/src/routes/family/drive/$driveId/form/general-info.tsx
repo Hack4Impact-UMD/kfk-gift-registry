@@ -5,7 +5,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { useFormContext } from "@/components/providers/FormProvider";
 import { FormItem } from "@/components/ui/form";
-import { useGeneralInfoForm } from "@/hooks/form/FormHooks";
+import { useGeneralInfoForm } from "@/hooks/family-form/formHooks";
 import { GeneralInfoForm } from "@/components/form/sections/GeneralInfo";
 
 export const Route = createFileRoute(

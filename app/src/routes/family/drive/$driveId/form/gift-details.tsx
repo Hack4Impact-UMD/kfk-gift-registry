@@ -11,7 +11,7 @@ import { useFormContext } from "@/components/providers/FormProvider";
 import { childGiftSchema, giftsFormSchema } from "@/lib/formSchemas";
 import { Button } from "@/components/ui/button";
 import { FormItem } from "@/components/ui/form";
-import { useGiftsForm } from "@/hooks/form/FormHooks";
+import { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { GiftDetailsForm } from "@/components/form/sections/GiftDetails";
 import LadyBug from "@/assets/form/ladybug.png";
 
@@ -82,8 +82,8 @@ function GiftsStep() {
           <h2 className="text-center text-xl font-bold">Gift Guidelines</h2>
           <div className="flex flex-col gap-3">
             <p className="text-sm text-green-900">
-              To help us spread the love to as many children as possible,
-              please follow these guidelines:
+              To help us spread the love to as many children as possible, please
+              follow these guidelines:
             </p>
             <ul className="flex flex-col gap-2 list-disc px-7">
               <li>
@@ -95,11 +95,21 @@ function GiftsStep() {
               </li>
               <li>
                 ✅ Gifts must be selected from{" "}
-                <a href="https://amazon.com" target="_blank" rel="noopener noreferrer" className="underline">
+                <a
+                  href="https://amazon.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
                   Amazon.com
                 </a>{" "}
                 or{" "}
-                <a href="https://macys.com" target="_blank" rel="noopener noreferrer" className="underline">
+                <a
+                  href="https://macys.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
                   Macy's.com
                 </a>
               </li>

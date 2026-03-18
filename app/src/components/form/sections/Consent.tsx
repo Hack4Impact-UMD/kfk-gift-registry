@@ -1,4 +1,4 @@
-import type { useConsentForm } from "@/hooks/form/FormHooks";
+import type { useConsentForm } from "@/hooks/family-form/formHooks";
 
 type ConsentFormProps = {
   form: ReturnType<typeof useConsentForm>;
@@ -14,11 +14,10 @@ export function ConsentForm({ form, disabled = false }: ConsentFormProps) {
             checkboxLabel="I agree to the sharing of my mailing address"
             disabled={disabled}
           >
-            By checking this box, I agree that Kisses for Kyle will share
-            my home/mailing address listed above with donors who will be
-            providing my child's holiday gift selections. I understand
-            that these gifts will be shipped directly to my home by the
-            donor
+            By checking this box, I agree that Kisses for Kyle will share my
+            home/mailing address listed above with donors who will be providing
+            my child's holiday gift selections. I understand that these gifts
+            will be shipped directly to my home by the donor
           </field.FormAgreement>
         )}
       </form.AppField>
@@ -32,11 +31,10 @@ export function ConsentForm({ form, disabled = false }: ConsentFormProps) {
             By checking this box, I certify that I am the legal parent or
             court-appointed guardian of the child(ren) listed in this
             application and that the child(ren) currently reside in my
-            household. I understand that confirmation of legal
-            guardianship and residency is required to participate in the
-            Kisses for Kyle Holiday Gift Drive, and I acknowledge that
-            providing false information may result in removal from the
-            program.
+            household. I understand that confirmation of legal guardianship and
+            residency is required to participate in the Kisses for Kyle Holiday
+            Gift Drive, and I acknowledge that providing false information may
+            result in removal from the program.
           </field.FormAgreement>
         )}
       </form.AppField>

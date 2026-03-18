@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useConsentForm } from "@/hooks/form/FormHooks";
+import { useConsentForm } from "@/hooks/family-form/formHooks";
 import { FormButton } from "@/components/form/FormComponents";
 import { FieldGroup } from "@/components/ui/field";
 import KFKLogo from "@/assets/kisses-for-kyle-logo.png";
@@ -15,7 +15,11 @@ function ConsentPageComponent() {
   return (
     <div>
       <div className="mb-6 text-center">
-        <img src={KFKLogo} className="w-50 mx-auto mb-4" alt="Kisses for Kyle Logo" />
+        <img
+          src={KFKLogo}
+          className="w-50 mx-auto mb-4"
+          alt="Kisses for Kyle Logo"
+        />
         <h1 className="font-bold text-[var(--color-kfk-red)] text-2xl mb-4">
           Welcome to our Annual Holiday Gift Drive!
         </h1>
@@ -47,11 +51,15 @@ function ConsentPageComponent() {
         </FieldGroup>
 
         <form.Subscribe
-          selector={(state) => [state.canSubmit, state.isSubmitting]}
-          children={([canSubmit, isSubmitting]) => (
+          selector={(state) => [
+            state.canSubmit,
+            state.isSubmitting,
+            state.isPristine,
+          ]}
+          children={([canSubmit, isSubmitting, isPristine]) => (
             <FormButton
               label="Agree and Continue"
-              disabled={!canSubmit}
+              disabled={!canSubmit || isPristine}
               isSubmitting={isSubmitting}
             />
           )}
