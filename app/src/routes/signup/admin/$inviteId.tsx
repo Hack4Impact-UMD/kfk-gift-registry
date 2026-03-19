@@ -1,13 +1,16 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CheckCircleIcon, EyeIcon, EyeSlashIcon, InboxIcon, KeyIcon, PhoneIcon, UserIcon, XCircleIcon } from '@heroicons/react/24/solid'
+import z from "zod";
+import { useForm, useStore } from "@tanstack/react-form";
 import KFKLogo from "@/assets/kfk-logo.png";
 import Ladybug from "@/assets/ladybug-signup.png";
 import { Input } from "@/components/ui/input";
-import { useForm, useStore } from "@tanstack/react-form";
+
 import { Button } from "@/components/ui/button";
 
 import "@/styles.css"
+import { giftsFormSchema } from "@/lib/formSchemas";
 
 export const Route = createFileRoute("/signup/admin/$inviteId")({
   loader: async ({ params }) => {
@@ -23,6 +26,28 @@ export const Route = createFileRoute("/signup/admin/$inviteId")({
     };
   },
   component: RouteComponent,
+});
+
+export const inviteSchema = z.object({
+  fullName: z
+    .string()
+    .min(1, "This field is required")
+    .max(100, "Name is too long"),
+  phoneNumber: z
+    .string()
+    .min(1, "This field is required")
+    .regex(/^\(\d{3}\)-\d{3}-\d{4}$/, "Format must be (555)-555-5555"),
+  email: z.string().email(),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Must contain an uppercase letter")
+    .regex(/[a-z]/, "Must contain a lowercase letter")
+    .regex(/\d/, "Must contain a number")
+    .regex(/[@$!%*?&#^()]/, "Must contain a special character"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match"
 });
 
 type InviteFieldProps = {
@@ -100,11 +125,14 @@ function RouteComponent() {
     },
     onSubmit: ({value}) => {
       console.log("Subbmited Data: ", value);
+    },
+    validators: {
+      onChange: inviteSchema,
     }
   })
 
   const isPasswordPristine = useStore(form.store, (state) => 
-    state.fieldMeta['password']?.isPristine
+    state.fieldMeta['password']?.isPristine ?? true
   )
 
   return (
@@ -137,9 +165,10 @@ function RouteComponent() {
           <form className="flex flex-col gap-4"
             onSubmit={(e) => {
               e.preventDefault();
-
+              e.stopPropagation();
               // Call registration mutation here
               console.log("Form is valid! Submit data...");
+              form.handleSubmit();
             }}
           >
 
@@ -236,7 +265,7 @@ function RouteComponent() {
                     if (!/\d/.test(value)) newCriterias[3] = false;
                     else newCriterias[3] = true;
 
-                    if (!/[@$!%*?&]/.test(value)) newCriterias[4] = false;
+                    if (!/[@$!%*?&#^()]/.test(value)) newCriterias[4] = false;
                     else newCriterias[4] = true;
 
                     setPasswordCriterias(newCriterias);
@@ -295,12 +324,18 @@ function RouteComponent() {
             </div>
 
             <div className="flex justify-center">
-              <Button
-                type="submit"
-                className="mt-4 bg-kfk-blue w-1/2 text-white font-semibold py-3 rounded-full hover:opacity-90 transition"
-              >
-                Create Account
-              </Button>
+              <form.Subscribe
+                selector={(state) => [state.canSubmit, state.isSubmitting, state.isDirty]}
+                children={([canSubmit, isSubmitting, isDirty]) => (
+                <Button
+                  disabled={!isDirty || !canSubmit || isSubmitting}
+                  type="submit"
+                  className={`mt-4 ${isSubmitting ? "bg-[#0A2161]" : isDirty && canSubmit ? "bg-kfk-blue" : "bg-[#737A87]"} w-1/2 text-white font-semibold py-3 rounded-full hover:bg-[#005BFF] transition`}
+                >
+                  Create Account
+                </Button>
+                )}
+              />
             </div> 
 
           </form>
