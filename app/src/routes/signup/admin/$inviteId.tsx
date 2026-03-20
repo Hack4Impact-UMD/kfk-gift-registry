@@ -43,7 +43,10 @@ export const inviteSchema = z
     fullName: z
       .string()
       .min(1, "This field is required")
-      .max(100, "Name is too long"),
+      .max(100, "Name is too long")
+      .refine((val) => val.trim().split(" ").length >= 2, {
+        message: "Please provide both first and last name",
+      }),
     phoneNumber: z
       .string()
       .min(1, "This field is required")
@@ -103,21 +106,22 @@ function InviteFieldInput({
           className={`w-full border border-muted-foreground rounded-md px-3 pl-8 py-2 mt-1 
             ${errorMessage ? "border-red-500 bg-[#FFF0F0] placeholder:text-red-500 text-red-500" : ""}`}
           onChange={(e) => field.handleChange(e.target.value)}
+          onBlur={field.handleBlur}
           disabled={disabled}
         />
 
         {isPassword && (
-          <button
-            type="button"
+          <Button
+            variant="ghost"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 mt-0.5 text-muted-foreground hover:text-foreground"
+            className="absolute right-3 top-1/2 -translate-y-1/2 mt-0.5 text-muted-foreground hover:text-foreground hover:bg-transparent"
           >
             {showPassword ? (
               <EyeSlashIcon className="size-5" />
             ) : (
               <EyeIcon className="size-5 fill-current" />
             )}
-          </button>
+          </Button>
         )}
       </div>
       {errorMessage && (

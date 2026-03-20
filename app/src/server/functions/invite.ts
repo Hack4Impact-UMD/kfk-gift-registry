@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { StaffInvite } from "common";
 import { getServerDB } from "@/lib/firebase.server";
+import { DateTime } from "luxon";
 
 export const getStaffInviteById = createServerFn({ method: "GET" })
   .inputValidator((data: { inviteId: string }) => data)
@@ -24,5 +25,14 @@ export const getStaffInviteById = createServerFn({ method: "GET" })
       throw new Error("Invite already used");
     }
 
-    return invite;
+    const dateCreated = DateTime.fromISO(invite.createdAt);
+    if (!dateCreated.isValid) {
+      throw new Error("Invalid invite createdAt");
+    }
+    const expired = dateCreated < DateTime.now().minus({ days: 7 });
+    if (expired) {
+      throw new Error("Invite not created in past 7 days");
+    }
+
+    return { ...inviteSnap.data(), id: inviteSnap.id } as StaffInvite;
   });
