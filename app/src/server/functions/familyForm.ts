@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 import { getServerDB } from "@/lib/firebase.server";
 import { DateTime } from "luxon";
-import type { Family, Child } from "common";
+import type { Family, Child, ChildStatus } from "common";
 
 const addressSchema = z.object({
   street: z.string(),
@@ -71,13 +71,14 @@ export default createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const formData = data as FamilyFormInput;
 
-    if (!formData.generalInfo) throw new Error("General information is required");
-    if (!formData.children?.children.length) throw new Error("At least one child is required");
-    if (!formData.gifts?.giftSelections.length) throw new Error("Gift selections are required");
+    if (!formData.generalInfo)
+      throw new Error("General information is required");
+    if (!formData.children?.children.length)
+      throw new Error("At least one child is required");
+    if (!formData.gifts?.giftSelections.length)
+      throw new Error("Gift selections are required");
 
     const db = getServerDB();
-    const giftDriveId = formData.giftDriveId; // making it as input for now (dont know if there's a preset)
-
     const familyId = db.families.doc().id;
     const now = DateTime.now().toISO();
 
@@ -88,30 +89,32 @@ export default createServerFn({ method: "POST" })
       phone: formData.generalInfo.phone,
       address: formData.generalInfo.address,
       privateNotes: formData.generalInfo.privateNotes,
-      giftDrive: giftDriveId,
+      giftDrive: formData.giftDriveId,
       createdAt: now,
     };
 
-    const childDocs: Child[] = formData.children.children.map((childForm) => {
-      const childId = db.children.doc().id;
-      return {
-        id: childId,
-        name: childForm.name,
-        age: parseInt(childForm.age, 10),
-        status: childForm.status as any,
-        category: childForm.isSibling ? "super_sib" : "warrior",
-        familyId,
-        diagnosis: childForm.diagnosis || "",
-        hospital: childForm.hospitalTreatedAt || "",
-        childSocialWorker: childForm.socialWorkerName || "",
-        photoUrl: childForm.photoUrl,
-        giftDrive: giftDriveId,
-        livesAtHome: true,
-        publicBlurb: childForm.blurb,
-        reviewStatus: { approved: false },
-        createdAt: now,
-      };
-    });
+    const childDocs: Array<Child> = formData.children.children.map(
+      (childForm) => {
+        const childId = db.children.doc().id;
+        return {
+          id: childId,
+          name: childForm.name,
+          age: parseInt(childForm.age, 10),
+          status: childForm.status as ChildStatus,
+          category: childForm.isSibling ? "super_sib" : "warrior",
+          familyId,
+          diagnosis: childForm.diagnosis || "",
+          hospital: childForm.hospitalTreatedAt || "",
+          childSocialWorker: childForm.socialWorkerName || "",
+          photoUrl: childForm.photoUrl,
+          giftDrive: formData.giftDriveId,
+          livesAtHome: true,
+          publicBlurb: childForm.blurb,
+          reviewStatus: { approved: false },
+          createdAt: now,
+        };
+      },
+    );
 
     try {
       await db._instance.runTransaction(async (tx) => {
@@ -128,5 +131,4 @@ export default createServerFn({ method: "POST" })
     // TODO: Implement family link generation (Commit 4)
 
     throw new Error("NOT YET IMPLEMENTED");
-  }
-);
+  });
