@@ -62,4 +62,19 @@ const familyFormStateSchema = z.object({
 
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>; // just extracts the ts type based on zod schema
 
-export default createServerFn({ method: "POST" });
+export default createServerFn({ method: "POST" })
+  .inputValidator(familyFormStateSchema)
+  .handler(async ({ data }) => {
+    const formData = data as FamilyFormInput;
+
+    if (!formData.generalInfo) throw new Error("General information is required");
+    if (!formData.children?.children.length) throw new Error("At least one child is required");
+    if (!formData.gifts?.giftSelections.length) throw new Error("Gift selections are required");
+
+    // TODO: Implement family + child document creation (Commit 2)
+    // TODO: Implement gift document creation (Commit 3)
+    // TODO: Implement family link generation (Commit 4)
+
+    throw new Error("NOT YET IMPLEMENTED");
+  }
+);
