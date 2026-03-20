@@ -1,11 +1,11 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircleIcon, EyeIcon, EyeSlashIcon, InboxIcon, KeyIcon, PhoneIcon, UserIcon, XCircleIcon } from '@heroicons/react/24/solid'
 import z from "zod";
 import { useForm, useStore } from "@tanstack/react-form";
 import KFKLogo from "@/assets/kfk-logo.png";
 import Ladybug from "@/assets/ladybug-signup.png";
 import { Input } from "@/components/ui/input";
+import { CheckCircleIcon, EyeIcon, EyeSlashIcon, InboxIcon, KeyIcon, PhoneIcon, UserCircleIcon, XCircleIcon } from "@/components/icons";
 
 import { Button } from "@/components/ui/button";
 
@@ -186,7 +186,7 @@ function RouteComponent() {
                   <InviteFieldInput
                     field={field}
                     placeholder="e.g. Jane Doe"
-                    startIcon={<UserIcon className="size-5"/>}
+                    startIcon={<UserCircleIcon className="size-5 fill-current"/>}
                   />
                 )}
               />
@@ -210,7 +210,7 @@ function RouteComponent() {
                   <InviteFieldInput
                     field={field}
                     placeholder="e.g. (555)-555-5555"
-                    startIcon={<PhoneIcon className="size-5"/>}
+                    startIcon={<PhoneIcon className="size-5 fill-current"/>}
                   />
                 )}
               />
@@ -225,7 +225,7 @@ function RouteComponent() {
                 children={(field) => (
                   <div className="relative w-full">
                     <div className="absolute left-2 top-1/2 -translate-y-1/2 mt-0.5 text-foreground">
-                      <InboxIcon className="size-5"/>
+                      <InboxIcon className="size-5 fill-current"/>
                     </div>
 
                     <Input
