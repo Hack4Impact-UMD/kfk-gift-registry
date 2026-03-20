@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
+import { getServerDB } from "@/lib/firebase.server";
+import { DateTime } from "luxon";
+import type { Family, Child } from "common";
 
 const addressSchema = z.object({
   street: z.string(),
@@ -54,6 +57,7 @@ const giftsFormSchema = z.object({
 });
 
 const familyFormStateSchema = z.object({
+  giftDriveId: z.string(),
   generalInfo: generalInfoSchema.optional(),
   children: childrenFormSchema.optional(),
   gifts: giftsFormSchema.optional(),
@@ -71,7 +75,55 @@ export default createServerFn({ method: "POST" })
     if (!formData.children?.children.length) throw new Error("At least one child is required");
     if (!formData.gifts?.giftSelections.length) throw new Error("Gift selections are required");
 
-    // TODO: Implement family + child document creation (Commit 2)
+    const db = getServerDB();
+    const giftDriveId = formData.giftDriveId; // making it as input for now (dont know if there's a preset)
+
+    const familyId = db.families.doc().id;
+    const now = DateTime.now().toISO();
+
+    const family: Family = {
+      id: familyId,
+      contactName: formData.generalInfo.contactName,
+      email: formData.generalInfo.email,
+      phone: formData.generalInfo.phone,
+      address: formData.generalInfo.address,
+      privateNotes: formData.generalInfo.privateNotes,
+      giftDrive: giftDriveId,
+      createdAt: now,
+    };
+
+    const childDocs: Child[] = formData.children.children.map((childForm) => {
+      const childId = db.children.doc().id;
+      return {
+        id: childId,
+        name: childForm.name,
+        age: parseInt(childForm.age, 10),
+        status: childForm.status as any,
+        category: childForm.isSibling ? "super_sib" : "warrior",
+        familyId,
+        diagnosis: childForm.diagnosis || "",
+        hospital: childForm.hospitalTreatedAt || "",
+        childSocialWorker: childForm.socialWorkerName || "",
+        photoUrl: childForm.photoUrl,
+        giftDrive: giftDriveId,
+        livesAtHome: true,
+        publicBlurb: childForm.blurb,
+        reviewStatus: { approved: false },
+        createdAt: now,
+      };
+    });
+
+    try {
+      await db._instance.runTransaction(async (tx) => {
+        tx.set(db.families.doc(familyId), family);
+        childDocs.forEach((child) => {
+          tx.set(db.children.doc(child.id), child);
+        });
+      });
+    } catch (err) {
+      throw new Error("Failed to create family and children");
+    }
+
     // TODO: Implement gift document creation (Commit 3)
     // TODO: Implement family link generation (Commit 4)
 
