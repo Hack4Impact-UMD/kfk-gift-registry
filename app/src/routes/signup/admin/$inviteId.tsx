@@ -2,7 +2,6 @@ import * as React from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import z from "zod";
 import { useForm, useStore } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
 import KFKLogo from "@/assets/kfk-logo.png";
 import Ladybug from "@/assets/ladybug-signup.png";
 import { Input } from "@/components/ui/input";
@@ -455,13 +454,12 @@ function RouteComponent() {
                       registerMutation.isPending
                     }
                     type="submit"
-                    className={`mt-4 ${
-                      registerMutation.isPending
+                    className={`mt-4 ${registerMutation.isPending
                         ? "bg-[#0A2161]"
                         : isDirty && canSubmit
                           ? "bg-kfk-blue"
                           : "bg-[#737A87]"
-                    } w-1/2 text-white font-semibold py-3 rounded-full hover:bg-[#005BFF] transition`}
+                      } w-1/2 text-white font-semibold py-3 rounded-full hover:bg-[#005BFF] transition`}
                   >
                     {registerMutation.isPending
                       ? "Creating Account..."

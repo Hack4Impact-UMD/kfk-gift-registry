@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import type { StaffInvite } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { DateTime } from "luxon";
 
