@@ -336,13 +336,13 @@ function GiftsStep() {
                               handleUrlBlur(key, field.state.value, nameFieldPath)
                             }
                           >
-                      <FormFieldInput
-                        field={field}
-                        Icon={GiftIcon}
-                        label={`Gift #${i + 1} URL${i != 0 ? " (Optional)" : ""}`}
-                        placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
-                        required={i == 0}
-                      />
+                            <FormFieldInput
+                              field={field}
+                              Icon={GiftIcon}
+                              label={`Gift #${i + 1} URL${i != 0 ? " (Optional)" : ""}`}
+                              placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
+                              required={i == 0}
+                            />
                           </div>
                           {status?.loading && (
                             <p className="text-xs text-slate-500 mt-1 pl-1">
@@ -371,13 +371,13 @@ function GiftsStep() {
                     {(field) => {
                       const key = `${activeChildIndex}-gifts-${i}`;
                       return (
-                      <FormFieldInput
+                        <FormFieldInput
                           field={makeTrackedNameField(field, key)}
-                        Icon={GiftIcon}
-                        label={`Gift #${i + 1} Name${i != 0 ? " (Optional)" : ""}`}
-                        placeholder="e.g. Monopoly"
-                        required={i == 0}
-                      />
+                          Icon={GiftIcon}
+                          label={`Gift #${i + 1} Name${i != 0 ? " (Optional)" : ""}`}
+                          placeholder="e.g. Monopoly"
+                          required={i == 0}
+                        />
                       );
                     }}
                   </form.Field>
@@ -420,13 +420,13 @@ function GiftsStep() {
                               handleUrlBlur(key, field.state.value, nameFieldPath)
                             }
                           >
-                      <FormFieldInput
-                        field={field}
-                        Icon={GiftIcon}
-                        label={`Backup Gift #${i + 1} URL`}
-                        placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
-                        required
-                      />
+                            <FormFieldInput
+                              field={field}
+                              Icon={GiftIcon}
+                              label={`Backup Gift #${i + 1} URL`}
+                              placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
+                              required
+                            />
                           </div>
                           {status?.loading && (
                             <p className="text-xs text-slate-500 mt-1 pl-1">
@@ -455,13 +455,13 @@ function GiftsStep() {
                     {(field) => {
                       const key = `${activeChildIndex}-backupGifts-${i}`;
                       return (
-                      <FormFieldInput
+                        <FormFieldInput
                           field={makeTrackedNameField(field, key)}
-                        Icon={GiftIcon}
-                        label={`Backup Gift #${i + 1} Name`}
-                        placeholder="e.g. Monopoly"
-                        required
-                      />
+                          Icon={GiftIcon}
+                          label={`Backup Gift #${i + 1} Name`}
+                          placeholder="e.g. Monopoly"
+                          required
+                        />
                       );
                     }}
                   </form.Field>
@@ -482,7 +482,12 @@ function GiftsStep() {
 
             <Button
               type="button"
-              onClick={() => setActiveChildIndex(-1)}
+              onClick={() => {
+                if (document.activeElement instanceof HTMLElement) {
+                  document.activeElement.blur();
+                }
+                setTimeout(() => setActiveChildIndex(-1), 150);
+              }}
               variant="outline"
               className="flex h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg"
             >
