@@ -69,36 +69,49 @@ function GiftsStep() {
   ) => {
     if (!url) return;
 
+    const requestedUrl = url;
     const currentNameValue =
       (form.getFieldValue(nameFieldPath as any) as string) || "";
-    const nameIsEmpty = !currentNameValue || currentNameValue.trim() === "";
+    const nameIsEmpty = currentNameValue.trim() === "";
 
-    if (url !== lastFetchedUrlRef.current[key]) {
+    if (requestedUrl !== lastFetchedUrlRef.current[key]) {
       manuallyEditedRef.current.delete(key);
     }
 
-    if (url === lastFetchedUrlRef.current[key] && !nameIsEmpty) {
+    if (requestedUrl === lastFetchedUrlRef.current[key] && !nameIsEmpty) {
       return;
     }
 
-    lastFetchedUrlRef.current[key] = url;
+    lastFetchedUrlRef.current[key] = requestedUrl;
     setFetchStatus((prev) => ({
       ...prev,
       [key]: { loading: true, error: null },
     }));
 
     try {
-      const result = await fetchProductDetails({ data: { url } });
+      const result = await fetchProductDetails({ data: { url: requestedUrl } });
+
+      if (lastFetchedUrlRef.current[key] !== requestedUrl) {
+        return;
+      }
 
       setFetchStatus((prev) => ({
         ...prev,
         [key]: { loading: false, error: null },
       }));
 
-      if (nameIsEmpty || !manuallyEditedRef.current.has(key)) {
+      const latestNameValue =
+        (form.getFieldValue(nameFieldPath as any) as string) || "";
+      const nameStillEmpty = latestNameValue.trim() === "";
+
+      if (nameStillEmpty || !manuallyEditedRef.current.has(key)) {
         form.setFieldValue(nameFieldPath as any, result.productName as any);
       }
     } catch (error) {
+      if (lastFetchedUrlRef.current[key] !== requestedUrl) {
+        return;
+      }
+
       setFetchStatus((prev) => ({
         ...prev,
         [key]: {
