@@ -7,6 +7,14 @@ export interface Family {
   privateNotes?: string;
   giftDrive: string;
   createdAt: string;
+  reviewStatus: {
+    approved: boolean;
+    held: boolean;
+    lastReviewedAt?: string;
+    reviewedBy?: string;
+    reviewNotes?: string;
+    holdNotes?: string;
+  };
 }
 
 export type Address = {

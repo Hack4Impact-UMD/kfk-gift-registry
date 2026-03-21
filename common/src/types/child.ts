@@ -30,12 +30,6 @@ export interface Child {
   category: ChildCategory;
   treatmentLevel?: TreatmentLevel;
   familyId: string;
-  reviewStatus: {
-    approved: boolean;
-    lastReviewedAt?: string;
-    reviewedBy?: string;
-    reviewNotes?: string;
-  };
   diagnosis: string;
   diagnosisLengthYears?: number;
   offTreatmentDurationYears?: number;
@@ -47,4 +41,5 @@ export interface Child {
   childSocialWorker: string;
   giftDrive: string;
   staffPrivateNotes?: string;
+  public: boolean; // whether the child should be shown on the storefront
 }

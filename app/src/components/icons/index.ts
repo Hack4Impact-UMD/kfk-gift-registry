@@ -1,10 +1,17 @@
 export { ChevronDoubleRightIcon } from "./ChevronDoubleRightIcon";
 export { ChevronDoubleLeftIcon } from "./ChevronDoubleLeftIcon";
 export { CalendarIcon } from "./CalendarIcon";
+export { CheckCircleIcon } from "./CheckCircleIcon";
 export { ExclamationCircleIcon } from "./ExclamationCircleIcon";
+export { EyeIcon } from "./EyeIcon";
+export { EyeSlashIcon } from "./EyeSlashIcon";
 export { GiftIcon } from "./GiftIcon";
 export { HomeIcon } from "./HomeIcon";
+export { InboxIcon } from "./InboxIcon";
+export { KeyIcon } from "./KeyIcon";
 export { ClipboardIcon } from "./ClipboardIcon";
 export { ClipboardCheckIcon } from "./ClipboardCheckIcon";
+export { PhoneIcon } from "./PhoneIcon";
 export { UsersIcon } from "./UsersIcon";
 export { UserCircleIcon } from "./UserCircleIcon";
+export { XCircleIcon } from "./XCircleIcon";
