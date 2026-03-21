@@ -2,12 +2,7 @@ import type { SVGProps } from "react";
 
 export function CheckCircleIcon(props: SVGProps<SVGSVGElement>) {
   return (
-    <svg
-      fill="currentColor"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      {...props}
-    >
+    <svg fill="currentColor" viewBox="0 0 24 24" strokeWidth={1.5} {...props}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"

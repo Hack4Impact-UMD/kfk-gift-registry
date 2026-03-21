@@ -7,7 +7,7 @@ import type {
   FamilyLink,
   Gift,
   GiftDrive,
-  ProfileUpdate,
+  ChildProfileUpdate,
   StaffInvite,
   UserProfile,
 } from "common";
@@ -43,7 +43,7 @@ type Database = {
   giftDrives: Collection<GiftDrive>;
   invites: Collection<StaffInvite>;
   familyLinks: Collection<FamilyLink>;
-  profileUpdates: Collection<ProfileUpdate>;
+  profileUpdates: Collection<ChildProfileUpdate>;
   _instance: FirebaseFirestore.Firestore;
 };
 
@@ -76,7 +76,7 @@ export const getServerDB = createServerOnlyFn(() => {
     gifts: collection<Gift>(GIFT_COLLECTION),
     giftDrives: collection<GiftDrive>(GIFT_DRIVE_COLLECTION),
     invites: collection<StaffInvite>(INVITE_COLLECTION),
-    profileUpdates: collection<ProfileUpdate>(PROFILE_UPDATE_COLLECTION),
+    profileUpdates: collection<ChildProfileUpdate>(PROFILE_UPDATE_COLLECTION),
     _instance: firestore,
   };
   return db;

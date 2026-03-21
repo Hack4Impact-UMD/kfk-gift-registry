@@ -10,7 +10,6 @@ function RouteComponent() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-6">
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col">
-
         <div className="h-8 bg-kfk-blue" />
 
         <div className="flex justify-center py-6">
@@ -35,13 +34,8 @@ function RouteComponent() {
         </div>
 
         <div className="flex justify-center">
-          <img
-            src={Ladybug}
-            alt=""
-            className="w-full h-auto object-contain"
-          />
+          <img src={Ladybug} alt="" className="w-full h-auto object-contain" />
         </div>
-
       </div>
     </div>
   );

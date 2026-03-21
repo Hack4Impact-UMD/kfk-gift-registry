@@ -20,14 +20,8 @@
   ],
   "overrides": [
     {
-      "files": [
-        "**/*.{js,ts,tsx}"
-      ],
-      "plugins": [
-        "typescript",
-        "import",
-        "react"
-      ],
+      "files": ["**/*.{js,ts,tsx}"],
+      "plugins": ["typescript", "import", "react"],
       "jsPlugins": [
         { "name": "react-hooks-js", "specifier": "eslint-plugin-react-hooks" }
       ],
@@ -124,10 +118,7 @@
         "@typescript-eslint/prefer-as-const": "error",
         "@typescript-eslint/prefer-for-of": "warn",
         "@typescript-eslint/triple-slash-reference": "error",
-        "import/consistent-type-specifier-style": [
-          "error",
-          "prefer-top-level"
-        ],
+        "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
         "import/first": "error",
         "import/no-commonjs": "error",
         "import/no-duplicates": "error",

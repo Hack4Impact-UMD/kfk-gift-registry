@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import z from "zod";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
@@ -19,8 +19,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { getStaffInviteById } from "@/server/functions/invite";
-
-import { registerStaffMemberWithInvite } from "@/server/functions/profile";
+import { useRegisterStaffWithInvite } from "@/hooks/mutations/useRegisterStaff";
 
 export const Route = createFileRoute("/signup/admin/$inviteId")({
   loader: async ({ params }) => {
@@ -32,13 +31,15 @@ export const Route = createFileRoute("/signup/admin/$inviteId")({
       return invite;
     } catch (err) {
       console.error(err);
-      throw new Error("Invalid or expired invite link");
+      throw redirect({
+        to: "/login",
+      });
     }
   },
   component: RouteComponent,
 });
 
-export const inviteSchema = z
+export const registerSchema = z
   .object({
     fullName: z
       .string()
@@ -51,7 +52,7 @@ export const inviteSchema = z
       .string()
       .min(1, "This field is required")
       .regex(/^\(\d{3}\)-\d{3}-\d{4}$/, "Format must be (555)-555-5555"),
-    email: z.string().email(),
+    email: z.email(),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
@@ -112,6 +113,7 @@ function InviteFieldInput({
 
         {isPassword && (
           <Button
+            type="button"
             variant="ghost"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-3 top-1/2 -translate-y-1/2 mt-0.5 text-muted-foreground hover:text-foreground hover:bg-transparent"
@@ -148,15 +150,7 @@ function RouteComponent() {
 
   const navigate = useNavigate();
 
-  const registerMutation = useMutation({
-    mutationFn: registerStaffMemberWithInvite,
-    onSuccess: () => {
-      navigate({ to: "/signup/success" });
-    },
-    onError: (err: any) => {
-      console.error(err);
-    },
-  });
+  const registerMutation = useRegisterStaffWithInvite();
 
   const [passwordCriterias, setPasswordCriterias] = React.useState<
     Array<boolean>
@@ -175,18 +169,28 @@ function RouteComponent() {
       const firstName = nameParts[0];
       const lastName = nameParts.slice(1).join(" ") || "";
 
-      registerMutation.mutate({
-        data: {
-          inviteId: invite.id,
-          firstName,
-          lastName,
-          phone: formatToE164(value.phoneNumber),
-          password: value.password,
+      registerMutation.mutate(
+        {
+          data: {
+            inviteId: invite.id,
+            firstName,
+            lastName,
+            phone: formatToE164(value.phoneNumber),
+            password: value.password,
+          },
         },
-      });
+        {
+          onSuccess: () => {
+            navigate({ to: "/signup/success" });
+          },
+          onError: (err: any) => {
+            console.error(err);
+          },
+        },
+      );
     },
     validators: {
-      onChange: inviteSchema,
+      onChange: registerSchema,
     },
   });
 
@@ -285,7 +289,7 @@ function RouteComponent() {
               </label>
               <form.Field
                 name="email"
-                children={(field) => (
+                children={() => (
                   <div className="relative w-full">
                     <div className="absolute left-2 top-1/2 -translate-y-1/2 mt-0.5 text-foreground">
                       <InboxIcon className="size-5 fill-current" />
@@ -347,9 +351,9 @@ function RouteComponent() {
                   <InviteFieldInput
                     type="password"
                     field={field}
-                    placeholder="e.g. ••••••••••••••••••••••••••"
+                    placeholder=""
                     startIcon={<KeyIcon className="size-5" />}
-                  ></InviteFieldInput>
+                  />
                 )}
               />
             </div>
@@ -371,7 +375,7 @@ function RouteComponent() {
                   <InviteFieldInput
                     type="password"
                     field={field}
-                    placeholder="e.g. ••••••••••••••••••••••••••"
+                    placeholder=""
                     startIcon={<KeyIcon className="size-5" />}
                   />
                 )}
@@ -380,53 +384,53 @@ function RouteComponent() {
 
             <div>
               <ul
-                className={`flex flex-col gap-3 text-sm ml-4 mt-2 ${isPasswordPristine ? "[&_li]:!text-gray-800" : ""}`}
+                className={`flex flex-col gap-3 text-sm ml-4 mt-2 ${isPasswordPristine ? "[&_li]:text-gray-800!" : ""}`}
               >
                 <li
-                  className={`flex gap-1 ${!passwordCriterias[0] ? "text-[var(--color-kfk-red)]" : ""}`}
+                  className={`flex gap-1 ${!passwordCriterias[0] ? "text-kfk-red" : ""}`}
                 >
                   {passwordCriterias[0] ? (
-                    <CheckCircleIcon className="size-5 m-0 text-[var(--color-kfk-green)]" />
+                    <CheckCircleIcon className="size-5 m-0 text-kfk-green" />
                   ) : (
                     <XCircleIcon className="size-5 m-0" />
                   )}
                   Password contains at least 8 characters
                 </li>
                 <li
-                  className={`flex gap-1 ${!passwordCriterias[1] ? "text-[var(--color-kfk-red)]" : ""}`}
+                  className={`flex gap-1 ${!passwordCriterias[1] ? "text-kfk-red" : ""}`}
                 >
                   {passwordCriterias[1] ? (
-                    <CheckCircleIcon className="size-5 m-0 text-[var(--color-kfk-green)]" />
+                    <CheckCircleIcon className="size-5 m-0 text-kfk-green" />
                   ) : (
                     <XCircleIcon className="size-5 m-0" />
                   )}
                   Password contains at least 1 uppercase character
                 </li>
                 <li
-                  className={`flex gap-1 ${!passwordCriterias[2] ? "text-[var(--color-kfk-red)]" : ""}`}
+                  className={`flex gap-1 ${!passwordCriterias[2] ? "text-kfk-red" : ""}`}
                 >
                   {passwordCriterias[2] ? (
-                    <CheckCircleIcon className="size-5 m-0 text-[var(--color-kfk-green)]" />
+                    <CheckCircleIcon className="size-5 m-0 text-kfk-green" />
                   ) : (
                     <XCircleIcon className="size-5 m-0" />
                   )}
                   Password contains at least 1 lowercase character
                 </li>
                 <li
-                  className={`flex gap-1 ${!passwordCriterias[3] ? "text-[var(--color-kfk-red)]" : ""}`}
+                  className={`flex gap-1 ${!passwordCriterias[3] ? "text-kfk-red" : ""}`}
                 >
                   {passwordCriterias[3] ? (
-                    <CheckCircleIcon className="size-5 m-0 text-[var(--color-kfk-green)]" />
+                    <CheckCircleIcon className="size-5 m-0 text-kfk-green" />
                   ) : (
                     <XCircleIcon className="size-5 m-0" />
                   )}
                   Password contains at least 1 number
                 </li>
                 <li
-                  className={`flex gap-1 ${!passwordCriterias[4] ? "text-[var(--color-kfk-red)]" : ""}`}
+                  className={`flex gap-1 ${!passwordCriterias[4] ? "text-kfk-red" : ""}`}
                 >
                   {passwordCriterias[4] ? (
-                    <CheckCircleIcon className="size-5 m-0 text-[var(--color-kfk-green)]" />
+                    <CheckCircleIcon className="size-5 m-0 text-kfk-green" />
                   ) : (
                     <XCircleIcon className="size-5 m-0" />
                   )}

@@ -1,9 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "import"
-  ],
+  "plugins": ["typescript", "import"],
   "categories": {
     "correctness": "warn"
   },
@@ -12,10 +9,7 @@
     "es2020": true,
     "node": true
   },
-  "ignorePatterns": [
-    "/lib/**/*",
-    "/generated/**/*"
-  ],
+  "ignorePatterns": ["/lib/**/*", "/generated/**/*"],
   "rules": {
     "import/no-unresolved": "off"
   }

@@ -15,7 +15,7 @@ export const getStaffInviteById = createServerFn({ method: "GET" })
       throw new Error("Invite not found");
     }
 
-    const invite = inviteSnap.data() as StaffInvite;
+    const invite = inviteSnap.data();
 
     if (!invite) {
       throw new Error("Invite not found");
@@ -34,5 +34,5 @@ export const getStaffInviteById = createServerFn({ method: "GET" })
       throw new Error("Invite not created in past 7 days");
     }
 
-    return { ...inviteSnap.data(), id: inviteSnap.id } as StaffInvite;
+    return invite;
   });
