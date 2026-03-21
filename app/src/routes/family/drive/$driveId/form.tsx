@@ -10,12 +10,13 @@ import { FormProgressBar } from "@/components/form/FormProgressBar";
 
 export const Route = createFileRoute("/family/drive/$driveId/form")({
   component: FormLayoutComponent,
+  ssr: false
 });
 
 function FormLayoutComponent() {
   const { driveId } = Route.useParams();
   return (
-    <FormProvider>
+    <FormProvider driveId={driveId}>
       <div className="min-h-screen p-4 bg-gray-50 flex flex-col items-center">
         <div className="w-full max-w-md">
           <Card className="w-full">
