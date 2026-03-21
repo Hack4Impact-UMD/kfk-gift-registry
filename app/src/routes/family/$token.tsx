@@ -1,12 +1,11 @@
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
-import { getFamilyByToken } from "@/server/family";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { HomeIcon } from "@/components/icons";
 import { mockFamily } from "@/mocks/mockFamily";
 import { ChildProfileCircle } from "@/components/family/ChildProfileCircle";
 
 export const Route = createFileRoute("/family/$token")({
-  loader: async ({ params }) => {
+  loader: () => {
     // TEMP: return mock data
     return mockFamily;
     // return await getFamilyByToken({ data: { token: params.token } });

@@ -28,13 +28,16 @@ import {
   useProgressBarNavigation,
 } from "@/hooks/form/FormHooks";
 
-export const Route = createFileRoute("/family/drive/$driveId/form/general-info")({
+export const Route = createFileRoute(
+  "/family/drive/$driveId/form/general-info",
+)({
   component: GeneralRouteComponent,
 });
 
 function GeneralRouteComponent() {
-  const { formState, updateSection } = useFormContext();
+  const { updateSection } = useFormContext();
   const navigate = useNavigate();
+  const { driveId } = Route.useParams();
 
   const form = useGeneralInfoForm();
 
@@ -46,7 +49,12 @@ function GeneralRouteComponent() {
   const handleBack = () => {
     const currentValues = form.state.values;
     updateSection("generalInfo", currentValues);
-    navigate({ to: "/family/form/consent" });
+    navigate({
+      to: "/family/drive/$driveId/form/consent",
+      params: {
+        driveId,
+      },
+    });
   };
 
   return (
@@ -152,7 +160,7 @@ function GeneralRouteComponent() {
               validators={{
                 onChange: ({ value }) => {
                   if (!value || value === "") return undefined;
-                  if (!/^[\d\s\-\(\)]+$/.test(value))
+                  if (!/^[\d\s\-()]+$/.test(value))
                     return "Please enter a valid phone number";
                   return undefined;
                 },
@@ -176,7 +184,7 @@ function GeneralRouteComponent() {
                 onChangeListenTo: ["phoneNumber"],
                 onChange: ({ value, fieldApi }) => {
                   if (!value || value === "") return undefined;
-                  if (!/^[\d\s\-\(\)]+$/.test(value))
+                  if (!/^[\d\s\-()]+$/.test(value))
                     return "Please enter a valid phone number";
                   const phoneNumber =
                     fieldApi.form.getFieldValue("phoneNumber");
@@ -325,7 +333,7 @@ function GeneralRouteComponent() {
 
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}
-              children={([canSubmit, isSubmitting]) => (
+              children={([, isSubmitting]) => (
                 <Button
                   type="submit"
                   disabled={isSubmitting}
@@ -341,5 +349,5 @@ function GeneralRouteComponent() {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -143,3 +143,6 @@ vite.config.ts.timestamp-*
 
 # macOS system file metadata
 .DS_Store
+
+# agents
+.claude

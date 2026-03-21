@@ -7,7 +7,7 @@ export const Route = createFileRoute("/register")({
 });
 
 function RegisterRoute() {
-  const [privateLink, setPrivateLink] = useState<string | null>(null);
+  const [privateLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -23,7 +23,7 @@ function RegisterRoute() {
       const email = String(formData.get("email") ?? "");
       const diagnosis = String(formData.get("diagnosis") ?? "");
 
-      const result = await createFamily({
+      await createFamily({
         data: {
           parentName,
           childName,
@@ -32,7 +32,7 @@ function RegisterRoute() {
         },
       });
 
-      setPrivateLink(`/family/${result.token}`);
+      // setPrivateLink(`/family/${resul}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit");
     } finally {

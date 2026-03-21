@@ -7,11 +7,9 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { useFormContext } from "@/components/providers/FormProvider";
 import {
-  FormButton,
   FormCheckbox,
   FormFieldInput,
   FormSelect,
@@ -31,6 +29,7 @@ export const Route = createFileRoute("/family/drive/$driveId/form/children")({
 function ChildrenPageComponent() {
   const { updateSection } = useFormContext();
   const navigate = useNavigate();
+  const { driveId } = Route.useParams();
 
   const { form, handleNext } = useChildrenForm();
 
@@ -42,7 +41,12 @@ function ChildrenPageComponent() {
   const handleBack = () => {
     const currentValues = form.state.values;
     updateSection("children", currentValues);
-    navigate({ to: "/family/form/general-info" });
+    navigate({
+      to: "/family/drive/$driveId/form/general-info",
+      params: {
+        driveId,
+      },
+    });
   };
 
   return (
@@ -85,11 +89,10 @@ function ChildrenPageComponent() {
                       name="hasMultipleChildren"
                       checked={field.state.value === false}
                       onChange={() => {
-                        const firstChild = form.getFieldValue("children")?.[0];
                         form.setFieldValue("hasMultipleChildren", false);
                         form.setFieldValue("numChildren", 1);
                         form.setFieldValue("children", [
-                          firstChild || {
+                          {
                             name: "",
                             age: "",
                             diagnosis: "",
@@ -292,7 +295,7 @@ function ChildrenPageComponent() {
                               field={field}
                               label="Child Photo"
                               childName={
-                                form.state.values.children?.[index]?.name ||
+                                form.state.values.children[index]?.name ||
                                 `Child ${index + 1}`
                               }
                             />
@@ -455,7 +458,7 @@ function ChildrenPageComponent() {
                                   field={field}
                                   label="Sibling Photo"
                                   childName={
-                                    form.state.values.siblings?.[index]?.name ||
+                                    form.state.values.siblings[index]?.name ||
                                     `Sibling ${index + 1}`
                                   }
                                 />
