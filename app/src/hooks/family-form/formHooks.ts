@@ -8,8 +8,12 @@ import type {
 } from "@/components/providers/FormProvider";
 import { useFormContext } from "@/components/providers/FormProvider";
 import {
+  childrenFormDefaults,
   childrenFormSchema,
+  consentFormDefaults,
   consentSchema,
+  defaultChild,
+  generalInfoFormDefaults,
   generalInfoSchema,
 } from "@/lib/formSchemas";
 import {
@@ -35,18 +39,6 @@ export const { useAppForm } = createFormHook({
   formComponents: {},
 });
 
-const defaultChild = (): ChildInfo => ({
-  name: "",
-  age: "",
-  diagnosis: "",
-  hospitalTreatedAt: "",
-  socialWorkerName: "",
-  photoUrl: "",
-  status: "",
-  treatmentLength: "",
-  blurb: "",
-  isSibling: false,
-});
 
 export function useConsentForm() {
   const { formState, updateSection } = useFormContext();
@@ -54,10 +46,7 @@ export function useConsentForm() {
   const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
   const form = useAppForm({
-    defaultValues: formState.consentScreen || {
-      consentGiven: false,
-      shareMailingAddress: false,
-    },
+    defaultValues: formState.consentScreen || consentFormDefaults,
     listeners: {
       onChange: ({ formApi }) => {
         updateSection("consentScreen", formApi.state.values);
@@ -101,18 +90,7 @@ export function useGeneralInfoForm() {
   const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
   const form = useAppForm({
-    defaultValues: formState.generalInfo || {
-      parentName: "",
-      email: "",
-      emailConfirm: "",
-      phoneNumber: "",
-      phoneNumberConfirm: "",
-      streetAddress: "",
-      addressLine2: "",
-      city: "",
-      state: "",
-      zipCode: "",
-    },
+    defaultValues: formState.generalInfo || generalInfoFormDefaults,
     listeners: {
       onChange: ({ formApi }) => {
         updateSection("generalInfo", formApi.state.values);
@@ -144,12 +122,7 @@ export function useChildrenForm() {
   const { driveId } = useParams({ from: "/family/drive/$driveId" });
 
   const form = useAppForm({
-    defaultValues: formState.children || {
-      numChildren: 1,
-      children: [defaultChild()],
-      additionalNotes: "",
-      consentPhotosPublic: false,
-    },
+    defaultValues: formState.children || childrenFormDefaults,
     listeners: {
       onChange: ({ formApi }) => {
         updateSection("children", formApi.state.values);
@@ -180,7 +153,7 @@ export function useChildrenForm() {
       .map((child) => {
         const isSibling =
           child.status ===
-            "Sibling of child diagnosed with cancer (in or off treatment)" ||
+          "Sibling of child diagnosed with cancer (in or off treatment)" ||
           child.status === "Bereaved sibling";
 
         const requiresTreatmentLength =

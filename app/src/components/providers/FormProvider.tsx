@@ -1,18 +1,18 @@
-import { createContext, useContext, useState } from "react";
-import type z from "zod";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type {
-  childInfoSchema,
-  childrenFormSchema,
-  consentSchema,
-  generalInfoSchema,
-  giftsFormSchema,
+  ChildrenFormData,
+  ConsentFormData,
+  GeneralInfoFormData,
+  GiftsFormData,
+} from "@/lib/formSchemas"
+import {
+  childrenFormDefaults,
+  consentFormDefaults,
+  generalInfoFormDefaults,
+  giftsFormDefaults,
 } from "@/lib/formSchemas";
 
-export type ConsentFormData = z.infer<typeof consentSchema>;
-export type GeneralInfoFormData = z.infer<typeof generalInfoSchema>;
-export type ChildInfo = z.infer<typeof childInfoSchema>;
-export type ChildrenFormData = z.infer<typeof childrenFormSchema>;
 
 export type GiftSelection = {
   giftUrl: string;
@@ -26,7 +26,6 @@ export type ChildGiftSelections = {
   verified: boolean;
 };
 
-export type GiftsFormData = z.infer<typeof giftsFormSchema>;
 
 // Central form state - organized by section
 export type FamilyFormState = {
@@ -48,8 +47,50 @@ type FormContextType = {
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
-export function FormProvider({ children }: { children: ReactNode }) {
-  const [formState, setFormState] = useState<FamilyFormState>({});
+const formLocalStorageKey = (driveId: string) => `family-form-${driveId}`;
+
+function loadLocalStorageFormState(driveId: string): FamilyFormState {
+  const key = formLocalStorageKey(driveId);
+  const value = localStorage.getItem(key);
+  if (!value) return {}
+
+  try {
+    const saved = JSON.parse(value) as FamilyFormState;
+
+    return {
+      consentScreen: {
+        ...consentFormDefaults,
+        ...saved.consentScreen
+      },
+      children: {
+        ...childrenFormDefaults,
+        ...saved.children
+      },
+      generalInfo: {
+        ...generalInfoFormDefaults,
+        ...saved.generalInfo
+      },
+      gifts: {
+        ...giftsFormDefaults,
+        ...saved.gifts
+      }
+    }
+  } catch {
+    return {}
+  }
+}
+
+const FORM_LOCAL_SAVE_DEBOUNCE = 500;
+
+export function FormProvider({ children, driveId }: { children: ReactNode, driveId: string }) {
+  const [formState, setFormState] = useState<FamilyFormState>(loadLocalStorageFormState(driveId));
+
+  useEffect(() => {
+    const ref = setTimeout(() => {
+      localStorage.setItem(formLocalStorageKey(driveId), JSON.stringify(formState))
+    }, FORM_LOCAL_SAVE_DEBOUNCE)
+    return () => clearTimeout(ref)
+  }, [formState, driveId])
 
   const updateSection = <TFromKey extends keyof FamilyFormState>(
     section: TFromKey,

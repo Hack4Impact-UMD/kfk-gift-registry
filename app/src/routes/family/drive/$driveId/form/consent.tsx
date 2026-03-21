@@ -54,12 +54,11 @@ function ConsentPageComponent() {
           selector={(state) => [
             state.canSubmit,
             state.isSubmitting,
-            state.isPristine,
           ]}
-          children={([canSubmit, isSubmitting, isPristine]) => (
+          children={([canSubmit, isSubmitting]) => (
             <FormButton
               label="Agree and Continue"
-              disabled={!canSubmit || isPristine}
+              disabled={!canSubmit}
               isSubmitting={isSubmitting}
             />
           )}

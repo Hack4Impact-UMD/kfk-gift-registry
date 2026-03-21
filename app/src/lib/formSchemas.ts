@@ -62,6 +62,11 @@ export const consentSchema = z.object({
   }),
 });
 
+export const consentFormDefaults: ConsentFormData = {
+  consentGiven: false,
+  shareMailingAddress: false
+}
+
 export const generalInfoSchema = z
   .object({
     parentName: z
@@ -120,6 +125,19 @@ export const generalInfoSchema = z
     path: ["phoneNumberConfirm"],
   });
 
+export const generalInfoFormDefaults: GeneralInfoFormData = {
+  city: "",
+  email: "",
+  emailConfirm: "",
+  parentName: "",
+  state: "",
+  streetAddress: "",
+  zipCode: "",
+  addressLine2: "",
+  phoneNumber: "",
+  phoneNumberConfirm: ""
+}
+
 // Accepts an empty string, a data URL (local preview), or an https:// URL (after Firebase upload)
 const photoUrlSchema = z
   .union([
@@ -167,6 +185,26 @@ export const childInfoSchema = z.object({
     )
     .optional(),
 });
+
+export const defaultChild = (): ChildInfo => ({
+  name: "",
+  age: "",
+  diagnosis: "",
+  hospitalTreatedAt: "",
+  socialWorkerName: "",
+  photoUrl: "",
+  status: "",
+  treatmentLength: "",
+  blurb: "",
+  isSibling: false,
+});
+
+export const childrenFormDefaults: ChildrenFormData = {
+  numChildren: 1,
+  children: [defaultChild()],
+  additionalNotes: "",
+  consentPhotosPublic: false,
+}
 
 export const childrenFormSchema = z.object({
   numChildren: z.coerce.number().min(1).max(10),
@@ -220,9 +258,19 @@ export const giftsFormSchema = z.object({
   giftSelections: z.array(childGiftSchema),
 });
 
+export const giftsFormDefaults: GiftsFormData = {
+  giftSelections: []
+}
+
 export const SECTION_SCHEMAS = {
   generalInfo: generalInfoSchema,
   children: childrenFormSchema,
   gifts: giftsFormSchema,
   consentScreen: consentSchema,
 } as const;
+
+export type ConsentFormData = z.infer<typeof consentSchema>;
+export type GeneralInfoFormData = z.infer<typeof generalInfoSchema>;
+export type ChildInfo = z.infer<typeof childInfoSchema>;
+export type ChildrenFormData = z.infer<typeof childrenFormSchema>;
+export type GiftsFormData = z.infer<typeof giftsFormSchema>;
