@@ -91,6 +91,10 @@ export default createServerFn({ method: "POST" })
       privateNotes: formData.generalInfo.privateNotes,
       giftDrive: formData.giftDriveId,
       createdAt: now,
+      reviewStatus: {
+        approved: false,
+        held: false,
+      }
     };
 
     const childDocs: Array<Child> = formData.children.children.map(
@@ -112,6 +116,7 @@ export default createServerFn({ method: "POST" })
           publicBlurb: childForm.blurb,
           reviewStatus: { approved: false },
           createdAt: now,
+          public: true
         };
       },
     );
