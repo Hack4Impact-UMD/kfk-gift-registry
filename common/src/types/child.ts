@@ -41,5 +41,5 @@ export interface Child {
   childSocialWorker: string;
   giftDrive: string;
   staffPrivateNotes?: string;
-  public: boolean; // whether the child should be shown on the storefront
+  published: boolean; // whether the child should be shown on the storefront
 }

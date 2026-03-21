@@ -14,7 +14,7 @@ const addressSchema = z.object({
 
 const generalInfoSchema = z.object({
   contactName: z.string(),
-  email: z.string().email(),
+  email: z.email(),
   phone: z.string(),
   address: addressSchema,
   privateNotes: z.string().optional(),
@@ -41,7 +41,7 @@ const childrenFormSchema = z.object({
 });
 
 const giftSelectionSchema = z.object({
-  giftUrl: z.string().url().optional(),
+  giftUrl: z.url().optional(),
   giftName: z.string().optional(),
 });
 
@@ -116,7 +116,7 @@ export default createServerFn({ method: "POST" })
           publicBlurb: childForm.blurb,
           reviewStatus: { approved: false },
           createdAt: now,
-          public: true
+          published: false // families get published in the commit + review page, until then keep the children unpublished
         };
       },
     );
