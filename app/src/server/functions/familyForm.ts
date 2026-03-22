@@ -1,8 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
+import { v7 as uuidv7 } from "uuid";
+import admin from "firebase-admin";
 import { getServerDB } from "@/lib/firebase.server";
+import { createFamilyLink } from "@/server/services/familyLinkService.server";
 import { DateTime } from "luxon";
-import type { Family, Child, ChildStatus } from "common";
+import type { Family, Child, ChildStatus, Gift } from "common";
 
 const addressSchema = z.object({
   street: z.string(),
@@ -13,9 +16,9 @@ const addressSchema = z.object({
 });
 
 const generalInfoSchema = z.object({
-  contactName: z.string(),
+  parentName: z.string(),
   email: z.email(),
-  phone: z.string(),
+  phoneNumber: z.string(),
   address: addressSchema,
   privateNotes: z.string().optional(),
 });
@@ -79,14 +82,14 @@ export default createServerFn({ method: "POST" })
       throw new Error("Gift selections are required");
 
     const db = getServerDB();
-    const familyId = db.families.doc().id;
+    const familyId = uuidv7();
     const now = DateTime.now().toISO();
 
     const family: Family = {
       id: familyId,
-      contactName: formData.generalInfo.contactName,
+      contactName: formData.generalInfo.parentName,
       email: formData.generalInfo.email,
-      phone: formData.generalInfo.phone,
+      phone: formData.generalInfo.phoneNumber,
       address: formData.generalInfo.address,
       privateNotes: formData.generalInfo.privateNotes,
       giftDrive: formData.giftDriveId,
@@ -99,7 +102,7 @@ export default createServerFn({ method: "POST" })
 
     const childDocs: Array<Child> = formData.children.children.map(
       (childForm) => {
-        const childId = db.children.doc().id;
+        const childId = uuidv7();
         return {
           id: childId,
           name: childForm.name,
@@ -132,8 +135,138 @@ export default createServerFn({ method: "POST" })
       throw new Error("Failed to create family and children");
     }
 
-    // TODO: Implement gift document creation (Commit 3)
-    // TODO: Implement family link generation (Commit 4)
+    // Create gift documents
+    const giftDocs: Array<Gift> = [];
+    const childMap = new Map<string, string>();
+    childDocs.forEach((child) => {
+      const formChild = formData.children!.children.find(
+        (c) => c.name === child.name,
+      );
+      if (formChild) {
+        childMap.set(formChild.name, child.id);
+      }
+    });
 
-    throw new Error("NOT YET IMPLEMENTED");
+    formData.gifts!.giftSelections.forEach((selection) => {
+      const childId = childMap.get(selection.childName);
+      if (!childId) {
+        throw new Error(`Child not found: ${selection.childName}`);
+      }
+
+      // Add regular gifts
+      selection.gifts.forEach((gift) => {
+        if (gift.giftName && gift.giftUrl) {
+          giftDocs.push({
+            id: uuidv7(),
+            childId,
+            familyId,
+            giftDrive: formData.giftDriveId,
+            title: gift.giftName,
+            productUrl: gift.giftUrl,
+            status: "AVAILABLE",
+            backup: false,
+            active: true,
+            createdAt: now,
+          });
+        }
+      });
+
+      // Add backup gifts
+      if (selection.backupGifts) {
+        selection.backupGifts.forEach((gift) => {
+          if (gift.giftName && gift.giftUrl) {
+            giftDocs.push({
+              id: uuidv7(),
+              childId,
+              familyId,
+              giftDrive: formData.giftDriveId,
+              title: gift.giftName,
+              productUrl: gift.giftUrl,
+              status: "AVAILABLE",
+              backup: true,
+              active: true,
+              createdAt: now,
+            });
+          }
+        });
+      }
+    });
+
+    // upload child profile pictures to GCS
+    const childPhotoUpdates: Array<{ childId: string; photoUrl: string }> = [];
+    for (const child of childDocs) {
+      const formChild = formData.children!.children.find(
+        (c) => c.name === child.name,
+      );
+      if (formChild?.photoUrl && formChild.photoUrl.startsWith("data:")) {
+        // convert data URL to buffer and upload to GCS
+        try {
+          const base64Data = formChild.photoUrl.split(",")[1];
+          const buffer = Buffer.from(base64Data, "base64");
+
+          // determine file extension from data URL
+          const mimeType = formChild.photoUrl.split(":")[1]?.split(";")[0];
+          const ext = mimeType === "image/png" ? "png" : "jpg";
+
+          const bucket = admin.storage().bucket();
+          const file = bucket.file(`children/pfps/${child.id}.${ext}`);
+
+          await file.save(buffer, {
+            metadata: {
+              contentType: mimeType || "image/jpeg",
+            },
+          });
+
+          // get public URL
+          const publicUrl = `https://storage.googleapis.com/${bucket.name}/children/pfps/${child.id}.${ext}`;
+          childPhotoUpdates.push({
+            childId: child.id,
+            photoUrl: publicUrl,
+          });
+        } catch (err) {
+          console.error(`Failed to upload photo for child ${child.id}:`, err);
+          // Continue without photo instead of just failing everything about the submission
+        }
+      } else if (formChild?.photoUrl) {
+        // alr URL, keep it the same
+        childPhotoUpdates.push({
+          childId: child.id,
+          photoUrl: formChild.photoUrl,
+        });
+      }
+    }
+
+    // Update children with final photo URLs
+    if (childPhotoUpdates.length > 0) {
+      try {
+        await db._instance.runTransaction(async (tx) => {
+          childPhotoUpdates.forEach((update) => {
+            tx.update(db.children.doc(update.childId), {
+              photoUrl: update.photoUrl,
+            });
+          });
+        });
+      } catch (err) {
+        console.error("Failed to update child photos", err);
+      }
+    }
+
+    
+    try {
+      await db._instance.runTransaction(async (tx) => {
+        giftDocs.forEach((gift) => {
+          tx.set(db.gifts.doc(gift.id), gift);
+        });
+      });
+    } catch (err) {
+      throw new Error("Failed to create gifts");
+    }
+
+    // Generate family link
+    const familyLink = await createFamilyLink({
+      familyId,
+      active: true,
+    });
+
+    return familyLink;
   });
