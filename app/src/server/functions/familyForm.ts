@@ -69,7 +69,7 @@ const familyFormStateSchema = z.object({
 
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>; // just extracts the ts type based on zod schema
 
-export default createServerFn({ method: "POST" })
+export const submitFamilyForm = createServerFn({ method: "POST" })
   .inputValidator(familyFormStateSchema)
   .handler(async ({ data }) => {
     const formData = data as FamilyFormInput;
@@ -270,3 +270,5 @@ export default createServerFn({ method: "POST" })
 
     return familyLink;
   });
+
+export default submitFamilyForm;

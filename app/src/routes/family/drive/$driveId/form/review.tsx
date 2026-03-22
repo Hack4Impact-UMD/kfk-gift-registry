@@ -10,6 +10,10 @@ import {
 import { GeneralInfoForm } from "@/components/form/sections/GeneralInfo";
 import { ChildInfoForm } from "@/components/form/sections/ChildInfo";
 import { GiftDetailsForm } from "@/components/form/sections/GiftDetails";
+import {
+  buildFamilyFormSubmitPayload,
+  useSubmitFamilyForm,
+} from "@/hooks/mutations/useSubmitFamilyForm";
 
 export const Route = createFileRoute("/family/drive/$driveId/form/review")({
   component: RouteComponent,
@@ -41,6 +45,8 @@ function RouteComponent() {
   const { formState } = useFormContext();
   const navigate = useNavigate();
   const { driveId } = Route.useParams();
+
+  const submitMutation = useSubmitFamilyForm();
 
   const generalInfoForm = useGeneralInfoForm();
   const childrenFormHook = useChildrenForm();
@@ -99,14 +105,31 @@ function RouteComponent() {
         </div>
       ))}
 
-      <FormItem className="flex gap-4 pt-4 mt-6">
+      <FormItem className="flex flex-col gap-2 pt-4 mt-6">
+        {submitMutation.isError && (
+          <p className="text-sm text-red-600">
+            {submitMutation.error instanceof Error
+              ? submitMutation.error.message
+              : String(submitMutation.error)}
+          </p>
+        )}
         <Button
           type="button"
           size="lg"
-          className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
-          onClick={() => alert("Submitted!")}
+          disabled={submitMutation.isPending}
+          className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg disabled:opacity-60"
+          onClick={() => {
+            try {
+              const payload = buildFamilyFormSubmitPayload(driveId, formState);
+              submitMutation.mutate(payload, {
+                onSuccess: () => alert("Submitted successfully."),
+              });
+            } catch (e) {
+              alert(e instanceof Error ? e.message : String(e));
+            }
+          }}
         >
-          Submit!
+          {submitMutation.isPending ? "Submitting…" : "Submit!"}
         </Button>
       </FormItem>
     </div>
