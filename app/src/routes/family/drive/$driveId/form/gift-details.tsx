@@ -8,7 +8,7 @@ import {
   GiftIcon,
   XCircleIcon,
 } from "@heroicons/react/24/solid";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useFormContext } from "@/components/providers/FormProvider";
 import { childGiftSchema, giftsFormSchema } from "@/lib/formSchemas";
 import { FormCheckbox, FormFieldInput } from "@/components/form/formcomponents";
@@ -24,6 +24,7 @@ import { FormItem } from "@/components/ui/form";
 import { FormProgressBar } from "@/components/form/FormProgressBar";
 import { useProgressBarNavigation } from "@/hooks/form/FormHooks";
 import LadyBug from "@/assets/form/ladybug.png";
+import { fetchProductDetails } from "@/server/functions/giftLinks";
 
 export const Route = createFileRoute(
   "/family/drive/$driveId/form/gift-details",
@@ -52,6 +53,83 @@ function GiftsStep() {
   // -1: "Dashboard".
   // 0, 1, 2, 3, ...: Specific forms for that child
   const [activeChildIndex, setActiveChildIndex] = useState<number>(-1);
+
+  const [fetchStatus, setFetchStatus] = useState<
+    Record<string, { loading: boolean; error: string | null }>
+  >({});
+
+  const manuallyEditedRef = useRef<Set<string>>(new Set());
+
+  const lastFetchedUrlRef = useRef<Record<string, string>>({});
+
+  const handleUrlBlur = async (
+    key: string,
+    url: string,
+    nameFieldPath: string,
+  ) => {
+    if (!url) return;
+
+    const requestedUrl = url;
+    const currentNameValue =
+      (form.getFieldValue(nameFieldPath as any) as string) || "";
+    const nameIsEmpty = currentNameValue.trim() === "";
+
+    if (requestedUrl !== lastFetchedUrlRef.current[key]) {
+      manuallyEditedRef.current.delete(key);
+    }
+
+    if (requestedUrl === lastFetchedUrlRef.current[key] && !nameIsEmpty) {
+      return;
+    }
+
+    lastFetchedUrlRef.current[key] = requestedUrl;
+    setFetchStatus((prev) => ({
+      ...prev,
+      [key]: { loading: true, error: null },
+    }));
+
+    try {
+      const result = await fetchProductDetails({ data: { url: requestedUrl } });
+
+      if (lastFetchedUrlRef.current[key] !== requestedUrl) {
+        return;
+      }
+
+      setFetchStatus((prev) => ({
+        ...prev,
+        [key]: { loading: false, error: null },
+      }));
+
+      const latestNameValue =
+        (form.getFieldValue(nameFieldPath as any) as string) || "";
+      const nameStillEmpty = latestNameValue.trim() === "";
+
+      if (nameStillEmpty || !manuallyEditedRef.current.has(key)) {
+        form.setFieldValue(nameFieldPath as any, result.productName as any);
+      }
+    } catch (error) {
+      if (lastFetchedUrlRef.current[key] !== requestedUrl) {
+        return;
+      }
+
+      setFetchStatus((prev) => ({
+        ...prev,
+        [key]: {
+          loading: false,
+          error:
+            "Unable to fetch product item, please double check and make sure link is correct",
+        },
+      }));
+    }
+  };
+
+  const makeTrackedNameField = (field: any, key: string) => ({
+    ...field,
+    handleChange: (value: string) => {
+      manuallyEditedRef.current.add(key);
+      field.handleChange(value);
+    },
+  });
 
   const reconciledGiftSelections = childrenNameList.map((childName) => {
     const existing = formState.gifts?.giftSelections.find(
@@ -260,15 +338,38 @@ function GiftsStep() {
                       },
                     }}
                   >
-                    {(field) => (
-                      <FormFieldInput
-                        field={field}
-                        Icon={GiftIcon}
-                        label={`Gift #${i + 1} URL${i != 0 ? " (Optional)" : ""}`}
-                        placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
-                        required={i == 0}
-                      />
-                    )}
+                    {(field) => {
+                      const key = `${activeChildIndex}-gifts-${i}`;
+                      const status = fetchStatus[key];
+                      const nameFieldPath = `giftSelections[${activeChildIndex}].gifts[${i}].giftName`;
+                      return (
+                        <>
+                          <div
+                            onBlur={() =>
+                              handleUrlBlur(key, field.state.value, nameFieldPath)
+                            }
+                          >
+                            <FormFieldInput
+                              field={field}
+                              Icon={GiftIcon}
+                              label={`Gift #${i + 1} URL${i != 0 ? " (Optional)" : ""}`}
+                              placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
+                              required={i == 0}
+                            />
+                          </div>
+                          {status?.loading && (
+                            <p className="text-xs text-slate-500 mt-1 pl-1">
+                              Fetching product info...
+                            </p>
+                          )}
+                          {status?.error && (
+                            <p className="text-xs text-red-500 mt-1 pl-1">
+                              {status.error}
+                            </p>
+                          )}
+                        </>
+                      );
+                    }}
                   </form.Field>
                   <form.Field
                     name={`giftSelections[${activeChildIndex}].gifts[${i}].giftName`}
@@ -280,15 +381,18 @@ function GiftsStep() {
                       },
                     }}
                   >
-                    {(field) => (
-                      <FormFieldInput
-                        field={field}
-                        Icon={GiftIcon}
-                        label={`Gift #${i + 1} Name${i != 0 ? " (Optional)" : ""}`}
-                        placeholder="e.g. Monopoly"
-                        required={i == 0}
-                      />
-                    )}
+                    {(field) => {
+                      const key = `${activeChildIndex}-gifts-${i}`;
+                      return (
+                        <FormFieldInput
+                          field={makeTrackedNameField(field, key)}
+                          Icon={GiftIcon}
+                          label={`Gift #${i + 1} Name${i != 0 ? " (Optional)" : ""}`}
+                          placeholder="e.g. Monopoly"
+                          required={i == 0}
+                        />
+                      );
+                    }}
                   </form.Field>
                 </div>
               ))}
@@ -318,15 +422,38 @@ function GiftsStep() {
                       },
                     }}
                   >
-                    {(field) => (
-                      <FormFieldInput
-                        field={field}
-                        Icon={GiftIcon}
-                        label={`Backup Gift #${i + 1} URL`}
-                        placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
-                        required
-                      />
-                    )}
+                    {(field) => {
+                      const key = `${activeChildIndex}-backupGifts-${i}`;
+                      const status = fetchStatus[key];
+                      const nameFieldPath = `giftSelections[${activeChildIndex}].backupGifts[${i}].giftName`;
+                      return (
+                        <>
+                          <div
+                            onBlur={() =>
+                              handleUrlBlur(key, field.state.value, nameFieldPath)
+                            }
+                          >
+                            <FormFieldInput
+                              field={field}
+                              Icon={GiftIcon}
+                              label={`Backup Gift #${i + 1} URL`}
+                              placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
+                              required
+                            />
+                          </div>
+                          {status?.loading && (
+                            <p className="text-xs text-slate-500 mt-1 pl-1">
+                              Fetching product info...
+                            </p>
+                          )}
+                          {status?.error && (
+                            <p className="text-xs text-red-500 mt-1 pl-1">
+                              {status.error}
+                            </p>
+                          )}
+                        </>
+                      );
+                    }}
                   </form.Field>
                   <form.Field
                     name={`giftSelections[${activeChildIndex}].backupGifts[${i}].giftName`}
@@ -338,15 +465,18 @@ function GiftsStep() {
                       },
                     }}
                   >
-                    {(field) => (
-                      <FormFieldInput
-                        field={field}
-                        Icon={GiftIcon}
-                        label={`Backup Gift #${i + 1} Name`}
-                        placeholder="e.g. Monopoly"
-                        required
-                      />
-                    )}
+                    {(field) => {
+                      const key = `${activeChildIndex}-backupGifts-${i}`;
+                      return (
+                        <FormFieldInput
+                          field={makeTrackedNameField(field, key)}
+                          Icon={GiftIcon}
+                          label={`Backup Gift #${i + 1} Name`}
+                          placeholder="e.g. Monopoly"
+                          required
+                        />
+                      );
+                    }}
                   </form.Field>
                 </div>
               ))}
@@ -365,7 +495,12 @@ function GiftsStep() {
 
             <Button
               type="button"
-              onClick={() => setActiveChildIndex(-1)}
+              onClick={() => {
+                if (document.activeElement instanceof HTMLElement) {
+                  document.activeElement.blur();
+                }
+                setTimeout(() => setActiveChildIndex(-1), 150);
+              }}
               variant="outline"
               className="flex h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg"
             >
