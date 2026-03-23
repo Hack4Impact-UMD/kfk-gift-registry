@@ -13,7 +13,8 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as StorefrontRouteRouteImport } from './routes/_storefront/route'
+import { Route as StorefrontIndexRouteImport } from './routes/_storefront/index'
 import { Route as SignupSuccessRouteImport } from './routes/signup/success'
 import { Route as FamilyTokenRouteImport } from './routes/family/$token'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
@@ -56,10 +57,14 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const StorefrontRouteRoute = StorefrontRouteRouteImport.update({
+  id: '/_storefront',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StorefrontIndexRoute = StorefrontIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => StorefrontRouteRoute,
 } as any)
 const SignupSuccessRoute = SignupSuccessRouteImport.update({
   id: '/signup/success',
@@ -184,7 +189,7 @@ const FamilyDriveDriveIdFormChildrenRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof StorefrontIndexRoute
   '/data': typeof DataRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
@@ -212,7 +217,7 @@ export interface FileRoutesByFullPath {
   '/family/drive/$driveId/form/review': typeof FamilyDriveDriveIdFormReviewRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof StorefrontIndexRoute
   '/data': typeof DataRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
@@ -241,7 +246,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_storefront': typeof StorefrontRouteRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/data': typeof DataRoute
   '/login': typeof LoginRoute
@@ -251,6 +256,7 @@ export interface FileRoutesById {
   '/_authenticated/hello': typeof AuthenticatedHelloRoute
   '/family/$token': typeof FamilyTokenRouteWithChildren
   '/signup/success': typeof SignupSuccessRoute
+  '/_storefront/': typeof StorefrontIndexRoute
   '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
   '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
@@ -328,7 +334,7 @@ export interface FileRouteTypes {
     | '/family/drive/$driveId/form/review'
   id:
     | '__root__'
-    | '/'
+    | '/_storefront'
     | '/_authenticated'
     | '/data'
     | '/login'
@@ -338,6 +344,7 @@ export interface FileRouteTypes {
     | '/_authenticated/hello'
     | '/family/$token'
     | '/signup/success'
+    | '/_storefront/'
     | '/_authenticated/staff/admin'
     | '/_authenticated/staff/volunteer'
     | '/_authenticated/staff/approved'
@@ -358,7 +365,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  StorefrontRouteRoute: typeof StorefrontRouteRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   DataRoute: typeof DataRoute
   LoginRoute: typeof LoginRoute
@@ -399,12 +406,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_storefront': {
+      id: '/_storefront'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof StorefrontRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_storefront/': {
+      id: '/_storefront/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof StorefrontIndexRouteImport
+      parentRoute: typeof StorefrontRouteRoute
     }
     '/signup/success': {
       id: '/signup/success'
@@ -563,6 +577,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface StorefrontRouteRouteChildren {
+  StorefrontIndexRoute: typeof StorefrontIndexRoute
+}
+
+const StorefrontRouteRouteChildren: StorefrontRouteRouteChildren = {
+  StorefrontIndexRoute: StorefrontIndexRoute,
+}
+
+const StorefrontRouteRouteWithChildren = StorefrontRouteRoute._addFileChildren(
+  StorefrontRouteRouteChildren,
+)
+
 interface AuthenticatedStaffAdminRouteRouteChildren {
   AuthenticatedStaffAdminUsersRoute: typeof AuthenticatedStaffAdminUsersRoute
 }
@@ -669,7 +695,7 @@ const FamilyDriveDriveIdRouteWithChildren =
   FamilyDriveDriveIdRoute._addFileChildren(FamilyDriveDriveIdRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  StorefrontRouteRoute: StorefrontRouteRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   DataRoute: DataRoute,
   LoginRoute: LoginRoute,

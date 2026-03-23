@@ -454,12 +454,13 @@ function RouteComponent() {
                       registerMutation.isPending
                     }
                     type="submit"
-                    className={`mt-4 ${registerMutation.isPending
+                    className={`mt-4 ${
+                      registerMutation.isPending
                         ? "bg-[#0A2161]"
                         : isDirty && canSubmit
                           ? "bg-kfk-blue"
                           : "bg-[#737A87]"
-                      } w-1/2 text-white font-semibold py-3 rounded-full hover:bg-[#005BFF] transition`}
+                    } w-1/2 text-white font-semibold py-3 rounded-full hover:bg-[#005BFF] transition`}
                   >
                     {registerMutation.isPending
                       ? "Creating Account..."

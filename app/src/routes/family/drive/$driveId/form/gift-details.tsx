@@ -346,7 +346,11 @@ function GiftsStep() {
                         <>
                           <div
                             onBlur={() =>
-                              handleUrlBlur(key, field.state.value, nameFieldPath)
+                              handleUrlBlur(
+                                key,
+                                field.state.value,
+                                nameFieldPath,
+                              )
                             }
                           >
                             <FormFieldInput
@@ -430,7 +434,11 @@ function GiftsStep() {
                         <>
                           <div
                             onBlur={() =>
-                              handleUrlBlur(key, field.state.value, nameFieldPath)
+                              handleUrlBlur(
+                                key,
+                                field.state.value,
+                                nameFieldPath,
+                              )
                             }
                           >
                             <FormFieldInput
