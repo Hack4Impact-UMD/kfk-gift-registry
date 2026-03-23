@@ -64,10 +64,10 @@ export function ChildInfoForm({
                   min={1}
                   max={10}
                   placeholder="e.g. 2"
-                  value={field.state.value || "1"}
+                  value={(field.state.value as any) ?? ""}
                   onChange={(e) => {
-                    const num = Number(e.target.value);
-                    field.handleChange(num);
+                    const raw = e.target.value;
+                    field.handleChange(raw === "" ? ("" as any) : Number(raw));
                   }}
                   onBlur={field.handleBlur}
                   disabled={disabled}
