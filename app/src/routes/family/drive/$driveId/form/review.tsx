@@ -56,6 +56,19 @@ function RouteComponent() {
 
   const childrenNames = formState.children?.children.map((c) => c.name) ?? [];
 
+  if (submitted) {
+    return (
+      <div className="flex flex-col gap-10 items-center justify-center min-h-screen text-center">
+        <h2 className="text-2xl font-bold text-[var(--color-kfk-blue)]">
+          Thank you for submitting!
+        </h2>
+        <p className="text-gray-600 max-w-md">
+          Your family's gift drive information has been received and will be reviewed shortly.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-10">
       {/* General Information */}

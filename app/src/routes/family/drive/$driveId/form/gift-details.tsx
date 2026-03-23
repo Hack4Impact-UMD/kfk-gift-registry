@@ -6,7 +6,7 @@ import {
   ChevronRightIcon,
   XCircleIcon,
 } from "@heroicons/react/24/solid";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useFormContext } from "@/components/providers/FormProvider";
 import { childGiftSchema, giftsFormSchema } from "@/lib/formSchemas";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { FormItem } from "@/components/ui/form";
 import { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { GiftDetailsForm } from "@/components/form/sections/GiftDetails";
 import LadyBug from "@/assets/form/ladybug.png";
+import { fetchProductDetails } from "@/server/functions/giftLinks";
 
 export const Route = createFileRoute(
   "/family/drive/$driveId/form/gift-details",
@@ -175,7 +176,8 @@ function GiftsStep() {
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="w-full">
+      <div className="flex flex-col gap-10">
       <div>
         <h2 className="text-2xl font-bold text-[var(--color-kfk-blue)] text-center mb-2">
           {childrenNameList[activeChildIndex]}'s Gift Selection
@@ -184,7 +186,6 @@ function GiftsStep() {
           <em>Please choose up to 3 gifts for your child.</em>
         </p>
       </div>
-
       <GiftDetailsForm
         form={form}
         childIndex={activeChildIndex}
@@ -198,8 +199,9 @@ function GiftsStep() {
         className="flex h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg"
       >
         <ChevronLeftIcon className="mr-2 h-6 w-6" />
-        Back
-      </Button>
+          Back
+        </Button>
+      </div>
     </div>
   );
 }
