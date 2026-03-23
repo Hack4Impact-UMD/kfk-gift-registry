@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useFormContext } from "@/components/providers/FormProvider";
@@ -45,6 +46,7 @@ function RouteComponent() {
   const { formState } = useFormContext();
   const navigate = useNavigate();
   const { driveId } = Route.useParams();
+  const [submitted, setSubmitted] = useState(false);
 
   const submitMutation = useSubmitFamilyForm();
 
@@ -116,20 +118,20 @@ function RouteComponent() {
         <Button
           type="button"
           size="lg"
-          disabled={submitMutation.isPending}
+          disabled={submitMutation.isPending || submitted}
           className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg disabled:opacity-60"
           onClick={() => {
             try {
               const payload = buildFamilyFormSubmitPayload(driveId, formState);
               submitMutation.mutate(payload, {
-                onSuccess: () => alert("Submitted successfully."),
+                onSuccess: () => setSubmitted(true),
               });
             } catch (e) {
               alert(e instanceof Error ? e.message : String(e));
             }
           }}
         >
-          {submitMutation.isPending ? "Submitting…" : "Submit!"}
+          {submitted ? "Submitted!" : submitMutation.isPending ? "Submitting…" : "Submit!"}
         </Button>
       </FormItem>
     </div>

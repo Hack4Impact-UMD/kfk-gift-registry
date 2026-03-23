@@ -23,22 +23,39 @@ export function buildFamilyFormSubmitPayload(
       parentName: gi.parentName,
       email: gi.email,
       phoneNumber: gi.phoneNumber ?? "",
+      privateNotes: "",
       address: {
         street: gi.streetAddress,
         city: gi.city,
         state: gi.state,
         zipCode: gi.zipCode,
-        ...(gi.addressLine2?.trim()
-          ? { addressLine2: gi.addressLine2.trim() }
-          : {}),
+        addressLine2: gi.addressLine2?.trim() ?? "",
       },
     },
-    children,
-    gifts: sanitizeGiftsForServer(gifts),
+    children: cleanChildrenObjects(children),
+    gifts: cleanGiftsObjects(gifts),
   };
 }
 
-function sanitizeGiftsForServer(g: GiftsFormData): NonNullable<FamilyFormInput["gifts"]> {
+function cleanChildrenObjects(
+  children: NonNullable<FamilyFormState["children"]>,
+): NonNullable<FamilyFormInput["children"]> {
+  return {
+    ...children,
+    additionalNotes: children.additionalNotes?.trim() ?? "",
+    children: children.children.map((child) => ({
+      ...child,
+      diagnosis: child.diagnosis?.trim() ?? "",
+      hospitalTreatedAt: child.hospitalTreatedAt?.trim() ?? "",
+      socialWorkerName: child.socialWorkerName?.trim() ?? "",
+      photoUrl: child.photoUrl ?? "",
+      treatmentLength: child.treatmentLength?.trim() ?? "",
+      blurb: child.blurb?.trim() ?? "",
+    })),
+  };
+}
+
+function cleanGiftsObjects(g: GiftsFormData): NonNullable<FamilyFormInput["gifts"]> {
   return {
     giftSelections: g.giftSelections.map((sel) => ({
       childName: sel.childName,
