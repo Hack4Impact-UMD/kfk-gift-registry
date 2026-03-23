@@ -5,7 +5,6 @@ import { CardDescription } from "@/components/ui/card";
 type GiftDetailsFormProps = {
   form: ReturnType<typeof useGiftsForm>;
   childIndex: number;
-  childName: string;
   disabled?: boolean;
 };
 

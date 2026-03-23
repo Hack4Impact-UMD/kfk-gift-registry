@@ -177,7 +177,8 @@ export const childInfoSchema = z.object({
     .string()
     .refine(
       (value) => {
-        return value.trim().split(" ").length <= 50;
+        const wordCount = value.match(/\S+/g)?.length ?? 0;
+        return wordCount <= 50;
       },
       {
         message: "Blurb must be at most 50 words",
@@ -211,7 +212,13 @@ export const childrenFormSchema = z.object({
   children: z.array(childInfoSchema).min(1, "At least one child is required"),
   additionalNotes: z.string().optional().or(z.literal("")),
   consentPhotosPublic: z.boolean(),
-});
+}).refine(
+  (data) => data.children.length === data.numChildren,
+  {
+    message: "Number of children must match the count field",
+    path: ["children"],
+  }
+);
 
 const giftSchema = z
   .object({

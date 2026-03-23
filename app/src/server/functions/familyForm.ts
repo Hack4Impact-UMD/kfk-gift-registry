@@ -135,23 +135,25 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       throw new Error("Failed to create family and children");
     }
 
-    // Create gift documents
+    // Create gift documents using index-based correlation to avoid name collisions
     const giftDocs: Array<Gift> = [];
-    const childMap = new Map<string, string>();
-    childDocs.forEach((child) => {
-      const formChild = formData.children!.children.find(
-        (c) => c.name === child.name,
+    
+    // Ensure childDocs and formData.children.children have the same length
+    if (childDocs.length !== formData.children!.children.length) {
+      throw new Error(
+        `Child array length mismatch: ${childDocs.length} vs ${formData.children!.children.length}`,
       );
-      if (formChild) {
-        childMap.set(formChild.name, child.id);
-      }
-    });
+    }
 
-    formData.gifts!.giftSelections.forEach((selection) => {
-      const childId = childMap.get(selection.childName);
-      if (!childId) {
-        throw new Error(`Child not found: ${selection.childName}`);
+    formData.gifts!.giftSelections.forEach((selection, giftSelectionIndex) => {
+      // Use the same index to find the corresponding child
+      if (giftSelectionIndex >= childDocs.length) {
+        throw new Error(
+          `Gift selection index ${giftSelectionIndex} out of bounds for ${childDocs.length} children`,
+        );
       }
+
+      const childId = childDocs[giftSelectionIndex].id;
 
       // Add regular gifts
       selection.gifts.forEach((gift) => {
@@ -194,11 +196,15 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
 
     // upload child profile pictures to GCS
     const childPhotoUpdates: Array<{ childId: string; photoUrl: string }> = [];
-    for (const child of childDocs) {
-      const formChild = formData.children!.children.find(
-        (c) => c.name === child.name,
-      );
-      if (formChild?.photoUrl && formChild.photoUrl.startsWith("data:")) {
+    for (let i = 0; i < childDocs.length; i++) {
+      const child = childDocs[i];
+      const formChild = formData.children!.children[i];
+      
+      if (!formChild) {
+        continue; // Skip if form child doesn't exist at this index
+      }
+
+      if (formChild.photoUrl && formChild.photoUrl.startsWith("data:")) {
         // convert data URL to buffer and upload to GCS
         try {
           const base64Data = formChild.photoUrl.split(",")[1];
@@ -217,18 +223,23 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
             },
           });
 
-          // get public URL
-          const publicUrl = `https://storage.googleapis.com/${bucket.name}/children/pfps/${child.id}.${ext}`;
+          // Generate a signed URL (valid for 7 days) instead of public URL due to storage.rules restrictions
+          const [signedUrl] = await file.getSignedUrl({
+            version: 'v4',
+            action: 'read',
+            expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+          });
+
           childPhotoUpdates.push({
             childId: child.id,
-            photoUrl: publicUrl,
+            photoUrl: signedUrl,
           });
         } catch (err) {
           console.error(`Failed to upload photo for child ${child.id}:`, err);
           // Continue without photo instead of just failing everything about the submission
         }
-      } else if (formChild?.photoUrl) {
-        // alr URL, keep it the same
+      } else if (formChild.photoUrl) {
+        // Already a URL, keep it the same
         childPhotoUpdates.push({
           childId: child.id,
           photoUrl: formChild.photoUrl,

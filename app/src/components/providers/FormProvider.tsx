@@ -83,7 +83,13 @@ function loadLocalStorageFormState(driveId: string): FamilyFormState {
 const FORM_LOCAL_SAVE_DEBOUNCE = 500;
 
 export function FormProvider({ children, driveId }: { children: ReactNode, driveId: string }) {
-  const [formState, setFormState] = useState<FamilyFormState>(loadLocalStorageFormState(driveId));
+  const [formState, setFormState] = useState<FamilyFormState>({});
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setFormState(loadLocalStorageFormState(driveId));
+    }
+  }, [driveId]);
 
   useEffect(() => {
     const ref = setTimeout(() => {
@@ -103,6 +109,9 @@ export function FormProvider({ children, driveId }: { children: ReactNode, drive
   };
 
   const resetForm = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(formLocalStorageKey(driveId));
+    }
     setFormState({});
   };
 

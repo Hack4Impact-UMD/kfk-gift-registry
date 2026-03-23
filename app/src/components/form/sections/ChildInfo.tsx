@@ -68,24 +68,6 @@ export function ChildInfoForm({
                   onChange={(e) => {
                     const num = Number(e.target.value);
                     field.handleChange(num);
-                    const current = form.state.values.children;
-                    const newChildren = Array.from(
-                      { length: num },
-                      (_, i) =>
-                        current[i] ?? {
-                          name: "",
-                          age: "",
-                          diagnosis: "",
-                          hospitalTreatedAt: "",
-                          socialWorkerName: "",
-                          photoUrl: "",
-                          status: "",
-                          treatmentLength: "",
-                          blurb: "",
-                          isSibling: false,
-                        },
-                    );
-                    form.setFieldValue("children", newChildren);
                   }}
                   onBlur={field.handleBlur}
                   disabled={disabled}

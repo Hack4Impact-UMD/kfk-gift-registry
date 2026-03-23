@@ -1,4 +1,4 @@
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
 import { FormProvider } from "@/components/providers/FormProvider";
 import {
   Card,
@@ -15,6 +15,11 @@ export const Route = createFileRoute("/family/drive/$driveId/form")({
 
 function FormLayoutComponent() {
   const { driveId } = Route.useParams();
+  const location = useLocation();
+  
+  // Hide progress bar on consent route since it's the initial step before the main form steps
+  const isConsentRoute = location.pathname.includes("/form/consent");
+
   return (
     <FormProvider driveId={driveId}>
       <div className="min-h-screen p-4 bg-gray-50 flex flex-col items-center">
@@ -25,7 +30,7 @@ function FormLayoutComponent() {
                 Fill all required fields to go to next step
                 <span className="text-destructive">*</span>
               </CardDescription>
-              <FormProgressBar driveId={driveId} />
+              {!isConsentRoute && <FormProgressBar driveId={driveId} />}
             </CardHeader>
             <CardContent>
               <Outlet />
