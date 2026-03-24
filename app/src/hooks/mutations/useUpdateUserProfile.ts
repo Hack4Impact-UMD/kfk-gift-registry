@@ -8,7 +8,7 @@ export function useUpdateUserProfile() {
   return useMutation({
     mutationFn: (params: {
       userId: string;
-      updates: { firstName?: string; lastName?: string; phone?: string };
+      updates: { name?: string; phone?: string };
     }) => updateUserProfile({ data: params }),
     onSuccess: (_data, variables) => {
       // Invalidate the specific user profile and all users list

@@ -43,10 +43,7 @@ export const registerSchema = z
     fullName: z
       .string()
       .min(1, "This field is required")
-      .max(100, "Name is too long")
-      .refine((val) => val.trim().split(" ").length >= 2, {
-        message: "Please provide both first and last name",
-      }),
+      .max(100, "Name is too long"),
     phoneNumber: z
       .string()
       .min(1, "This field is required")
@@ -157,23 +154,18 @@ function RouteComponent() {
 
   const form = useForm({
     defaultValues: {
-      fullName: invite.firstName + " " + invite.lastName,
+      fullName: invite.name,
       phoneNumber: "",
       email: invite.email,
       password: "",
       confirmPassword: "",
     },
     onSubmit: ({ value }) => {
-      const nameParts = value.fullName.trim().split(" ");
-      const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(" ") || "";
-
       registerMutation.mutate(
         {
           data: {
             inviteId: invite.id,
-            firstName,
-            lastName,
+            name: value.fullName.trim(),
             phone: formatToE164(value.phoneNumber),
             password: value.password,
           },
