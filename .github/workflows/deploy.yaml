@@ -44,6 +44,10 @@ jobs:
           runConfig:
             minInstances: 0
           env:
+            - variable: GOOGLE_BUILDABLE
+              value: app
+              availability:
+                - BUILD
             - variable: VITE_FIREBASE_API_KEY
               value: "$FIREBASE_API_KEY"
               availability:

@@ -15,7 +15,10 @@
         ".git",
         "firebase-debug.log",
         "firebase-debug.*.log",
-        "*.local"
+        "*.local",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        ".runtimeconfig.json"
       ],
       "predeploy": [
         "pnpm run build",
@@ -25,7 +28,8 @@
     }
   ],
   "storage": {
-    "rules": "storage.rules"
+    "rules": "storage.rules",
+    "bucket": "kfk-gift-registry.firebasestorage.app"
   },
   "emulators": {
     "apphosting": {
@@ -52,13 +56,14 @@
   },
   "apphosting": {
     "backendId": "kfk-gift-registry",
-    "rootDir": "app",
+    "rootDir": ".",
     "ignore": [
       "node_modules",
       ".git",
       "firebase-debug.log",
       "firebase-debug.*.log",
       "functions"
-    ]
+    ],
+    "alwaysDeployFromSource": true
   }
 }
