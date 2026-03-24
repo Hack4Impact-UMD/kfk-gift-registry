@@ -1,5 +1,9 @@
 {
   "name": "functions",
+  "version": "0.1.0",
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "lint": "oxlint .",
     "build": "tsc",
