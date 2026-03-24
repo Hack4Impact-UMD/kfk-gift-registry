@@ -18,9 +18,9 @@
         "*.local"
       ],
       "predeploy": [
-        "cd functions && npm run lint",
-        "cd functions && npm run build",
-        "cd functions && npx isolate -r ../"
+        "pnpm run build",
+        "isolate",
+        "pnpm --dir functions/isolate install --frozen-lockfile"
       ]
     }
   ],
