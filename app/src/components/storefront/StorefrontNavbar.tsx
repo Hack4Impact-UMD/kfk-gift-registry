@@ -2,23 +2,29 @@ import { Link } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { Input } from "@/components/ui/input"; 
 import { Button } from "@/components/ui/button"; 
+import { 
+    AdjustmentsHorizontalIcon,
+    ArrowTopRightOnSquareIcon,
+    MagnifyingGlassIcon,
+    ShoppingCartIcon
+} from "../icons";
 
 export function StorefrontNavbar() {
   return (
     <div className="mx-8">
-      {/* Top Row */}
+      
       <div className="px-4 flex items-center justify-between">
         <Link to="/">
           <img src={KFKLogo} alt="Kisses for Kyle" className="max-w-[288px] mt-2" />
         </Link>
 
-        {/* Right Actions */}
         <div className="flex items-center gap-3">
           <Link
             to="/" // TEMP for "/tutorial"
-            className="text-sm font-bold text-kfk-blue hover:underline"
+            className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline"
           >
             Storefront Tutorial
+            <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-1 shrink-0" />
           </Link>
         </div>
       </div>
@@ -26,12 +32,11 @@ export function StorefrontNavbar() {
       <div className="px-4 flex items-center justify-between">
         <Link 
             to="/"
-            className="border border-kfk-red text-kfk-red py-1 px-4 rounded-sm font-gaegu"
+            className="border border-kfk-red text-kfk-red py-1 px-20 rounded-sm font-gaegu"
         >
           Annual Gift Drive
         </Link>
 
-        {/* Right Actions */}
         <div className="flex items-center gap-3">
 
           <Link to="/login">
@@ -47,20 +52,35 @@ export function StorefrontNavbar() {
           <Link 
             to="/" // TEMP for "/checkout"
           > 
-            <Button variant="default">Your Cart</Button>
+            <Button variant="default">
+                Your Cart
+                <ShoppingCartIcon />
+            </Button>
           </Link>
 
           <Button variant="destructive">Donate!</Button>
         </div>
       </div>
 
-      <div className="px-4 pb-3 flex items-center gap-3">
-        <Button variant="outline">Filters</Button>
+      <div className="-mx-8 my-4 bg-sidebar-ring py-[0.5px]"></div>
 
-        <Input
-          placeholder="Search"
-          className=""
-        />
+      <div className="px-4 pb-3 flex items-center gap-3">
+        <Button 
+            variant="outline" 
+            className="border-sidebar-ring text-muted-foreground hover:bg-transparent"
+        >
+            <AdjustmentsHorizontalIcon />
+            Filters
+        </Button>
+
+        <div className="relative w-full">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+            <Input
+                placeholder="Search"
+                className="pl-9 border-sidebar-ring"
+            />
+        </div>
       </div>
     </div>
   );
