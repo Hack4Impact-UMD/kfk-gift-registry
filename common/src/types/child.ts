@@ -22,6 +22,8 @@ export type ChildStatus =
   | "sibling_in_treatment"
   | "bereaved_sibling";
 
+type TimePeriod = "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
+
 export interface Child {
   id: string;
   name: string;
@@ -31,8 +33,8 @@ export interface Child {
   treatmentLevel?: TreatmentLevel;
   familyId: string;
   diagnosis: string;
-  diagnosisLengthYears?: number;
-  offTreatmentDurationYears?: number;
+  diagnosisLengthYears?: TimePeriod;
+  offTreatmentDurationYears?: TimePeriod;
   livesAtHome: boolean;
   publicBlurb?: string;
   createdAt: string;
