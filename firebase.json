@@ -48,5 +48,16 @@
       "enabled": true
     },
     "singleProjectMode": true
+  },
+  "apphosting": {
+    "backendId": "kfk-gift-registry",
+    "rootDir": "app",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "functions"
+    ]
   }
 }
