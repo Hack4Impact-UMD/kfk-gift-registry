@@ -20,7 +20,7 @@
       "predeploy": [
         "cd functions && npm run lint",
         "cd functions && npm run build",
-        "cd \"$RESOURCE_DIR\" && npx isolate -r ../"
+        "cd functions && npx isolate -r ../"
       ]
     }
   ],
