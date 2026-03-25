@@ -18,7 +18,12 @@ const config = defineConfig({
   environments: {
     nitro: {
       resolve: {
-        external: [],
+        external: [
+          "firebase-admin",
+          "@google-cloud/firestore",
+          "google-gax",
+          "@grpc/grpc-js",
+        ],
       },
     },
   },
