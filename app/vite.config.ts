@@ -18,7 +18,7 @@ const config = defineConfig({
   environments: {
     nitro: {
       resolve: {
-        external: ["@opentelemetry/api", "fast-xml-parser"],
+        external: [],
       },
     },
   },
