@@ -3,9 +3,8 @@ import { getCookies, setCookie } from "@tanstack/react-start/server";
 import z from "zod";
 import { Duration } from "luxon";
 import { UserRole } from "common";
-import { authMiddleware } from "./middleware/authMiddleware";
 import type { UserRecord } from "firebase-admin/auth";
-import { getServerAuth, getServerDB } from "@/lib/firebase.server";
+import { getServerAuth } from "@/lib/firebase.server";
 
 export type AuthUser = {
   uid: string;
@@ -113,11 +112,12 @@ export const loginWithToken = createServerFn({
 export const logoutSession = createServerFn({
   method: "POST",
 })
-  .middleware([authMiddleware])
-  .handler(async ({ context }) => {
+  .handler(async () => {
+    const session = await verifySession();
+    if (!session) throw new Error("Not authed");
     const auth = getServerAuth();
 
-    await auth.revokeRefreshTokens(context.authUser.uid);
+    await auth.revokeRefreshTokens(session.uid);
 
     setCookie(SESSION_COOKIE_NAME, "", {
       httpOnly: true,
@@ -128,15 +128,3 @@ export const logoutSession = createServerFn({
     });
   });
 
-export const getCurrentUserProfile = createServerFn({
-  method: "GET",
-})
-  .middleware([authMiddleware])
-  .handler(async ({ context }) => {
-    const db = getServerDB();
-    const userDoc = await db.users.doc(context.authUser.uid).get();
-
-    if (!userDoc.exists) throw new Error("User not found");
-
-    return userDoc.data()!;
-  });
