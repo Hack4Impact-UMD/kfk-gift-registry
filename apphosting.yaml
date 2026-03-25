@@ -7,6 +7,9 @@ runConfig:
   # cpu: 1
   # memoryMiB: 512
 
+scripts:
+  runCommand: node app/.output/server/index.mjs
+
 env:
   # Tell the buildpack to build the `app` package within the monorepo
   - variable: GOOGLE_BUILDABLE

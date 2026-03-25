@@ -43,6 +43,8 @@ jobs:
           cat > apphosting.yaml << HEREDOC
           runConfig:
             minInstances: 0
+          scripts:
+            runCommand: node app/.output/server/index.mjs
           env:
             - variable: GOOGLE_BUILDABLE
               value: app

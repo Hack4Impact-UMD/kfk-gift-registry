@@ -7,6 +7,7 @@
     "dev": "vite dev --port 3000",
     "prebuild": "pnpm -C ../common build",
     "build": "vite build",
+    "start": "node .output/server/index.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "oxlint .",
