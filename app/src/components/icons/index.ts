@@ -18,4 +18,6 @@ export { PhoneIcon } from "./PhoneIcon";
 export { ShoppingCartIcon } from "./ShoppingCartIcon";
 export { UsersIcon } from "./UsersIcon";
 export { UserCircleIcon } from "./UserCircleIcon";
+export { UserGroupIcon } from "./UserGroupIcon";
+export { UserIcon } from "./UserIcon";
 export { XCircleIcon } from "./XCircleIcon";

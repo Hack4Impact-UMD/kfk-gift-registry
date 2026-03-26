@@ -1,6 +1,10 @@
 import Ladybug from '@/assets/ladybug-storefront.png'
-import { GiftIcon, UserIcon, UserGroupIcon } from '@heroicons/react/24/solid'
 import { Progress } from "@/components/ui/progress"
+import {
+    GiftIcon,
+    UserGroupIcon,
+    UserIcon
+} from "@/components/icons"
 
 interface StatProps {
     children?: any,
