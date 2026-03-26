@@ -13,7 +13,9 @@ export type StorefrontChild = Omit<
   | "offTreatmentDurationYears"
   | "hospital"
   | "public"
->;
+> & {
+  gifts: StorefrontGift[];
+};
 
 export type StorefrontGift = Pick<
   Gift,
