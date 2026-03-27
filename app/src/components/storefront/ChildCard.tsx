@@ -13,9 +13,11 @@ export type ChildCardData = Pick<
 
 interface Props {
   child: ChildCardData;
+  color?: string;
+  bgColor?: string;
 }
 
-export function ChildCard({ child }: Props) {
+export function ChildCard({ child, color, bgColor }: Props) {
   const {
     name,
     photoUrl,
@@ -30,9 +32,9 @@ export function ChildCard({ child }: Props) {
 
   return (
     <div
-      className={`flex flex-col items-center rounded-xl px-2 py-4 shadow-sm bg-kfk-red`}
+      className={`flex flex-col items-center rounded-xl mt-4 mx-2 px-4 py-6 shadow-sm ${bgColor}`}
     >
-      <div className="rounded-lg overflow-hidden border-2 border-kfk-red">
+      <div className={`rounded-lg w-full overflow-hidden border-3 border-${color}`}>
         <img
           src={photoUrl || ProfilePhoto}
           alt={name}
@@ -40,37 +42,37 @@ export function ChildCard({ child }: Props) {
         />
       </div>
 
-      <div className="mt-4 px-1 bg-card border-2 border-kfk-red rounded-sm flex flex-col items-center font-gaegu">
-        <h3 className="font-semibold text-xl text-kfk-red">{name}</h3>
+      <div className={`mt-4 px-1 w-full gap-2 bg-card border-3 border-${color} rounded-md flex flex-col items-center font-gaegu`}>
+        <h3 className={`font-semibold mt-2 text-3xl text-${color}`}>{name}</h3>
 
         <span
-          className={`text-xs px-2 py-0.5 rounded-full font-medium border border-foreground ${
+          className={`text-xs px-8 py-0.5 rounded-sm font-medium border ${
             isWarrior
-              ? "bg-kfk-muted-yellow/30"
+              ? "bg-kfk-muted-yellow/30 text-kfk-brown border-kfk-brown"
               : "bg-kfk-light-blue text-kfk-blue border-kfk-blue"
           }`}
         >
           {isWarrior ? "Warrior" : "Super Sib"}
         </span>
 
-        <p className="text-xs mt-1">
+        <p className="text-xs">
           {age} years old
         </p>
 
-        <p className="text-xs mt-1 line-clamp-2">
+        <p className="text-xs line-clamp-2">
           {diagnosis}
         </p>
 
-        <div className="my-1 flex items-center text-xs font-medium text-muted-foreground">
-          <GiftIcon className="h-3 w-3 mr-2 text-card fill-kfk-red" /> {giftsReceived} / {giftsRequested} gifts
+        <div className="mb-2 flex items-center text-xs font-medium text-muted-foreground">
+          <GiftIcon className={`h-3 w-3 mr-2 text-card fill-${color}`} /> {giftsReceived} / {giftsRequested} Gifts Fulfilled
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 w-full">
         <Button
             type="button"
-            variant="outline"
-            className="text-kfk-red rounded-full border-2 border-kfk-red w-full font-gaegu"
+            variant="outlineShadowOnly"
+            className={`text-${color} rounded-full border-2 border-${color} w-full font-gaegu transition-shadow duration-200`}
         >
             View More
         </Button>
