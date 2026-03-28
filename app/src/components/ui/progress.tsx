@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Progress as ProgressPrimitive } from "radix-ui"
-import myImage from "@/assets/ladybug-footprints.svg";
+import LadybugFootprints from "@/assets/ladybug-footprints.svg";
 import { cn } from "@/lib/utils"
 
 function Progress({
@@ -48,7 +48,7 @@ function StoreFrontProgress({
         <div 
           className="absolute inset-0 w-full h-full"
           style={{
-            backgroundImage: `url(${myImage})`,
+            backgroundImage: `url(${LadybugFootprints})`,
             backgroundRepeat: 'repeat-x',
             backgroundPosition: 'left',
           }}
