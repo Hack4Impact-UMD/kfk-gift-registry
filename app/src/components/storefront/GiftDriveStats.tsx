@@ -1,5 +1,5 @@
-import Ladybug from '@/assets/ladybug-storefront.png'
-import { Progress } from "@/components/ui/progress"
+import Ladybug from '@/assets/ladybug-storefront.svg'
+import { StoreFrontProgress } from "@/components/ui/progress"
 import {
     GiftIcon,
     UserGroupIcon,
@@ -37,7 +37,10 @@ export function GiftDriveStats({days, giftsPurchased, totalGiftsPurchased, gifts
         <div className="flex flex-col gap-5 px-50 py-7 bg-kfk-blue text-white font-gaegu">
             <h2 className="text-center text-2xl font-bold">{days} Days Left to Donate!</h2>
             <div className="relative w-full p-2 bg-[#FFF8C2] rounded-full">
-                <Progress value={progressPercentage} className="[&>*]:bg-kfk-yellow h-6 bg-transparent" />
+                <StoreFrontProgress 
+                    value={progressPercentage} 
+                    className="[&>*]:bg-kfk-yellow [&>*]:bg-repeat-x h-6 bg-transparent" 
+                />
                 <div
                     className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full p-1 text-white"
                     style={
