@@ -21,7 +21,8 @@ export function formatToE164(value: string): string {
 export function e164ToDisplay(e164: string): string {
   if (!e164) return "";
   const digits = e164.replace(/\D/g, "");
-  const local = digits.startsWith("1") && digits.length === 11 ? digits.slice(1) : digits;
+  const local =
+    digits.startsWith("1") && digits.length === 11 ? digits.slice(1) : digits;
   if (local.length !== 10) return e164;
   return `(${local.slice(0, 3)}) ${local.slice(3, 6)} ${local.slice(6)}`;
 }
@@ -30,7 +31,10 @@ export function e164ToDisplay(e164: string): string {
  * Drop-in replacement for Input that auto-formats to (555)-555-5555 as the
  * user types and emits the formatted value through the standard onChange event.
  */
-export function PhoneInput({ onChange, ...props }: React.ComponentProps<typeof Input>) {
+export function PhoneInput({
+  onChange,
+  ...props
+}: React.ComponentProps<typeof Input>) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatPhoneDisplay(e.target.value);
     onChange?.({

@@ -31,18 +31,21 @@ export function ProfileHeader({ authCtx, avatarUrl }: ProfileHeaderProps) {
   const router = useRouter();
 
   const handleUpdateName = useCallback(() => {
-    updateProfile({
-      userId: user.uid,
-      updates: {
-        name
-      }
-    }, {
-      onSettled: () => {
-        router.invalidate();
-        setEditingName(false);
-      }
-    })
-  }, [router, user.uid, updateProfile, name])
+    updateProfile(
+      {
+        userId: user.uid,
+        updates: {
+          name,
+        },
+      },
+      {
+        onSettled: () => {
+          router.invalidate();
+          setEditingName(false);
+        },
+      },
+    );
+  }, [router, user.uid, updateProfile, name]);
 
   return (
     <div className="relative overflow-hidden rounded-lg bg-card px-6 py-6 flex border-3 border-kfk-light-blue gap-6 items-center">
@@ -55,7 +58,13 @@ export function ProfileHeader({ authCtx, avatarUrl }: ProfileHeaderProps) {
       <div className="flex flex-col">
         <div className="flex flex-row items-center gap-2">
           {editingName ? (
-            <Input className="text-3xl! px-0.5 font-semibold text-foreground" value={name} onChange={e => setName(e.target.value)} disabled={isPending} onBlur={handleUpdateName} />
+            <Input
+              className="text-3xl! px-0.5 font-semibold text-foreground"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={isPending}
+              onBlur={handleUpdateName}
+            />
           ) : (
             <>
               <h2 className="text-3xl font-semibold text-foreground">

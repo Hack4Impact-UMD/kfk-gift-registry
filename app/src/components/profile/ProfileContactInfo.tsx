@@ -2,56 +2,69 @@ import { useCallback, useState } from "react";
 import type { AuthContextAuthenticated } from "@/server/auth.ts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InlineEditInput } from "@/components/ui/inline-edit-input";
-import { e164ToDisplay, formatPhoneDisplay, formatToE164 } from "@/components/ui/phone-input";
+import {
+  e164ToDisplay,
+  formatPhoneDisplay,
+  formatToE164,
+} from "@/components/ui/phone-input";
 import { useUpdateUserProfile } from "@/hooks/mutations/useUpdateUserProfile";
 import { useRouter } from "@tanstack/react-router";
 import { ReauthAlertDialog } from "../auth/ReauthAlertDialog";
 import { verifyBeforeUpdateEmail } from "firebase/auth";
 import { getClientAuth } from "@/lib/firebase.client";
 
-export function ContactInfoSection({ authCtx }: { authCtx: AuthContextAuthenticated }) {
+export function ContactInfoSection({
+  authCtx,
+}: {
+  authCtx: AuthContextAuthenticated;
+}) {
   const { mutate: updateProfile } = useUpdateUserProfile();
   const [editingPhone, setEditingPhone] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
-  const [phoneLocal, setPhoneLocal] = useState(() => e164ToDisplay(authCtx.authUser.phone ?? ""));
+  const [phoneLocal, setPhoneLocal] = useState(() =>
+    e164ToDisplay(authCtx.authUser.phone ?? ""),
+  );
   const [email, setEmail] = useState(authCtx.authUser.email ?? "");
   const [showReauth, setShowReauth] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
 
   const handlePhoneSave = useCallback(() => {
-    updateProfile({
-      userId: authCtx.authUser.uid,
-      updates: {
-        phone: formatToE164(phoneLocal)
-      }
-    }, {
-      onError: (err) => {
-        //TODO: replace with toast
-        console.error(err)
-        setPhoneLocal(e164ToDisplay(authCtx.authUser.phone ?? ""));
+    updateProfile(
+      {
+        userId: authCtx.authUser.uid,
+        updates: {
+          phone: formatToE164(phoneLocal),
+        },
       },
-      onSuccess: () => {
-        //TODO: replace with toast
-        console.log("worked")
-        router.invalidate();
+      {
+        onError: (err) => {
+          //TODO: replace with toast
+          console.error(err);
+          setPhoneLocal(e164ToDisplay(authCtx.authUser.phone ?? ""));
+        },
+        onSuccess: () => {
+          //TODO: replace with toast
+          console.log("worked");
+          router.invalidate();
+        },
+        onSettled: () => {
+          setEditingPhone(false);
+        },
       },
-      onSettled: () => {
-        setEditingPhone(false)
-      }
-    })
-  }, [updateProfile, authCtx, phoneLocal, router])
+    );
+  }, [updateProfile, authCtx, phoneLocal, router]);
 
   const handleUpdateEmail = useCallback(async () => {
     const auth = await getClientAuth();
     try {
       if (!auth.currentUser) throw new Error("not authenticated");
-      await verifyBeforeUpdateEmail(auth.currentUser, email)
+      await verifyBeforeUpdateEmail(auth.currentUser, email);
       console.log("update link sent");
       setShowReauth(false);
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }, [email])
+  }, [email]);
 
   return (
     <Card className="rounded-lg border-3 border-kfk-light-blue">
@@ -65,14 +78,14 @@ export function ContactInfoSection({ authCtx }: { authCtx: AuthContextAuthentica
             <label className="text-md font-semibold">Email</label>
             <InlineEditInput
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               editing={editingEmail}
               onEditClick={() => setEditingEmail(true)}
               onSaveClick={() => {
                 if (email === authCtx.authUser.email) {
                   setEditingEmail(false);
                   return;
-                };
+                }
                 setShowReauth(true);
                 setEditingEmail(false);
               }}
@@ -83,7 +96,9 @@ export function ContactInfoSection({ authCtx }: { authCtx: AuthContextAuthentica
             <label className="text-md font-semibold">Phone Number</label>
             <InlineEditInput
               value={phoneLocal}
-              onChange={e => setPhoneLocal(formatPhoneDisplay(e.target.value))}
+              onChange={(e) =>
+                setPhoneLocal(formatPhoneDisplay(e.target.value))
+              }
               editing={editingPhone}
               onEditClick={() => setEditingPhone(true)}
               onSaveClick={handlePhoneSave}
@@ -91,7 +106,12 @@ export function ContactInfoSection({ authCtx }: { authCtx: AuthContextAuthentica
           </div>
         </div>
       </CardContent>
-      <ReauthAlertDialog open={showReauth} authCtx={authCtx} onConfirmed={handleUpdateEmail} onFail={() => setShowReauth(false)} />
-    </Card >
+      <ReauthAlertDialog
+        open={showReauth}
+        authCtx={authCtx}
+        onConfirmed={handleUpdateEmail}
+        onFail={() => setShowReauth(false)}
+      />
+    </Card>
   );
 }

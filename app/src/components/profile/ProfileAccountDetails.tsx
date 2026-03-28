@@ -4,7 +4,11 @@ import { InlineEditInput } from "@/components/ui/inline-edit-input";
 import { getClientAuth } from "@/lib/firebase.client";
 import type { AuthContextAuthenticated } from "@/server/auth";
 
-export function AccountDetailsSection({ authCtx }: { authCtx: AuthContextAuthenticated }) {
+export function AccountDetailsSection({
+  authCtx,
+}: {
+  authCtx: AuthContextAuthenticated;
+}) {
   const handlePasswordReset = async () => {
     const auth = await getClientAuth();
     try {
@@ -14,7 +18,7 @@ export function AccountDetailsSection({ authCtx }: { authCtx: AuthContextAuthent
       //TODO: replace with toast
       console.error(err);
     }
-  }
+  };
   return (
     <Card className="rounded-lg border-3 border-kfk-light-blue">
       <CardHeader className="flex flex-row items-center justify-between">

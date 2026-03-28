@@ -1,1 +1,31 @@
-{"kind":"identitytoolkit#DownloadAccountResponse","users":[{"localId":"AWOZkRsBvadjhxX2mctEZLBTnBvS","createdAt":"1771886638149","lastLoginAt":"1774317434461","displayName":"Admin User","photoUrl":"","passwordHash":"fakeHash:salt=fakeSaltIca8RsH8GCIWOmdZPj1q:password=password","salt":"fakeSaltIca8RsH8GCIWOmdZPj1q","passwordUpdatedAt":1774317376611,"customAttributes":"{\"role\":\"ADMIN\"}","providerUserInfo":[{"providerId":"password","email":"admin@test.com","federatedId":"admin@test.com","rawId":"admin@test.com","displayName":"Admin User","photoUrl":""}],"validSince":"1774317376","email":"admin@test.com","emailVerified":false,"disabled":false,"lastRefreshAt":"2026-03-24T01:57:14.461Z"}]}
+{
+  "kind": "identitytoolkit#DownloadAccountResponse",
+  "users": [
+    {
+      "localId": "AWOZkRsBvadjhxX2mctEZLBTnBvS",
+      "createdAt": "1771886638149",
+      "lastLoginAt": "1774317434461",
+      "displayName": "Admin User",
+      "photoUrl": "",
+      "passwordHash": "fakeHash:salt=fakeSaltIca8RsH8GCIWOmdZPj1q:password=password",
+      "salt": "fakeSaltIca8RsH8GCIWOmdZPj1q",
+      "passwordUpdatedAt": 1774317376611,
+      "customAttributes": "{\"role\":\"ADMIN\"}",
+      "providerUserInfo": [
+        {
+          "providerId": "password",
+          "email": "admin@test.com",
+          "federatedId": "admin@test.com",
+          "rawId": "admin@test.com",
+          "displayName": "Admin User",
+          "photoUrl": ""
+        }
+      ],
+      "validSince": "1774317376",
+      "email": "admin@test.com",
+      "emailVerified": false,
+      "disabled": false,
+      "lastRefreshAt": "2026-03-24T01:57:14.461Z"
+    }
+  ]
+}
