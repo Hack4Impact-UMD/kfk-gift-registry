@@ -39,10 +39,10 @@ interface PaginationProp {
   childrenPerPage: number,
   setCurrentPage: (page: number) => any,
   currentPage: number,
+  MAX_BUTTONS: number,
+  IMMEDIATE_PAGES: number,
 }
-const Pagination = ( {totalChildren, childrenPerPage, setCurrentPage, currentPage} : PaginationProp ) => {
-  const MAX_BUTTONS = 9;
-  const IMMEDIATE_PAGES = 4;
+const Pagination = ( {totalChildren, childrenPerPage, setCurrentPage, currentPage, MAX_BUTTONS, IMMEDIATE_PAGES} : PaginationProp ) => {
   const totalPages = Math.ceil(totalChildren/childrenPerPage)
   let pages = [];
 
@@ -198,7 +198,7 @@ const mockChildren: (ChildCardData & { familyId: string })[] =
   }));
 
 function App() {
-  const [childrenPerPage, setChildrenPerPage] = useState<number>(1);
+  const [childrenPerPage, setChildrenPerPage] = useState<number>(25);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const lastChildIndex = currentPage * childrenPerPage;
@@ -250,6 +250,8 @@ function App() {
           childrenPerPage={childrenPerPage}
           setCurrentPage={setCurrentPage}
           currentPage={currentPage}
+          MAX_BUTTONS={9}
+          IMMEDIATE_PAGES={4}
         />
       </div>
       
