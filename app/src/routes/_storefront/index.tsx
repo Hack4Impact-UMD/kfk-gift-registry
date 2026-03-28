@@ -212,7 +212,7 @@ function App() {
   // STEP 2: read search/sort param
   const { search, sort } = Route.useSearch();
  
-  // STEP 3: filter children by search term (name or diagnosis) and sorting filter
+  // STEP 3: filter children by search term (name or diagnosis) and sorting filters
   const filteredChildren = (search
     ? mockChildren.filter(
         (child) =>

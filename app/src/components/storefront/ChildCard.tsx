@@ -34,7 +34,7 @@ export function ChildCard({ child, color, bgColor }: Props) {
     <div
       className={`flex flex-col items-center rounded-xl mt-4 mx-2 px-4 py-6 shadow-sm ${bgColor}`}
     >
-      <div className={`rounded-lg w-full overflow-hidden border-3 border-${color}`}>
+      <div className={`rounded-lg w-full overflow-hidden border-4 border-${color}`}>
         <img
           src={photoUrl || ProfilePhoto}
           alt={name}
@@ -42,11 +42,11 @@ export function ChildCard({ child, color, bgColor }: Props) {
         />
       </div>
 
-      <div className={`mt-4 px-1 w-full gap-2 bg-card border-3 border-${color} rounded-md flex flex-col items-center font-gaegu`}>
-        <h3 className={`font-semibold mt-2 text-3xl text-${color}`}>{name}</h3>
+      <div className={`mt-5 px-1 w-full gap-1 bg-card border-4 border-${color} rounded-md flex flex-col items-center font-gaegu`}>
+        <h3 className={`font-semibold mt-3 text-3xl text-${color}`}>{name}</h3>
 
         <span
-          className={`text-xs px-8 py-0.5 rounded-sm font-medium border ${
+          className={`text-s px-10 py-0.5 rounded-sm font-semibold border ${
             isWarrior
               ? "bg-kfk-muted-yellow/30 text-kfk-brown border-kfk-brown"
               : "bg-kfk-light-blue text-kfk-blue border-kfk-blue"
@@ -55,16 +55,21 @@ export function ChildCard({ child, color, bgColor }: Props) {
           {isWarrior ? "Warrior" : "Super Sib"}
         </span>
 
-        <p className="text-xs">
+        <p className="text-s font-semibold">
           {age} years old
         </p>
 
-        <p className="text-xs line-clamp-2">
-          {diagnosis}
-        </p>
+        {isWarrior ? (
+          <p className="text-s font-semibold line-clamp-2">
+            {diagnosis}
+          </p>
+        ) : (
+          <p className="text-s">&nbsp;</p>
+        )}
 
-        <div className="mb-2 flex items-center text-xs font-medium text-muted-foreground">
-          <GiftIcon className={`h-3 w-3 mr-2 text-card fill-${color}`} /> {giftsReceived} / {giftsRequested} Gifts Fulfilled
+        <div className="mb-3 flex items-center gap-1.5 text-s font-semibold text-muted-foreground">
+          <GiftIcon className={`h-3 w-3 text-${color} fill-${color}`} />
+          {giftsReceived} / {giftsRequested} Gifts Fulfilled
         </div>
       </div>
 
@@ -72,7 +77,7 @@ export function ChildCard({ child, color, bgColor }: Props) {
         <Button
             type="button"
             variant="outlineShadowOnly"
-            className={`text-${color} rounded-full border-2 border-${color} w-full font-gaegu transition-shadow duration-200`}
+            className={`text-${color} rounded-full border-2 border-${color} w-full font-gaegu font-semibold transition-shadow duration-200`}
         >
             View More
         </Button>
