@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
 import { ChildCard, ChildCardData } from "@/components/storefront/ChildCard";
 import { Child, Family, Gift } from "../../../../common/src/types";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_storefront/")({
   component: App,
@@ -9,6 +10,34 @@ export const Route = createFileRoute("/_storefront/")({
 
 const familyColors = ["kfk-red", "kfk-brown", "kfk-green", "kfk-blue"];
 const familyBgColors = ["bg-kfk-red", "bg-kfk-yellow", "bg-kfk-green", "bg-kfk-blue"];
+
+// Pagination
+interface PaginationProp {
+  totalChildren: number,
+  childrenPerPage: number,
+  setCurrentPage: (page: number) => any,
+  currentPage: number,
+}
+const Pagination = ( {totalChildren, childrenPerPage, setCurrentPage, currentPage} : PaginationProp ) => {
+  let pages = [];
+
+  for (let i = 1; i <= Math.ceil(totalChildren/childrenPerPage); i++) {
+    pages.push(i);
+  }
+
+  return (
+    <div className="mx-auto flex justify-center gap-2">
+      {pages.map((page) => {
+        return (
+          <button 
+            onClick={() => setCurrentPage(page)}
+            className={`rounded-full mt-10 w-10 h-10 ${page == currentPage ? "bg-kfk-blue text-white" : "bg-transparent text-primary hover:bg-gray-100"} transition-all text-xl`}
+          >{page}</button>
+        )
+      })}
+    </div>
+  )
+}
 
 // Mock families
 const mockFamilies: Family[] = [
@@ -124,6 +153,13 @@ const mockChildren: (ChildCardData & { familyId: string })[] =
   }));
 
 function App() {
+  const [childrenPerPage, setChildrenPerPage] = useState<number>(5);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const lastChildIndex = currentPage * childrenPerPage;
+  const firstChildIndex = lastChildIndex - childrenPerPage;
+  const currentChildrenProfiles = mockChildren.slice(firstChildIndex, lastChildIndex);
+
   return (
     <div className="p-4 space-y-6">
       <GiftDriveStats
@@ -136,7 +172,7 @@ function App() {
 
       <div className="px-16 py-4">
         <div className="grid grid-cols-5 gap-4">
-          {mockChildren.map((child) => {
+          {currentChildrenProfiles.map((child) => {
             const familyIndex = mockFamilies.findIndex(
               (f) => f.id === child.familyId
             );
@@ -163,6 +199,13 @@ function App() {
             );
           })}
         </div>
+
+        <Pagination
+          totalChildren={mockChildrenFull.length}
+          childrenPerPage={childrenPerPage}
+          setCurrentPage={setCurrentPage}
+          currentPage={currentPage}
+        />
       </div>
       
     </div>
