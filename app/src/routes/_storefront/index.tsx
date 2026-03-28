@@ -3,9 +3,14 @@ import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
 import { ChildCard, ChildCardData } from "@/components/storefront/ChildCard";
 import { Child, Family, Gift } from "../../../../common/src/types";
 import { useState } from "react";
+import { z } from "zod";
 import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from "@heroicons/react/24/outline";
 
 export const Route = createFileRoute("/_storefront/")({
+  // STEP 1: define the search param for TanStack Router
+  validateSearch: z.object({
+    search: z.string().optional(),
+  }),
   component: App,
 });
 
@@ -195,15 +200,29 @@ const mockChildren: (ChildCardData & { familyId: string })[] =
     giftsRequested: 3,
     giftsReceived: Math.floor(Math.random() * 3),
     familyId: child.familyId,
-  }));
+  }))
+    .sort((a, b) => a.familyId.localeCompare(b.familyId));
+  ;
 
 function App() {
-  const [childrenPerPage, setChildrenPerPage] = useState<number>(25);
+  const [childrenPerPage] = useState<number>(25);
   const [currentPage, setCurrentPage] = useState<number>(1);
+ 
+  // STEP 2: read search param from URL
+  const { search } = Route.useSearch();
+ 
+  // STEP 3: filter children by search term (name or diagnosis)
+  const filteredChildren = search
+    ? mockChildren.filter(
+        (child) =>
+          child.name.toLowerCase().includes(search.toLowerCase()) ||
+          child.diagnosis?.toLowerCase().includes(search.toLowerCase())
+      )
+    : mockChildren;
 
   const lastChildIndex = currentPage * childrenPerPage;
   const firstChildIndex = lastChildIndex - childrenPerPage;
-  const currentChildrenProfiles = mockChildren.slice(firstChildIndex, lastChildIndex);
+  const currentChildrenProfiles = filteredChildren.slice(firstChildIndex, lastChildIndex);
 
   return (
     <div className="p-4 space-y-6">
@@ -246,7 +265,7 @@ function App() {
         </div>
 
         <Pagination
-          totalChildren={mockChildrenFull.length}
+          totalChildren={filteredChildren.length}
           childrenPerPage={childrenPerPage}
           setCurrentPage={setCurrentPage}
           currentPage={currentPage}

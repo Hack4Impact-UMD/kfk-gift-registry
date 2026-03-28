@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { Input } from "@/components/ui/input"; 
 import { Button } from "@/components/ui/button"; 
@@ -10,6 +10,19 @@ import {
 } from "../icons";
 
 export function StorefrontNavbar() {
+  const navigate = useNavigate();
+ 
+  // Reads search param — returns undefined on routes that don't define it
+  const search = useSearch({ strict: false }) as { search?: string };
+  const searchValue = search?.search ?? "";
+ 
+  const handleSearch = (value: string) => {
+    navigate({
+      // @ts-ignore — search param is defined per-route
+      search: (prev: any) => ({ ...prev, search: value || undefined }),
+    });
+  };
+ 
   return (
     <div className="mx-8">
       
@@ -74,12 +87,13 @@ export function StorefrontNavbar() {
         </Button>
 
         <div className="relative w-full">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-
-            <Input
-                placeholder="Search"
-                className="pl-9 border-sidebar-ring"
-            />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search"
+            className="pl-9 border-sidebar-ring"
+            value={searchValue}
+            onChange={(e) => handleSearch(e.target.value)}
+          />
         </div>
       </div>
     </div>
