@@ -3,6 +3,7 @@ import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
 import { ChildCard, ChildCardData } from "@/components/storefront/ChildCard";
 import { Child, Family, Gift } from "../../../../common/src/types";
 import { useState } from "react";
+import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from "@heroicons/react/24/outline";
 
 export const Route = createFileRoute("/_storefront/")({
   component: App,
@@ -10,6 +11,27 @@ export const Route = createFileRoute("/_storefront/")({
 
 const familyColors = ["kfk-red", "kfk-brown", "kfk-green", "kfk-blue"];
 const familyBgColors = ["bg-kfk-red", "bg-kfk-yellow", "bg-kfk-green", "bg-kfk-blue"];
+
+const getPaginationRange = (
+  pages:Array<number>,
+  currentPage: number,
+  totalPages: number,
+  maxButtons: number,
+  immediatePages: number
+) => {
+  let range = [];
+
+  if (pages.length <= maxButtons)
+    range = pages;
+  else if (currentPage <= immediatePages)
+    range = [...pages.slice(0, immediatePages + 3), -1, totalPages]; // -1 represents the ellipsis
+  else if (currentPage > totalPages - immediatePages)
+    range = [1, -1, ...pages.slice(totalPages - immediatePages - 3, totalPages)];
+  else
+    range = [1, -1, ...pages.slice(currentPage - 1 - immediatePages/2, currentPage + immediatePages/2), -1, totalPages];
+
+  return range;
+}
 
 // Pagination
 interface PaginationProp {
@@ -19,22 +41,45 @@ interface PaginationProp {
   currentPage: number,
 }
 const Pagination = ( {totalChildren, childrenPerPage, setCurrentPage, currentPage} : PaginationProp ) => {
+  const MAX_BUTTONS = 9;
+  const IMMEDIATE_PAGES = 4;
+  const totalPages = Math.ceil(totalChildren/childrenPerPage)
   let pages = [];
 
-  for (let i = 1; i <= Math.ceil(totalChildren/childrenPerPage); i++) {
+  for (let i = 1; i <= totalPages; i++) {
     pages.push(i);
   }
 
+  const range = getPaginationRange(pages, currentPage, totalPages, MAX_BUTTONS, IMMEDIATE_PAGES);
+
   return (
-    <div className="mx-auto flex justify-center gap-2">
-      {pages.map((page) => {
+    <div className="mx-auto mt-10 flex justify-center gap-2 text-xl">
+      {/* Left Arrow */}
+      <button 
+        onClick={() => setCurrentPage(currentPage - 1)}
+        disabled={currentPage == 1}
+        className={`rounded-full pl-2 w-10 h-10 ${currentPage == 1 ? "text-gray-400" : "bg-transparent text-primary hover:bg-gray-100"} transition-all text-xl`}
+      >
+        <ChevronDoubleLeftIcon className="size-5"/>
+      </button>
+      {/* Pages */}
+      {range.map((page) => {
         return (
           <button 
             onClick={() => setCurrentPage(page)}
-            className={`rounded-full mt-10 w-10 h-10 ${page == currentPage ? "bg-kfk-blue text-white" : "bg-transparent text-primary hover:bg-gray-100"} transition-all text-xl`}
-          >{page}</button>
+            disabled={page == -1}
+            className={`rounded-full text-primary w-10 h-10 ${page != -1 ? page == currentPage ? "bg-kfk-blue text-white" : "bg-transparent hover:bg-gray-100" : ""} transition-all text-xl`}
+          >{page == -1 ? "..." : page}</button>
         )
       })}
+      {/* Right Arrow */}
+      <button 
+        onClick={() => setCurrentPage(currentPage + 1)}
+        disabled={currentPage == Math.ceil(totalChildren/childrenPerPage)}
+        className={`rounded-full pl-3 w-10 h-10 ${currentPage == totalPages ? "text-gray-400" : "bg-transparent text-primary hover:bg-gray-100"} transition-all text-xl`}
+      >
+        <ChevronDoubleRightIcon className="size-5"/>
+      </button>
     </div>
   )
 }
@@ -153,7 +198,7 @@ const mockChildren: (ChildCardData & { familyId: string })[] =
   }));
 
 function App() {
-  const [childrenPerPage, setChildrenPerPage] = useState<number>(5);
+  const [childrenPerPage, setChildrenPerPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const lastChildIndex = currentPage * childrenPerPage;
