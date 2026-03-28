@@ -14,10 +14,58 @@ export type ChildCardData = Pick<
 interface Props {
   child: ChildCardData;
   color?: string;
-  bgColor?: string;
+  // bgColor?: string;
 }
 
-export function ChildCard({ child, color, bgColor }: Props) {
+function getPatternStyle(color: string): React.CSSProperties {
+  if (color === "kfk-red") {
+    return {
+      backgroundImage: `repeating-linear-gradient(
+        -45deg,
+        #ff0000 0px,
+        #ff0000 40px,
+        #ff6666 40px,
+        #ff6666 80px
+      )`,
+    };
+  }
+  if (color === "kfk-green") {
+    return {
+      backgroundImage: `repeating-linear-gradient(
+        -45deg,
+        #1bce1b 0px,
+        #1bce1b 40px,
+        #17b017 40px,
+        #17b017 80px
+      )`,
+    };
+  }
+if (color === "kfk-brown") {
+  return {
+    backgroundColor: "#ffde43",
+    backgroundImage: `
+      radial-gradient(circle, #ffca15 40%, transparent 40%),
+      radial-gradient(circle, #ffca15 40%, transparent 40%)
+    `,
+    backgroundSize: "180px 180px",
+    backgroundPosition: "0 0, 90px 90px",
+  };
+}
+if (color === "kfk-blue") {
+  return {
+    backgroundColor: "#0839b1",
+    backgroundImage: `
+      radial-gradient(circle, #1a3fbf 40%, transparent 40%),
+      radial-gradient(circle, #1a3fbf 40%, transparent 40%)
+    `,
+    backgroundSize: "180px 180px",
+    backgroundPosition: "0 0, 90px 90px",
+  };
+}
+  return {};
+}
+
+export function ChildCard({ child, color }: Props) {
   const {
     name,
     photoUrl,
@@ -32,7 +80,8 @@ export function ChildCard({ child, color, bgColor }: Props) {
 
   return (
     <div
-      className={`flex flex-col items-center rounded-xl mt-4 mx-2 px-4 py-6 shadow-sm ${bgColor}`}
+      className={`flex flex-col items-center rounded-xl mt-4 mx-2 px-4 py-6 shadow-sm`}
+      style={getPatternStyle(color ?? "")}
     >
       <div className={`rounded-lg w-full overflow-hidden border-4 border-${color}`}>
         <img
@@ -49,7 +98,7 @@ export function ChildCard({ child, color, bgColor }: Props) {
           className={`text-s px-10 py-0.5 rounded-sm font-semibold border ${
             isWarrior
               ? "bg-kfk-muted-yellow/30 text-kfk-brown border-kfk-brown"
-              : "bg-kfk-light-blue text-kfk-blue border-kfk-blue"
+              : "bg-blue-100 text-kfk-blue border-kfk-blue"
           }`}
         >
           {isWarrior ? "Warrior" : "Super Sib"}

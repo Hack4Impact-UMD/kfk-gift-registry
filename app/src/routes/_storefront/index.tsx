@@ -16,7 +16,6 @@ export const Route = createFileRoute("/_storefront/")({
 });
 
 const familyColors = ["kfk-red", "kfk-brown", "kfk-green", "kfk-blue"];
-const familyBgColors = ["bg-kfk-red", "bg-kfk-yellow", "bg-kfk-green", "bg-kfk-blue"];
 
 const getPaginationRange = (
   pages:Array<number>,
@@ -249,8 +248,6 @@ function App() {
               (f) => f.id === child.familyId
             );
 
-            const bgColor =
-              familyBgColors[familyIndex % familyBgColors.length];
             const color =
               familyColors[familyIndex % familyColors.length];
 
@@ -264,7 +261,6 @@ function App() {
                   key={child.id}
                   child={child}
                   color={color}
-                  bgColor={bgColor}
                 />
               </Link>
               
