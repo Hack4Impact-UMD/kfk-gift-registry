@@ -51,16 +51,21 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>
-      <div className="rounded-md border bg-white">
-        <Table>
+      <div className="rounded-md border bg-white overflow-hidden">
+        <Table className="table-fixed w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="bg-gray-50/70">
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers.map((header, index) => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="font-semibold text-gray-600 text-sm"
+                      className={cn(
+                        "font-semibold text-gray-600 text-xs sm:text-sm",
+                        index === 0 && "w-[42%] sm:w-[55%] pr-4 sm:pr-6",
+                        index === 1 && "w-[18%] sm:w-[18%] pl-4 sm:pl-6",
+                        index === 2 && "w-[40%] sm:w-[27%] pl-4 sm:pl-6"
+                      )}
                     >
                       {header.isPlaceholder
                         ? null
@@ -89,8 +94,16 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
                         : "hover:bg-gray-50/60",
                     )}
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                    {row.getVisibleCells().map((cell, index) => (
+                      <TableCell
+                        key={cell.id}
+                        className={cn(
+                          "align-middle",
+                          index === 0 && "max-w-0 pr-4 sm:pr-6",
+                          index === 1 && "pl-4 sm:pl-6",
+                          index === 2 && "pl-4 sm:pl-6"
+                        )}
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),
