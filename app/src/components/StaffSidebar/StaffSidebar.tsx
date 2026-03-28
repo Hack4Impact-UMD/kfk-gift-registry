@@ -74,7 +74,7 @@ const SidebarMenuButtonWithHovering = ({
       asChild
       size={"lg"}
       className={
-        "group/button transition min-h-12 min-w-12 flex hover:text-current items-center gap-2 group-data-[collapsible=icon]:justify-center"
+        "group/button transition min-h-12 min-w-12 flex items-center gap-2 group-data-[collapsible=icon]:justify-center hover:text-current"
       }
     >
       {children}
@@ -232,7 +232,7 @@ export function StaffSidebar() {
           <SidebarMenuButtonWithHovering>
             <Link
               to="/staff/profile"
-              className="group/button flex items-center gap-3 w-full text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 hover:!bg-black hover:text-white"
+              className="group/button flex items-center gap-3 w-full text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 hover:!bg-black hover:text-white active:text-white"
               activeProps={{
                 className:
                   "group/button flex items-center gap-3 w-full text-left bg-black text-white group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0",
@@ -244,7 +244,7 @@ export function StaffSidebar() {
                 <span className="text-base font-medium">
                   {user.displayName || "User Name"}
                 </span>
-                <span className="text-sm text-gray-300">{user.role}</span>
+                <span className={`text-sm`}>{user.role}</span>
               </div>
             </Link>
           </SidebarMenuButtonWithHovering>

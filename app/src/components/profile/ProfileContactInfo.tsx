@@ -1,20 +1,57 @@
-import { useState } from "react";
-import type { AuthUser } from "@/server/auth.ts";
+import { useCallback, useState } from "react";
+import type { AuthContextAuthenticated } from "@/server/auth.ts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { PencilSquare } from "@/components/icons/PencilSquare";
+import { InlineEditInput } from "@/components/ui/inline-edit-input";
+import { e164ToDisplay, formatPhoneDisplay, formatToE164 } from "@/components/ui/phone-input";
+import { useUpdateUserProfile } from "@/hooks/mutations/useUpdateUserProfile";
+import { useRouter } from "@tanstack/react-router";
+import { ReauthAlertDialog } from "../auth/ReauthAlertDialog";
+import { verifyBeforeUpdateEmail } from "firebase/auth";
+import { getClientAuth } from "@/lib/firebase.client";
 
-interface ContactInfoSectionProps {
-  user: AuthUser;
-  phone?: string;
-}
+export function ContactInfoSection({ authCtx }: { authCtx: AuthContextAuthenticated }) {
+  const { mutate: updateProfile } = useUpdateUserProfile();
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [phoneLocal, setPhoneLocal] = useState(() => e164ToDisplay(authCtx.authUser.phone ?? ""));
+  const [email, setEmail] = useState(authCtx.authUser.email ?? "");
+  const [showReauth, setShowReauth] = useState(false);
+  const router = useRouter()
 
-export function ContactInfoSection({ user, phone }: ContactInfoSectionProps) {
-  const [contactData] = useState({
-    email: user.email || "",
-    phone: phone ?? "",
-  });
+  const handlePhoneSave = useCallback(() => {
+    updateProfile({
+      userId: authCtx.authUser.uid,
+      updates: {
+        phone: formatToE164(phoneLocal)
+      }
+    }, {
+      onError: (err) => {
+        //TODO: replace with toast
+        console.error(err)
+        setPhoneLocal(e164ToDisplay(authCtx.authUser.phone ?? ""));
+      },
+      onSuccess: () => {
+        //TODO: replace with toast
+        console.log("worked")
+        router.invalidate();
+      },
+      onSettled: () => {
+        setEditingPhone(false)
+      }
+    })
+  }, [updateProfile, authCtx, phoneLocal, router])
+
+  const handleUpdateEmail = useCallback(async () => {
+    const auth = await getClientAuth();
+    try {
+      if (!auth.currentUser) throw new Error("not authenticated");
+      await verifyBeforeUpdateEmail(auth.currentUser, email)
+      console.log("update link sent");
+      setShowReauth(false);
+    } catch (err) {
+      console.error(err)
+    }
+  }, [email])
 
   return (
     <Card className="rounded-lg border-3 border-kfk-light-blue">
@@ -26,39 +63,35 @@ export function ContactInfoSection({ user, phone }: ContactInfoSectionProps) {
         <div className="grid gap-6 md:grid-cols-2">
           <div className="flex flex-col gap-2">
             <label className="text-md font-semibold">Email</label>
-
-            <div className="relative">
-              <Input value={contactData.email} className="pr-10 shadow-md" />
-
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="group absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-muted rounded-md"
-              >
-                <PencilSquare className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
-              </Button>
-            </div>
+            <InlineEditInput
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              editing={editingEmail}
+              onEditClick={() => setEditingEmail(true)}
+              onSaveClick={() => {
+                if (email === authCtx.authUser.email) {
+                  setEditingEmail(false);
+                  return;
+                };
+                setShowReauth(true);
+                setEditingEmail(false);
+              }}
+            />
           </div>
 
           <div className="flex flex-col gap-2">
             <label className="text-md font-semibold">Phone Number</label>
-
-            <div className="relative">
-              <Input value={contactData.phone} className="pr-10 shadow-md" />
-
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="group absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-muted rounded-md"
-              >
-                <PencilSquare className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
-              </Button>
-            </div>
+            <InlineEditInput
+              value={phoneLocal}
+              onChange={e => setPhoneLocal(formatPhoneDisplay(e.target.value))}
+              editing={editingPhone}
+              onEditClick={() => setEditingPhone(true)}
+              onSaveClick={handlePhoneSave}
+            />
           </div>
         </div>
       </CardContent>
-    </Card>
+      <ReauthAlertDialog open={showReauth} authCtx={authCtx} onConfirmed={handleUpdateEmail} onFail={() => setShowReauth(false)} />
+    </Card >
   );
 }
