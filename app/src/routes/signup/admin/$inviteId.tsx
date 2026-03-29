@@ -17,6 +17,7 @@ import {
 } from "@/components/icons";
 
 import { Button } from "@/components/ui/button";
+import { PhoneInput, formatToE164 } from "@/components/ui/phone-input";
 import { getStaffInviteById } from "@/server/functions/invite";
 import { useRegisterStaffWithInvite } from "@/hooks/mutations/useRegisterStaff";
 
@@ -68,6 +69,7 @@ type InviteFieldProps = {
   placeholder: string;
   disabled?: boolean;
   startIcon: React.ReactNode;
+  inputComponent?: React.ComponentType<React.ComponentProps<typeof Input>>;
 };
 
 function InviteFieldInput({
@@ -76,6 +78,7 @@ function InviteFieldInput({
   placeholder,
   disabled,
   startIcon,
+  inputComponent: InputComponent = Input,
 }: InviteFieldProps) {
   const [showPassword, setShowPassword] = React.useState(false);
   const rawError = field.state.meta.isTouched && field.state.meta.errors?.[0];
@@ -94,13 +97,13 @@ function InviteFieldInput({
           {startIcon}
         </div>
 
-        <Input
+        <InputComponent
           type={inputType}
           name={field.name}
           id={field.id}
           value={field.state.value}
           placeholder={placeholder}
-          className={`w-full border border-muted-foreground rounded-md px-3 pl-8 py-2 mt-1 
+          className={`w-full border border-muted-foreground rounded-md px-3 pl-8 py-2 mt-1
             ${errorMessage ? "border-red-500 bg-[#FFF0F0] placeholder:text-red-500 text-red-500" : ""}`}
           onChange={(e) => field.handleChange(e.target.value)}
           onBlur={field.handleBlur}
@@ -129,16 +132,6 @@ function InviteFieldInput({
       )}
     </>
   );
-}
-
-function formatToE164(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-
-  if (digits.length === 10) {
-    return `+1${digits}`;
-  }
-
-  return `+${digits}`;
 }
 
 function RouteComponent() {
@@ -269,6 +262,7 @@ function RouteComponent() {
                     field={field}
                     placeholder="e.g. (555)-555-5555"
                     startIcon={<PhoneIcon className="size-5 fill-current" />}
+                    inputComponent={PhoneInput}
                   />
                 )}
               />

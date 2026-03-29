@@ -19,7 +19,7 @@ function DonorPage() {
     } finally {
       await router.invalidate();
     }
-  }, [logout, router]);
+  }, [router]);
 
   return (
     <div className="p-2">

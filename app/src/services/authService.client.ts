@@ -3,7 +3,7 @@ import { getClientAuth } from "@/lib/firebase.client";
 import { loginWithToken, logoutSession } from "@/server/auth";
 
 export async function login(email: string, password: string) {
-  const auth = getClientAuth();
+  const auth = await getClientAuth();
   const result = await signInWithEmailAndPassword(auth, email, password);
 
   return await loginWithToken({
@@ -14,6 +14,6 @@ export async function login(email: string, password: string) {
 }
 
 export async function logout() {
-  await signOut(getClientAuth());
+  await signOut(await getClientAuth());
   await logoutSession();
 }

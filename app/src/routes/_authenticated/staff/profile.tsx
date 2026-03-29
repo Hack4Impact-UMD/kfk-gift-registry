@@ -1,4 +1,4 @@
-import { createFileRoute, useRouteContext } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ContactInfoSection } from "@/components/profile/ProfileContactInfo";
@@ -11,31 +11,34 @@ export const Route = createFileRoute("/_authenticated/staff/profile")({
 });
 
 function RouteComponent() {
-  const { auth } = useRouteContext({ from: "/_authenticated/staff" });
-  const user = auth.authUser;
+  const { auth } = Route.useRouteContext();
+  const router = useRouter();
   return (
-    <div className="space-y-3 p-6">
-      <ProfileHeader user={user} />
+    <div className="flex flex-col items-center md:py-6">
+      <div className="space-y-3 max-w-6xl w-full">
+        <ProfileHeader authCtx={auth} />
 
-      <ContactInfoSection user={user} phone="+1 244-567-8910" />
+        <ContactInfoSection authCtx={auth} />
 
-      <AccountDetailsSection />
-      <div className="flex justify-end">
-        <Button
-          onClick={async () => {
-            try {
-              await logout();
-              window.location.reload();
-            } catch (error) {
-              console.error("Logout failed", error);
-            }
-          }}
-          variant={"destructive"}
-          className="bg-kfk-blue"
-        >
-          <LogOut className="h-4 w-4" />
-          Log-out
-        </Button>
+        <AccountDetailsSection authCtx={auth} />
+        <div className="flex justify-end">
+          <Button
+            onClick={async () => {
+              try {
+                await logout();
+              } catch (error) {
+                console.error("Logout failed", error);
+              } finally {
+                await router.invalidate();
+              }
+            }}
+            variant={"destructive"}
+            className="bg-kfk-blue"
+          >
+            <LogOut className="h-4 w-4" />
+            Log-out
+          </Button>
+        </div>
       </div>
     </div>
   );

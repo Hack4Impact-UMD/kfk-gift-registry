@@ -9,6 +9,7 @@ import { getServerAuth } from "@/lib/firebase.server";
 export type AuthUser = {
   uid: string;
   displayName: string | undefined;
+  phone: string | undefined;
   disabled: boolean;
   email: string | undefined;
   emailVerified: boolean;
@@ -19,12 +20,12 @@ export type AuthContext =
   | AuthContextAuthenticated
   | AuthContextNotAuthenticated;
 
-type AuthContextAuthenticated = {
+export type AuthContextAuthenticated = {
   isAuthed: true;
   authUser: AuthUser;
 };
 
-type AuthContextNotAuthenticated = {
+export type AuthContextNotAuthenticated = {
   isAuthed: false;
   authUser: null;
 };
@@ -36,6 +37,7 @@ const toAuthUser = (user: UserRecord): AuthUser => ({
   email: user.email,
   emailVerified: user.emailVerified,
   role: user.customClaims?.role ?? UserRole.DONOR,
+  phone: user.phoneNumber,
 });
 
 const loginSchema = z.object({
