@@ -1,4 +1,4 @@
-import { Child } from "../../../../common/src/types";
+import type { Child } from "../../../../common/src/types";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
 import { GiftIcon } from "@/components/icons/";
 import { Button } from "@/components/ui/button";
@@ -40,28 +40,28 @@ function getPatternStyle(color: string): React.CSSProperties {
       )`,
     };
   }
-if (color === "kfk-brown") {
-  return {
-    backgroundColor: "#ffde43",
-    backgroundImage: `
+  if (color === "kfk-brown") {
+    return {
+      backgroundColor: "#ffde43",
+      backgroundImage: `
       radial-gradient(circle, #ffca15 40%, transparent 40%),
       radial-gradient(circle, #ffca15 40%, transparent 40%)
     `,
-    backgroundSize: "180px 180px",
-    backgroundPosition: "0 0, 90px 90px",
-  };
-}
-if (color === "kfk-blue") {
-  return {
-    backgroundColor: "#0839b1",
-    backgroundImage: `
+      backgroundSize: "180px 180px",
+      backgroundPosition: "0 0, 90px 90px",
+    };
+  }
+  if (color === "kfk-blue") {
+    return {
+      backgroundColor: "#0839b1",
+      backgroundImage: `
       radial-gradient(circle, #1a3fbf 40%, transparent 40%),
       radial-gradient(circle, #1a3fbf 40%, transparent 40%)
     `,
-    backgroundSize: "180px 180px",
-    backgroundPosition: "0 0, 90px 90px",
-  };
-}
+      backgroundSize: "180px 180px",
+      backgroundPosition: "0 0, 90px 90px",
+    };
+  }
   return {};
 }
 
@@ -83,7 +83,9 @@ export function ChildCard({ child, color }: Props) {
       className={`flex flex-col items-center rounded-xl mt-4 mx-2 px-4 py-6 shadow-sm`}
       style={getPatternStyle(color ?? "")}
     >
-      <div className={`rounded-lg w-full overflow-hidden border-4 border-${color}`}>
+      <div
+        className={`rounded-lg w-full overflow-hidden border-4 border-${color}`}
+      >
         <img
           src={photoUrl || ProfilePhoto}
           alt={name}
@@ -91,7 +93,9 @@ export function ChildCard({ child, color }: Props) {
         />
       </div>
 
-      <div className={`mt-5 px-1 w-full gap-1 bg-card border-4 border-${color} rounded-md flex flex-col items-center font-gaegu`}>
+      <div
+        className={`mt-5 px-1 w-full gap-1 bg-card border-4 border-${color} rounded-md flex flex-col items-center font-gaegu`}
+      >
         <h3 className={`font-semibold mt-3 text-3xl text-${color}`}>{name}</h3>
 
         <span
@@ -104,9 +108,7 @@ export function ChildCard({ child, color }: Props) {
           {isWarrior ? "Warrior" : "Super Sib"}
         </span>
 
-        <p className="text-s font-semibold">
-          {age} years old
-        </p>
+        <p className="text-s font-semibold">{age} years old</p>
 
         {isWarrior ? (
           <p className="text-s text-center font-semibold line-clamp-2">
@@ -124,11 +126,11 @@ export function ChildCard({ child, color }: Props) {
 
       <div className="mt-4 w-full">
         <Button
-            type="button"
-            variant="outlineShadowOnly"
-            className={`text-${color} rounded-full border-2 border-${color} w-full font-gaegu font-semibold transition-shadow duration-200`}
+          type="button"
+          variant="outlineShadowOnly"
+          className={`text-${color} rounded-full border-2 border-${color} w-full font-gaegu font-semibold transition-shadow duration-200`}
         >
-            View More
+          View More
         </Button>
       </div>
     </div>
