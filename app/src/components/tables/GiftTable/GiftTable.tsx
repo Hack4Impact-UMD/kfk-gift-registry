@@ -30,7 +30,7 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
     if (showSuccessMessage) {
       const timer = setTimeout(() => {
         setShowSuccessMessage(false);
-      }, 8000);
+      }, 10000);
 
       return () => clearTimeout(timer);
     }
