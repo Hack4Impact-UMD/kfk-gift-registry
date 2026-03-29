@@ -146,7 +146,7 @@ function App() {
           child.name.toLowerCase().includes(search.toLowerCase()) ||
           child.diagnosis?.toLowerCase().includes(search.toLowerCase())
       )
-    : mockChildren
+    : [...mockChildren]
     ).sort((a, b) => {
       if (sort === "age-asc") return a.age - b.age;
       if (sort === "age-desc") return b.age - a.age;

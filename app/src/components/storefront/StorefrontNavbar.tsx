@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button"; 
 import {
   DropdownMenu,
+  DropdownMenuItem,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
@@ -145,12 +146,12 @@ export function StorefrontNavbar() {
             {sortValue && (
               <>
                 <DropdownMenuSeparator />
-                <button
+                <DropdownMenuItem
                   onClick={() => handleSort("")}
-                  className="w-full text-left px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground"
                 >
                   Clear filter
-                </button>
+                </DropdownMenuItem>
               </>
             )}
           </DropdownMenuContent>
