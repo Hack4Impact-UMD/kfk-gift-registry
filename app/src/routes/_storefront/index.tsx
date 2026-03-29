@@ -115,50 +115,54 @@ const mockChildrenFull: Array<Child> = mockFamilies.flatMap((family) =>
     childSocialWorker: "Jane Doe",
     giftDrive: family.giftDrive,
     public: true,
-  }))
+  })),
 );
 
 const mockChildren: Array<ChildCardData & { familyId: string }> =
-  mockChildrenFull.map((child) => ({
-    id: child.id,
-    name: child.name,
-    photoUrl: child.photoUrl,
-    category: child.category,
-    age: child.age,
-    diagnosis: child.diagnosis,
-    giftsRequested: 3,
-    giftsReceived: Math.floor(Math.random() * 3),
-    familyId: child.familyId,
-  }))
+  mockChildrenFull
+    .map((child) => ({
+      id: child.id,
+      name: child.name,
+      photoUrl: child.photoUrl,
+      category: child.category,
+      age: child.age,
+      diagnosis: child.diagnosis,
+      giftsRequested: 3,
+      giftsReceived: Math.floor(Math.random() * 3),
+      familyId: child.familyId,
+    }))
     .sort((a, b) => a.familyId.localeCompare(b.familyId));
-  ;
 
 function App() {
   const [childrenPerPage] = useState<number>(25);
   const [currentPage, setCurrentPage] = useState<number>(1);
- 
+
   // STEP 2: read search/sort param
   const { search, sort } = Route.useSearch();
- 
+
   // STEP 3: filter children by search term (name or diagnosis) and sorting filters
-  const filteredChildren = (search
-    ? mockChildren.filter(
-        (child) =>
-          child.name.toLowerCase().includes(search.toLowerCase()) ||
-          child.diagnosis?.toLowerCase().includes(search.toLowerCase())
-      )
-    : mockChildren
-    ).sort((a, b) => {
-      if (sort === "age-asc") return a.age - b.age;
-      if (sort === "age-desc") return b.age - a.age;
-      if (sort === "gifts-asc") return a.giftsReceived - b.giftsReceived;
-      if (sort === "gifts-desc") return b.giftsReceived - a.giftsReceived;
-      return 0;
-    });
+  const filteredChildren = (
+    search
+      ? mockChildren.filter(
+          (child) =>
+            child.name.toLowerCase().includes(search.toLowerCase()) ||
+            child.diagnosis?.toLowerCase().includes(search.toLowerCase()),
+        )
+      : mockChildren
+  ).sort((a, b) => {
+    if (sort === "age-asc") return a.age - b.age;
+    if (sort === "age-desc") return b.age - a.age;
+    if (sort === "gifts-asc") return a.giftsReceived - b.giftsReceived;
+    if (sort === "gifts-desc") return b.giftsReceived - a.giftsReceived;
+    return 0;
+  });
 
   const lastChildIndex = currentPage * childrenPerPage;
   const firstChildIndex = lastChildIndex - childrenPerPage;
-  const currentChildrenProfiles = filteredChildren.slice(firstChildIndex, lastChildIndex);
+  const currentChildrenProfiles = filteredChildren.slice(
+    firstChildIndex,
+    lastChildIndex,
+  );
 
   return (
     <div className="p-4 space-y-6">
@@ -174,11 +178,10 @@ function App() {
         <div className="grid grid-cols-5 gap-4">
           {currentChildrenProfiles.map((child) => {
             const familyIndex = mockFamilies.findIndex(
-              (f) => f.id === child.familyId
+              (f) => f.id === child.familyId,
             );
 
-            const color =
-              familyColors[familyIndex % familyColors.length];
+            const color = familyColors[familyIndex % familyColors.length];
 
             return (
               <Link
@@ -186,13 +189,8 @@ function App() {
                 to={`/`} // TEMP for `/child/${child.id}`
                 className="block transition-transform duration-200 ease-out hover:scale-105 hover:z-10"
               >
-                <ChildCard
-                  key={child.id}
-                  child={child}
-                  color={color}
-                />
+                <ChildCard key={child.id} child={child} color={color} />
               </Link>
-              
             );
           })}
         </div>
@@ -206,7 +204,6 @@ function App() {
           IMMEDIATE_PAGES={4}
         />
       </div>
-      
     </div>
   );
 }

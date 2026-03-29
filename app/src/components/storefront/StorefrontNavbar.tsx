@@ -1,7 +1,7 @@
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
-import { Input } from "@/components/ui/input"; 
-import { Button } from "@/components/ui/button"; 
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,11 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-    AdjustmentsHorizontalIcon,
-    ArrowTopRightOnSquareIcon,
-    MagnifyingGlassIcon,
-    ShoppingCartIcon
+import {
+  AdjustmentsHorizontalIcon,
+  ArrowTopRightOnSquareIcon,
+  MagnifyingGlassIcon,
+  ShoppingCartIcon,
 } from "../icons";
 
 export type SortOption =
@@ -34,14 +34,14 @@ export function StorefrontNavbar() {
   };
   const searchValue = search?.search ?? "";
   const sortValue = search?.sort ?? "";
- 
+
   const handleSearch = (value: string) => {
     navigate({
       // @ts-ignore — search param is defined per-route
       search: (prev: any) => ({ ...prev, search: value || undefined }),
     });
   };
- 
+
   const handleSort = (value: string) => {
     navigate({
       // @ts-ignore — router search params typing mismatch
@@ -51,7 +51,7 @@ export function StorefrontNavbar() {
       }),
     });
   };
- 
+
   const sortLabel: Record<string, string> = {
     "age-asc": "Age: Youngest → Oldest",
     "age-desc": "Age: Oldest → Youngest",
@@ -61,10 +61,13 @@ export function StorefrontNavbar() {
 
   return (
     <div className="mx-8">
-      
       <div className="px-4 flex items-center justify-between">
         <Link to="/">
-          <img src={KFKLogo} alt="Kisses for Kyle" className="max-w-[288px] mt-2" />
+          <img
+            src={KFKLogo}
+            alt="Kisses for Kyle"
+            className="max-w-[288px] mt-2"
+          />
         </Link>
 
         <div className="flex items-center gap-3">
@@ -79,31 +82,30 @@ export function StorefrontNavbar() {
       </div>
 
       <div className="px-4 flex items-center justify-between">
-        <Link 
-            to="/"
-            className="border border-kfk-red text-kfk-red py-1 px-20 rounded-sm font-gaegu"
+        <Link
+          to="/"
+          className="border border-kfk-red text-kfk-red py-1 px-20 rounded-sm font-gaegu"
         >
           Annual Gift Drive
         </Link>
 
         <div className="flex items-center gap-3">
-
           <Link to="/login">
             <Button variant="default">Staff/Donor Log-in</Button>
           </Link>
 
-          <Link 
+          <Link
             to="/" // TEMP for "/family/recover"
-          > 
+          >
             <Button variant="default">Family Recovery Link</Button>
           </Link>
 
-          <Link 
+          <Link
             to="/" // TEMP for "/checkout"
-          > 
+          >
             <Button variant="default">
-                Your Cart
-                <ShoppingCartIcon />
+              Your Cart
+              <ShoppingCartIcon />
             </Button>
           </Link>
 
@@ -113,7 +115,7 @@ export function StorefrontNavbar() {
 
       <div className="-mx-8 my-4 bg-sidebar-ring py-[0.5px]"></div>
 
-            <div className="px-4 pb-3 flex items-center gap-3">
+      <div className="px-4 pb-3 flex items-center gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -127,7 +129,10 @@ export function StorefrontNavbar() {
           <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>Sort By</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup value={sortValue} onValueChange={handleSort}>
+            <DropdownMenuRadioGroup
+              value={sortValue}
+              onValueChange={handleSort}
+            >
               <DropdownMenuRadioItem value="age-asc">
                 Age: Youngest → Oldest
               </DropdownMenuRadioItem>
