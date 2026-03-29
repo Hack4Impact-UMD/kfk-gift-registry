@@ -1,18 +1,32 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CartContainer, ConfirmationPanel } from "@/components/storefront";
-import { mockCartData } from "@/components/storefront/cartMockData";
+import { mockCartData, type CartFamily } from "@/components/storefront/cartMockData";
 
 export const Route = createFileRoute("/_storefront/checkout")({
   component: CheckoutComponent,
 });
 
 function CheckoutComponent() {
-  // Calculate totals from mock data
-  const totalGifts = mockCartData.reduce(
+  const [cartData, setCartData] = useState<Array<CartFamily>>(mockCartData);
+
+  const handleRemoveGift = (giftId: string) => {
+    setCartData((prevData) =>
+      prevData
+        .map((family) => ({
+          ...family,
+          gifts: family.gifts.filter((gift) => gift.id !== giftId),
+        }))
+        .filter((family) => family.gifts.length > 0)
+    );
+  };
+
+  // Calculate totals from current cart data
+  const totalGifts = cartData.reduce(
     (sum, family) => sum + family.gifts.length,
     0
   );
-  const totalPrice = mockCartData.reduce(
+  const totalPrice = cartData.reduce(
     (sum, family) =>
       sum + family.gifts.reduce((familySum, gift) => familySum + gift.price, 0),
     0
@@ -29,7 +43,11 @@ function CheckoutComponent() {
         {/* Left side - Cart */}
         <div className="w-[68%]">
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <CartContainer showWrapper={false} />
+            <CartContainer
+              cartData={cartData}
+              onRemoveGift={handleRemoveGift}
+              showWrapper={false}
+            />
           </div>
         </div>
 

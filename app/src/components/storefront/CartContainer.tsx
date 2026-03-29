@@ -6,20 +6,37 @@ import { cn } from "@/lib/utils";
 interface CartContainerProps {
   className?: string;
   showWrapper?: boolean;
+  cartData?: Array<CartFamily>;
+  onRemoveGift?: (giftId: string) => void;
 }
 
-export function CartContainer({ className = "", showWrapper = true }: CartContainerProps) {
-  const [cartData, setCartData] = useState<Array<CartFamily>>(mockCartData);
+export function CartContainer({
+  className = "",
+  showWrapper = true,
+  cartData: externalCartData,
+  onRemoveGift: externalOnRemoveGift,
+}: CartContainerProps) {
+  // Use external state if provided, otherwise manage internal state
+  const [internalCartData, setInternalCartData] = useState<Array<CartFamily>>(
+    mockCartData
+  );
+  const cartData = externalCartData ?? internalCartData;
 
   const handleRemoveGift = (giftId: string) => {
-    setCartData((prevData) =>
-      prevData
-        .map((family) => ({
-          ...family,
-          gifts: family.gifts.filter((gift) => gift.id !== giftId),
-        }))
-        .filter((family) => family.gifts.length > 0)
-    );
+    if (externalOnRemoveGift) {
+      // Use external handler if provided
+      externalOnRemoveGift(giftId);
+    } else {
+      // Use internal state management
+      setInternalCartData((prevData) =>
+        prevData
+          .map((family) => ({
+            ...family,
+            gifts: family.gifts.filter((gift) => gift.id !== giftId),
+          }))
+          .filter((family) => family.gifts.length > 0)
+      );
+    }
   };
 
   const content = (
