@@ -5,6 +5,7 @@ import { SiblingsCarousel } from "@/components/storefront/SiblingsCarousel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { StorefrontChild } from "@/types/storefront";
 import { GiftTable } from "@/components/tables/GiftTable/GiftTable";
+import redStripedBackground from "@/assets/red-striped-background.png";
 
 export const Route = createFileRoute("/_storefront/child/$childId")({
   component: RouteComponent,
@@ -174,7 +175,10 @@ function RouteComponent() {
     <div className="w-full min-h-screen bg-background">
       <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
         <div className="max-w-7xl mx-auto">
-          <div className="w-full px-3 py-4 sm:py-6 lg:px-12 lg:py-12 rounded-3xl bg-kfk-red">
+          <div 
+            className="w-full px-3 py-4 sm:py-6 lg:px-12 lg:py-12 rounded-3xl bg-cover bg-center"
+            style={{ backgroundImage: `url(${redStripedBackground})` }}
+          >
             <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 items-center md:items-stretch w-full">
               <div className="w-full max-w-sm md:max-w-none md:flex-1 md:min-w-0">
                 <ChildInfoCard child={child} className="h-full" />
