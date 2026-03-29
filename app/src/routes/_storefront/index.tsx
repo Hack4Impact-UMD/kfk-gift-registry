@@ -3,7 +3,7 @@ import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
 import type { ChildCardData } from "@/components/storefront/ChildCard";
 import { ChildCard } from "@/components/storefront/ChildCard";
 import type { Child, Family } from "../../../../common/src/types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { Pagination } from "@/components/storefront/Pagination";
 
@@ -140,21 +140,27 @@ function App() {
   // STEP 2: read search/sort param
   const { search, sort } = Route.useSearch();
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, sort]);
+
   // STEP 3: filter children by search term (name or diagnosis) and sorting filters
-  const filteredChildren = (search
-    ? mockChildren.filter(
-        (child) =>
-          child.name.toLowerCase().includes(search.toLowerCase()) ||
-          child.diagnosis?.toLowerCase().includes(search.toLowerCase())
-      )
-    : [...mockChildren]
-    ).sort((a, b) => {
-      if (sort === "age-asc") return a.age - b.age;
-      if (sort === "age-desc") return b.age - a.age;
-      if (sort === "gifts-asc") return a.giftsReceived - b.giftsReceived;
-      if (sort === "gifts-desc") return b.giftsReceived - a.giftsReceived;
-      return 0;
-    });
+  const filteredChildren = (
+    search
+      ? mockChildren.filter(
+          (child) =>
+            child.name.toLowerCase().includes(search.toLowerCase()) ||
+            child.diagnosis?.toLowerCase().includes(search.toLowerCase()),
+        )
+      : [...mockChildren]
+  ).sort((a, b) => {
+    if (sort === "age-asc") return a.age - b.age;
+    if (sort === "age-desc") return b.age - a.age;
+    if (sort === "gifts-asc") return a.giftsReceived - b.giftsReceived;
+    if (sort === "gifts-desc") return b.giftsReceived - a.giftsReceived;
+    return 0;
+  });
 
   const lastChildIndex = currentPage * childrenPerPage;
   const firstChildIndex = lastChildIndex - childrenPerPage;
@@ -188,7 +194,7 @@ function App() {
                 to={`/`} // TEMP for `/child/${child.id}`
                 className="block transition-transform duration-200 ease-out hover:scale-105 hover:z-10"
               >
-                <ChildCard key={child.id} child={child} color={color} />
+                <ChildCard child={child} color={color} />
               </Link>
             );
           })}

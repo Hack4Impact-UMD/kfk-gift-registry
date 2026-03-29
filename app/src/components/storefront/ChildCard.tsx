@@ -14,7 +14,6 @@ export type ChildCardData = Pick<
 interface Props {
   child: ChildCardData;
   color?: string;
-  // bgColor?: string;
 }
 
 function getPatternStyle(color: string): React.CSSProperties {
@@ -65,6 +64,32 @@ function getPatternStyle(color: string): React.CSSProperties {
   return {};
 }
 
+const colorClasses: Record<
+  string,
+  { border: string; text: string; fill: string }
+> = {
+  "kfk-red": {
+    border: "border-kfk-red",
+    text: "text-kfk-red",
+    fill: "fill-kfk-red",
+  },
+  "kfk-brown": {
+    border: "border-kfk-brown",
+    text: "text-kfk-brown",
+    fill: "fill-kfk-brown",
+  },
+  "kfk-green": {
+    border: "border-kfk-green",
+    text: "text-kfk-green",
+    fill: "fill-kfk-green",
+  },
+  "kfk-blue": {
+    border: "border-kfk-blue",
+    text: "text-kfk-blue",
+    fill: "fill-kfk-blue",
+  },
+};
+
 export function ChildCard({ child, color }: Props) {
   const {
     name,
@@ -77,6 +102,11 @@ export function ChildCard({ child, color }: Props) {
   } = child;
 
   const isWarrior = category === "warrior";
+  const styles = colorClasses[color ?? ""] ?? {
+    border: "",
+    text: "",
+    fill: "",
+  };
 
   return (
     <div
@@ -84,7 +114,7 @@ export function ChildCard({ child, color }: Props) {
       style={getPatternStyle(color ?? "")}
     >
       <div
-        className={`rounded-lg w-full overflow-hidden border-4 border-${color}`}
+        className={`rounded-lg w-full overflow-hidden border-4 ${styles.border}`}
       >
         <img
           src={photoUrl || ProfilePhoto}
@@ -94,9 +124,9 @@ export function ChildCard({ child, color }: Props) {
       </div>
 
       <div
-        className={`mt-5 px-1 w-full gap-1 bg-card border-4 border-${color} rounded-md flex flex-col items-center font-gaegu`}
+        className={`mt-5 px-1 w-full gap-1 bg-card border-4 ${styles.border} rounded-md flex flex-col items-center font-gaegu`}
       >
-        <h3 className={`font-semibold mt-3 text-3xl text-${color}`}>{name}</h3>
+        <h3 className={`font-semibold mt-3 text-3xl ${styles.text}`}>{name}</h3>
 
         <span
           className={`text-s px-10 py-0.5 rounded-sm font-semibold border ${
@@ -119,7 +149,7 @@ export function ChildCard({ child, color }: Props) {
         )}
 
         <div className="mb-3 flex items-center gap-1.5 text-s font-semibold text-muted-foreground">
-          <GiftIcon className={`h-3 w-3 text-${color} fill-${color}`} />
+          <GiftIcon className={`h-4 w-4 text-card ${styles.fill}`} />
           {giftsReceived} / {giftsRequested} Gifts Fulfilled
         </div>
       </div>
@@ -128,7 +158,7 @@ export function ChildCard({ child, color }: Props) {
         <Button
           type="button"
           variant="outlineShadowOnly"
-          className={`text-${color} rounded-full border-2 border-${color} w-full font-gaegu font-semibold transition-shadow duration-200`}
+          className={`${styles.text} rounded-full border-2 ${styles.border} w-full font-gaegu font-semibold transition-shadow duration-200`}
         >
           View More
         </Button>
