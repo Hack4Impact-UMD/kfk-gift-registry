@@ -133,7 +133,7 @@ const mockChildren: (ChildCardData & { familyId: string })[] =
   ;
 
 function App() {
-  const [childrenPerPage] = useState<number>(1);
+  const [childrenPerPage] = useState<number>(25);
   const [currentPage, setCurrentPage] = useState<number>(1);
  
   // STEP 2: read search/sort param
