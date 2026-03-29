@@ -39,11 +39,15 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
     if (!carouselApi) return;
 
     const onWheel = (e: WheelEvent) => {
-      const delta =
-        Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-      if (delta === 0) return;
+      const horizontalDelta =
+        Math.abs(e.deltaX) > Math.abs(e.deltaY)
+          ? e.deltaX
+          : e.shiftKey
+            ? e.deltaY
+            : 0;
+      if (horizontalDelta === 0) return;
 
-      const goNext = delta > 0;
+      const goNext = horizontalDelta > 0;
       if (goNext && !carouselApi.canScrollNext()) return;
       if (!goNext && !carouselApi.canScrollPrev()) return;
 
