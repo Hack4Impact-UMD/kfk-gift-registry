@@ -1,4 +1,4 @@
-import { Child } from "../../../../common/src/types";
+import type { Child } from "../../../../common/src/types";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
 import { GiftIcon } from "@/components/icons/";
 import { Button } from "@/components/ui/button";

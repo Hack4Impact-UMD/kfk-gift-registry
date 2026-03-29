@@ -35,7 +35,7 @@ interface PaginationProp {
 }
 export const Pagination = ( {totalChildren, childrenPerPage, setCurrentPage, currentPage, MAX_BUTTONS, IMMEDIATE_PAGES} : PaginationProp ) => {
   const totalPages = Math.ceil(totalChildren/childrenPerPage)
-  let pages = [];
+  const pages = [];
 
   for (let i = 1; i <= totalPages; i++) {
     pages.push(i);

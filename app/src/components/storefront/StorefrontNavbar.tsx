@@ -44,7 +44,7 @@ export function StorefrontNavbar() {
  
   const handleSort = (value: string) => {
     navigate({
-      // @ts-ignore
+      // @ts-ignore — router search params typing mismatch
       search: (prev: any) => ({
         ...prev,
         sort: value || undefined,

@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
-import { ChildCard, ChildCardData } from "@/components/storefront/ChildCard";
-import { Child, Family } from "../../../../common/src/types";
+import type { ChildCardData } from "@/components/storefront/ChildCard";
+import { ChildCard } from "@/components/storefront/ChildCard";
+import type { Child, Family } from "../../../../common/src/types";
 import { useState } from "react";
 import { z } from "zod";
 import { Pagination } from "@/components/storefront/Pagination";
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/_storefront/")({
 const familyColors = ["kfk-red", "kfk-brown", "kfk-green", "kfk-blue"];
 
 // Mock families
-const mockFamilies: Family[] = [
+const mockFamilies: Array<Family> = [
   {
     id: "fam1",
     contactName: "John Smith",
@@ -97,7 +98,7 @@ const mockFamilies: Family[] = [
 ];
 
 // Mock children per family
-const mockChildrenFull: Child[] = mockFamilies.flatMap((family) =>
+const mockChildrenFull: Array<Child> = mockFamilies.flatMap((family) =>
   Array.from({ length: 5 }, (_, i) => ({
     id: `${family.id}-child-${i + 1}`,
     name: `Ryan Peirce`,
@@ -117,7 +118,7 @@ const mockChildrenFull: Child[] = mockFamilies.flatMap((family) =>
   }))
 );
 
-const mockChildren: (ChildCardData & { familyId: string })[] =
+const mockChildren: Array<ChildCardData & { familyId: string }> =
   mockChildrenFull.map((child) => ({
     id: child.id,
     name: child.name,
