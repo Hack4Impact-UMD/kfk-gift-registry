@@ -57,7 +57,7 @@ if (!admin.apps.length) {
 export const getServerAuth = createServerOnlyFn(() => {
   if (auth) return auth;
   auth = admin.auth();
-  return auth;    
+  return auth;
 });
 
 export const getServerDB = createServerOnlyFn(() => {
