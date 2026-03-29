@@ -55,6 +55,7 @@ export const Pagination = ({
   IMMEDIATE_PAGES,
 }: PaginationProp) => {
   const totalPages = Math.ceil(totalChildren / childrenPerPage);
+  const boundedCurrentPage = Math.min(Math.max(currentPage, 1), Math.max(totalPages, 1));
   const pages = [];
 
   for (let i = 1; i <= totalPages; i++) {
@@ -72,17 +73,18 @@ export const Pagination = ({
   return (
     <div className="mx-auto mt-10 flex justify-center gap-2 text-xl">
       <Button
-        onClick={() => setCurrentPage(currentPage - 1)}
+        onClick={() => setCurrentPage(Math.max(1, boundedCurrentPage - 1))}
         type="button"
         variant="ghost"
-        disabled={currentPage == 1 || totalChildren <= 0}
+        disabled={boundedCurrentPage <= 1 || totalChildren <= 0}
         className={`rounded-full pl-2 w-10 h-10 ${currentPage == 1 || totalChildren <= 0 ? "text-gray-400" : "text-primary hover:bg-gray-100"} bg-transparent transition-all text-xl`}
       >
         <ChevronDoubleLeftIcon className="size-5" />
       </Button>
-      {range.map((page) => {
+      {range.map((page, index) => {
         return (
           <Button
+            key={page === -1 ? `ellipsis-${index}` : `page-${page}`}
             onClick={() => setCurrentPage(page)}
             disabled={page == -1}
             className={`rounded-full text-primary w-10 h-10 ${page != -1 ? (page == currentPage ? "bg-kfk-blue text-white" : "bg-transparent hover:bg-gray-100") : "bg-transparent"} transition-all text-xl`}
@@ -92,10 +94,10 @@ export const Pagination = ({
         );
       })}
       <Button
-        onClick={() => setCurrentPage(currentPage + 1)}
+        onClick={() => setCurrentPage(Math.min(Math.max(totalPages, 1), boundedCurrentPage + 1))}
         type="button"
         variant="ghost"
-        disabled={currentPage == totalPages || totalChildren <= 0}
+        disabled={boundedCurrentPage >= totalPages || totalChildren <= 0}
         className={`rounded-full pl-3 w-10 h-10 ${currentPage == totalPages || totalChildren <= 0 ? "text-gray-400" : "text-primary hover:bg-gray-100"} bg-transparent transition-all text-xl`}
       >
         <ChevronDoubleRightIcon className="size-5" />
