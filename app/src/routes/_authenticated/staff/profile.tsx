@@ -14,29 +14,31 @@ function RouteComponent() {
   const { auth } = Route.useRouteContext();
   const router = useRouter();
   return (
-    <div className="space-y-3 p-6">
-      <ProfileHeader authCtx={auth} />
+    <div className="flex flex-col items-center md:py-6">
+      <div className="space-y-3 max-w-6xl w-full">
+        <ProfileHeader authCtx={auth} />
 
-      <ContactInfoSection authCtx={auth} />
+        <ContactInfoSection authCtx={auth} />
 
-      <AccountDetailsSection authCtx={auth} />
-      <div className="flex justify-end">
-        <Button
-          onClick={async () => {
-            try {
-              await logout();
-            } catch (error) {
-              console.error("Logout failed", error);
-            } finally {
-              await router.invalidate();
-            }
-          }}
-          variant={"destructive"}
-          className="bg-kfk-blue"
-        >
-          <LogOut className="h-4 w-4" />
-          Log-out
-        </Button>
+        <AccountDetailsSection authCtx={auth} />
+        <div className="flex justify-end">
+          <Button
+            onClick={async () => {
+              try {
+                await logout();
+              } catch (error) {
+                console.error("Logout failed", error);
+              } finally {
+                await router.invalidate();
+              }
+            }}
+            variant={"destructive"}
+            className="bg-kfk-blue"
+          >
+            <LogOut className="h-4 w-4" />
+            Log-out
+          </Button>
+        </div>
       </div>
     </div>
   );
