@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ChildInfoCard } from "@/components/storefront/ChildInfoCard";
 import type { CarouselCardSibling } from "@/components/storefront/CarouselCards";
 import { SiblingsCarousel } from "@/components/storefront/SiblingsCarousel";
@@ -187,8 +187,22 @@ const MOCK_SIBLINGS: Record<string, Array<CarouselCardSibling>> = {
 
 function RouteComponent() {
   const { childId } = Route.useParams();
-  const child = MOCK_CHILDREN[childId] || MOCK_CHILDREN["1"];
+  const child = MOCK_CHILDREN[childId];
   const siblings = MOCK_SIBLINGS[childId] ?? MOCK_SIBLINGS["1"] ?? [];
+  
+  if (!child) {
+    return(
+      <div className="w-full min-h-screen">
+        <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
+          <div className="max-w-7xl mx-auto">
+            <h1 className="text-3xl font-bold text-center mb-8 font-gaegu">
+              Child Not Found
+            </h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen bg-background">
