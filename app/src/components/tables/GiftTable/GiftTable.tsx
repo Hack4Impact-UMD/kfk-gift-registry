@@ -64,7 +64,7 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
                         "font-semibold text-gray-600 text-xs sm:text-sm",
                         index === 0 && "w-[42%] sm:w-[55%] pr-4 sm:pr-6",
                         index === 1 && "w-[18%] sm:w-[18%] pl-4 sm:pl-6",
-                        index === 2 && "w-[40%] sm:w-[27%] pl-4 sm:pl-6"
+                        index === 2 && "w-[40%] sm:w-[27%] pl-4 sm:pl-6",
                       )}
                     >
                       {header.isPlaceholder
@@ -101,7 +101,7 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
                           "align-middle",
                           index === 0 && "max-w-0 pr-4 sm:pr-6",
                           index === 1 && "pl-4 sm:pl-6",
-                          index === 2 && "pl-4 sm:pl-6"
+                          index === 2 && "pl-4 sm:pl-6",
                         )}
                       >
                         {flexRender(

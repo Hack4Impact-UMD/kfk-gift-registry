@@ -9,8 +9,7 @@ interface ChildInfoCardProps {
 }
 
 export function ChildInfoCard({ child, className }: ChildInfoCardProps) {
-  const categoryLabel =
-    child.category === "warrior" ? "Warrior" : "Super Sib";
+  const categoryLabel = child.category === "warrior" ? "Warrior" : "Super Sib";
   const categoryColor =
     child.category === "warrior"
       ? "bg-kfk-yellow/10 text-kfk-yellow inset-ring inset-ring-kfk-yellow/20"
@@ -40,10 +39,14 @@ export function ChildInfoCard({ child, className }: ChildInfoCardProps) {
           {categoryLabel}
         </span>
 
-        <p className="text-base sm:text-lg text-muted-foreground font-gaegu font-bold">{child.age} Years Old</p>
+        <p className="text-base sm:text-lg text-muted-foreground font-gaegu font-bold">
+          {child.age} Years Old
+        </p>
 
         <div className="w-full text-center">
-          <p className="font-semibold text-lg sm:text-xl mb-1 font-gaegu font-bold">{child.diagnosis}</p>
+          <p className="font-semibold text-lg sm:text-xl mb-1 font-gaegu font-bold">
+            {child.diagnosis}
+          </p>
         </div>
 
         {child.publicBlurb && (

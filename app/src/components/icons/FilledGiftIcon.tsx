@@ -1,7 +1,10 @@
 import type { SVGProps } from "react";
 import { cn } from "@/lib/utils";
 
-export function FilledGiftIcon({ className, ...props }: SVGProps<SVGSVGElement>) {
+export function FilledGiftIcon({
+  className,
+  ...props
+}: SVGProps<SVGSVGElement>) {
   return (
     <svg
       viewBox="0 0 17 17"

@@ -19,11 +19,15 @@ type CarouselCardProps = {
 };
 
 export function CarouselCard({ sibling, className }: CarouselCardProps) {
-  const categoryLabel = sibling.category === "warrior" ? "Warrior" : "Super Sib";
+  const categoryLabel =
+    sibling.category === "warrior" ? "Warrior" : "Super Sib";
   const fulfilled = sibling.giftsFulfilled ?? 0;
   const total = sibling.giftsTotal ?? 3;
 
-  const badgeClass = sibling.category === "warrior" ? "bg-kfk-yellow/15 text-kfk-yellow border-kfk-yellow/60" : "bg-kfk-light-blue/80 text-kfk-blue border-kfk-blue/50";
+  const badgeClass =
+    sibling.category === "warrior"
+      ? "bg-kfk-yellow/15 text-kfk-yellow border-kfk-yellow/60"
+      : "bg-kfk-light-blue/80 text-kfk-blue border-kfk-blue/50";
 
   return (
     <Link
