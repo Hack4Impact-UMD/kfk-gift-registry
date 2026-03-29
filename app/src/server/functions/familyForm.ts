@@ -97,7 +97,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       reviewStatus: {
         approved: false,
         held: false,
-      }
+      },
     };
 
     const childDocs: Array<Child> = formData.children.children.map(
@@ -119,7 +119,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
           publicBlurb: childForm.blurb,
           reviewStatus: { approved: false },
           createdAt: now,
-          published: false // families get published in the commit + review page, until then keep the children unpublished
+          published: false, // families get published in the commit + review page, until then keep the children unpublished
         };
       },
     );
@@ -137,7 +137,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
 
     // Create gift documents using index-based correlation to avoid name collisions
     const giftDocs: Array<Gift> = [];
-    
+
     // Ensure childDocs and formData.children.children have the same length
     if (childDocs.length !== formData.children!.children.length) {
       throw new Error(
@@ -199,7 +199,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
     for (let i = 0; i < childDocs.length; i++) {
       const child = childDocs[i];
       const formChild = formData.children!.children[i];
-      
+
       if (!formChild) {
         continue; // Skip if form child doesn't exist at this index
       }
@@ -225,8 +225,8 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
 
           // Generate a signed URL (valid for 7 days) instead of public URL due to storage.rules restrictions
           const [signedUrl] = await file.getSignedUrl({
-            version: 'v4',
-            action: 'read',
+            version: "v4",
+            action: "read",
             expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
           });
 
@@ -262,7 +262,6 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       }
     }
 
-    
     try {
       await db._instance.runTransaction(async (tx) => {
         giftDocs.forEach((gift) => {

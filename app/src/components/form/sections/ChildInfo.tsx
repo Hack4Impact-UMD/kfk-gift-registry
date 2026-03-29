@@ -91,7 +91,7 @@ export function ChildInfoForm({
 
           return (
             <div className="space-y-8">
-              {Array.from({ length: displayCount }).map((_, index) => (
+              {Array.from({ length: displayCount }).map((__, index) => (
                 <div
                   key={index}
                   className={index > 0 ? "border-t pt-8 mt-8" : ""}
@@ -174,7 +174,7 @@ export function ChildInfoForm({
                             displayCount > 1 ? `Child #${index + 1} Age` : "Age"
                           }
                           placeholder="Select Age"
-                          values={Array.from({ length: 18 }, (_, i) =>
+                          values={Array.from({ length: 18 }, (_unused, i) =>
                             String(i + 1),
                           )}
                           required
@@ -263,9 +263,8 @@ export function ChildInfoForm({
                               name={`children[${index}].hospitalTreatedAt`}
                               validators={{
                                 onChange: ({ value }) => {
-                                  if (!value)
-                                    return "Hospital name is required";
-                                  if (value.length > 200)
+                                  const v = (value ?? "").trim();
+                                  if (v.length > 200)
                                     return "Hospital name is too long";
                                   return undefined;
                                 },
@@ -275,7 +274,6 @@ export function ChildInfoForm({
                                 <field.FormFieldInput
                                   label="Hospital Treated At"
                                   placeholder="e.g. Johns Hopkins"
-                                  required
                                   disabled={disabled}
                                   Icon={Building2}
                                 />
@@ -287,10 +285,8 @@ export function ChildInfoForm({
                               name={`children[${index}].socialWorkerName`}
                               validators={{
                                 onChange: ({ value }) => {
-                                  if (!value)
-                                    return "Social worker name is required";
-                                  if (value.length > 100)
-                                    return "Name is too long";
+                                  const v = (value ?? "").trim();
+                                  if (v.length > 100) return "Name is too long";
                                   return undefined;
                                 },
                               }}
@@ -299,7 +295,6 @@ export function ChildInfoForm({
                                 <field.FormFieldInput
                                   label="Social Worker Name"
                                   placeholder="e.g. Sarah Smith"
-                                  required
                                   disabled={disabled}
                                   Icon={UserCog}
                                 />
@@ -353,8 +348,8 @@ export function ChildInfoForm({
                             .trim()
                             .split(/\s+/)
                             .filter(Boolean).length;
-                          if (wordCount > 50)
-                            return "Please keep your blurb to 50 words or less";
+                          if (wordCount > 25)
+                            return "Please keep your blurb to 25 words or less";
                           return undefined;
                         },
                       }}
@@ -370,7 +365,7 @@ export function ChildInfoForm({
                           <div className="space-y-2">
                             <p className="text-sm font-medium text-kfk-blue">
                               You may write a blurb about your child to be
-                              displayed on the gift drive website (50 words or
+                              displayed on the gift drive website (25 words or
                               less)
                             </p>
                             <Textarea
@@ -385,7 +380,7 @@ export function ChildInfoForm({
                             />
                             {!disabled && (
                               <p className="text-xs text-right text-slate-500">
-                                {wordCount} out of 50
+                                {wordCount} out of 25
                               </p>
                             )}
                             {field.state.meta.isTouched &&

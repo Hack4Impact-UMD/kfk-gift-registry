@@ -31,6 +31,7 @@ import { Route as AuthenticatedStaffAdminRouteRouteImport } from './routes/_auth
 import { Route as FamilyDriveDriveIdFormRouteImport } from './routes/family/drive/$driveId/form'
 import { Route as FamilyTokenChildChildIdRouteImport } from './routes/family/$token/child/$childId'
 import { Route as AuthenticatedStaffAdminUsersRouteImport } from './routes/_authenticated/staff/admin/users'
+import { Route as FamilyDriveDriveIdFormThankYouRouteImport } from './routes/family/drive/$driveId/form/thank-you'
 import { Route as FamilyDriveDriveIdFormReviewRouteImport } from './routes/family/drive/$driveId/form/review'
 import { Route as FamilyDriveDriveIdFormGiftDetailsRouteImport } from './routes/family/drive/$driveId/form/gift-details'
 import { Route as FamilyDriveDriveIdFormGeneralInfoRouteImport } from './routes/family/drive/$driveId/form/general-info'
@@ -152,6 +153,12 @@ const AuthenticatedStaffAdminUsersRoute =
     path: '/users',
     getParentRoute: () => AuthenticatedStaffAdminRouteRoute,
   } as any)
+const FamilyDriveDriveIdFormThankYouRoute =
+  FamilyDriveDriveIdFormThankYouRouteImport.update({
+    id: '/thank-you',
+    path: '/thank-you',
+    getParentRoute: () => FamilyDriveDriveIdFormRoute,
+  } as any)
 const FamilyDriveDriveIdFormReviewRoute =
   FamilyDriveDriveIdFormReviewRouteImport.update({
     id: '/review',
@@ -210,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/family/drive/$driveId/form/general-info': typeof FamilyDriveDriveIdFormGeneralInfoRoute
   '/family/drive/$driveId/form/gift-details': typeof FamilyDriveDriveIdFormGiftDetailsRoute
   '/family/drive/$driveId/form/review': typeof FamilyDriveDriveIdFormReviewRoute
+  '/family/drive/$driveId/form/thank-you': typeof FamilyDriveDriveIdFormThankYouRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -238,6 +246,7 @@ export interface FileRoutesByTo {
   '/family/drive/$driveId/form/general-info': typeof FamilyDriveDriveIdFormGeneralInfoRoute
   '/family/drive/$driveId/form/gift-details': typeof FamilyDriveDriveIdFormGiftDetailsRoute
   '/family/drive/$driveId/form/review': typeof FamilyDriveDriveIdFormReviewRoute
+  '/family/drive/$driveId/form/thank-you': typeof FamilyDriveDriveIdFormThankYouRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -268,6 +277,7 @@ export interface FileRoutesById {
   '/family/drive/$driveId/form/general-info': typeof FamilyDriveDriveIdFormGeneralInfoRoute
   '/family/drive/$driveId/form/gift-details': typeof FamilyDriveDriveIdFormGiftDetailsRoute
   '/family/drive/$driveId/form/review': typeof FamilyDriveDriveIdFormReviewRoute
+  '/family/drive/$driveId/form/thank-you': typeof FamilyDriveDriveIdFormThankYouRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/family/drive/$driveId/form/general-info'
     | '/family/drive/$driveId/form/gift-details'
     | '/family/drive/$driveId/form/review'
+    | '/family/drive/$driveId/form/thank-you'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -326,6 +337,7 @@ export interface FileRouteTypes {
     | '/family/drive/$driveId/form/general-info'
     | '/family/drive/$driveId/form/gift-details'
     | '/family/drive/$driveId/form/review'
+    | '/family/drive/$driveId/form/thank-you'
   id:
     | '__root__'
     | '/'
@@ -355,6 +367,7 @@ export interface FileRouteTypes {
     | '/family/drive/$driveId/form/general-info'
     | '/family/drive/$driveId/form/gift-details'
     | '/family/drive/$driveId/form/review'
+    | '/family/drive/$driveId/form/thank-you'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -525,6 +538,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffAdminUsersRouteImport
       parentRoute: typeof AuthenticatedStaffAdminRouteRoute
     }
+    '/family/drive/$driveId/form/thank-you': {
+      id: '/family/drive/$driveId/form/thank-you'
+      path: '/thank-you'
+      fullPath: '/family/drive/$driveId/form/thank-you'
+      preLoaderRoute: typeof FamilyDriveDriveIdFormThankYouRouteImport
+      parentRoute: typeof FamilyDriveDriveIdFormRoute
+    }
     '/family/drive/$driveId/form/review': {
       id: '/family/drive/$driveId/form/review'
       path: '/review'
@@ -639,6 +659,7 @@ interface FamilyDriveDriveIdFormRouteChildren {
   FamilyDriveDriveIdFormGeneralInfoRoute: typeof FamilyDriveDriveIdFormGeneralInfoRoute
   FamilyDriveDriveIdFormGiftDetailsRoute: typeof FamilyDriveDriveIdFormGiftDetailsRoute
   FamilyDriveDriveIdFormReviewRoute: typeof FamilyDriveDriveIdFormReviewRoute
+  FamilyDriveDriveIdFormThankYouRoute: typeof FamilyDriveDriveIdFormThankYouRoute
 }
 
 const FamilyDriveDriveIdFormRouteChildren: FamilyDriveDriveIdFormRouteChildren =
@@ -650,6 +671,7 @@ const FamilyDriveDriveIdFormRouteChildren: FamilyDriveDriveIdFormRouteChildren =
     FamilyDriveDriveIdFormGiftDetailsRoute:
       FamilyDriveDriveIdFormGiftDetailsRoute,
     FamilyDriveDriveIdFormReviewRoute: FamilyDriveDriveIdFormReviewRoute,
+    FamilyDriveDriveIdFormThankYouRoute: FamilyDriveDriveIdFormThankYouRoute,
   }
 
 const FamilyDriveDriveIdFormRouteWithChildren =

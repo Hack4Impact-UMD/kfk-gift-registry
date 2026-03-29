@@ -5,14 +5,13 @@ import type {
   ConsentFormData,
   GeneralInfoFormData,
   GiftsFormData,
-} from "@/lib/formSchemas"
+} from "@/lib/formSchemas";
 import {
   childrenFormDefaults,
   consentFormDefaults,
   generalInfoFormDefaults,
   giftsFormDefaults,
 } from "@/lib/formSchemas";
-
 
 export type GiftSelection = {
   giftUrl: string;
@@ -25,7 +24,6 @@ export type ChildGiftSelections = {
   backupGifts: Array<GiftSelection>;
   verified: boolean;
 };
-
 
 // Central form state - organized by section
 export type FamilyFormState = {
@@ -52,7 +50,7 @@ const formLocalStorageKey = (driveId: string) => `family-form-${driveId}`;
 function loadLocalStorageFormState(driveId: string): FamilyFormState {
   const key = formLocalStorageKey(driveId);
   const value = localStorage.getItem(key);
-  if (!value) return {}
+  if (!value) return {};
 
   try {
     const saved = JSON.parse(value) as FamilyFormState;
@@ -60,43 +58,52 @@ function loadLocalStorageFormState(driveId: string): FamilyFormState {
     return {
       consentScreen: {
         ...consentFormDefaults,
-        ...saved.consentScreen
+        ...saved.consentScreen,
       },
       children: {
         ...childrenFormDefaults,
-        ...saved.children
+        ...saved.children,
       },
       generalInfo: {
         ...generalInfoFormDefaults,
-        ...saved.generalInfo
+        ...saved.generalInfo,
       },
       gifts: {
         ...giftsFormDefaults,
-        ...saved.gifts
-      }
-    }
+        ...saved.gifts,
+      },
+    };
   } catch {
-    return {}
+    return {};
   }
 }
 
 const FORM_LOCAL_SAVE_DEBOUNCE = 500;
 
-export function FormProvider({ children, driveId }: { children: ReactNode, driveId: string }) {
+export function FormProvider({
+  children,
+  driveId,
+}: {
+  children: ReactNode;
+  driveId: string;
+}) {
   const [formState, setFormState] = useState<FamilyFormState>({});
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       setFormState(loadLocalStorageFormState(driveId));
     }
   }, [driveId]);
 
   useEffect(() => {
     const ref = setTimeout(() => {
-      localStorage.setItem(formLocalStorageKey(driveId), JSON.stringify(formState))
-    }, FORM_LOCAL_SAVE_DEBOUNCE)
-    return () => clearTimeout(ref)
-  }, [formState, driveId])
+      localStorage.setItem(
+        formLocalStorageKey(driveId),
+        JSON.stringify(formState),
+      );
+    }, FORM_LOCAL_SAVE_DEBOUNCE);
+    return () => clearTimeout(ref);
+  }, [formState, driveId]);
 
   const updateSection = <TFromKey extends keyof FamilyFormState>(
     section: TFromKey,
@@ -109,7 +116,7 @@ export function FormProvider({ children, driveId }: { children: ReactNode, drive
   };
 
   const resetForm = () => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.removeItem(formLocalStorageKey(driveId));
     }
     setFormState({});

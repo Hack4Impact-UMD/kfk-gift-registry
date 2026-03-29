@@ -2,9 +2,7 @@ import { createFormHook } from "@tanstack/react-form";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { fieldContext, formContext } from "./fieldContext";
-import type {
-  GiftSelection,
-} from "@/components/providers/FormProvider";
+import type { GiftSelection } from "@/components/providers/FormProvider";
 import { useFormContext } from "@/components/providers/FormProvider";
 import {
   childrenFormDefaults,
@@ -37,7 +35,6 @@ export const { useAppForm } = createFormHook({
   },
   formComponents: {},
 });
-
 
 export function useConsentForm() {
   const { formState, updateSection } = useFormContext();
@@ -152,7 +149,7 @@ export function useChildrenForm() {
       .map((child) => {
         const isSibling =
           child.status ===
-          "Sibling of child diagnosed with cancer (in or off treatment)" ||
+            "Sibling of child diagnosed with cancer (in or off treatment)" ||
           child.status === "Bereaved sibling";
 
         const requiresTreatmentLength =

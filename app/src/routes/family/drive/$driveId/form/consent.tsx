@@ -51,10 +51,7 @@ function ConsentPageComponent() {
         </FieldGroup>
 
         <form.Subscribe
-          selector={(state) => [
-            state.canSubmit,
-            state.isSubmitting,
-          ]}
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
           children={([canSubmit, isSubmitting]) => (
             <FormButton
               label="Agree and Continue"

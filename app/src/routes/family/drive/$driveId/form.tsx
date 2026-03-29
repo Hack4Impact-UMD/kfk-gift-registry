@@ -10,28 +10,33 @@ import { FormProgressBar } from "@/components/form/FormProgressBar";
 
 export const Route = createFileRoute("/family/drive/$driveId/form")({
   component: FormLayoutComponent,
-  ssr: false
+  ssr: false,
 });
 
 function FormLayoutComponent() {
   const { driveId } = Route.useParams();
   const location = useLocation();
-  
-  // Hide progress bar on consent route since it's the initial step before the main form steps
+
   const isConsentRoute = location.pathname.includes("/form/consent");
+  const isThankYouRoute = location.pathname.includes("/form/thank-you");
+
+  const showProgressBar = !isConsentRoute && !isThankYouRoute;
+  const hideFormHeader = isThankYouRoute;
 
   return (
-    <FormProvider driveId={driveId}>
+    <FormProvider key={driveId} driveId={driveId}>
       <div className="min-h-screen p-4 bg-gray-50 flex flex-col items-center">
         <div className="w-full max-w-md">
           <Card className="w-full">
-            <CardHeader>
-              <CardDescription className="text-center">
-                Fill all required fields to go to next step
-                <span className="text-destructive">*</span>
-              </CardDescription>
-              {!isConsentRoute && <FormProgressBar driveId={driveId} />}
-            </CardHeader>
+            {!hideFormHeader && (
+              <CardHeader>
+                <CardDescription className="text-center">
+                  Fill all required fields to go to next step
+                  <span className="text-destructive">*</span>
+                </CardDescription>
+                {showProgressBar && <FormProgressBar driveId={driveId} />}
+              </CardHeader>
+            )}
             <CardContent>
               <Outlet />
             </CardContent>

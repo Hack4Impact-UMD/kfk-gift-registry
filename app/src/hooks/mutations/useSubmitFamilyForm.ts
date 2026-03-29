@@ -1,10 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import type { FamilyFormState } from "@/components/providers/FormProvider";
 import type { GiftsFormData } from "@/lib/formSchemas";
-import {
-  submitFamilyForm,
-  type FamilyFormInput,
-} from "@/server/functions/familyForm";
+import type { FamilyFormInput } from "@/server/functions/familyForm";
+import { submitFamilyForm } from "@/server/functions/familyForm";
 
 export function buildFamilyFormSubmitPayload(
   driveId: string,
@@ -55,7 +53,9 @@ function cleanChildrenObjects(
   };
 }
 
-function cleanGiftsObjects(g: GiftsFormData): NonNullable<FamilyFormInput["gifts"]> {
+function cleanGiftsObjects(
+  g: GiftsFormData,
+): NonNullable<FamilyFormInput["gifts"]> {
   return {
     giftSelections: g.giftSelections.map((sel) => ({
       childName: sel.childName,

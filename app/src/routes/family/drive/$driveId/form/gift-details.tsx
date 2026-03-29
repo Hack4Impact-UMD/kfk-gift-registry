@@ -178,27 +178,27 @@ function GiftsStep() {
   return (
     <div className="w-full">
       <div className="flex flex-col gap-10">
-      <div>
-        <h2 className="text-2xl font-bold text-[var(--color-kfk-blue)] text-center mb-2">
-          {childrenNameList[activeChildIndex]}'s Gift Selection
-        </h2>
-        <p className="text-sm text-muted-foreground text-center">
-          <em>Please choose up to 3 gifts for your child.</em>
-        </p>
-      </div>
-      <GiftDetailsForm
-        form={form}
-        childIndex={activeChildIndex}
-        childName={childrenNameList[activeChildIndex]}
-      />
+        <div>
+          <h2 className="text-2xl font-bold text-[var(--color-kfk-blue)] text-center mb-2">
+            {childrenNameList[activeChildIndex]}'s Gift Selection
+          </h2>
+          <p className="text-sm text-muted-foreground text-center">
+            <em>Please choose up to 3 gifts for your child.</em>
+          </p>
+        </div>
+        <GiftDetailsForm
+          form={form}
+          childIndex={activeChildIndex}
+          childName={childrenNameList[activeChildIndex]}
+        />
 
-      <Button
-        type="button"
-        onClick={() => setActiveChildIndex(-1)}
-        variant="outline"
-        className="flex h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg"
-      >
-        <ChevronLeftIcon className="mr-2 h-6 w-6" />
+        <Button
+          type="button"
+          onClick={() => setActiveChildIndex(-1)}
+          variant="outline"
+          className="flex h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg"
+        >
+          <ChevronLeftIcon className="mr-2 h-6 w-6" />
           Back
         </Button>
       </div>

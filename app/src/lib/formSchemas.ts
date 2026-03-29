@@ -64,8 +64,8 @@ export const consentSchema = z.object({
 
 export const consentFormDefaults: ConsentFormData = {
   consentGiven: false,
-  shareMailingAddress: false
-}
+  shareMailingAddress: false,
+};
 
 export const generalInfoSchema = z
   .object({
@@ -135,8 +135,8 @@ export const generalInfoFormDefaults: GeneralInfoFormData = {
   zipCode: "",
   addressLine2: "",
   phoneNumber: "",
-  phoneNumberConfirm: ""
-}
+  phoneNumberConfirm: "",
+};
 
 // Accepts an empty string, a data URL (local preview), or an https:// URL (after Firebase upload)
 const photoUrlSchema = z
@@ -205,20 +205,19 @@ export const childrenFormDefaults: ChildrenFormData = {
   children: [defaultChild()],
   additionalNotes: "",
   consentPhotosPublic: false,
-}
+};
 
-export const childrenFormSchema = z.object({
-  numChildren: z.coerce.number().min(1).max(10),
-  children: z.array(childInfoSchema).min(1, "At least one child is required"),
-  additionalNotes: z.string().optional().or(z.literal("")),
-  consentPhotosPublic: z.boolean(),
-}).refine(
-  (data) => data.children.length === data.numChildren,
-  {
+export const childrenFormSchema = z
+  .object({
+    numChildren: z.coerce.number().min(1).max(10),
+    children: z.array(childInfoSchema).min(1, "At least one child is required"),
+    additionalNotes: z.string().optional().or(z.literal("")),
+    consentPhotosPublic: z.boolean(),
+  })
+  .refine((data) => data.children.length === data.numChildren, {
     message: "Number of children must match the count field",
     path: ["children"],
-  }
-);
+  });
 
 const giftSchema = z
   .object({
@@ -266,8 +265,8 @@ export const giftsFormSchema = z.object({
 });
 
 export const giftsFormDefaults: GiftsFormData = {
-  giftSelections: []
-}
+  giftSelections: [],
+};
 
 export const SECTION_SCHEMAS = {
   generalInfo: generalInfoSchema,

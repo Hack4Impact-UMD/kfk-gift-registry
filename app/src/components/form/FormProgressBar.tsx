@@ -5,6 +5,7 @@ import {
   UserIcon,
   UsersIcon,
 } from "@heroicons/react/24/solid";
+import { Fragment } from "react";
 import type { ReactNode } from "react";
 import type { FamilyFormState } from "@/components/providers/FormProvider";
 import { useFormContext } from "@/components/providers/FormProvider";
@@ -26,7 +27,7 @@ const FORM_STEPS: Array<FormStep> = [
   },
   {
     id: "children",
-    label: "Child Info",
+    label: "Child(ren)",
     icon: UsersIcon,
     sectionKey: "children",
   },
@@ -195,44 +196,36 @@ export function FormProgressBar({ driveId }: { driveId: string }) {
   return (
     <div className="w-full bg-white">
       <div className="max-w-md mx-auto py-4 px-6">
-        <div className="relative flex items-center justify-between">
-          {/* Connecting lines background */}
-          <div className="absolute top-[22px] left-[10%] right-[10%] h-[2px] bg-gray-300 -z-10" />
+        <div className="flex flex-col gap-2 w-full">
+          <div className="flex w-full items-center">
+            {FORM_STEPS.map((step, index) => {
+              const state = getStepState(step, index);
+              const underlyingState = getUnderlyingState(step, index);
+              const styles = getStepStyles(state, underlyingState);
+              const Icon = step.icon;
+              const clickable = isStepClickable(step, index);
 
-          {/* Colored connecting lines for completed steps */}
-          <div className="absolute top-[22px] left-[10%] right-[10%] h-[2px] -z-10">
-            <div className="absolute inset-0 flex">
-              {FORM_STEPS.slice(0, -1).map((step, index) => {
-                const currentState = getStepState(step, index);
-                const shouldColor =
-                  currentState === "complete" || currentState === "current";
-                const lineColor =
-                  currentState === "error"
-                    ? "bg-red-500"
-                    : shouldColor
-                      ? "bg-[var(--color-kfk-blue)]"
-                      : "bg-transparent";
+              const segmentClass =
+                index === 0
+                  ? ""
+                  : (() => {
+                      const targetStep = FORM_STEPS[index];
+                      const targetState = getStepState(targetStep, index);
+                      const targetUnderlying = getUnderlyingState(
+                        targetStep,
+                        index,
+                      );
+                      const targetIconGray =
+                        targetState === "incomplete" ||
+                        (targetState === "current" &&
+                          targetUnderlying === "incomplete");
+                      if (targetIconGray) {
+                        return "bg-gray-300";
+                      }
+                      return "bg-[var(--color-kfk-blue)]";
+                    })();
 
-                return (
-                  <div
-                    key={`line-${step.id}`}
-                    className={`h-full flex-1 ${lineColor} transition-colors duration-300`}
-                  />
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Steps */}
-          {FORM_STEPS.map((step, index) => {
-            const state = getStepState(step, index);
-            const underlyingState = getUnderlyingState(step, index);
-            const styles = getStepStyles(state, underlyingState);
-            const Icon = step.icon;
-            const clickable = isStepClickable(step, index);
-
-            const stepContent = (
-              <>
+              const iconCircle = (
                 <div
                   className={`
                     w-[44px] h-[44px] rounded-full
@@ -246,40 +239,62 @@ export function FormProgressBar({ driveId }: { driveId: string }) {
                 >
                   <Icon className={`w-5 h-5 ${styles.iconColor}`} />
                 </div>
-                <div className="mt-2.5 text-center">
-                  <span
-                    className={`
-                      text-xs font-semibold ${styles.labelColor}
-                      ${styles.underline}
-                      inline-block pb-0.5
-                      transition-colors duration-300
-                      whitespace-nowrap
-                    `}
-                  >
-                    {step.label}
-                  </span>
-                </div>
-              </>
-            );
+              );
 
-            return clickable ? (
-              <StepLink
-                key={step.id}
-                stepId={step.id}
-                driveId={driveId}
-                className="flex flex-col items-center relative z-10 cursor-pointer"
-              >
-                {stepContent}
-              </StepLink>
-            ) : (
-              <div
-                key={step.id}
-                className="flex flex-col items-center relative z-10 cursor-default"
-              >
-                {stepContent}
-              </div>
-            );
-          })}
+              const iconCell = clickable ? (
+                <StepLink
+                  stepId={step.id}
+                  driveId={driveId}
+                  className="flex shrink-0 w-[44px] justify-center cursor-pointer"
+                >
+                  {iconCircle}
+                </StepLink>
+              ) : (
+                <div className="flex shrink-0 w-[44px] justify-center cursor-default">
+                  {iconCircle}
+                </div>
+              );
+
+              return (
+                <Fragment key={step.id}>
+                  {index > 0 && (
+                    <div
+                      className={`h-[3px] flex-1 min-w-[4px] rounded-full ${segmentClass} transition-colors duration-300`}
+                      aria-hidden
+                    />
+                  )}
+                  {iconCell}
+                </Fragment>
+              );
+            })}
+          </div>
+
+          <div className="flex w-full items-start">
+            {FORM_STEPS.map((step, index) => {
+              const state = getStepState(step, index);
+              const underlyingState = getUnderlyingState(step, index);
+              const styles = getStepStyles(state, underlyingState);
+
+              return (
+                <Fragment key={`${step.id}-label`}>
+                  {index > 0 && <div className="flex-1 min-w-0" aria-hidden />}
+                  <div className="shrink-0 w-[44px] text-center">
+                    <span
+                      className={`
+                        text-xs font-semibold ${styles.labelColor}
+                        ${styles.underline}
+                        inline-block pb-0.5
+                        transition-colors duration-300
+                        whitespace-nowrap
+                      `}
+                    >
+                      {step.label}
+                    </span>
+                  </div>
+                </Fragment>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

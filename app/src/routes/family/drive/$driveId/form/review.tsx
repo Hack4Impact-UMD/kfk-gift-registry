@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useFormContext } from "@/components/providers/FormProvider";
@@ -46,7 +45,6 @@ function RouteComponent() {
   const { formState } = useFormContext();
   const navigate = useNavigate();
   const { driveId } = Route.useParams();
-  const [submitted, setSubmitted] = useState(false);
 
   const submitMutation = useSubmitFamilyForm();
 
@@ -55,19 +53,6 @@ function RouteComponent() {
   const giftsForm = useGiftsForm();
 
   const childrenNames = formState.children?.children.map((c) => c.name) ?? [];
-
-  if (submitted) {
-    return (
-      <div className="flex flex-col gap-10 items-center justify-center min-h-screen text-center">
-        <h2 className="text-2xl font-bold text-[var(--color-kfk-blue)]">
-          Thank you for submitting!
-        </h2>
-        <p className="text-gray-600 max-w-md">
-          Your family's gift drive information has been received and will be reviewed shortly.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-10">
@@ -131,20 +116,24 @@ function RouteComponent() {
         <Button
           type="button"
           size="lg"
-          disabled={submitMutation.isPending || submitted}
+          disabled={submitMutation.isPending}
           className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg disabled:opacity-60"
           onClick={() => {
             try {
               const payload = buildFamilyFormSubmitPayload(driveId, formState);
               submitMutation.mutate(payload, {
-                onSuccess: () => setSubmitted(true),
+                onSuccess: () =>
+                  navigate({
+                    to: "/family/drive/$driveId/form/thank-you",
+                    params: { driveId },
+                  }),
               });
             } catch (e) {
               alert(e instanceof Error ? e.message : String(e));
             }
           }}
         >
-          {submitted ? "Submitted!" : submitMutation.isPending ? "Submitting…" : "Submit!"}
+          {submitMutation.isPending ? "Submitting…" : "Submit!"}
         </Button>
       </FormItem>
     </div>
