@@ -141,21 +141,20 @@ function App() {
   const { search, sort } = Route.useSearch();
 
   // STEP 3: filter children by search term (name or diagnosis) and sorting filters
-  const filteredChildren = (
-    search
-      ? mockChildren.filter(
-          (child) =>
-            child.name.toLowerCase().includes(search.toLowerCase()) ||
-            child.diagnosis?.toLowerCase().includes(search.toLowerCase()),
-        )
-      : mockChildren
-  ).sort((a, b) => {
-    if (sort === "age-asc") return a.age - b.age;
-    if (sort === "age-desc") return b.age - a.age;
-    if (sort === "gifts-asc") return a.giftsReceived - b.giftsReceived;
-    if (sort === "gifts-desc") return b.giftsReceived - a.giftsReceived;
-    return 0;
-  });
+  const filteredChildren = (search
+    ? mockChildren.filter(
+        (child) =>
+          child.name.toLowerCase().includes(search.toLowerCase()) ||
+          child.diagnosis?.toLowerCase().includes(search.toLowerCase())
+      )
+    : [...mockChildren]
+    ).sort((a, b) => {
+      if (sort === "age-asc") return a.age - b.age;
+      if (sort === "age-desc") return b.age - a.age;
+      if (sort === "gifts-asc") return a.giftsReceived - b.giftsReceived;
+      if (sort === "gifts-desc") return b.giftsReceived - a.giftsReceived;
+      return 0;
+    });
 
   const lastChildIndex = currentPage * childrenPerPage;
   const firstChildIndex = lastChildIndex - childrenPerPage;
