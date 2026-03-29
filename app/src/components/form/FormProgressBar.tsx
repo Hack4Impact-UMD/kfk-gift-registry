@@ -27,7 +27,7 @@ const FORM_STEPS: Array<FormStep> = [
   },
   {
     id: "children",
-    label: "Child(ren)",
+    label: "Child Info",
     icon: UsersIcon,
     sectionKey: "children",
   },
