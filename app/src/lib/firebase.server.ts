@@ -51,7 +51,9 @@ let auth: admin.auth.Auth | null = null;
 let db: Database | null = null;
 
 if (!admin.apps.length) {
-  admin.initializeApp();
+  admin.initializeApp({
+    projectId: process.env.GOOGLE_CLOUD_PROJECT ?? "kfk-gift-registry",
+  });
 }
 
 export const getServerAuth = createServerOnlyFn(() => {
@@ -60,7 +62,7 @@ export const getServerAuth = createServerOnlyFn(() => {
   return auth;
 });
 
-export const getServerDB = createServerOnlyFn(() => {
+export const getServerDB = createServerOnlyFn(() => { 
   if (db) return db;
   const firestore = admin.firestore();
 

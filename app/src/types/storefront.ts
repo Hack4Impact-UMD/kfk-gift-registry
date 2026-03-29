@@ -14,7 +14,7 @@ export type StorefrontChild = Omit<
   | "hospital"
   | "public"
 > & {
-  gifts: StorefrontGift[];
+  gifts: Array<StorefrontGift>;
 };
 
 export type StorefrontGift = Pick<

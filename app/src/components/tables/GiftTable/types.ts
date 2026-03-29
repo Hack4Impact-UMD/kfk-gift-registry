@@ -1,7 +1,7 @@
 import type { StorefrontGift } from "@/types/storefront";
 
 export interface GiftTableProps {
-  gifts: StorefrontGift[];
+  gifts: Array<StorefrontGift>;
   className?: string;
 }
 
