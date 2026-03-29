@@ -31,7 +31,7 @@ jobs:
           version: 10.30.1
 
       - name: Install Firebase CLI
-        run: npm install -g firebase-tools
+        run: npm install -g firebase-tools isolate-package
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -43,7 +43,13 @@ jobs:
           cat > apphosting.yaml << HEREDOC
           runConfig:
             minInstances: 0
+          scripts:
+            runCommand: node app/.output/server/index.mjs
           env:
+            - variable: GOOGLE_BUILDABLE
+              value: app
+              availability:
+                - BUILD
             - variable: VITE_FIREBASE_API_KEY
               value: "$FIREBASE_API_KEY"
               availability:

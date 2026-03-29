@@ -18,13 +18,18 @@ const config = defineConfig({
   environments: {
     nitro: {
       resolve: {
-        external: ["@opentelemetry/api", "fast-xml-parser"],
+        external: [
+          "firebase-admin",
+          "@google-cloud/firestore",
+          "google-gax",
+          "@grpc/grpc-js",
+        ],
       },
     },
   },
   plugins: [
     devtools(),
-    nitro(),
+    nitro({ noExternals: true }),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ["./tsconfig.json"],
