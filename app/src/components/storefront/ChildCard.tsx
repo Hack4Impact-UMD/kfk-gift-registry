@@ -109,7 +109,7 @@ export function ChildCard({ child, color }: Props) {
         </p>
 
         {isWarrior ? (
-          <p className="text-s font-semibold line-clamp-2">
+          <p className="text-s text-center font-semibold line-clamp-2">
             {diagnosis}
           </p>
         ) : (
