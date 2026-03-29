@@ -26,6 +26,7 @@ export function ContactInfoSection({
   );
   const [email, setEmail] = useState(authCtx.authUser.email ?? "");
   const [showReauth, setShowReauth] = useState(false);
+  const [pendingVerification, setPendingVerification] = useState(false);
   const router = useRouter();
 
   const handlePhoneSave = useCallback(() => {
@@ -55,17 +56,19 @@ export function ContactInfoSection({
   }, [updateProfile, authCtx, phoneLocal, router]);
 
   const handleUpdateEmail = useCallback(async () => {
-    const auth = await getClientAuth();
     try {
+      const auth = await getClientAuth();
       if (!auth.currentUser) throw new Error("not authenticated");
       await verifyBeforeUpdateEmail(auth.currentUser, email);
       console.log("update link sent");
+      setEmail(authCtx.authUser.email ?? "");
+      setPendingVerification(true);
       setShowReauth(false);
     } catch (err) {
       //TODO: toast
       console.error(err);
     }
-  }, [email]);
+  }, [email, authCtx]);
 
   return (
     <Card className="rounded-lg border-3 border-kfk-light-blue">
@@ -81,7 +84,10 @@ export function ContactInfoSection({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               editing={editingEmail}
-              onEditClick={() => setEditingEmail(true)}
+              onEditClick={() => {
+                setPendingVerification(false);
+                setEditingEmail(true);
+              }}
               onSaveClick={() => {
                 if (email === authCtx.authUser.email) {
                   setEditingEmail(false);
@@ -91,6 +97,12 @@ export function ContactInfoSection({
                 setEditingEmail(false);
               }}
             />
+            {pendingVerification && (
+              <span className="text-xs text-amber-600">
+                Verification email sent — check your inbox to confirm the
+                change.
+              </span>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
