@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
 import { ChildCard, ChildCardData } from "@/components/storefront/ChildCard";
-import { Child, Family, Gift } from "../../../../common/src/types";
+import { Child, Family } from "../../../../common/src/types";
 import { useState } from "react";
 import { z } from "zod";
-import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from "@heroicons/react/24/outline";
+import { Button } from "@/components/ui/button";
+import { 
+  ChevronDoubleLeftIcon, ChevronDoubleRightIcon 
+} from "@/components/icons";
 
 export const Route = createFileRoute("/_storefront/")({
   // STEP 1: define the search param for TanStack Router
@@ -60,31 +63,33 @@ const Pagination = ( {totalChildren, childrenPerPage, setCurrentPage, currentPag
   return (
     <div className="mx-auto mt-10 flex justify-center gap-2 text-xl">
       {/* Left Arrow */}
-      <button 
+      <Button 
         onClick={() => setCurrentPage(currentPage - 1)}
         disabled={currentPage == 1}
         className={`rounded-full pl-2 w-10 h-10 ${currentPage == 1 ? "text-gray-400" : "bg-transparent text-primary hover:bg-gray-100"} transition-all text-xl`}
       >
         <ChevronDoubleLeftIcon className="size-5"/>
-      </button>
+      </Button>
       {/* Pages */}
       {range.map((page) => {
         return (
-          <button 
+          <Button 
             onClick={() => setCurrentPage(page)}
             disabled={page == -1}
             className={`rounded-full text-primary w-10 h-10 ${page != -1 ? page == currentPage ? "bg-kfk-blue text-white" : "bg-transparent hover:bg-gray-100" : ""} transition-all text-xl`}
-          >{page == -1 ? "..." : page}</button>
+          >
+            {page == -1 ? "..." : page}
+          </Button>
         )
       })}
       {/* Right Arrow */}
-      <button 
+      <Button 
         onClick={() => setCurrentPage(currentPage + 1)}
         disabled={currentPage == Math.ceil(totalChildren/childrenPerPage)}
         className={`rounded-full pl-3 w-10 h-10 ${currentPage == totalPages ? "text-gray-400" : "bg-transparent text-primary hover:bg-gray-100"} transition-all text-xl`}
       >
         <ChevronDoubleRightIcon className="size-5"/>
-      </button>
+      </Button>
     </div>
   )
 }
