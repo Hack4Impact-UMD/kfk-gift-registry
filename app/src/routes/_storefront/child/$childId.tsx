@@ -20,7 +20,7 @@ const MOCK_CHILDREN: Record<string, StorefrontChild> = {
     diagnosis: "Acute Lymphocytic Leukemia",
     photoUrl: undefined,
     publicBlurb:
-      "Lincoln has the biggest heart. He is now a big brother and he cannot get enough of his little brother Gunner. Lincoln enjoys art and crafts. He always wants to learn something new.",
+      "Ryan has the biggest heart. He is now a big brother and he cannot get enough of his little brother Gunner. Lincoln enjoys art and crafts. He always wants to learn something new.",
     status: "diagnosed_in_treatment_1yr+",
     gifts: [
       {
