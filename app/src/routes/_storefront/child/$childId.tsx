@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ChildInfoCard } from "@/components/storefront/ChildInfoCard";
+import type { CarouselCardSibling } from "@/components/storefront/CarouselCards";
+import { SiblingsCarousel } from "@/components/storefront/SiblingsCarousel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { StorefrontChild } from "@/types/storefront";
 import { GiftTable } from "@/components/tables/GiftTable/GiftTable";
@@ -79,9 +81,87 @@ const MOCK_CHILDREN: Record<string, StorefrontChild> = {
   },
 };
 
+const MOCK_SIBLINGS: Record<string, Array<CarouselCardSibling>> = {
+  "1": [
+    {
+      id: "2",
+      name: "Christina Anne T. Montgomery",
+      category: "super_sib",
+      giftsFulfilled: 0,
+      giftsTotal: 3,
+    },
+    {
+      id: "sib-a",
+      name: "Alex Martinez",
+      category: "warrior",
+      giftsFulfilled: 1,
+      giftsTotal: 3,
+    },
+    {
+      id: "sib-b",
+      name: "Jordan Kim",
+      category: "super_sib",
+      giftsFulfilled: 2,
+      giftsTotal: 3,
+    },
+    {
+      id: "sib-c",
+      name: "Sam Rivera",
+      category: "warrior",
+      giftsFulfilled: 0,
+      giftsTotal: 5,
+    },
+    {
+      id: "sib-d",
+      name: "Morgan Lee",
+      category: "super_sib",
+      giftsFulfilled: 3,
+      giftsTotal: 4,
+    },
+    {
+      id: "sib-e",
+      name: "Casey Nguyen",
+      category: "warrior",
+      giftsFulfilled: 1,
+      giftsTotal: 2,
+    },
+  ],
+  "2": [
+    {
+      id: "1",
+      name: "Ryan Peirce",
+      category: "warrior",
+      giftsFulfilled: 0,
+      giftsTotal: 3,
+    },
+    {
+      id: "sib-a",
+      name: "Alex Martinez",
+      category: "warrior",
+      giftsFulfilled: 1,
+      giftsTotal: 3,
+    },
+    {
+      id: "sib-b",
+      name: "Jordan Kim",
+      category: "super_sib",
+      giftsFulfilled: 2,
+      giftsTotal: 3,
+    },
+    {
+      id: "sib-c",
+      name: "Sam Rivera",
+      category: "warrior",
+      giftsFulfilled: 0,
+      giftsTotal: 5,
+    },
+  ],
+};
+
 function RouteComponent() {
   const { childId } = Route.useParams();
   const child = MOCK_CHILDREN[childId] || MOCK_CHILDREN["1"];
+  const siblings = MOCK_SIBLINGS[childId] ?? MOCK_SIBLINGS["1"] ?? [];
 
   return (
     <div className="w-full min-h-screen bg-background">
@@ -117,9 +197,7 @@ function RouteComponent() {
           <h2 className="text-3xl font-bold text-center mb-8 font-gaegu">
             {child.name}'s Siblings
           </h2>
-          <div className="min-h-[200px] flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg">
-            {/* Sibling carousel implementation will go here */}
-          </div>
+          <SiblingsCarousel siblings={siblings} />
         </div>
       </div>
     </div>
