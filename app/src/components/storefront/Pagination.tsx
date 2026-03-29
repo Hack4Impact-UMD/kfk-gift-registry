@@ -45,15 +45,15 @@ export const Pagination = ( {totalChildren, childrenPerPage, setCurrentPage, cur
 
   return (
     <div className="mx-auto mt-10 flex justify-center gap-2 text-xl">
-      {/* Left Arrow */}
       <Button 
         onClick={() => setCurrentPage(currentPage - 1)}
+        type="button"
+        variant="ghost"
         disabled={currentPage == 1 || totalChildren <= 0}
         className={`rounded-full pl-2 w-10 h-10 ${currentPage == 1 || totalChildren <= 0 ? "text-gray-400" : "text-primary hover:bg-gray-100"} bg-transparent transition-all text-xl`}
       >
         <ChevronDoubleLeftIcon className="size-5"/>
       </Button>
-      {/* Pages */}
       {range.map((page) => {
         return (
           <Button 
@@ -65,9 +65,10 @@ export const Pagination = ( {totalChildren, childrenPerPage, setCurrentPage, cur
           </Button>
         )
       })}
-      {/* Right Arrow */}
       <Button 
         onClick={() => setCurrentPage(currentPage + 1)}
+        type="button"
+        variant="ghost"
         disabled={currentPage == totalPages || totalChildren <= 0}
         className={`rounded-full pl-3 w-10 h-10 ${currentPage == totalPages || totalChildren <= 0 ? "text-gray-400" : "text-primary hover:bg-gray-100"} bg-transparent transition-all text-xl`}
       >
