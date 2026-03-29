@@ -9,6 +9,7 @@ import { getServerAuth } from "@/lib/firebase.server";
 export type AuthUser = {
   uid: string;
   displayName: string | undefined;
+  phone: string | undefined;
   disabled: boolean;
   email: string | undefined;
   emailVerified: boolean;
@@ -19,12 +20,12 @@ export type AuthContext =
   | AuthContextAuthenticated
   | AuthContextNotAuthenticated;
 
-type AuthContextAuthenticated = {
+export type AuthContextAuthenticated = {
   isAuthed: true;
   authUser: AuthUser;
 };
 
-type AuthContextNotAuthenticated = {
+export type AuthContextNotAuthenticated = {
   isAuthed: false;
   authUser: null;
 };
@@ -36,6 +37,7 @@ const toAuthUser = (user: UserRecord): AuthUser => ({
   email: user.email,
   emailVerified: user.emailVerified,
   role: user.customClaims?.role ?? UserRole.DONOR,
+  phone: user.phoneNumber,
 });
 
 const loginSchema = z.object({
@@ -111,20 +113,18 @@ export const loginWithToken = createServerFn({
 
 export const logoutSession = createServerFn({
   method: "POST",
-})
-  .handler(async () => {
-    const session = await verifySession();
-    if (!session) throw new Error("Not authed");
-    const auth = getServerAuth();
+}).handler(async () => {
+  const session = await verifySession();
+  if (!session) throw new Error("Not authed");
+  const auth = getServerAuth();
 
-    await auth.revokeRefreshTokens(session.uid);
+  await auth.revokeRefreshTokens(session.uid);
 
-    setCookie(SESSION_COOKIE_NAME, "", {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 0,
-    });
+  setCookie(SESSION_COOKIE_NAME, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 0,
   });
-
+});
