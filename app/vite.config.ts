@@ -37,7 +37,8 @@ const config = defineConfig({
     tailwindcss(),
     tanstackStart({
       importProtection: {
-        enabled: false,
+        enabled: true,
+        behavior: "mock",
       },
     }),
     viteReact(),

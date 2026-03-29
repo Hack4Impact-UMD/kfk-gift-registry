@@ -62,6 +62,7 @@ export function ContactInfoSection({
       console.log("update link sent");
       setShowReauth(false);
     } catch (err) {
+      //TODO: toast
       console.error(err);
     }
   }, [email]);
@@ -110,7 +111,10 @@ export function ContactInfoSection({
         open={showReauth}
         authCtx={authCtx}
         onConfirmed={handleUpdateEmail}
-        onFail={() => setShowReauth(false)}
+        onFail={() => {
+          setEmail(authCtx.authUser.email ?? "");
+          setShowReauth(false);
+        }}
       />
     </Card>
   );

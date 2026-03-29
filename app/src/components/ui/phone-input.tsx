@@ -6,8 +6,8 @@ export function formatPhoneDisplay(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 10);
   if (digits.length === 0) return "";
   if (digits.length <= 3) return `${digits}`;
-  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)} ${digits.slice(6)}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)})-${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)})-${digits.slice(3, 6)}-${digits.slice(6)}`;
 }
 
 /** Converts a display-formatted or raw digit string to E.164 (+1XXXXXXXXXX). */
@@ -24,7 +24,7 @@ export function e164ToDisplay(e164: string): string {
   const local =
     digits.startsWith("1") && digits.length === 11 ? digits.slice(1) : digits;
   if (local.length !== 10) return e164;
-  return `(${local.slice(0, 3)}) ${local.slice(3, 6)} ${local.slice(6)}`;
+  return `(${local.slice(0, 3)})-${local.slice(3, 6)}-${local.slice(6)}`;
 }
 
 /**

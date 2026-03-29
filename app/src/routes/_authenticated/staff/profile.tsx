@@ -25,9 +25,10 @@ function RouteComponent() {
           onClick={async () => {
             try {
               await logout();
-              router.invalidate();
             } catch (error) {
               console.error("Logout failed", error);
+            } finally {
+              await router.invalidate();
             }
           }}
           variant={"destructive"}

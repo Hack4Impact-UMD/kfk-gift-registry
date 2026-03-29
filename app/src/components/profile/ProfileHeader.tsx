@@ -31,6 +31,12 @@ export function ProfileHeader({ authCtx, avatarUrl }: ProfileHeaderProps) {
   const router = useRouter();
 
   const handleUpdateName = useCallback(() => {
+    if (!name?.trim()) {
+      setName(user.displayName);
+      setEditingName(false);
+      return;
+    }
+
     updateProfile(
       {
         userId: user.uid,
@@ -39,13 +45,17 @@ export function ProfileHeader({ authCtx, avatarUrl }: ProfileHeaderProps) {
         },
       },
       {
+        onError: (err) => {
+          console.error(err);
+          //TODO: toast
+        },
         onSettled: () => {
           router.invalidate();
           setEditingName(false);
         },
       },
     );
-  }, [router, user.uid, updateProfile, name]);
+  }, [router, user.uid, updateProfile, name, user.displayName]);
 
   return (
     <div className="relative overflow-hidden rounded-lg bg-card px-6 py-6 flex border-3 border-kfk-light-blue gap-6 items-center">
