@@ -64,7 +64,14 @@ const MOCK_CHILDREN: Record<string, StorefrontChild> = {
         id: "gift-4",
         title: "Art Supply Kit",
         productUrl:
-          "https://www.amazon.com/Pentel-Arts-Pastel-Assorted-Colors/dp/B001E63EKW/ref=sr_1_7?crid=2TN55QEC2C55Z&dib=eyJ2IjoiMSJ9.9dMqDKZgu1zEyiyUnCopEuT-XHbMC521m8grtaYdIDCBhJSNX13atUZJ-4nM7jCjs4Szaicy93F8JPf9fLP1oiiFAPD7z7y0nS52tfbpeoYDf35yWtpr9cLmzOvzsU17a9REIF2iK75G2X8uy8UBsk_twc-z8X6kKE55Ley_e4aYNV7-eNP8D_HnUfG-M_LRcnEj5ug5yjgi0ZaUh1Prkle366XJlbwlRfvUQBZYbMtfqugHXqA4B_bIGmxyCPuhJpTUweL-VOUEuTCP8PaX_iHOHKSYUJvcBGhoY2eNLm0.F_SUrjBjJlfs94Q_SKMu2jcUoaX4sxV5irQokjegVPU&dib_tag=se&keywords=art+supplies&qid=1774550253&sprefix=art+sup%2Caps%2C151&sr=8-7",
+          "https://www.amazon.com/Pentel-Arts-Pastel-Assorted-Colors/dp/B001E63EKW/\
+          ref=sr_1_7?crid=2TN55QEC2C55Z&dib=eyJ2IjoiMSJ9.9dMqDKZgu1zEyiyUnCopEuT-XHb\
+          MC521m8grtaYdIDCBhJSNX13atUZJ-4nM7jCjs4Szaicy93F8JPf9fLP1oiiFAPD7z7y0nS52t\
+          fbpeoYDf35yWtpr9cLmzOvzsU17a9REIF2iK75G2X8uy8UBsk_twc-z8X6kKE55Ley_e4aYNV7\
+          -eNP8D_HnUfG-M_LRcnEj5ug5yjgi0ZaUh1Prkle366XJlbwlRfvUQBZYbMtfqugHXqA4B_bIG\
+          mxyCPuhJpTUweL-VOUEuTCP8PaX_iHOHKSYUJvcBGhoY2eNLm0.F_SUrjBjJlfs94Q_SKMu2jcU\
+          oaX4sxV5irQokjegVPU&dib_tag=se&keywords=art+supplies&qid=1774550253&sprefix=\
+          art+sup%2Caps%2C151&sr=8-7",
         listedPrice: 24.99,
         status: "AVAILABLE",
       },
@@ -72,7 +79,14 @@ const MOCK_CHILDREN: Record<string, StorefrontChild> = {
         id: "gift-5",
         title: "Art Supply Kit",
         productUrl:
-          "https://www.amazon.com/Pentel-Arts-Pastel-Assorted-Colors/dp/B001E63EKW/ref=sr_1_7?crid=2TN55QEC2C55Z&dib=eyJ2IjoiMSJ9.9dMqDKZgu1zEyiyUnCopEuT-XHbMC521m8grtaYdIDCBhJSNX13atUZJ-4nM7jCjs4Szaicy93F8JPf9fLP1oiiFAPD7z7y0nS52tfbpeoYDf35yWtpr9cLmzOvzsU17a9REIF2iK75G2X8uy8UBsk_twc-z8X6kKE55Ley_e4aYNV7-eNP8D_HnUfG-M_LRcnEj5ug5yjgi0ZaUh1Prkle366XJlbwlRfvUQBZYbMtfqugHXqA4B_bIGmxyCPuhJpTUweL-VOUEuTCP8PaX_iHOHKSYUJvcBGhoY2eNLm0.F_SUrjBjJlfs94Q_SKMu2jcUoaX4sxV5irQokjegVPU&dib_tag=se&keywords=art+supplies&qid=1774550253&sprefix=art+sup%2Caps%2C151&sr=8-7",
+          "https://www.amazon.com/Pentel-Arts-Pastel-Assorted-Colors/dp/B001E63EKW/\
+          ref=sr_1_7?crid=2TN55QEC2C55Z&dib=eyJ2IjoiMSJ9.9dMqDKZgu1zEyiyUnCopEuT-XHb\
+          MC521m8grtaYdIDCBhJSNX13atUZJ-4nM7jCjs4Szaicy93F8JPf9fLP1oiiFAPD7z7y0nS52t\
+          fbpeoYDf35yWtpr9cLmzOvzsU17a9REIF2iK75G2X8uy8UBsk_twc-z8X6kKE55Ley_e4aYNV7\
+          -eNP8D_HnUfG-M_LRcnEj5ug5yjgi0ZaUh1Prkle366XJlbwlRfvUQBZYbMtfqugHXqA4B_bIG\
+          mxyCPuhJpTUweL-VOUEuTCP8PaX_iHOHKSYUJvcBGhoY2eNLm0.F_SUrjBjJlfs94Q_SKMu2jcU\
+          oaX4sxV5irQokjegVPU&dib_tag=se&keywords=art+supplies&qid=1774550253&sprefix=\
+          art+sup%2Caps%2C151&sr=8-7",
         listedPrice: 24.99,
         status: "AVAILABLE",
       },
@@ -80,7 +94,13 @@ const MOCK_CHILDREN: Record<string, StorefrontChild> = {
         id: "gift-6",
         title: "Art Supply Kit",
         productUrl:
-          "https://www.amazon.com/Pentel-Arts-Pastel-Assorted-Colors/dp/B001E63EKW/ref=sr_1_7?crid=2TN55QEC2C55Z&dib=eyJ2IjoiMSJ9.9dMqDKZgu1zEyiyUnCopEuT-XHbMC521m8grtaYdIDCBhJSNX13atUZJ-4nM7jCjs4Szaicy93F8JPf9fLP1oiiFAPD7z7y0nS52tfbpeoYDf35yWtpr9cLmzOvzsU17a9REIF2iK75G2X8uy8UBsk_twc-z8X6kKE55Ley_e4aYNV7-eNP8D_HnUfG-M_LRcnEj5ug5yjgi0ZaUh1Prkle366XJlbwlRfvUQBZYbMtfqugHXqA4B_bIGmxyCPuhJpTUweL-VOUEuTCP8PaX_iHOHKSYUJvcBGhoY2eNLm0.F_SUrjBjJlfs94Q_SKMu2jcUoaX4sxV5irQokjegVPU&dib_tag=se&keywords=art+supplies&qid=1774550253&sprefix=art+sup%2Caps%2C151&sr=8-7",
+          "https://www.amazon.com/Pentel-Arts-Pastel-Assorted-Colors/dp/B001E63EKW/ref=\
+          sr_1_7?crid=2TN55QEC2C55Z&dib=eyJ2IjoiMSJ9.9dMqDKZgu1zEyiyUnCopEuT-XHbMC521m8g\
+          rtaYdIDCBhJSNX13atUZJ-4nM7jCjs4Szaicy93F8JPf9fLP1oiiFAPD7z7y0nS52tfbpeoYDf35yW\
+          tpr9cLmzOvzsU17a9REIF2iK75G2X8uy8UBsk_twc-z8X6kKE55Ley_e4aYNV7-eNP8D_HnUfG-M_LR\
+          cnEj5ug5yjgi0ZaUh1Prkle366XJlbwlRfvUQBZYbMtfqugHXqA4B_bIGmxyCPuhJpTUweL-VOUEuTCP\
+          8PaX_iHOHKSYUJvcBGhoY2eNLm0.F_SUrjBjJlfs94Q_SKMu2jcUoaX4sxV5irQokjegVPU&dib_tag=s\
+          e&keywords=art+supplies&qid=1774550253&sprefix=art+sup%2Caps%2C151&sr=8-7",
         listedPrice: 24.99,
         status: "AVAILABLE",
       },
@@ -174,7 +194,7 @@ function RouteComponent() {
     <div className="w-full min-h-screen bg-background">
       <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
         <div className="max-w-7xl mx-auto">
-          <div 
+          <div
             className="w-full px-3 py-6 sm:py-8 md:py-10 lg:px-12 lg:py-12 rounded-3xl bg-cover bg-center bg-repeat-y"
             style={{ backgroundImage: `url(${redStripedBackground})` }}
           >
