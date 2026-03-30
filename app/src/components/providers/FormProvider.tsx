@@ -56,22 +56,30 @@ function loadLocalStorageFormState(driveId: string): FamilyFormState {
     const saved = JSON.parse(value) as FamilyFormState;
 
     return {
-      consentScreen: {
-        ...consentFormDefaults,
-        ...saved.consentScreen,
-      },
-      children: {
-        ...childrenFormDefaults,
-        ...saved.children,
-      },
-      generalInfo: {
-        ...generalInfoFormDefaults,
-        ...saved.generalInfo,
-      },
-      gifts: {
-        ...giftsFormDefaults,
-        ...saved.gifts,
-      },
+      ...(saved.consentScreen && {
+        consentScreen: {
+          ...consentFormDefaults,
+          ...saved.consentScreen,
+        },
+      }),
+      ...(saved.children && {
+        children: {
+          ...childrenFormDefaults,
+          ...saved.children,
+        },
+      }),
+      ...(saved.generalInfo && {
+        generalInfo: {
+          ...generalInfoFormDefaults,
+          ...saved.generalInfo,
+        },
+      }),
+      ...(saved.gifts && {
+        gifts: {
+          ...giftsFormDefaults,
+          ...saved.gifts,
+        },
+      }),
     };
   } catch {
     return {};
@@ -93,9 +101,25 @@ export function FormProvider({
 
   useEffect(() => {
     const ref = setTimeout(() => {
+      // Strip photoUrl before persisting — base64 data URLs can be several MB
+      // each and will blow past localStorage's ~5 MB quota. The in-memory state
+      // retains the image for live previews; photos are re-selected if the user
+      // navigates away and returns.
+      const sanitized: FamilyFormState = {
+        ...formState,
+        children: formState.children
+          ? {
+              ...formState.children,
+              children: formState.children.children.map((child) => ({
+                ...child,
+                photoUrl: "",
+              })),
+            }
+          : undefined,
+      };
       localStorage.setItem(
         formLocalStorageKey(driveId),
-        JSON.stringify(formState),
+        JSON.stringify(sanitized),
       );
     }, FORM_LOCAL_SAVE_DEBOUNCE);
     return () => clearTimeout(ref);
