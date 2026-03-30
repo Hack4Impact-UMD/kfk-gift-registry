@@ -69,10 +69,12 @@ export function GiftDetailsForm({
 
       if (getNameValue().trim() === "" || !manuallyEditedRef.current.has(key)) {
         if (giftType === "gifts") {
-          const nameFieldPath = `giftSelections[${childIndex}].${giftType}[${giftIndex as 0 | 1 | 2}].giftName` as const;
+          const nameFieldPath =
+            `giftSelections[${childIndex}].${giftType}[${giftIndex as 0 | 1 | 2}].giftName` as const;
           form.setFieldValue(nameFieldPath, result.productName);
         } else {
-          const nameFieldPath = `giftSelections[${childIndex}].${giftType}[${giftIndex as 0 | 1}].giftName` as const;
+          const nameFieldPath =
+            `giftSelections[${childIndex}].${giftType}[${giftIndex as 0 | 1}].giftName` as const;
           form.setFieldValue(nameFieldPath, result.productName);
         }
       }
@@ -106,20 +108,20 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                    onChange: ({ value }) => {
-                      if (i !== 0 && !value) return undefined;
-                      if (!value) return "URL is required";
-                      try {
-                        const url = new URL(value);
-                        if (!["http:", "https:"].includes(url.protocol)) {
-                          return "URL must start with http or https";
+                      onChange: ({ value }) => {
+                        if (i !== 0 && !value) return undefined;
+                        if (!value) return "URL is required";
+                        try {
+                          const url = new URL(value);
+                          if (!["http:", "https:"].includes(url.protocol)) {
+                            return "URL must start with http or https";
+                          }
+                          return undefined;
+                        } catch {
+                          return "Please enter a valid URL";
                         }
-                        return undefined;
-                      } catch {
-                        return "Please enter a valid URL";
-                      }
-                    },
-                  }
+                      },
+                    }
               }
             >
               {(field) => {
@@ -160,14 +162,14 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                    onChange: ({ value }) => {
-                      if (i !== 0 && !value) return undefined;
-                      if (!value) return "Gift name is required";
-                      if (value.length > GIFT_NAME_MAX_CHARS)
-                        return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
-                      return undefined;
-                    },
-                  }
+                      onChange: ({ value }) => {
+                        if (i !== 0 && !value) return undefined;
+                        if (!value) return "Gift name is required";
+                        if (value.length > GIFT_NAME_MAX_CHARS)
+                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                        return undefined;
+                      },
+                    }
               }
             >
               {(field) => {
@@ -201,19 +203,19 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                    onChange: ({ value }) => {
-                      if (!value) return "URL is required";
-                      try {
-                        const url = new URL(value);
-                        if (!["http:", "https:"].includes(url.protocol)) {
-                          return "URL must start with http or https";
+                      onChange: ({ value }) => {
+                        if (!value) return "URL is required";
+                        try {
+                          const url = new URL(value);
+                          if (!["http:", "https:"].includes(url.protocol)) {
+                            return "URL must start with http or https";
+                          }
+                          return undefined;
+                        } catch {
+                          return "Please enter a valid URL";
                         }
-                        return undefined;
-                      } catch {
-                        return "Please enter a valid URL";
-                      }
-                    },
-                  }
+                      },
+                    }
               }
             >
               {(field) => {
@@ -254,14 +256,14 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                    onChange: ({ value }) => {
-                      const str = value;
-                      if (!str) return "Gift name is required";
-                      if (str.length > GIFT_NAME_MAX_CHARS)
-                        return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
-                      return undefined;
-                    },
-                  }
+                      onChange: ({ value }) => {
+                        const str = value;
+                        if (!str) return "Gift name is required";
+                        if (str.length > GIFT_NAME_MAX_CHARS)
+                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                        return undefined;
+                      },
+                    }
               }
             >
               {(field) => {

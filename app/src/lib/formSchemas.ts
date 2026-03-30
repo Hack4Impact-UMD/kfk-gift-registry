@@ -12,15 +12,15 @@ export const CHILD_STATUS_VALUES = [
 ] as const satisfies ReadonlyArray<ChildStatus>;
 
 export const CHILD_STATUS_LABELS: Record<ChildStatus, string> = {
-  "recently_diagnosed_relapse":
+  recently_diagnosed_relapse:
     "Recently diagnosed or relapse with cancer (within 1 year)",
   "diagnosed_in_treatment_1yr+":
     "Diagnosed and has been in treatment for more than 1 year",
-  "recently_off_treatment": "Recently off treatment (within 1 year)",
+  recently_off_treatment: "Recently off treatment (within 1 year)",
   "off_treatment_1yr+": "Off treatment (more than 1 year)",
-  "sibling_in_treatment":
+  sibling_in_treatment:
     "Sibling of child diagnosed with cancer (in or off treatment)",
-  "bereaved_sibling": "Bereaved sibling",
+  bereaved_sibling: "Bereaved sibling",
 };
 
 export const US_STATES = [

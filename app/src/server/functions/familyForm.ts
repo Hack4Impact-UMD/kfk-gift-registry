@@ -30,7 +30,7 @@ const CHILD_STATUS_VALUES = [
   "off_treatment_1yr+",
   "sibling_in_treatment",
   "bereaved_sibling",
-] as const satisfies readonly ChildStatus[];
+] as const satisfies ReadonlyArray<ChildStatus>;
 
 // --- Zod schemas ---
 
@@ -179,23 +179,25 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
 
     // childForm.status is typed as ChildStatus here — the Zod transform above
     // maps display strings to enum values during validation.
-    const childDocs: Array<Child> = data.children.children.map((childForm, i) => ({
-      id: childIds[i],
-      name: childForm.name,
-      age: parseInt(childForm.age, 10),
-      status: childForm.status,
-      category: childForm.isSibling ? "super_sib" : ("warrior" as const),
-      familyId,
-      diagnosis: childForm.diagnosis ?? "",
-      hospital: childForm.hospitalTreatedAt ?? "",
-      childSocialWorker: childForm.socialWorkerName ?? "",
-      photoUrl: childPhotoUrls.get(i),
-      giftDrive: data.giftDriveId,
-      livesAtHome: true,
-      publicBlurb: childForm.blurb,
-      createdAt: now,
-      published: false,
-    }));
+    const childDocs: Array<Child> = data.children.children.map(
+      (childForm, i) => ({
+        id: childIds[i],
+        name: childForm.name,
+        age: parseInt(childForm.age, 10),
+        status: childForm.status,
+        category: childForm.isSibling ? "super_sib" : ("warrior" as const),
+        familyId,
+        diagnosis: childForm.diagnosis ?? "",
+        hospital: childForm.hospitalTreatedAt ?? "",
+        childSocialWorker: childForm.socialWorkerName ?? "",
+        photoUrl: childPhotoUrls.get(i),
+        giftDrive: data.giftDriveId,
+        livesAtHome: true,
+        publicBlurb: childForm.blurb,
+        createdAt: now,
+        published: false,
+      }),
+    );
 
     if (childDocs.length !== data.gifts.giftSelections.length) {
       throw new Error(
@@ -209,33 +211,37 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
 
         const regular = selection.gifts
           .filter((g) => g.giftName && g.giftUrl)
-          .map((g): Gift => ({
-            id: uuidv7(),
-            childId,
-            familyId,
-            giftDrive: data.giftDriveId,
-            title: g.giftName!,
-            productUrl: g.giftUrl!,
-            status: "AVAILABLE",
-            backup: false,
-            active: true,
-            createdAt: now,
-          }));
+          .map(
+            (g): Gift => ({
+              id: uuidv7(),
+              childId,
+              familyId,
+              giftDrive: data.giftDriveId,
+              title: g.giftName!,
+              productUrl: g.giftUrl!,
+              status: "AVAILABLE",
+              backup: false,
+              active: true,
+              createdAt: now,
+            }),
+          );
 
         const backup = (selection.backupGifts ?? [])
           .filter((g) => g.giftName && g.giftUrl)
-          .map((g): Gift => ({
-            id: uuidv7(),
-            childId,
-            familyId,
-            giftDrive: data.giftDriveId,
-            title: g.giftName!,
-            productUrl: g.giftUrl!,
-            status: "AVAILABLE",
-            backup: true,
-            active: true,
-            createdAt: now,
-          }));
+          .map(
+            (g): Gift => ({
+              id: uuidv7(),
+              childId,
+              familyId,
+              giftDrive: data.giftDriveId,
+              title: g.giftName!,
+              productUrl: g.giftUrl!,
+              status: "AVAILABLE",
+              backup: true,
+              active: true,
+              createdAt: now,
+            }),
+          );
 
         return [...regular, ...backup];
       },
