@@ -21,12 +21,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 let auth: Auth | null = null;
 
-export const getClientAuth = createClientOnlyFn(() => {
+export const getClientAuth = createClientOnlyFn(async () => {
   if (auth) return auth;
   auth = getAuth(app);
   if (import.meta.env.DEV) {
     console.log("Connecting auth emulator!");
     connectAuthEmulator(auth, "http://localhost:9099");
   }
+
+  await auth.authStateReady();
   return auth;
 });

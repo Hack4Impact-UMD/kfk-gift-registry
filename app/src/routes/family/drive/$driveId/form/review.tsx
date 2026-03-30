@@ -122,10 +122,13 @@ function RouteComponent() {
             try {
               const payload = buildFamilyFormSubmitPayload(driveId, formState);
               submitMutation.mutate(payload, {
-                onSuccess: () =>
+                onSuccess: (link) =>
                   navigate({
                     to: "/family/drive/$driveId/form/thank-you",
                     params: { driveId },
+                    search: {
+                      linkId: link.id,
+                    },
                   }),
               });
             } catch (e) {

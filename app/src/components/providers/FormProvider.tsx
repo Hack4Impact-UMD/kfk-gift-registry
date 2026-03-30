@@ -87,13 +87,9 @@ export function FormProvider({
   children: ReactNode;
   driveId: string;
 }) {
-  const [formState, setFormState] = useState<FamilyFormState>({});
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setFormState(loadLocalStorageFormState(driveId));
-    }
-  }, [driveId]);
+  const [formState, setFormState] = useState<FamilyFormState>(
+    loadLocalStorageFormState(driveId),
+  );
 
   useEffect(() => {
     const ref = setTimeout(() => {

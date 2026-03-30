@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { queries } from "@/queries";
-import { getCurrentUserProfile } from "@/server/auth";
+import { getCurrentUserProfile } from "@/server/functions/profile";
 
 export function useCurrentUserProfile() {
   return useQuery({

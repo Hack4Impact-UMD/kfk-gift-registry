@@ -6,7 +6,7 @@ import {
   ChevronRightIcon,
   XCircleIcon,
 } from "@heroicons/react/24/solid";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useFormContext } from "@/components/providers/FormProvider";
 import { childGiftSchema, giftsFormSchema } from "@/lib/formSchemas";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,6 @@ import { FormItem } from "@/components/ui/form";
 import { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { GiftDetailsForm } from "@/components/form/sections/GiftDetails";
 import LadyBug from "@/assets/form/ladybug.png";
-import { fetchProductDetails } from "@/server/functions/giftLinks";
 
 export const Route = createFileRoute(
   "/family/drive/$driveId/form/gift-details",
@@ -30,9 +29,7 @@ function GiftsStep() {
   );
   const { driveId } = Route.useParams();
 
-  // -1: "Dashboard".
-  // 0, 1, 2, 3, ...: Specific forms for that child
-  const [activeChildIndex, setActiveChildIndex] = useState<number>(-1);
+  const [activeChildIndex, setActiveChildIndex] = useState<number | null>(null);
 
   const form = useGiftsForm();
 
@@ -66,13 +63,11 @@ function GiftsStep() {
     (_, index) => isChildComplete(index) === "completed",
   );
 
-  if (activeChildIndex === -1) {
+  if (activeChildIndex === null) {
     return (
       <div className="flex flex-col gap-8">
-        <div className="border-b-2 border-[var(--color-kfk-blue)] w-full">
-          <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">
-            Gift Details
-          </h2>
+        <div className="border-b-2 border-kfk-blue w-full">
+          <h2 className="text-xl font-bold text-kfk-blue pb-1">Gift Details</h2>
         </div>
 
         <div className="flex flex-col relative border bg-green-50 border-green-500 text-green-900 p-5 rounded-lg gap-4">
@@ -125,7 +120,7 @@ function GiftsStep() {
           {childrenNameList.map((childName, index) => (
             <button
               key={index}
-              className={`flex flex-row cursor-pointer justify-around ${isChildComplete(index) === "completed" ? "bg-[var(--color-kfk-green)]" : isChildComplete(index) === "dirty" ? "bg-red-500" : "bg-yellow-300"} ${isChildComplete(index) === "dirty" && "text-white"} rounded-lg text-md p-4`}
+              className={`flex flex-row cursor-pointer justify-around ${isChildComplete(index) === "completed" ? "bg-kfk-green" : isChildComplete(index) === "dirty" ? "bg-red-500" : "bg-yellow-300"} ${isChildComplete(index) === "dirty" && "text-white"} rounded-lg text-md p-4`}
               onClick={() => setActiveChildIndex(index)}
             >
               <span className="my-auto">{childName}'s Gift Selection</span>
@@ -145,7 +140,7 @@ function GiftsStep() {
             type="button"
             onClick={handleBack}
             variant="outline"
-            className="flex-1 h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg"
+            className="flex-1 h-14 rounded-xl border-2 border-kfk-blue text-kfk-blue font-bold text-lg"
           >
             <ChevronLeftIcon className="mr-2 h-6 w-6" />
             Back
@@ -165,7 +160,7 @@ function GiftsStep() {
               }
             }}
             size="lg"
-            className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg"
+            className="flex-1 h-14 rounded-xl bg-kfk-blue text-white font-bold text-lg"
           >
             Next
             <ChevronRightIcon className="ml-2 h-6 w-6" />
@@ -179,7 +174,7 @@ function GiftsStep() {
     <div className="w-full">
       <div className="flex flex-col gap-10">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--color-kfk-blue)] text-center mb-2">
+          <h2 className="text-2xl font-bold text-kfk-blue text-center mb-2">
             {childrenNameList[activeChildIndex]}'s Gift Selection
           </h2>
           <p className="text-sm text-muted-foreground text-center">
@@ -194,9 +189,14 @@ function GiftsStep() {
 
         <Button
           type="button"
-          onClick={() => setActiveChildIndex(-1)}
+          onClick={() => {
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur();
+            }
+            setActiveChildIndex(null);
+          }}
           variant="outline"
-          className="flex h-14 rounded-xl border-2 border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] font-bold text-lg"
+          className="flex h-14 rounded-xl border-2 border-kfk-blue text-kfk-blue font-bold text-lg"
         >
           <ChevronLeftIcon className="mr-2 h-6 w-6" />
           Back

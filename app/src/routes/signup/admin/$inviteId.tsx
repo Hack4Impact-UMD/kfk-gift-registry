@@ -17,6 +17,7 @@ import {
 } from "@/components/icons";
 
 import { Button } from "@/components/ui/button";
+import { PhoneInput, formatToE164 } from "@/components/ui/phone-input";
 import { getStaffInviteById } from "@/server/functions/invite";
 import { useRegisterStaffWithInvite } from "@/hooks/mutations/useRegisterStaff";
 
@@ -43,10 +44,7 @@ export const registerSchema = z
     fullName: z
       .string()
       .min(1, "This field is required")
-      .max(100, "Name is too long")
-      .refine((val) => val.trim().split(" ").length >= 2, {
-        message: "Please provide both first and last name",
-      }),
+      .max(100, "Name is too long"),
     phoneNumber: z
       .string()
       .min(1, "This field is required")
@@ -71,6 +69,7 @@ type InviteFieldProps = {
   placeholder: string;
   disabled?: boolean;
   startIcon: React.ReactNode;
+  inputComponent?: React.ComponentType<React.ComponentProps<typeof Input>>;
 };
 
 function InviteFieldInput({
@@ -79,6 +78,7 @@ function InviteFieldInput({
   placeholder,
   disabled,
   startIcon,
+  inputComponent: InputComponent = Input,
 }: InviteFieldProps) {
   const [showPassword, setShowPassword] = React.useState(false);
   const rawError = field.state.meta.isTouched && field.state.meta.errors?.[0];
@@ -97,13 +97,13 @@ function InviteFieldInput({
           {startIcon}
         </div>
 
-        <Input
+        <InputComponent
           type={inputType}
           name={field.name}
           id={field.id}
           value={field.state.value}
           placeholder={placeholder}
-          className={`w-full border border-muted-foreground rounded-md px-3 pl-8 py-2 mt-1 
+          className={`w-full border border-muted-foreground rounded-md px-3 pl-8 py-2 mt-1
             ${errorMessage ? "border-red-500 bg-[#FFF0F0] placeholder:text-red-500 text-red-500" : ""}`}
           onChange={(e) => field.handleChange(e.target.value)}
           onBlur={field.handleBlur}
@@ -134,16 +134,6 @@ function InviteFieldInput({
   );
 }
 
-function formatToE164(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-
-  if (digits.length === 10) {
-    return `+1${digits}`;
-  }
-
-  return `+${digits}`;
-}
-
 function RouteComponent() {
   const invite = Route.useLoaderData();
 
@@ -157,23 +147,18 @@ function RouteComponent() {
 
   const form = useForm({
     defaultValues: {
-      fullName: invite.firstName + " " + invite.lastName,
+      fullName: invite.name,
       phoneNumber: "",
       email: invite.email,
       password: "",
       confirmPassword: "",
     },
     onSubmit: ({ value }) => {
-      const nameParts = value.fullName.trim().split(" ");
-      const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(" ") || "";
-
       registerMutation.mutate(
         {
           data: {
             inviteId: invite.id,
-            firstName,
-            lastName,
+            name: value.fullName.trim(),
             phone: formatToE164(value.phoneNumber),
             password: value.password,
           },
@@ -277,6 +262,7 @@ function RouteComponent() {
                     field={field}
                     placeholder="e.g. (555)-555-5555"
                     startIcon={<PhoneIcon className="size-5 fill-current" />}
+                    inputComponent={PhoneInput}
                   />
                 )}
               />

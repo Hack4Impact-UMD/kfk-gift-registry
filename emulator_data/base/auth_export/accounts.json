@@ -3,16 +3,14 @@
   "users": [
     {
       "localId": "AWOZkRsBvadjhxX2mctEZLBTnBvS",
-      "lastLoginAt": "1771886678952",
+      "createdAt": "1771886638149",
+      "lastLoginAt": "1774317434461",
       "displayName": "Admin User",
       "photoUrl": "",
-      "emailVerified": false,
-      "email": "admin@test.com",
-      "salt": "fakeSaltIca8RsH8GCIWOmdZPj1q",
       "passwordHash": "fakeHash:salt=fakeSaltIca8RsH8GCIWOmdZPj1q:password=password",
-      "passwordUpdatedAt": 1771886670172,
-      "validSince": "1771886670",
-      "createdAt": "1771886638149",
+      "salt": "fakeSaltIca8RsH8GCIWOmdZPj1q",
+      "passwordUpdatedAt": 1774317376611,
+      "customAttributes": "{\"role\":\"ADMIN\"}",
       "providerUserInfo": [
         {
           "providerId": "password",
@@ -23,8 +21,11 @@
           "photoUrl": ""
         }
       ],
-      "lastRefreshAt": "2026-02-23T22:44:38.952Z",
-      "customAttributes": "{\"role\":\"ADMIN\"}"
+      "validSince": "1774317376",
+      "email": "admin@test.com",
+      "emailVerified": false,
+      "disabled": false,
+      "lastRefreshAt": "2026-03-24T01:57:14.461Z"
     }
   ]
 }

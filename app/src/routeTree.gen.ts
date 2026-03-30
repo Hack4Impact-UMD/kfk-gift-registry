@@ -13,7 +13,8 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as StorefrontRouteRouteImport } from './routes/_storefront/route'
+import { Route as StorefrontIndexRouteImport } from './routes/_storefront/index'
 import { Route as SignupSuccessRouteImport } from './routes/signup/success'
 import { Route as FamilyTokenRouteImport } from './routes/family/$token'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
@@ -22,6 +23,7 @@ import { Route as AuthenticatedDonorRouteRouteImport } from './routes/_authentic
 import { Route as SignupAdminInviteIdRouteImport } from './routes/signup/admin/$inviteId'
 import { Route as FamilyDriveDriveIdRouteImport } from './routes/family/drive/$driveId'
 import { Route as FamilyTokenHomeRouteImport } from './routes/family/$token/home'
+import { Route as StorefrontChildChildIdRouteImport } from './routes/_storefront/child/$childId'
 import { Route as AuthenticatedStaffProfileRouteImport } from './routes/_authenticated/staff/profile'
 import { Route as AuthenticatedStaffPendingRouteImport } from './routes/_authenticated/staff/pending'
 import { Route as AuthenticatedStaffHomeRouteImport } from './routes/_authenticated/staff/home'
@@ -57,10 +59,14 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const StorefrontRouteRoute = StorefrontRouteRouteImport.update({
+  id: '/_storefront',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StorefrontIndexRoute = StorefrontIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => StorefrontRouteRoute,
 } as any)
 const SignupSuccessRoute = SignupSuccessRouteImport.update({
   id: '/signup/success',
@@ -101,6 +107,11 @@ const FamilyTokenHomeRoute = FamilyTokenHomeRouteImport.update({
   id: '/home',
   path: '/home',
   getParentRoute: () => FamilyTokenRoute,
+} as any)
+const StorefrontChildChildIdRoute = StorefrontChildChildIdRouteImport.update({
+  id: '/child/$childId',
+  path: '/child/$childId',
+  getParentRoute: () => StorefrontRouteRoute,
 } as any)
 const AuthenticatedStaffProfileRoute =
   AuthenticatedStaffProfileRouteImport.update({
@@ -191,7 +202,7 @@ const FamilyDriveDriveIdFormChildrenRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof StorefrontIndexRoute
   '/data': typeof DataRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
@@ -206,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/staff/home': typeof AuthenticatedStaffHomeRoute
   '/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/staff/profile': typeof AuthenticatedStaffProfileRoute
+  '/child/$childId': typeof StorefrontChildChildIdRoute
   '/family/$token/home': typeof FamilyTokenHomeRoute
   '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
@@ -220,7 +232,7 @@ export interface FileRoutesByFullPath {
   '/family/drive/$driveId/form/thank-you': typeof FamilyDriveDriveIdFormThankYouRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof StorefrontIndexRoute
   '/data': typeof DataRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
@@ -235,6 +247,7 @@ export interface FileRoutesByTo {
   '/staff/home': typeof AuthenticatedStaffHomeRoute
   '/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/staff/profile': typeof AuthenticatedStaffProfileRoute
+  '/child/$childId': typeof StorefrontChildChildIdRoute
   '/family/$token/home': typeof FamilyTokenHomeRoute
   '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
@@ -250,7 +263,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_storefront': typeof StorefrontRouteRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/data': typeof DataRoute
   '/login': typeof LoginRoute
@@ -260,12 +273,14 @@ export interface FileRoutesById {
   '/_authenticated/hello': typeof AuthenticatedHelloRoute
   '/family/$token': typeof FamilyTokenRouteWithChildren
   '/signup/success': typeof SignupSuccessRoute
+  '/_storefront/': typeof StorefrontIndexRoute
   '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
   '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
   '/_authenticated/staff/home': typeof AuthenticatedStaffHomeRoute
   '/_authenticated/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/_authenticated/staff/profile': typeof AuthenticatedStaffProfileRoute
+  '/_storefront/child/$childId': typeof StorefrontChildChildIdRoute
   '/family/$token/home': typeof FamilyTokenHomeRoute
   '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
@@ -297,6 +312,7 @@ export interface FileRouteTypes {
     | '/staff/home'
     | '/staff/pending'
     | '/staff/profile'
+    | '/child/$childId'
     | '/family/$token/home'
     | '/family/drive/$driveId'
     | '/signup/admin/$inviteId'
@@ -326,6 +342,7 @@ export interface FileRouteTypes {
     | '/staff/home'
     | '/staff/pending'
     | '/staff/profile'
+    | '/child/$childId'
     | '/family/$token/home'
     | '/family/drive/$driveId'
     | '/signup/admin/$inviteId'
@@ -340,7 +357,7 @@ export interface FileRouteTypes {
     | '/family/drive/$driveId/form/thank-you'
   id:
     | '__root__'
-    | '/'
+    | '/_storefront'
     | '/_authenticated'
     | '/data'
     | '/login'
@@ -350,12 +367,14 @@ export interface FileRouteTypes {
     | '/_authenticated/hello'
     | '/family/$token'
     | '/signup/success'
+    | '/_storefront/'
     | '/_authenticated/staff/admin'
     | '/_authenticated/staff/volunteer'
     | '/_authenticated/staff/approved'
     | '/_authenticated/staff/home'
     | '/_authenticated/staff/pending'
     | '/_authenticated/staff/profile'
+    | '/_storefront/child/$childId'
     | '/family/$token/home'
     | '/family/drive/$driveId'
     | '/signup/admin/$inviteId'
@@ -371,7 +390,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  StorefrontRouteRoute: typeof StorefrontRouteRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   DataRoute: typeof DataRoute
   LoginRoute: typeof LoginRoute
@@ -412,12 +431,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_storefront': {
+      id: '/_storefront'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof StorefrontRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_storefront/': {
+      id: '/_storefront/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof StorefrontIndexRouteImport
+      parentRoute: typeof StorefrontRouteRoute
     }
     '/signup/success': {
       id: '/signup/success'
@@ -474,6 +500,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/family/$token/home'
       preLoaderRoute: typeof FamilyTokenHomeRouteImport
       parentRoute: typeof FamilyTokenRoute
+    }
+    '/_storefront/child/$childId': {
+      id: '/_storefront/child/$childId'
+      path: '/child/$childId'
+      fullPath: '/child/$childId'
+      preLoaderRoute: typeof StorefrontChildChildIdRouteImport
+      parentRoute: typeof StorefrontRouteRoute
     }
     '/_authenticated/staff/profile': {
       id: '/_authenticated/staff/profile'
@@ -583,6 +616,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface StorefrontRouteRouteChildren {
+  StorefrontIndexRoute: typeof StorefrontIndexRoute
+  StorefrontChildChildIdRoute: typeof StorefrontChildChildIdRoute
+}
+
+const StorefrontRouteRouteChildren: StorefrontRouteRouteChildren = {
+  StorefrontIndexRoute: StorefrontIndexRoute,
+  StorefrontChildChildIdRoute: StorefrontChildChildIdRoute,
+}
+
+const StorefrontRouteRouteWithChildren = StorefrontRouteRoute._addFileChildren(
+  StorefrontRouteRouteChildren,
+)
+
 interface AuthenticatedStaffAdminRouteRouteChildren {
   AuthenticatedStaffAdminUsersRoute: typeof AuthenticatedStaffAdminUsersRoute
 }
@@ -691,7 +738,7 @@ const FamilyDriveDriveIdRouteWithChildren =
   FamilyDriveDriveIdRoute._addFileChildren(FamilyDriveDriveIdRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  StorefrontRouteRoute: StorefrontRouteRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   DataRoute: DataRoute,
   LoginRoute: LoginRoute,

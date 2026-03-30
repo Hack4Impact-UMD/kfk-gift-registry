@@ -306,37 +306,40 @@ export function ChildInfoForm({
                     />
 
                     {/* Child Photo + Note */}
-                    {!disabled && (
-                      <div className="space-y-3">
-                        <p className="text-sm font-medium text-kfk-blue">
-                          Please upload a photo of your child.
-                        </p>
-                        <div className="border-2 border-kfk-yellow rounded-lg p-4 bg-yellow-50 space-y-3 text-sm">
-                          <p className="font-bold">
-                            Please Note: Photos will be publicly displayed on
-                            our Holiday Gift Drive website.
+                    <div className="space-y-3">
+                      {!disabled && (
+                        <>
+                          <p className="text-sm font-medium text-kfk-blue">
+                            Please upload a photo of your child.
                           </p>
-                          <p>
-                            While submitting a photo is not required to
-                            participate, it increases your child's chances of
-                            receiving gifts. If no photo is provided, the Kisses
-                            for Kyle logo will be displayed instead.
-                          </p>
-                        </div>
-                        <form.AppField name={`children[${index}].photoUrl`}>
-                          {(field) => (
-                            <PhotoUpload
-                              field={field}
-                              label=""
-                              childName={
-                                form.state.values.children[index]?.name ||
-                                `Child ${index + 1}`
-                              }
-                            />
-                          )}
-                        </form.AppField>
-                      </div>
-                    )}
+                          <div className="border-2 border-kfk-yellow rounded-lg p-4 bg-yellow-50 space-y-3 text-sm">
+                            <p className="font-bold">
+                              Please Note: Photos will be publicly displayed on
+                              our Holiday Gift Drive website.
+                            </p>
+                            <p>
+                              While submitting a photo is not required to
+                              participate, it increases your child's chances of
+                              receiving gifts. If no photo is provided, the
+                              Kisses for Kyle logo will be displayed instead.
+                            </p>
+                          </div>
+                        </>
+                      )}
+                      <form.AppField name={`children[${index}].photoUrl`}>
+                        {(field) => (
+                          <PhotoUpload
+                            field={field}
+                            label=""
+                            childName={
+                              form.state.values.children[index]?.name ||
+                              `Child ${index + 1}`
+                            }
+                            disabled={disabled}
+                          />
+                        )}
+                      </form.AppField>
+                    </div>
 
                     {/* Child Blurb */}
                     <form.AppField

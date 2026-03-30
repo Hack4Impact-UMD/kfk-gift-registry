@@ -75,8 +75,7 @@ const updateUserProfileSchema = z.object({
   userId: z.string().min(1),
   updates: z
     .object({
-      firstName: z.string().trim().min(1),
-      lastName: z.string().trim().min(1),
+      name: z.string().trim().min(1),
       phone: z.string().trim().min(1),
     })
     .partial()
@@ -87,7 +86,7 @@ const updateUserProfileSchema = z.object({
 });
 
 /**
- * Updates a user's profile details (first name, last name, phone).
+ * Updates a user's profile details (name, phone).
  * - Directors may update any user.
  * - Non - directors may only update their own profile.
  * Syncs updates to both Firestore `users` and Firebase Auth user record.
@@ -120,7 +119,7 @@ export const updateUserProfile = createServerFn({
     if (!currentProfile) throw new Error("User not found");
 
     try {
-      const displayName = `${updates.firstName ?? currentProfile.firstName} ${updates.lastName ?? currentProfile.lastName}`;
+      const displayName = updates.name ?? currentProfile.name;
       await auth.updateUser(userId, {
         displayName,
         phoneNumber: updates.phone,
@@ -186,8 +185,7 @@ export const deleteUserProfile = createServerFn({
 
 const relevantStaffFields = z.object({
   inviteId: z.string().trim().min(1),
-  firstName: z.string().trim().min(1),
-  lastName: z.string().trim().min(1),
+  name: z.string().trim().min(1),
   password: z.string().min(6, "Password must be at least 6 characters long"),
   phone: z
     .string()
@@ -249,7 +247,7 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
 
     try {
       authUser = await auth.createUser({
-        displayName: `${cleaned.firstName} ${cleaned.lastName}`,
+        displayName: cleaned.name,
         email: userEmail,
         password: cleaned.password,
         phoneNumber: cleaned.phone,
@@ -263,8 +261,7 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
       const userDoc = {
         id: authUser.uid,
         email: userEmail,
-        firstName: cleaned.firstName,
-        lastName: cleaned.lastName,
+        name: cleaned.name,
         role: invite.role,
         phone: cleaned.phone,
         createdAt: DateTime.now().toISO(),
@@ -291,4 +288,17 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
 
       throw err instanceof Error ? err : new Error("Registration failed");
     }
+  });
+
+export const getCurrentUserProfile = createServerFn({
+  method: "GET",
+})
+  .middleware([authMiddleware])
+  .handler(async ({ context }) => {
+    const db = getServerDB();
+    const userDoc = await db.users.doc(context.authUser.uid).get();
+
+    if (!userDoc.exists) throw new Error("User not found");
+
+    return userDoc.data()!;
   });
