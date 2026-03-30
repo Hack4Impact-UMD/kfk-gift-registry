@@ -48,6 +48,7 @@ const MOCK_CHILDREN: Record<string, StorefrontChild> = {
         status: "AVAILABLE",
       },
     ],
+    published: true,
   },
   "2": {
     id: "2",
@@ -58,6 +59,7 @@ const MOCK_CHILDREN: Record<string, StorefrontChild> = {
     photoUrl: undefined,
     publicBlurb:
       "Christina is a bright and caring sister who loves to read and play with her siblings.",
+    published: true,
     status: "sibling_in_treatment",
     gifts: [
       {

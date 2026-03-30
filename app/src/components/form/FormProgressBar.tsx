@@ -1,10 +1,12 @@
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import {
   DocumentCheckIcon,
   GiftIcon,
   UserIcon,
   UsersIcon,
 } from "@heroicons/react/24/solid";
+import { Fragment } from "react";
+import type { ReactNode } from "react";
 import type { FamilyFormState } from "@/components/providers/FormProvider";
 import { useFormContext } from "@/components/providers/FormProvider";
 import { SECTION_SCHEMAS } from "@/lib/formSchemas";
@@ -12,65 +14,106 @@ import { SECTION_SCHEMAS } from "@/lib/formSchemas";
 type FormStep = {
   id: string;
   label: string;
-  path: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   sectionKey: keyof FamilyFormState;
-  isReviewPage?: boolean; // Flag for pages without their own form data
 };
 
 const FORM_STEPS: Array<FormStep> = [
   {
     id: "general",
     label: "General",
-    path: "/family/form/general-info",
     icon: UserIcon,
     sectionKey: "generalInfo",
   },
   {
     id: "children",
     label: "Child Info",
-    path: "/family/form/children",
     icon: UsersIcon,
     sectionKey: "children",
   },
   {
     id: "gifts",
     label: "Gifts!",
-    path: "/family/form/gift-details",
     icon: GiftIcon,
     sectionKey: "gifts",
   },
   {
     id: "review",
     label: "Review",
-    path: "/family/form/review",
     icon: DocumentCheckIcon,
-    sectionKey: "generalInfo", // Review doesn't have its own section
-    isReviewPage: true, // Flag to identify review page
+    sectionKey: "generalInfo",
   },
 ];
 
-type StepState = "current" | "complete" | "error" | "incomplete";
+type StepLinkProps = {
+  stepId: string;
+  driveId: string;
+  className: string;
+  children: ReactNode;
+};
 
-interface FormProgressBarProps {
-  onNavigate?: (targetPath: string) => void | Promise<void>;
+function StepLink({ stepId, driveId, className, children }: StepLinkProps) {
+  const params = { driveId };
+  switch (stepId) {
+    case "general":
+      return (
+        <Link
+          to="/family/drive/$driveId/form/general-info"
+          params={params}
+          className={className}
+        >
+          {children}
+        </Link>
+      );
+    case "children":
+      return (
+        <Link
+          to="/family/drive/$driveId/form/children"
+          params={params}
+          className={className}
+        >
+          {children}
+        </Link>
+      );
+    case "gifts":
+      return (
+        <Link
+          to="/family/drive/$driveId/form/gift-details"
+          params={params}
+          className={className}
+        >
+          {children}
+        </Link>
+      );
+    case "review":
+      return (
+        <Link
+          to="/family/drive/$driveId/form/review"
+          params={params}
+          className={className}
+        >
+          {children}
+        </Link>
+      );
+    default:
+      return <div className={className}>{children}</div>;
+  }
 }
 
-export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
+type StepState = "current" | "complete" | "error" | "incomplete";
+
+export function FormProgressBar({ driveId }: { driveId: string }) {
   const { formState } = useFormContext();
   const location = useLocation();
-  const navigate = useNavigate();
   const currentPath = location.pathname;
 
   const getStepState = (step: FormStep, index: number): StepState => {
-    // Check if this is the current step
-    if (currentPath === step.path) return "current";
+    if (currentPath.includes(`/form/${getPathSegment(step.id)}`))
+      return "current";
     return getUnderlyingState(step, index);
   };
 
-  // Helper to get the underlying state (ignoring current status)
   const getUnderlyingState = (step: FormStep, _: number): StepState => {
-    // Special handling for review step
     if (step.id === "review") {
       const allPreviousComplete = FORM_STEPS.slice(0, -1).every((s) => {
         const data = formState[s.sectionKey];
@@ -81,13 +124,9 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
       return allPreviousComplete ? "complete" : "incomplete";
     }
 
-    // Check if step has data
     const stepData = formState[step.sectionKey];
-    if (!stepData) {
-      return "incomplete";
-    }
+    if (!stepData) return "incomplete";
 
-    // Validate with schema if available
     const schema = SECTION_SCHEMAS[step.sectionKey];
     return schema.safeParse(stepData).success ? "complete" : "error";
   };
@@ -104,24 +143,10 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
     return index < firstUnvisitedIndex;
   };
 
-  const handleStepClick = async (step: FormStep, index: number) => {
-    if (!isStepClickable(step, index)) {
-      return;
-    }
-
-    // This allows the parent form to save current state before navigating
-    if (onNavigate) {
-      await onNavigate(step.path);
-    } else {
-      // Default navigation
-      navigate({ to: step.path as any });
-    }
-  };
-
   const getStepStyles = (state: StepState, underlyingState: StepState) => {
     switch (state) {
       case "current": {
-        let fillColor = "bg-gray-300"; // default
+        let fillColor = "bg-gray-300";
         let iconColor = "text-gray-500";
 
         if (underlyingState === "complete") {
@@ -134,10 +159,10 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
 
         return {
           iconBg: fillColor,
-          iconBorder: "border-[#F4D03F] border-[3px]", // Gold border
+          iconBorder: "border-[#F4D03F] border-[3px]",
           iconColor: iconColor,
           labelColor: "text-gray-900",
-          underline: "border-b-2 border-[#F4D03F]", // Gold underline
+          underline: "border-b-2 border-[#F4D03F]",
         };
       }
       case "complete":
@@ -171,85 +196,122 @@ export function FormProgressBar({ onNavigate }: FormProgressBarProps) {
   return (
     <div className="w-full bg-white">
       <div className="max-w-md mx-auto py-4 px-6">
-        <div className="relative flex items-center justify-between">
-          {/* Connecting lines background */}
-          <div className="absolute top-[22px] left-[10%] right-[10%] h-[2px] bg-gray-300 -z-10" />
+        <div className="flex flex-col gap-2 w-full">
+          <div className="flex w-full items-center">
+            {FORM_STEPS.map((step, index) => {
+              const state = getStepState(step, index);
+              const underlyingState = getUnderlyingState(step, index);
+              const styles = getStepStyles(state, underlyingState);
+              const Icon = step.icon;
+              const clickable = isStepClickable(step, index);
 
-          {/* Colored connecting lines for completed steps */}
-          <div className="absolute top-[22px] left-[10%] right-[10%] h-[2px] -z-10">
-            <div className="absolute inset-0 flex">
-              {FORM_STEPS.slice(0, -1).map((step, index) => {
-                const currentState = getStepState(step, index);
+              const segmentClass =
+                index === 0
+                  ? ""
+                  : (() => {
+                      const targetStep = FORM_STEPS[index];
+                      const targetState = getStepState(targetStep, index);
+                      const targetUnderlying = getUnderlyingState(
+                        targetStep,
+                        index,
+                      );
+                      const targetIconGray =
+                        targetState === "incomplete" ||
+                        (targetState === "current" &&
+                          targetUnderlying === "incomplete");
+                      if (targetIconGray) {
+                        return "bg-gray-300";
+                      }
+                      return "bg-[var(--color-kfk-blue)]";
+                    })();
 
-                // Line is colored if current step is complete or current
-                const shouldColor =
-                  currentState === "complete" || currentState === "current";
-                const lineColor =
-                  currentState === "error"
-                    ? "bg-red-500"
-                    : shouldColor
-                      ? "bg-[var(--color-kfk-blue)]"
-                      : "bg-transparent";
-
-                return (
-                  <div
-                    key={`line-${step.id}`}
-                    className={`h-full flex-1 ${lineColor} transition-colors duration-300`}
-                  />
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Steps */}
-          {FORM_STEPS.map((step, index) => {
-            const state = getStepState(step, index);
-            const underlyingState = getUnderlyingState(step, index);
-            const styles = getStepStyles(state, underlyingState);
-            const Icon = step.icon;
-            const clickable = isStepClickable(step, index);
-
-            return (
-              <div
-                key={step.id}
-                className="flex flex-col items-center relative z-10"
-                onClick={() => handleStepClick(step, index)}
-              >
-                {/* Icon circle */}
+              const iconCircle = (
                 <div
                   className={`
-                    w-[44px] h-[44px] rounded-full 
+                    w-[44px] h-[44px] rounded-full
                     ${styles.iconBorder}
                     ${styles.iconBg}
                     flex items-center justify-center
                     transition-all duration-300
                     shadow-sm
-                    ${clickable ? "cursor-pointer hover:scale-110 hover:shadow-md" : "cursor-default"}
+                    ${clickable ? "hover:scale-110 hover:shadow-md" : ""}
                   `}
                 >
                   <Icon className={`w-5 h-5 ${styles.iconColor}`} />
                 </div>
+              );
 
-                {/* Label with conditional underline */}
-                <div className="mt-2.5 text-center">
-                  <span
-                    className={`
-                      text-xs font-semibold ${styles.labelColor}
-                      ${styles.underline}
-                      inline-block pb-0.5
-                      transition-colors duration-300
-                      whitespace-nowrap
-                      ${clickable ? "cursor-pointer" : "cursor-default"}
-                    `}
-                  >
-                    {step.label}
-                  </span>
+              const iconCell = clickable ? (
+                <StepLink
+                  stepId={step.id}
+                  driveId={driveId}
+                  className="flex shrink-0 w-[44px] justify-center cursor-pointer"
+                >
+                  {iconCircle}
+                </StepLink>
+              ) : (
+                <div className="flex shrink-0 w-[44px] justify-center cursor-default">
+                  {iconCircle}
                 </div>
-              </div>
-            );
-          })}
+              );
+
+              return (
+                <Fragment key={step.id}>
+                  {index > 0 && (
+                    <div
+                      className={`h-[3px] flex-1 min-w-[4px] rounded-full ${segmentClass} transition-colors duration-300`}
+                      aria-hidden
+                    />
+                  )}
+                  {iconCell}
+                </Fragment>
+              );
+            })}
+          </div>
+
+          <div className="flex w-full items-start">
+            {FORM_STEPS.map((step, index) => {
+              const state = getStepState(step, index);
+              const underlyingState = getUnderlyingState(step, index);
+              const styles = getStepStyles(state, underlyingState);
+
+              return (
+                <Fragment key={`${step.id}-label`}>
+                  {index > 0 && <div className="flex-1 min-w-0" aria-hidden />}
+                  <div className="shrink-0 w-[44px] text-center">
+                    <span
+                      className={`
+                        text-xs font-semibold ${styles.labelColor}
+                        ${styles.underline}
+                        inline-block pb-0.5
+                        transition-colors duration-300
+                        whitespace-nowrap
+                      `}
+                    >
+                      {step.label}
+                    </span>
+                  </div>
+                </Fragment>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
   );
+}
+
+function getPathSegment(stepId: string): string {
+  switch (stepId) {
+    case "general":
+      return "general-info";
+    case "children":
+      return "children";
+    case "gifts":
+      return "gift-details";
+    case "review":
+      return "review";
+    default:
+      return "";
+  }
 }

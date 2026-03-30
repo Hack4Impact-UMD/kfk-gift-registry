@@ -8,6 +8,8 @@ export type GiftStatus =
 export interface Gift {
   id: string;
   childId: string;
+  familyId: string;
+  giftDrive: string;
   title: string;
   productUrl: string;
   listedPrice?: number;
