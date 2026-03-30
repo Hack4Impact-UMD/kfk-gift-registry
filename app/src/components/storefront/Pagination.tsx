@@ -55,7 +55,10 @@ export const Pagination = ({
   IMMEDIATE_PAGES,
 }: PaginationProp) => {
   const totalPages = Math.ceil(totalChildren / childrenPerPage);
-  const boundedCurrentPage = Math.min(Math.max(currentPage, 1), Math.max(totalPages, 1));
+  const boundedCurrentPage = Math.min(
+    Math.max(currentPage, 1),
+    Math.max(totalPages, 1),
+  );
   const pages = [];
 
   for (let i = 1; i <= totalPages; i++) {
@@ -94,7 +97,11 @@ export const Pagination = ({
         );
       })}
       <Button
-        onClick={() => setCurrentPage(Math.min(Math.max(totalPages, 1), boundedCurrentPage + 1))}
+        onClick={() =>
+          setCurrentPage(
+            Math.min(Math.max(totalPages, 1), boundedCurrentPage + 1),
+          )
+        }
         type="button"
         variant="ghost"
         disabled={boundedCurrentPage >= totalPages || totalChildren <= 0}

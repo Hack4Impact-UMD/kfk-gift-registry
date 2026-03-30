@@ -3,7 +3,7 @@ import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
 import type { ChildCardData } from "@/components/storefront/ChildCard";
 import { ChildCard } from "@/components/storefront/ChildCard";
 import type { Child, Family } from "../../../../common/src/types";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { Pagination } from "@/components/storefront/Pagination";
 
@@ -107,14 +107,14 @@ const mockChildrenFull: Array<Child> = mockFamilies.flatMap((family) =>
     treatmentLevel: i,
     familyId: family.id,
     diagnosis: "Acute Lymphocytic Leukemia",
-    diagnosisLengthYears: 1,
+    diagnosisLengthYears: "<6m",
     livesAtHome: true,
     createdAt: new Date().toISOString(),
     hospital: "Children’s National Hospital",
     age: 4 + i,
     childSocialWorker: "Jane Doe",
     giftDrive: family.giftDrive,
-    public: true,
+    published: true,
   })),
 );
 
@@ -141,18 +141,18 @@ function App() {
   const { search, sort } = Route.useSearch();
 
   // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, sort]);
+  // useEffect(() => {
+  //   setCurrentPage(1);
+  // }, [search, sort]);
 
   // STEP 3: filter children by search term (name or diagnosis) and sorting filters
   const filteredChildren = (
     search
       ? mockChildren.filter(
-          (child) =>
-            child.name.toLowerCase().includes(search.toLowerCase()) ||
-            child.diagnosis?.toLowerCase().includes(search.toLowerCase()),
-        )
+        (child) =>
+          child.name.toLowerCase().includes(search.toLowerCase()) ||
+          child.diagnosis?.toLowerCase().includes(search.toLowerCase()),
+      )
       : [...mockChildren]
   ).sort((a, b) => {
     if (sort === "age-asc") return a.age - b.age;

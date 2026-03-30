@@ -31,7 +31,8 @@ export function GiftDriveStats({
   giftsReceived,
   totalDonated,
 }: GiftDriveStatsProps) {
-  const progressPercentage = totalGiftsPurchased > 0
+  const progressPercentage =
+    totalGiftsPurchased > 0
       ? Math.floor((giftsPurchased / totalGiftsPurchased) * 100)
       : 0;
   const ladybugClampedPosition = Math.min(Math.max(progressPercentage, 2), 98);
