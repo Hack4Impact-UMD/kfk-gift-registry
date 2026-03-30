@@ -1,0 +1,66 @@
+import { createColumnHelper } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { StorefrontGift } from "@/types/storefront";
+import type { GiftTableMeta } from "./types";
+import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
+
+const helper = createColumnHelper<StorefrontGift>();
+
+export const columns = [
+  helper.accessor("title", {
+    header: "Gift",
+    cell: ({ getValue, row }) => {
+      const title = getValue();
+      const url = row.original.productUrl;
+
+      return (
+        <div className="overflow-x-auto max-w-full [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400">
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 sm:gap-2 text-foreground hover:underline font-gaegu text-sm sm:text-base lg:text-lg whitespace-nowrap"
+          >
+            <span>{title}</span>
+            <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+          </a>
+        </div>
+      );
+    },
+  }),
+  helper.accessor("listedPrice", {
+    header: "Price",
+    cell: ({ getValue }) => {
+      const price = getValue();
+      return (
+        <span className="text-red-500 font-medium text-sm sm:text-base whitespace-nowrap">
+          {price ? `$${price.toFixed(2)}` : "N/A"}
+        </span>
+      );
+    },
+  }),
+  helper.display({
+    id: "action",
+    header: "Click to Claim",
+    cell: ({ row, table }) => {
+      const meta = table.options.meta as GiftTableMeta | undefined;
+      const giftId = row.original.id;
+      const isClaimed = meta?.claimedGifts.has(giftId) ?? false;
+
+      return (
+        <Button
+          onClick={() => meta?.onClaimGift(giftId)}
+          disabled={isClaimed}
+          className={
+            isClaimed
+              ? "bg-green-500 hover:bg-green-500 cursor-not-allowed text-white text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
+              : "text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
+          }
+        >
+          {isClaimed ? "Gift Claimed!" : "Claim Gift!"}
+        </Button>
+      );
+    },
+  }),
+] as Array<ColumnDef<StorefrontGift>>;

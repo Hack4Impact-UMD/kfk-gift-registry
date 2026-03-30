@@ -9,12 +9,14 @@ interface PhotoUploadProps {
   field: any;
   label?: string;
   childName?: string;
+  disabled?: boolean;
 }
 
 export function PhotoUpload({
   field,
   label = "Photo",
   childName = "Child",
+  disabled = false,
 }: PhotoUploadProps) {
   // Restore preview from form state (e.g. user navigated back to this page)
   const existingValue = field.state.value as string | undefined;
@@ -81,6 +83,16 @@ export function PhotoUpload({
     field.handleChange("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  if (disabled) {
+    return preview ? (
+      <img
+        src={preview}
+        alt={`${childName} photo`}
+        className="w-full h-40 object-cover rounded-lg border border-slate-200"
+      />
+    ) : null;
+  }
 
   return (
     <div className="space-y-2">

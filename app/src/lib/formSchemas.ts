@@ -1,4 +1,27 @@
 import { z } from "zod";
+import type { ChildStatus } from "common";
+
+// Ordered to match display order in the form.
+export const CHILD_STATUS_VALUES = [
+  "recently_diagnosed_relapse",
+  "diagnosed_in_treatment_1yr+",
+  "recently_off_treatment",
+  "off_treatment_1yr+",
+  "sibling_in_treatment",
+  "bereaved_sibling",
+] as const satisfies ReadonlyArray<ChildStatus>;
+
+export const CHILD_STATUS_LABELS: Record<ChildStatus, string> = {
+  recently_diagnosed_relapse:
+    "Recently diagnosed or relapse with cancer (within 1 year)",
+  "diagnosed_in_treatment_1yr+":
+    "Diagnosed and has been in treatment for more than 1 year",
+  recently_off_treatment: "Recently off treatment (within 1 year)",
+  "off_treatment_1yr+": "Off treatment (more than 1 year)",
+  sibling_in_treatment:
+    "Sibling of child diagnosed with cancer (in or off treatment)",
+  bereaved_sibling: "Bereaved sibling",
+};
 
 export const US_STATES = [
   "AL",
@@ -62,6 +85,11 @@ export const consentSchema = z.object({
   }),
 });
 
+export const consentFormDefaults: ConsentFormData = {
+  consentGiven: false,
+  shareMailingAddress: false,
+};
+
 export const generalInfoSchema = z
   .object({
     parentName: z
@@ -120,6 +148,19 @@ export const generalInfoSchema = z
     path: ["phoneNumberConfirm"],
   });
 
+export const generalInfoFormDefaults: GeneralInfoFormData = {
+  city: "",
+  email: "",
+  emailConfirm: "",
+  parentName: "",
+  state: "",
+  streetAddress: "",
+  zipCode: "",
+  addressLine2: "",
+  phoneNumber: "",
+  phoneNumberConfirm: "",
+};
+
 // Accepts an empty string, a data URL (local preview), or an https:// URL (after Firebase upload)
 const photoUrlSchema = z
   .union([
@@ -135,52 +176,71 @@ export const childInfoSchema = z.object({
     .min(1, "Child's name is required")
     .max(100, "Name is too long"),
   age: z.string().min(1, "Age is required"),
+  status: z.enum(CHILD_STATUS_VALUES),
+  isSibling: z.boolean(),
+  // Not required for siblings
   diagnosis: z
     .string()
-    .min(1, "Diagnosis is required")
-    .max(200, "Diagnosis is too long"),
+    .max(200, "Diagnosis is too long")
+    .optional()
+    .or(z.literal("")),
   hospitalTreatedAt: z
     .string()
-    .min(1, "Hospital name is required")
-    .max(200, "Hospital name is too long"),
+    .max(200, "Hospital name is too long")
+    .optional()
+    .or(z.literal("")),
   socialWorkerName: z
     .string()
-    .min(1, "Social worker name is required")
-    .max(100, "Name is too long"),
+    .max(100, "Name is too long")
+    .optional()
+    .or(z.literal("")),
+  treatmentLength: z.string().optional().or(z.literal("")),
   photoUrl: photoUrlSchema,
+  blurb: z
+    .string()
+    .refine(
+      (value) => {
+        const wordCount = value.match(/\S+/g)?.length ?? 0;
+        return wordCount <= 50;
+      },
+      {
+        message: "Blurb must be at most 50 words",
+      },
+    )
+    .optional(),
 });
 
-export const siblingInfoSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Sibling's name is required")
-    .max(100, "Name is too long"),
-  age: z.string().min(1, "Age is required"),
-  photoUrl: photoUrlSchema,
+export const defaultChild = (): ChildInfo => ({
+  name: "",
+  age: "",
+  diagnosis: "",
+  hospitalTreatedAt: "",
+  socialWorkerName: "",
+  photoUrl: "",
+  status: "recently_diagnosed_relapse",
+  treatmentLength: "",
+  blurb: "",
+  isSibling: false,
 });
+
+export const childrenFormDefaults: ChildrenFormData = {
+  numChildren: 1,
+  children: [defaultChild()],
+  additionalNotes: "",
+  consentPhotosPublic: false,
+};
 
 export const childrenFormSchema = z
   .object({
-    hasMultipleChildren: z.boolean(),
+    numChildren: z.coerce.number().min(1).max(10),
     children: z.array(childInfoSchema).min(1, "At least one child is required"),
-    // coerce handles the string values that come from FormSelect ("2", "3", "4")
-    numChildren: z.coerce.number().min(1).max(4),
-    hasSiblings: z.boolean(),
-    // coerce handles the string values that come from FormSelect ("1", "2", ...)
-    numSiblings: z.coerce.number().min(0).max(10),
-    siblings: z.array(siblingInfoSchema),
+    additionalNotes: z.string().optional().or(z.literal("")),
     consentPhotosPublic: z.boolean(),
   })
-  .refine(
-    (data) => {
-      const expected = data.hasMultipleChildren ? data.numChildren : 1;
-      return data.children.length === expected;
-    },
-    {
-      message: "Number of children filled must match selected count",
-      path: ["children"],
-    },
-  );
+  .refine((data) => data.children.length === data.numChildren, {
+    message: "Number of children must match the count field",
+    path: ["children"],
+  });
 
 const giftSchema = z
   .object({
@@ -227,9 +287,19 @@ export const giftsFormSchema = z.object({
   giftSelections: z.array(childGiftSchema),
 });
 
+export const giftsFormDefaults: GiftsFormData = {
+  giftSelections: [],
+};
+
 export const SECTION_SCHEMAS = {
   generalInfo: generalInfoSchema,
   children: childrenFormSchema,
   gifts: giftsFormSchema,
   consentScreen: consentSchema,
 } as const;
+
+export type ConsentFormData = z.infer<typeof consentSchema>;
+export type GeneralInfoFormData = z.infer<typeof generalInfoSchema>;
+export type ChildInfo = z.infer<typeof childInfoSchema>;
+export type ChildrenFormData = z.infer<typeof childrenFormSchema>;
+export type GiftsFormData = z.infer<typeof giftsFormSchema>;

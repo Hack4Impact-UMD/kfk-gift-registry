@@ -88,7 +88,7 @@ function issueToMessage(issue: unknown): string {
 function RouteComponent() {
   const navigate = useNavigate();
   const router = useRouter();
-  const { redirect } = Route.useSearch();
+  const { redirect: redirectPath } = Route.useSearch();
 
   const loginMutation = useLoginMutation();
   const [rememberMe, setRememberMe] = useState(false);
@@ -110,7 +110,7 @@ function RouteComponent() {
 
       await navigate({
         to:
-          redirect ??
+          redirectPath ??
           (authUser.role === UserRole.DONOR ? "/donor" : "/staff/home"),
       });
     },
