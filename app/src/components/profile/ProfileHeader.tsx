@@ -1,5 +1,5 @@
 import profileHeaderImage from "../../assets/profile-header-image.png";
-import type { AuthContextAuthenticated } from "@/server/auth.ts";
+import type { AuthContextAuthenticated } from "@/server/functions/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { PencilSquare } from "@/components/icons/PencilSquare";

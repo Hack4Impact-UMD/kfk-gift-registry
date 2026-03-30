@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { createFamily } from "@/server/family";
+import { createFamily } from "@/server/functions/family";
 
 export const Route = createFileRoute("/register")({
   component: RegisterRoute,

@@ -2,7 +2,7 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InlineEditInput } from "@/components/ui/inline-edit-input";
 import { getClientAuth } from "@/lib/firebase.client";
-import type { AuthContextAuthenticated } from "@/server/auth";
+import type { AuthContextAuthenticated } from "@/server/functions/auth";
 
 export function AccountDetailsSection({
   authCtx,
