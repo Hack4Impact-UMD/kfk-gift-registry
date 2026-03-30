@@ -2,15 +2,12 @@ import { Building2, Stethoscope, User, UserCog } from "lucide-react";
 import { PhotoUpload } from "../PhotoUpload";
 import type { useChildrenForm } from "@/hooks/family-form/formHooks";
 import { Textarea } from "@/components/ui/textarea";
+import { CHILD_STATUS_VALUES, CHILD_STATUS_LABELS } from "@/lib/formSchemas";
 
-const CHILD_STATUS_OPTIONS = [
-  "Recently diagnosed or relapse with cancer (within 1 year)",
-  "Diagnosed and has been in treatment for more than 1 year",
-  "Recently off treatment (within 1 year)",
-  "Off treatment (more than 1 year)",
-  "Sibling of child diagnosed with cancer (in or off treatment)",
-  "Bereaved sibling",
-];
+const CHILD_STATUS_OPTIONS = CHILD_STATUS_VALUES.map((value) => ({
+  value,
+  label: CHILD_STATUS_LABELS[value],
+}));
 
 const TREATMENT_LENGTH_OPTIONS = [
   "Less than 6 months",
@@ -188,9 +185,8 @@ export function ChildInfoForm({
                       selector={(state) => state.values.children[index]?.status}
                       children={(status) => {
                         const isSibling =
-                          status ===
-                            "Sibling of child diagnosed with cancer (in or off treatment)" ||
-                          status === "Bereaved sibling";
+                          status === "sibling_in_treatment" ||
+                          status === "bereaved_sibling";
 
                         if (isSibling) return null;
 
@@ -220,10 +216,8 @@ export function ChildInfoForm({
                             </form.AppField>
 
                             {/* Length of Treatment */}
-                            {(status ===
-                              "Recently off treatment (within 1 year)" ||
-                              status ===
-                                "Off treatment (more than 1 year)") && (
+                            {(status === "recently_off_treatment" ||
+                              status === "off_treatment_1yr+") && (
                               <form.AppField
                                 name={`children[${index}].treatmentLength`}
                                 validators={{

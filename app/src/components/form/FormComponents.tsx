@@ -128,10 +128,12 @@ export function FormBorderedCheckbox({
   );
 }
 
+type SelectOption = string | { value: string; label: string };
+
 interface FormSelectProps {
   label: string;
   placeholder: string;
-  values: Array<string>;
+  values: Array<SelectOption>;
   onValueChange?: (value: string) => void;
   required?: boolean;
   value?: string;
@@ -178,11 +180,15 @@ export const FormSelect = ({
           <SelectValue placeholder={placeholder} className="truncate" />
         </SelectTrigger>
         <SelectContent>
-          {values.map((val) => (
-            <SelectItem key={val} value={val}>
-              {val}
-            </SelectItem>
-          ))}
+          {values.map((item) => {
+            const val = typeof item === "string" ? item : item.value;
+            const label = typeof item === "string" ? item : item.label;
+            return (
+              <SelectItem key={val} value={val}>
+                {label}
+              </SelectItem>
+            );
+          })}
         </SelectContent>
       </Select>
       {errorMessage && (

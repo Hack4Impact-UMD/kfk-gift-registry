@@ -24,17 +24,22 @@ export function GiftDetailsForm({
   const manuallyEditedRef = useRef<Set<string>>(new Set());
   const lastFetchedUrlRef = useRef<Record<string, string>>({});
 
+  type GiftType = "gifts" | "backupGifts";
+
   const handleUrlBlur = async (
     key: string,
+    giftType: GiftType,
+    giftIndex: number,
     url: string,
-    nameFieldPath: string,
   ) => {
     if (!url) return;
 
     const requestedUrl = url;
-    const currentNameValue =
-      (form.getFieldValue(nameFieldPath as any) as string) || "";
-    const nameIsEmpty = currentNameValue.trim() === "";
+    const getNameValue = () =>
+      form.state.values.giftSelections[childIndex]?.[giftType][giftIndex]
+        ?.giftName ?? "";
+
+    const nameIsEmpty = getNameValue().trim() === "";
 
     if (requestedUrl !== lastFetchedUrlRef.current[key]) {
       manuallyEditedRef.current.delete(key);
@@ -62,12 +67,14 @@ export function GiftDetailsForm({
         [key]: { loading: false, error: null },
       }));
 
-      const latestNameValue =
-        (form.getFieldValue(nameFieldPath as any) as string) || "";
-      const nameStillEmpty = latestNameValue.trim() === "";
-
-      if (nameStillEmpty || !manuallyEditedRef.current.has(key)) {
-        form.setFieldValue(nameFieldPath as any, result.productName as any);
+      if (getNameValue().trim() === "" || !manuallyEditedRef.current.has(key)) {
+        if (giftType === "gifts") {
+          const nameFieldPath = `giftSelections[${childIndex}].${giftType}[${giftIndex as 0 | 1 | 2}].giftName` as const;
+          form.setFieldValue(nameFieldPath, result.productName);
+        } else {
+          const nameFieldPath = `giftSelections[${childIndex}].${giftType}[${giftIndex as 0 | 1}].giftName` as const;
+          form.setFieldValue(nameFieldPath, result.productName);
+        }
       }
     } catch {
       if (lastFetchedUrlRef.current[key] !== requestedUrl) {
@@ -99,31 +106,30 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        if (i !== 0 && !value) return undefined;
-                        if (!value) return "URL is required";
-                        try {
-                          const url = new URL(value);
-                          if (!["http:", "https:"].includes(url.protocol)) {
-                            return "URL must start with http or https";
-                          }
-                          return undefined;
-                        } catch {
-                          return "Please enter a valid URL";
+                    onChange: ({ value }) => {
+                      if (i !== 0 && !value) return undefined;
+                      if (!value) return "URL is required";
+                      try {
+                        const url = new URL(value);
+                        if (!["http:", "https:"].includes(url.protocol)) {
+                          return "URL must start with http or https";
                         }
-                      },
-                    }
+                        return undefined;
+                      } catch {
+                        return "Please enter a valid URL";
+                      }
+                    },
+                  }
               }
             >
               {(field) => {
                 const key = `${childIndex}-gifts-${i}`;
                 const status = fetchStatus[key];
-                const nameFieldPath = `giftSelections[${childIndex}].gifts[${i}].giftName`;
                 return (
                   <>
                     <div
                       onBlur={() =>
-                        handleUrlBlur(key, field.state.value, nameFieldPath)
+                        handleUrlBlur(key, "gifts", i, field.state.value)
                       }
                     >
                       <field.FormFieldInput
@@ -154,14 +160,14 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        if (i !== 0 && !value) return undefined;
-                        if (!value) return "Gift name is required";
-                        if (value.length > GIFT_NAME_MAX_CHARS)
-                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
-                        return undefined;
-                      },
-                    }
+                    onChange: ({ value }) => {
+                      if (i !== 0 && !value) return undefined;
+                      if (!value) return "Gift name is required";
+                      if (value.length > GIFT_NAME_MAX_CHARS)
+                        return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                      return undefined;
+                    },
+                  }
               }
             >
               {(field) => {
@@ -195,30 +201,29 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        if (!value) return "URL is required";
-                        try {
-                          const url = new URL(value);
-                          if (!["http:", "https:"].includes(url.protocol)) {
-                            return "URL must start with http or https";
-                          }
-                          return undefined;
-                        } catch {
-                          return "Please enter a valid URL";
+                    onChange: ({ value }) => {
+                      if (!value) return "URL is required";
+                      try {
+                        const url = new URL(value);
+                        if (!["http:", "https:"].includes(url.protocol)) {
+                          return "URL must start with http or https";
                         }
-                      },
-                    }
+                        return undefined;
+                      } catch {
+                        return "Please enter a valid URL";
+                      }
+                    },
+                  }
               }
             >
               {(field) => {
                 const key = `${childIndex}-backupGifts-${i}`;
                 const status = fetchStatus[key];
-                const nameFieldPath = `giftSelections[${childIndex}].backupGifts[${i}].giftName`;
                 return (
                   <>
                     <div
                       onBlur={() =>
-                        handleUrlBlur(key, field.state.value, nameFieldPath)
+                        handleUrlBlur(key, "backupGifts", i, field.state.value)
                       }
                     >
                       <field.FormFieldInput
@@ -249,14 +254,14 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        const str = value;
-                        if (!str) return "Gift name is required";
-                        if (str.length > GIFT_NAME_MAX_CHARS)
-                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
-                        return undefined;
-                      },
-                    }
+                    onChange: ({ value }) => {
+                      const str = value;
+                      if (!str) return "Gift name is required";
+                      if (str.length > GIFT_NAME_MAX_CHARS)
+                        return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                      return undefined;
+                    },
+                  }
               }
             >
               {(field) => {

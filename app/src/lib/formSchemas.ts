@@ -1,4 +1,27 @@
 import { z } from "zod";
+import type { ChildStatus } from "common";
+
+// Ordered to match display order in the form.
+export const CHILD_STATUS_VALUES = [
+  "recently_diagnosed_relapse",
+  "diagnosed_in_treatment_1yr+",
+  "recently_off_treatment",
+  "off_treatment_1yr+",
+  "sibling_in_treatment",
+  "bereaved_sibling",
+] as const satisfies ReadonlyArray<ChildStatus>;
+
+export const CHILD_STATUS_LABELS: Record<ChildStatus, string> = {
+  "recently_diagnosed_relapse":
+    "Recently diagnosed or relapse with cancer (within 1 year)",
+  "diagnosed_in_treatment_1yr+":
+    "Diagnosed and has been in treatment for more than 1 year",
+  "recently_off_treatment": "Recently off treatment (within 1 year)",
+  "off_treatment_1yr+": "Off treatment (more than 1 year)",
+  "sibling_in_treatment":
+    "Sibling of child diagnosed with cancer (in or off treatment)",
+  "bereaved_sibling": "Bereaved sibling",
+};
 
 export const US_STATES = [
   "AL",
@@ -153,7 +176,7 @@ export const childInfoSchema = z.object({
     .min(1, "Child's name is required")
     .max(100, "Name is too long"),
   age: z.string().min(1, "Age is required"),
-  status: z.string().min(1, "Please select an option"),
+  status: z.enum(CHILD_STATUS_VALUES),
   isSibling: z.boolean(),
   // Not required for siblings
   diagnosis: z
@@ -194,7 +217,7 @@ export const defaultChild = (): ChildInfo => ({
   hospitalTreatedAt: "",
   socialWorkerName: "",
   photoUrl: "",
-  status: "",
+  status: "recently_diagnosed_relapse",
   treatmentLength: "",
   blurb: "",
   isSibling: false,

@@ -148,13 +148,12 @@ export function useChildrenForm() {
       .slice(0, numChildren)
       .map((child) => {
         const isSibling =
-          child.status ===
-            "Sibling of child diagnosed with cancer (in or off treatment)" ||
-          child.status === "Bereaved sibling";
+          child.status === "sibling_in_treatment" ||
+          child.status === "bereaved_sibling";
 
         const requiresTreatmentLength =
-          child.status === "Recently off treatment (within 1 year)" ||
-          child.status === "Off treatment (more than 1 year)";
+          child.status === "recently_off_treatment" ||
+          child.status === "off_treatment_1yr+";
 
         return {
           ...child,

@@ -7,6 +7,33 @@ import { createFamilyLink } from "@/server/services/familyLinkService.server";
 import { DateTime } from "luxon";
 import type { Family, Child, ChildStatus, Gift } from "common";
 
+// --- Photo upload constants ---
+
+const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_PHOTO_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+] as const;
+type AllowedMimeType = (typeof ALLOWED_PHOTO_MIME_TYPES)[number];
+const MIME_TO_EXT: Record<AllowedMimeType, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+
+// ChildStatus values — must stay in sync with common/src/types/child.ts
+const CHILD_STATUS_VALUES = [
+  "recently_diagnosed_relapse",
+  "diagnosed_in_treatment_1yr+",
+  "recently_off_treatment",
+  "off_treatment_1yr+",
+  "sibling_in_treatment",
+  "bereaved_sibling",
+] as const satisfies readonly ChildStatus[];
+
+// --- Zod schemas ---
+
 const addressSchema = z.object({
   street: z.string(),
   addressLine2: z.string().optional(),
@@ -20,8 +47,9 @@ const generalInfoSchema = z.object({
   email: z.email(),
   phoneNumber: z.string(),
   address: addressSchema,
-  privateNotes: z.string().optional(),
 });
+
+const childStatusSchema = z.enum(CHILD_STATUS_VALUES);
 
 const childInfoSchema = z.object({
   name: z.string(),
@@ -30,7 +58,7 @@ const childInfoSchema = z.object({
   hospitalTreatedAt: z.string().optional(),
   socialWorkerName: z.string().optional(),
   photoUrl: z.string().optional(),
-  status: z.string(),
+  status: childStatusSchema,
   treatmentLength: z.string().optional(),
   blurb: z.string().optional(),
   isSibling: z.boolean().optional(),
@@ -67,218 +95,160 @@ const familyFormStateSchema = z.object({
   consentScreen: z.boolean().optional(),
 });
 
-export type FamilyFormInput = z.infer<typeof familyFormStateSchema>; // just extracts the ts type based on zod schema
+export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
 
+// --- Photo upload ---
+// Uploads a data URL to GCS via the Admin SDK and returns a permanent public URL.
+// Write access is admin-SDK-only; the object is made publicly readable for display.
+
+async function uploadChildPhoto(
+  childId: string,
+  dataUrl: string,
+): Promise<string> {
+  const commaIdx = dataUrl.indexOf(",");
+  if (commaIdx === -1) throw new Error("Invalid photo data URL");
+
+  const header = dataUrl.slice(0, commaIdx);
+  const base64Data = dataUrl.slice(commaIdx + 1);
+  const mimeType = header.match(/data:([^;]+);/)?.[1];
+
+  if (
+    !mimeType ||
+    !(ALLOWED_PHOTO_MIME_TYPES as ReadonlyArray<string>).includes(mimeType)
+  ) {
+    throw new Error(`Unsupported photo type: ${mimeType ?? "unknown"}`);
+  }
+
+  const buffer = Buffer.from(base64Data, "base64");
+  if (buffer.byteLength > MAX_PHOTO_SIZE_BYTES) {
+    throw new Error(`Photo exceeds the 5 MB size limit`);
+  }
+
+  const ext = MIME_TO_EXT[mimeType as AllowedMimeType];
+  const bucket = admin.storage().bucket();
+  const file = bucket.file(`children/pfps/${childId}.${ext}`);
+
+  await file.save(buffer, { metadata: { contentType: mimeType } });
+  await file.makePublic();
+
+  return file.publicUrl();
+}
+
+//TODO: rate limit
 export const submitFamilyForm = createServerFn({ method: "POST" })
   .inputValidator(familyFormStateSchema)
   .handler(async ({ data }) => {
-    const formData = data as FamilyFormInput;
-
-    if (!formData.generalInfo)
-      throw new Error("General information is required");
-    if (!formData.children?.children.length)
+    if (!data.generalInfo) throw new Error("General information is required");
+    if (!data.children?.children.length)
       throw new Error("At least one child is required");
-    if (!formData.gifts?.giftSelections.length)
+    if (!data.gifts?.giftSelections.length)
       throw new Error("Gift selections are required");
 
     const db = getServerDB();
-    const familyId = uuidv7();
     const now = DateTime.now().toISO();
 
-    const family: Family = {
-      id: familyId,
-      contactName: formData.generalInfo.parentName,
-      email: formData.generalInfo.email,
-      phone: formData.generalInfo.phoneNumber,
-      address: formData.generalInfo.address,
-      privateNotes: formData.generalInfo.privateNotes,
-      giftDrive: formData.giftDriveId,
-      createdAt: now,
-      reviewStatus: {
-        approved: false,
-        held: false,
-      },
-    };
+    // Pre-generate IDs so photos can be stored under the correct child path
+    // before the Firestore transaction runs.
+    const familyId = uuidv7();
+    const childIds = data.children.children.map(() => uuidv7());
 
-    const childDocs: Array<Child> = formData.children.children.map(
-      (childForm) => {
-        const childId = uuidv7();
-        return {
-          id: childId,
-          name: childForm.name,
-          age: parseInt(childForm.age, 10),
-          status: childForm.status as ChildStatus,
-          category: childForm.isSibling ? "super_sib" : "warrior",
-          familyId,
-          diagnosis: childForm.diagnosis || "",
-          hospital: childForm.hospitalTreatedAt || "",
-          childSocialWorker: childForm.socialWorkerName || "",
-          photoUrl: childForm.photoUrl,
-          giftDrive: formData.giftDriveId,
-          livesAtHome: true,
-          publicBlurb: childForm.blurb,
-          reviewStatus: { approved: false },
-          createdAt: now,
-          published: false, // families get published in the commit + review page, until then keep the children unpublished
-        };
-      },
-    );
-
-    try {
-      await db._instance.runTransaction(async (tx) => {
-        tx.set(db.families.doc(familyId), family);
-        childDocs.forEach((child) => {
-          tx.set(db.children.doc(child.id), child);
-        });
-      });
-    } catch (err) {
-      throw new Error("Failed to create family and children");
+    // Upload photos outside the Firestore transaction — GCS operations can't
+    // participate in a Firestore transaction.
+    const childPhotoUrls = new Map<number, string>();
+    for (let i = 0; i < data.children.children.length; i++) {
+      const photoUrl = data.children.children[i].photoUrl;
+      if (photoUrl?.startsWith("data:")) {
+        childPhotoUrls.set(i, await uploadChildPhoto(childIds[i], photoUrl));
+      } else if (photoUrl) {
+        childPhotoUrls.set(i, photoUrl);
+      }
     }
 
-    // Create gift documents using index-based correlation to avoid name collisions
-    const giftDocs: Array<Gift> = [];
+    // Build documents
+    const family: Family = {
+      id: familyId,
+      contactName: data.generalInfo.parentName,
+      email: data.generalInfo.email,
+      phone: data.generalInfo.phoneNumber,
+      address: data.generalInfo.address,
+      privateNotes: data.children.additionalNotes || undefined,
+      giftDrive: data.giftDriveId,
+      createdAt: now,
+      reviewStatus: { approved: false, held: false },
+    };
 
-    // Ensure childDocs and formData.children.children have the same length
-    if (childDocs.length !== formData.children!.children.length) {
+    // childForm.status is typed as ChildStatus here — the Zod transform above
+    // maps display strings to enum values during validation.
+    const childDocs: Array<Child> = data.children.children.map((childForm, i) => ({
+      id: childIds[i],
+      name: childForm.name,
+      age: parseInt(childForm.age, 10),
+      status: childForm.status,
+      category: childForm.isSibling ? "super_sib" : ("warrior" as const),
+      familyId,
+      diagnosis: childForm.diagnosis ?? "",
+      hospital: childForm.hospitalTreatedAt ?? "",
+      childSocialWorker: childForm.socialWorkerName ?? "",
+      photoUrl: childPhotoUrls.get(i),
+      giftDrive: data.giftDriveId,
+      livesAtHome: true,
+      publicBlurb: childForm.blurb,
+      createdAt: now,
+      published: false,
+    }));
+
+    if (childDocs.length !== data.gifts.giftSelections.length) {
       throw new Error(
-        `Child array length mismatch: ${childDocs.length} vs ${formData.children!.children.length}`,
+        `Gift selection count (${data.gifts.giftSelections.length}) does not match child count (${childDocs.length})`,
       );
     }
 
-    formData.gifts!.giftSelections.forEach((selection, giftSelectionIndex) => {
-      // Use the same index to find the corresponding child
-      if (giftSelectionIndex >= childDocs.length) {
-        throw new Error(
-          `Gift selection index ${giftSelectionIndex} out of bounds for ${childDocs.length} children`,
-        );
-      }
+    const giftDocs: Array<Gift> = data.gifts.giftSelections.flatMap(
+      (selection, idx) => {
+        const childId = childIds[idx];
 
-      const childId = childDocs[giftSelectionIndex].id;
-
-      // Add regular gifts
-      selection.gifts.forEach((gift) => {
-        if (gift.giftName && gift.giftUrl) {
-          giftDocs.push({
+        const regular = selection.gifts
+          .filter((g) => g.giftName && g.giftUrl)
+          .map((g): Gift => ({
             id: uuidv7(),
             childId,
             familyId,
-            giftDrive: formData.giftDriveId,
-            title: gift.giftName,
-            productUrl: gift.giftUrl,
+            giftDrive: data.giftDriveId,
+            title: g.giftName!,
+            productUrl: g.giftUrl!,
             status: "AVAILABLE",
             backup: false,
             active: true,
             createdAt: now,
-          });
-        }
-      });
+          }));
 
-      // Add backup gifts
-      if (selection.backupGifts) {
-        selection.backupGifts.forEach((gift) => {
-          if (gift.giftName && gift.giftUrl) {
-            giftDocs.push({
-              id: uuidv7(),
-              childId,
-              familyId,
-              giftDrive: formData.giftDriveId,
-              title: gift.giftName,
-              productUrl: gift.giftUrl,
-              status: "AVAILABLE",
-              backup: true,
-              active: true,
-              createdAt: now,
-            });
-          }
-        });
-      }
+        const backup = (selection.backupGifts ?? [])
+          .filter((g) => g.giftName && g.giftUrl)
+          .map((g): Gift => ({
+            id: uuidv7(),
+            childId,
+            familyId,
+            giftDrive: data.giftDriveId,
+            title: g.giftName!,
+            productUrl: g.giftUrl!,
+            status: "AVAILABLE",
+            backup: true,
+            active: true,
+            createdAt: now,
+          }));
+
+        return [...regular, ...backup];
+      },
+    );
+
+    // Single atomic Firestore transaction — all documents created together.
+    await db._instance.runTransaction(async (tx) => {
+      tx.set(db.families.doc(familyId), family);
+      childDocs.forEach((child) => tx.set(db.children.doc(child.id), child));
+      giftDocs.forEach((gift) => tx.set(db.gifts.doc(gift.id), gift));
     });
 
-    // upload child profile pictures to GCS
-    const childPhotoUpdates: Array<{ childId: string; photoUrl: string }> = [];
-    for (let i = 0; i < childDocs.length; i++) {
-      const child = childDocs[i];
-      const formChild = formData.children!.children[i];
-
-      if (!formChild) {
-        continue; // Skip if form child doesn't exist at this index
-      }
-
-      if (formChild.photoUrl && formChild.photoUrl.startsWith("data:")) {
-        // convert data URL to buffer and upload to GCS
-        try {
-          const base64Data = formChild.photoUrl.split(",")[1];
-          const buffer = Buffer.from(base64Data, "base64");
-
-          // determine file extension from data URL
-          const mimeType = formChild.photoUrl.split(":")[1]?.split(";")[0];
-          const ext = mimeType === "image/png" ? "png" : "jpg";
-
-          const bucket = admin.storage().bucket();
-          const file = bucket.file(`children/pfps/${child.id}.${ext}`);
-
-          await file.save(buffer, {
-            metadata: {
-              contentType: mimeType || "image/jpeg",
-            },
-          });
-
-          // Generate a signed URL (valid for 7 days) instead of public URL due to storage.rules restrictions
-          const [signedUrl] = await file.getSignedUrl({
-            version: "v4",
-            action: "read",
-            expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
-          });
-
-          childPhotoUpdates.push({
-            childId: child.id,
-            photoUrl: signedUrl,
-          });
-        } catch (err) {
-          console.error(`Failed to upload photo for child ${child.id}:`, err);
-          // Continue without photo instead of just failing everything about the submission
-        }
-      } else if (formChild.photoUrl) {
-        // Already a URL, keep it the same
-        childPhotoUpdates.push({
-          childId: child.id,
-          photoUrl: formChild.photoUrl,
-        });
-      }
-    }
-
-    // Update children with final photo URLs
-    if (childPhotoUpdates.length > 0) {
-      try {
-        await db._instance.runTransaction(async (tx) => {
-          childPhotoUpdates.forEach((update) => {
-            tx.update(db.children.doc(update.childId), {
-              photoUrl: update.photoUrl,
-            });
-          });
-        });
-      } catch (err) {
-        console.error("Failed to update child photos", err);
-      }
-    }
-
-    try {
-      await db._instance.runTransaction(async (tx) => {
-        giftDocs.forEach((gift) => {
-          tx.set(db.gifts.doc(gift.id), gift);
-        });
-      });
-    } catch (err) {
-      throw new Error("Failed to create gifts");
-    }
-
-    // Generate family link
-    const familyLink = await createFamilyLink({
-      familyId,
-      active: true,
-    });
-
-    return familyLink;
+    return createFamilyLink({ familyId, active: true });
   });
 
 export default submitFamilyForm;

@@ -21,7 +21,6 @@ export function buildFamilyFormSubmitPayload(
       parentName: gi.parentName,
       email: gi.email,
       phoneNumber: gi.phoneNumber ?? "",
-      privateNotes: "",
       address: {
         street: gi.streetAddress,
         city: gi.city,
