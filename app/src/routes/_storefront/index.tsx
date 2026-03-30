@@ -149,10 +149,10 @@ function App() {
   const filteredChildren = (
     search
       ? mockChildren.filter(
-        (child) =>
-          child.name.toLowerCase().includes(search.toLowerCase()) ||
-          child.diagnosis?.toLowerCase().includes(search.toLowerCase()),
-      )
+          (child) =>
+            child.name.toLowerCase().includes(search.toLowerCase()) ||
+            child.diagnosis?.toLowerCase().includes(search.toLowerCase()),
+        )
       : [...mockChildren]
   ).sort((a, b) => {
     if (sort === "age-asc") return a.age - b.age;
