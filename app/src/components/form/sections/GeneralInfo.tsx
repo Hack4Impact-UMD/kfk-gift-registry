@@ -104,7 +104,7 @@ export function GeneralInfoForm({
           name="phoneNumber"
           validators={{
             onChange: ({ value }) => {
-              if (!value || value === "") return undefined;
+              if (!value || value === "") return "Phone number required";
               if (!/^[\d\s\-()]+$/.test(value))
                 return "Please enter a valid phone number";
               return undefined;
@@ -120,6 +120,7 @@ export function GeneralInfoForm({
               type="tel"
               inputMode="tel"
               autoComplete="tel"
+              required
             />
           )}
         </form.AppField>
@@ -148,6 +149,7 @@ export function GeneralInfoForm({
               type="tel"
               inputMode="tel"
               autoComplete="tel"
+              required
             />
           )}
         </form.AppField>

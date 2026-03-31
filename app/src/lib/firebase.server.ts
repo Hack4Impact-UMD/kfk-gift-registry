@@ -63,6 +63,9 @@ export const getServerAuth = createServerOnlyFn(() => {
 export const getServerDB = createServerOnlyFn(() => {
   if (db) return db;
   const firestore = admin.firestore();
+  firestore.settings({
+    ignoreUndefinedProperties: true,
+  })
 
   const collection = <T>(path: string) =>
     firestore.collection(path).withConverter(converter<T>());

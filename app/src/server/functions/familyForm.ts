@@ -171,7 +171,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       email: data.generalInfo.email,
       phone: data.generalInfo.phoneNumber,
       address: data.generalInfo.address,
-      privateNotes: data.children.additionalNotes || undefined,
+      privateNotes: data.children.additionalNotes,
       giftDrive: data.giftDriveId,
       createdAt: now,
       reviewStatus: { approved: false, held: false },

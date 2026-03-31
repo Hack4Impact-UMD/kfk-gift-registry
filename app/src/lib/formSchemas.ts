@@ -106,14 +106,10 @@ export const generalInfoSchema = z
       .email("Please enter a valid email address"),
     phoneNumber: z
       .string()
-      .regex(/^[\d\s\-()]+$/, "Please enter a valid phone number")
-      .optional()
-      .or(z.literal("")),
+      .regex(/^[\d\s\-()]+$/, "Please enter a valid phone number"),
     phoneNumberConfirm: z
       .string()
-      .regex(/^[\d\s\-()]+$/, "Please enter a valid phone number")
-      .optional()
-      .or(z.literal("")),
+      .regex(/^[\d\s\-()]+$/, "Please enter a valid phone number"),
     streetAddress: z
       .string()
       .min(1, "Street address is required")
