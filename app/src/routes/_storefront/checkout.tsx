@@ -1,41 +1,44 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CartContainer, ConfirmationPanel } from "@/components/storefront";
-import { useCartGifts} from "@/hooks/queries/useCartGifts";
-import { useRemoveGiftFromCart} from "@/hooks/mutations/useRemoveGiftFromCart";
+import { useCartGifts } from "@/hooks/queries/useCartGifts";
+import { useRemoveGiftFromCart } from "@/hooks/mutations/useRemoveGiftFromCart";
+import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup.tsx";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_storefront/checkout")({
   component: CheckoutComponent,
 });
 
 function CheckoutComponent() {
-  const{ data: cartData, isLoading} = useCartGifts();
+  const { data: cartData, isLoading } = useCartGifts();
   const removeGiftMutation = useRemoveGiftFromCart();
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleRemoveGift = (giftId: string) => {
-    removeGiftMutation.mutate(giftId)
+    removeGiftMutation.mutate(giftId);
   };
 
   // Calculate totals from current cart data
   const totalGifts = cartData?.reduce(
     (sum, family) => sum + family.gifts.length,
-    0
+    0,
   );
   const totalPrice = cartData?.reduce(
     (sum, family) =>
       sum + family.gifts.reduce((familySum, gift) => familySum + gift.price, 0),
-    0
+    0,
   );
 
   const handleConfirmGifts = () => {
-    // TODO: Implement confirmation logic
-    console.log("Gifts confirmed!");
+    setIsModalOpen(true);
   };
 
   if (isLoading) {
-    return <div className="min-h-screen bg-kfk-blue py-8 flex items-center justify-center">
-      <p className="text-white text-lg">Loading cart...</p>
-    </div>
+    return (
+      <div className="min-h-screen bg-kfk-blue py-8 flex items-center justify-center">
+        <p className="text-white text-lg">Loading cart...</p>
+      </div>
+    );
   }
 
   return (
@@ -61,6 +64,14 @@ function CheckoutComponent() {
           />
         </div>
       </div>
+
+      <ConfirmGiftsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={() => {
+          setIsModalOpen(false);
+        }}
+      />
     </div>
   );
 }

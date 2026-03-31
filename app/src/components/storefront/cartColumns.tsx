@@ -1,4 +1,5 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { X, ExternalLink } from "lucide-react";
 import type { CartGift } from "./cartMockData";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { Button } from "@/components/ui/button";
 const columnHelper = createColumnHelper<CartGift>();
 
 export const createCartColumns = (
-  onRemoveGift: (giftId: string) => void
+  onRemoveGift: (giftId: string) => void,
 ): Array<ColumnDef<CartGift>> => [
   columnHelper.accessor("giftName", {
     header: "Gift",
@@ -26,7 +27,11 @@ export const createCartColumns = (
   }) as ColumnDef<CartGift>,
   columnHelper.accessor("price", {
     header: "Price",
-    cell: (info) => <span className="text-kfk-red font-semibold font-gaegu">${info.getValue().toFixed(2)}</span>,
+    cell: (info) => (
+      <span className="text-kfk-red font-semibold font-gaegu">
+        ${info.getValue().toFixed(2)}
+      </span>
+    ),
   }) as ColumnDef<CartGift>,
   columnHelper.display({
     id: "actions",

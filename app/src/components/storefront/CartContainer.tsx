@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FamilyCartTable } from "./FamilyCartTable";
-import { mockCartData, type CartFamily } from "./cartMockData";
+import { mockCartData } from "./cartMockData";
+import type { CartFamily } from "./cartMockData";
 import { cn } from "@/lib/utils";
 
 interface CartContainerProps {
@@ -17,9 +18,8 @@ export function CartContainer({
   onRemoveGift: externalOnRemoveGift,
 }: CartContainerProps) {
   // Use external state if provided, otherwise manage internal state
-  const [internalCartData, setInternalCartData] = useState<Array<CartFamily>>(
-    mockCartData
-  );
+  const [internalCartData, setInternalCartData] =
+    useState<Array<CartFamily>>(mockCartData);
   const cartData = externalCartData ?? internalCartData;
 
   const handleRemoveGift = (giftId: string) => {
@@ -34,7 +34,7 @@ export function CartContainer({
             ...family,
             gifts: family.gifts.filter((gift) => gift.id !== giftId),
           }))
-          .filter((family) => family.gifts.length > 0)
+          .filter((family) => family.gifts.length > 0),
       );
     }
   };

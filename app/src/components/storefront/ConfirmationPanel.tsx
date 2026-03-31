@@ -20,7 +20,8 @@ export function ConfirmationPanel({
       <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Confirm Gifts</h2>
         <p className="text-sm text-gray-500">
-          Please note that confirming these gifts means you are committing to purchasing them
+          Please note that confirming these gifts means you are committing to
+          purchasing them
         </p>
       </div>
 
@@ -51,7 +52,8 @@ export function ConfirmationPanel({
 
         {/* Info Text */}
         <p className="text-xs text-gray-500 mb-4">
-          Prices are estimates and may change depending on the online store. Please double check links before confirming gifts.
+          Prices are estimates and may change depending on the online store.
+          Please double check links before confirming gifts.
         </p>
 
         {/* Confirm Button */}

@@ -17,7 +17,7 @@ export function FamilyCartTable({
 }: FamilyCartTableProps) {
   const columns = useMemo(
     () => createCartColumns(onRemoveGift),
-    [onRemoveGift]
+    [onRemoveGift],
   );
 
   return (
