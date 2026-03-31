@@ -242,6 +242,7 @@ const giftSchema = z
   .object({
     giftName: z.string(),
     giftUrl: z.string(),
+    familyPublicNotes: z.string().optional()
   })
   .refine(
     (data) => {
@@ -257,27 +258,19 @@ const giftSchema = z
 export const childGiftSchema = z.object({
   childName: z.string(),
   gifts: z.tuple([
-    z.object({
-      giftName: z.string().min(1, "Gift Name is required"),
-      giftUrl: z.string().url("Valid URL is required"),
-    }),
+    giftSchema,
     giftSchema,
     giftSchema,
   ]),
   backupGifts: z.tuple([
-    z.object({
-      giftName: z.string().min(1, "Gift Name is required"),
-      giftUrl: z.string().url("Valid URL is required"),
-    }),
-    z.object({
-      giftName: z.string().min(1, "Gift Name is required"),
-      giftUrl: z.string().url("Valid URL is required"),
-    }),
+    giftSchema,
+    giftSchema,
   ]),
   verified: z.boolean().refine((val) => val === true, {
     message: "You must agree the conditions",
   }),
 });
+
 
 export const giftsFormSchema = z.object({
   giftSelections: z.array(childGiftSchema),
@@ -299,3 +292,4 @@ export type GeneralInfoFormData = z.infer<typeof generalInfoSchema>;
 export type ChildInfo = z.infer<typeof childInfoSchema>;
 export type ChildrenFormData = z.infer<typeof childrenFormSchema>;
 export type GiftsFormData = z.infer<typeof giftsFormSchema>;
+export type ChildGiftSelections = z.infer<typeof childGiftSchema>;

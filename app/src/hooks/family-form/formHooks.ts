@@ -2,9 +2,9 @@ import { createFormHook } from "@tanstack/react-form";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { fieldContext, formContext } from "./fieldContext";
-import type { GiftSelection } from "@/components/providers/FormProvider";
 import { useFormContext } from "@/components/providers/FormProvider";
 import {
+  ChildGiftSelections,
   childrenFormDefaults,
   childrenFormSchema,
   consentFormDefaults,
@@ -206,13 +206,13 @@ export function useGiftsForm() {
         { giftName: "", giftUrl: "" },
         { giftName: "", giftUrl: "" },
         { giftName: "", giftUrl: "" },
-      ] as [GiftSelection, GiftSelection, GiftSelection],
+      ],
       backupGifts: [
         { giftName: "", giftUrl: "" },
         { giftName: "", giftUrl: "" },
-      ] as [GiftSelection, GiftSelection],
+      ],
       verified: false,
-    };
+    } satisfies ChildGiftSelections;
   });
 
   const form = useAppForm({

@@ -13,18 +13,6 @@ import {
   giftsFormDefaults,
 } from "@/lib/formSchemas";
 
-export type GiftSelection = {
-  giftUrl: string;
-  giftName: string;
-};
-
-export type ChildGiftSelections = {
-  childName: string;
-  gifts: Array<GiftSelection>;
-  backupGifts: Array<GiftSelection>;
-  verified: boolean;
-};
-
 // Central form state - organized by section
 export type FamilyFormState = {
   consentScreen?: ConsentFormData;
@@ -109,12 +97,12 @@ export function FormProvider({
         ...formState,
         children: formState.children
           ? {
-              ...formState.children,
-              children: formState.children.children.map((child) => ({
-                ...child,
-                photoUrl: "",
-              })),
-            }
+            ...formState.children,
+            children: formState.children.children.map((child) => ({
+              ...child,
+              photoUrl: "",
+            })),
+          }
           : undefined,
       };
       localStorage.setItem(
