@@ -40,6 +40,8 @@ export const createCartColumns = (
       <Button
         variant="ghost"
         size="sm"
+        aria-label="Remove gift from cart"
+        title="Remove gift from cart"
         onClick={() => onRemoveGift(info.row.original.id)}
         className="h-6 w-6 p-0 hover:bg-gray-100"
       >
