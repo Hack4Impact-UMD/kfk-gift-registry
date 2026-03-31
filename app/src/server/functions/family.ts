@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
-import { getFamilyLinkById } from "@/server/services/familyLinkService.server";
+import { getFamilyLinkById } from "../services/familyLinkService.server";
 import { getServerDB } from "@/lib/firebase.server";
 
 const tokenInputSchema = z.object({

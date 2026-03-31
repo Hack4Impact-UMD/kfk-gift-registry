@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { AuthContextAuthenticated } from "@/server/auth.ts";
+import type { AuthContextAuthenticated } from "@/server/functions/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InlineEditInput } from "@/components/ui/inline-edit-input";
 import {

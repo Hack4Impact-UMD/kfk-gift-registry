@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { queries } from "@/queries";
-import { getFamilyByToken } from "@/server/family";
+import { getFamilyByToken } from "@/server/functions/family";
 
 export function useFamilyFromLink(linkToken: string) {
   const token = linkToken.trim();

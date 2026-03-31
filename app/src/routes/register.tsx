@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { createFamily } from "@/server/family";
 
 export const Route = createFileRoute("/register")({
   component: RegisterRoute,
@@ -17,21 +16,6 @@ function RegisterRoute() {
     setIsSubmitting(true);
 
     try {
-      const formData = new FormData(event.currentTarget);
-      const parentName = String(formData.get("parentName") ?? "");
-      const childName = String(formData.get("childName") ?? "");
-      const email = String(formData.get("email") ?? "");
-      const diagnosis = String(formData.get("diagnosis") ?? "");
-
-      await createFamily({
-        data: {
-          parentName,
-          childName,
-          email,
-          diagnosis,
-        },
-      });
-
       // setPrivateLink(`/family/${resul}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit");
