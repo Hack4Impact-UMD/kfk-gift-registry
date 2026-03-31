@@ -48,21 +48,12 @@ type Database = {
 };
 
 let auth: admin.auth.Auth | null = null;
-let db: Database | null = null;
+let db: Database;
 
 if (!admin.apps.length) {
   admin.initializeApp();
-}
-
-export const getServerAuth = createServerOnlyFn(() => {
-  if (auth) return auth;
-  auth = admin.auth();
-  return auth;
-});
-
-export const getServerDB = createServerOnlyFn(() => {
-  if (db) return db;
   const firestore = admin.firestore();
+
   firestore.settings({
     ignoreUndefinedProperties: true,
   })
@@ -82,5 +73,14 @@ export const getServerDB = createServerOnlyFn(() => {
     profileUpdates: collection<ChildProfileUpdate>(PROFILE_UPDATE_COLLECTION),
     _instance: firestore,
   };
+}
+
+export const getServerAuth = createServerOnlyFn(() => {
+  if (auth) return auth;
+  auth = admin.auth();
+  return auth;
+});
+
+export const getServerDB = createServerOnlyFn(() => {
   return db;
 });
