@@ -13,9 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { useFieldContext } from "@/hooks/family-form/fieldContext";
 
 type FormInputProps = {
-  field: any;
   label: string;
   type?: string;
   inputMode?:
@@ -32,7 +32,6 @@ type FormInputProps = {
 };
 
 export function FormInput({
-  field,
   label,
   type = "text",
   inputMode,
@@ -40,8 +39,8 @@ export function FormInput({
   placeholder,
   required = false,
 }: FormInputProps) {
-  const errorMessage =
-    field.state.meta.isTouched && field.state.meta.errors?.[0];
+  const field = useFieldContext<string>();
+  const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
     <div className="space-y-2">
@@ -58,7 +57,7 @@ export function FormInput({
         value={field.state.value}
         onBlur={field.handleBlur}
         onChange={(e) => field.handleChange(e.target.value)}
-        className={`text-base h-11 ${errorMessage ? "border-red-500" : ""}`}
+        className={`truncate text-base h-11 ${errorMessage ? "border-red-500" : ""}`}
       />
       {errorMessage && (
         <span className="text-sm text-red-500">{errorMessage}</span>
@@ -68,7 +67,6 @@ export function FormInput({
 }
 
 type FormCheckboxProps = {
-  field: any;
   children: ReactNode;
   id?: string;
   value?: boolean;
@@ -76,12 +74,12 @@ type FormCheckboxProps = {
 };
 
 export function FormCheckbox({
-  field,
   children,
   id,
   value,
   disabled,
 }: FormCheckboxProps) {
+  const field = useFieldContext<boolean | undefined>();
   const checkboxId = id || field.name;
 
   return (
@@ -100,11 +98,16 @@ export function FormCheckbox({
   );
 }
 
+type FormBorderedCheckboxProps = {
+  children: ReactNode;
+  id?: string;
+};
+
 export function FormBorderedCheckbox({
-  field,
   children,
   id,
-}: FormCheckboxProps) {
+}: FormBorderedCheckboxProps) {
+  const field = useFieldContext<boolean>();
   const checkboxId = id || field.name;
 
   return (
@@ -125,11 +128,12 @@ export function FormBorderedCheckbox({
   );
 }
 
+type SelectOption = string | { value: string; label: string };
+
 interface FormSelectProps {
-  field: any;
   label: string;
   placeholder: string;
-  values: Array<string>;
+  values: Array<SelectOption>;
   onValueChange?: (value: string) => void;
   required?: boolean;
   value?: string;
@@ -137,7 +141,6 @@ interface FormSelectProps {
 }
 
 export const FormSelect = ({
-  field,
   label,
   placeholder,
   values,
@@ -146,51 +149,46 @@ export const FormSelect = ({
   value,
   disabled,
 }: FormSelectProps) => {
-  const errorMessage =
-    field.state.meta.isTouched && field.state.meta.errors?.[0];
+  const field = useFieldContext<string>();
+  const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
-    <FormItem className="relative mt-6 w-full max-w-[240px]">
+    <FormItem className="relative mt-6 w-full max-w-60">
       <FieldLabel
         className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
           errorMessage ? "text-red-500" : "text-slate-600"
-        }
-
-         z-10`}
+        } z-10`}
       >
         {label}
         {required && <span className="text-destructive"> *</span>}
       </FieldLabel>
       <Select
-        value={
-          field.state.value !== undefined &&
-          field.state.value !== null &&
-          field.state.value !== "" &&
-          field.state.value !== 0
-            ? String(field.state.value)
-            : value || undefined
-        }
+        value={field.state.value || value || undefined}
         disabled={disabled}
-        onValueChange={(value) => {
-          field.handleChange(value);
-          if (onValueChange) onValueChange(value);
+        onValueChange={(val) => {
+          field.handleChange(val);
+          if (onValueChange) onValueChange(val);
         }}
       >
         <SelectTrigger
-          className={`py-6 w-full rounded-xl border-1 ${
+          className={`truncate py-6 w-full rounded-xl border ${
             errorMessage
               ? "border-red-500 [&>span]:text-red-500"
               : "border-slate-700"
-          } focus:ring-0 data-[placeholder]:text-slate-400 font-medium`}
+          } focus:ring-0 data-placeholder:text-slate-400 font-medium`}
         >
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={placeholder} className="truncate" />
         </SelectTrigger>
         <SelectContent>
-          {values.map((value) => (
-            <SelectItem key={value} value={value}>
-              {value}
-            </SelectItem>
-          ))}
+          {values.map((item) => {
+            const val = typeof item === "string" ? item : item.value;
+            const label = typeof item === "string" ? item : item.label;
+            return (
+              <SelectItem key={val} value={val}>
+                {label}
+              </SelectItem>
+            );
+          })}
         </SelectContent>
       </Select>
       {errorMessage && (
@@ -200,8 +198,7 @@ export const FormSelect = ({
   );
 };
 
-interface FormFieldProps {
-  field: any;
+interface FormFieldInputProps {
   Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
   placeholder: string;
@@ -221,7 +218,6 @@ interface FormFieldProps {
 }
 
 export const FormFieldInput = ({
-  field,
   Icon,
   label,
   placeholder,
@@ -231,9 +227,9 @@ export const FormFieldInput = ({
   autoComplete,
   value,
   disabled,
-}: FormFieldProps) => {
-  const errorMessage =
-    field.state.meta.isTouched && field.state.meta.errors?.[0];
+}: FormFieldInputProps) => {
+  const field = useFieldContext<string>();
+  const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
     <FormItem className="group relative mt-6">
@@ -241,7 +237,7 @@ export const FormFieldInput = ({
         className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
           errorMessage
             ? "text-red-500"
-            : "text-slate-600 group-focus-within:text-[var(--color-kfk-blue)]"
+            : "text-slate-600 group-focus-within:text-kfk-blue"
         } z-10`}
       >
         {label}
@@ -263,13 +259,13 @@ export const FormFieldInput = ({
           onChange={(e) => field.handleChange(e.target.value)}
           onBlur={field.handleBlur}
           disabled={disabled}
-          className={`h-14 pl-12 ${
+          className={`truncate h-14 pl-12 ${
             errorMessage ? "pr-12" : "pr-4"
-          } rounded-xl border-1 ${
+          } rounded-xl border ${
             errorMessage
               ? "border-red-500 text-red-500 placeholder:text-red-500"
               : "border-slate-700 placeholder:text-slate-400"
-          } focus-visible:ring-0 focus-visible:border-[var(--color-kfk-blue)] font-medium transition duration-200 ease-in-out`}
+          } focus-visible:ring-0 focus-visible:border-kfk-blue font-medium transition duration-200 ease-in-out`}
         />
         {errorMessage && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -289,18 +285,19 @@ export const FormFieldInput = ({
 };
 
 type FormAgreementProps = {
-  field: any;
   children: ReactNode;
   checkboxLabel?: string;
   id?: string;
+  disabled?: boolean;
 };
 
 export function FormAgreement({
-  field,
   children,
   checkboxLabel = "I agree to the sharing of my mailing address",
   id,
+  disabled,
 }: FormAgreementProps) {
+  const field = useFieldContext<boolean>();
   const checkboxId = id || field.name;
 
   return (
@@ -311,6 +308,7 @@ export function FormAgreement({
           id={checkboxId}
           checked={field.state.value}
           onCheckedChange={(checked) => field.handleChange(!!checked)}
+          disabled={disabled}
           className="mt-0.5"
         />
         <label htmlFor={checkboxId} className="text-sm cursor-pointer">
@@ -337,7 +335,7 @@ export function FormButton({
       type="submit"
       size="lg"
       disabled={disabled || isSubmitting}
-      className="w-full h-14 bg-[var(--color-kfk-blue)] mt-5 hover:bg-[var(--color-kfk-blue)]/90 text-white font-semibold"
+      className="w-full h-14 bg-kfk-blue mt-5 hover:bg-kfk-blue/90 text-white font-semibold"
     >
       {isSubmitting ? "Submitting..." : label}
     </Button>

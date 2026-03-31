@@ -1,24 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
-import { getFamilyLinkById } from "./services/familyLinkService.server";
+import { getFamilyLinkById } from "@/server/services/familyLinkService.server";
 import { getServerDB } from "@/lib/firebase.server";
-
-const familyInputSchema = z.object({
-  parentName: z.string().trim().min(1),
-  childName: z.string().trim().min(1),
-  email: z.string().trim().email(),
-  diagnosis: z.string().trim().min(1),
-});
 
 const tokenInputSchema = z.object({
   token: z.string().min(1),
 });
-
-export const createFamily = createServerFn({ method: "POST" })
-  .inputValidator(familyInputSchema)
-  .handler(async () => {
-    // TODO: implement
-  });
 
 export const getFamilyByToken = createServerFn({ method: "GET" })
   .inputValidator(tokenInputSchema)

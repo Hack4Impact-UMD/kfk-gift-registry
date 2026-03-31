@@ -11,7 +11,7 @@ import {
 } from "../ui/alert-dialog";
 import { Input } from "../ui/input";
 import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
-import type { AuthContextAuthenticated } from "@/server/auth";
+import type { AuthContextAuthenticated } from "@/server/functions/auth";
 import { getClientAuth } from "@/lib/firebase.client";
 import { Label } from "../ui/label";
 
