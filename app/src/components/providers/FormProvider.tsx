@@ -97,12 +97,12 @@ export function FormProvider({
         ...formState,
         children: formState.children
           ? {
-            ...formState.children,
-            children: formState.children.children.map((child) => ({
-              ...child,
-              photoUrl: "",
-            })),
-          }
+              ...formState.children,
+              children: formState.children.children.map((child) => ({
+                ...child,
+                photoUrl: "",
+              })),
+            }
           : undefined,
       };
       localStorage.setItem(

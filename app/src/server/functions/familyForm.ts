@@ -74,7 +74,7 @@ const childrenFormSchema = z.object({
 const giftSelectionSchema = z.object({
   giftUrl: z.url().optional().or(z.string("")),
   giftName: z.string().optional(),
-  familyPublicNotes: z.string().optional()
+  familyPublicNotes: z.string().optional(),
 });
 
 const childGiftSelectionSchema = z.object({
@@ -224,7 +224,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
               backup: false,
               active: true,
               createdAt: now,
-              familyPublicNotes: g.familyPublicNotes
+              familyPublicNotes: g.familyPublicNotes,
             }),
           );
 
@@ -242,7 +242,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
               backup: true,
               active: true,
               createdAt: now,
-              familyPublicNotes: g.familyPublicNotes
+              familyPublicNotes: g.familyPublicNotes,
             }),
           );
 

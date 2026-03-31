@@ -55,7 +55,7 @@ function cleanChildrenObjects(
 function cleanGiftsObjects(
   g: GiftsFormData,
 ): NonNullable<FamilyFormInput["gifts"]> {
-  return g
+  return g;
 }
 
 export function useSubmitFamilyForm() {

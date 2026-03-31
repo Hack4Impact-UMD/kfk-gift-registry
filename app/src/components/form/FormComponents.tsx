@@ -20,13 +20,13 @@ type FormInputProps = {
   label: string;
   type?: string;
   inputMode?:
-  | "text"
-  | "email"
-  | "tel"
-  | "numeric"
-  | "decimal"
-  | "search"
-  | "url";
+    | "text"
+    | "email"
+    | "tel"
+    | "numeric"
+    | "decimal"
+    | "search"
+    | "url";
   autoComplete?: string;
   placeholder?: string;
   required?: boolean;
@@ -156,8 +156,9 @@ export const FormSelect = ({
   return (
     <FormItem className="relative mt-6 w-full max-w-60">
       <FieldLabel
-        className={`absolute -top-2 left-4 bg-white px-2 text-sm ${errorMessage ? "text-red-500" : "text-slate-600"
-          } z-10`}
+        className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
+          errorMessage ? "text-red-500" : "text-slate-600"
+        } z-10`}
       >
         {label}
         {required && <span className="text-destructive"> *</span>}
@@ -171,10 +172,11 @@ export const FormSelect = ({
         }}
       >
         <SelectTrigger
-          className={`truncate py-6 w-full rounded-xl border ${errorMessage
-            ? "border-red-500 [&>span]:text-red-500"
-            : "border-slate-700"
-            } focus:ring-0 data-placeholder:text-slate-400 font-medium`}
+          className={`truncate py-6 w-full rounded-xl border ${
+            errorMessage
+              ? "border-red-500 [&>span]:text-red-500"
+              : "border-slate-700"
+          } focus:ring-0 data-placeholder:text-slate-400 font-medium`}
         >
           <SelectValue placeholder={placeholder} className="truncate" />
         </SelectTrigger>
@@ -204,13 +206,13 @@ interface FormFieldInputProps {
   required?: boolean;
   type?: string;
   inputMode?:
-  | "text"
-  | "email"
-  | "tel"
-  | "numeric"
-  | "decimal"
-  | "search"
-  | "url";
+    | "text"
+    | "email"
+    | "tel"
+    | "numeric"
+    | "decimal"
+    | "search"
+    | "url";
   autoComplete?: string;
   value?: string;
   disabled?: boolean;
@@ -233,10 +235,11 @@ export const FormFieldInput = ({
   return (
     <FormItem className="group relative mt-6">
       <CardDescription
-        className={`absolute -top-2 left-4 bg-white px-2 text-sm ${errorMessage
-          ? "text-red-500"
-          : "text-slate-600 group-focus-within:text-kfk-blue"
-          } z-10`}
+        className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
+          errorMessage
+            ? "text-red-500"
+            : "text-slate-600 group-focus-within:text-kfk-blue"
+        } z-10`}
       >
         {label}
         {required && <span className="text-destructive"> *</span>}
@@ -258,11 +261,13 @@ export const FormFieldInput = ({
             onChange={(e) => field.handleChange(e.target.value)}
             onBlur={field.handleBlur}
             disabled={disabled}
-            className={`truncate h-14 pl-12 ${errorMessage ? "pr-12" : "pr-4"
-              } rounded-xl border ${errorMessage
+            className={`truncate h-14 pl-12 ${
+              errorMessage ? "pr-12" : "pr-4"
+            } rounded-xl border ${
+              errorMessage
                 ? "border-red-500 text-red-500 placeholder:text-red-500"
                 : "border-slate-700 placeholder:text-slate-400"
-              } focus-visible:ring-0 focus-visible:border-kfk-blue font-medium transition duration-200 ease-in-out`}
+            } focus-visible:ring-0 focus-visible:border-kfk-blue font-medium transition duration-200 ease-in-out`}
           />
         ) : (
           <Input
@@ -276,11 +281,13 @@ export const FormFieldInput = ({
             onChange={(e) => field.handleChange(e.target.value)}
             onBlur={field.handleBlur}
             disabled={disabled}
-            className={`truncate h-14 pl-12 ${errorMessage ? "pr-12" : "pr-4"
-              } rounded-xl border ${errorMessage
+            className={`truncate h-14 pl-12 ${
+              errorMessage ? "pr-12" : "pr-4"
+            } rounded-xl border ${
+              errorMessage
                 ? "border-red-500 text-red-500 placeholder:text-red-500"
                 : "border-slate-700 placeholder:text-slate-400"
-              } focus-visible:ring-0 focus-visible:border-kfk-blue font-medium transition duration-200 ease-in-out`}
+            } focus-visible:ring-0 focus-visible:border-kfk-blue font-medium transition duration-200 ease-in-out`}
           />
         )}
         {errorMessage && (

@@ -48,15 +48,25 @@ type Database = {
 };
 
 let auth: admin.auth.Auth | null = null;
-let db: Database;
+let db: Database | null = null;
 
-if (!admin.apps.length) {
+if (!admin.apps.length || admin.apps.length === 0) {
   admin.initializeApp();
-  const firestore = admin.firestore();
-
-  firestore.settings({
+  admin.firestore().settings({
     ignoreUndefinedProperties: true,
   })
+}
+
+export const getServerAuth = createServerOnlyFn(() => {
+  if (auth) return auth;
+  auth = admin.auth();
+  return auth;
+});
+
+
+export const getServerDB = createServerOnlyFn(() => {
+  if (db) return db;
+  const firestore = admin.firestore();
 
   const collection = <T>(path: string) =>
     firestore.collection(path).withConverter(converter<T>());
@@ -73,14 +83,5 @@ if (!admin.apps.length) {
     profileUpdates: collection<ChildProfileUpdate>(PROFILE_UPDATE_COLLECTION),
     _instance: firestore,
   };
-}
-
-export const getServerAuth = createServerOnlyFn(() => {
-  if (auth) return auth;
-  auth = admin.auth();
-  return auth;
-});
-
-export const getServerDB = createServerOnlyFn(() => {
   return db;
 });

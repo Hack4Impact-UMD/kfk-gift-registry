@@ -242,7 +242,7 @@ const giftSchema = z
   .object({
     giftName: z.string(),
     giftUrl: z.string(),
-    familyPublicNotes: z.string().optional()
+    familyPublicNotes: z.string().optional(),
   })
   .refine(
     (data) => {
@@ -257,20 +257,12 @@ const giftSchema = z
 
 export const childGiftSchema = z.object({
   childName: z.string(),
-  gifts: z.tuple([
-    giftSchema,
-    giftSchema,
-    giftSchema,
-  ]),
-  backupGifts: z.tuple([
-    giftSchema,
-    giftSchema,
-  ]),
+  gifts: z.tuple([giftSchema, giftSchema, giftSchema]),
+  backupGifts: z.tuple([giftSchema, giftSchema]),
   verified: z.boolean().refine((val) => val === true, {
     message: "You must agree the conditions",
   }),
 });
-
 
 export const giftsFormSchema = z.object({
   giftSelections: z.array(childGiftSchema),
