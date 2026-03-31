@@ -17,22 +17,24 @@ export function CartContainer({
   cartData: externalCartData,
   onRemoveGift: externalOnRemoveGift,
 }: CartContainerProps) {
-  const isExternallyControlled = externalCartData !== undefined || externalOnRemoveGift !== undefined;
+  const isExternallyControlled =
+    externalCartData !== undefined || externalOnRemoveGift !== undefined;
   // Use external state if provided, otherwise manage internal state
   const [internalCartData, setInternalCartData] =
     useState<Array<CartFamily>>(mockCartData);
-  const cartData = isExternallyControlled ? (externalCartData ?? []) : internalCartData;
+  const cartData = isExternallyControlled
+    ? (externalCartData ?? [])
+    : internalCartData;
 
   const handleRemoveGift = (giftId: string) => {
     if (isExternallyControlled && externalOnRemoveGift) {
       // Use external handler if provided
       externalOnRemoveGift(giftId);
       return;
-    } 
+    }
     if (isExternallyControlled) {
       return;
-    }
-    else {
+    } else {
       // Use internal state management
       setInternalCartData((prevData) =>
         prevData
