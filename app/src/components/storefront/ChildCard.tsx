@@ -2,6 +2,7 @@ import type { Child } from "../../../../common/src/types";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
 import { GiftIcon } from "@/components/icons/";
 import { Button } from "@/components/ui/button";
+import type { CSSProperties } from "react";
 
 export type ChildCardData = Pick<
   Child,
@@ -14,9 +15,10 @@ export type ChildCardData = Pick<
 interface Props {
   child: ChildCardData;
   color?: string;
+  className?: string;
 }
 
-function getPatternStyle(color: string): React.CSSProperties {
+function getPatternStyle(color: string): CSSProperties {
   if (color === "kfk-red") {
     return {
       backgroundImage: `repeating-linear-gradient(
@@ -90,7 +92,7 @@ const colorClasses: Record<
   },
 };
 
-export function ChildCard({ child, color }: Props) {
+export function ChildCard({ child, color, className = "" }: Props) {
   const {
     name,
     photoUrl,
@@ -110,7 +112,7 @@ export function ChildCard({ child, color }: Props) {
 
   return (
     <div
-      className={`flex flex-col items-center rounded-xl mt-4 mx-2 px-4 py-6 shadow-sm`}
+      className={`flex flex-col items-center rounded-xl px-4 py-6 shadow-sm h-full ${className}`}
       style={getPatternStyle(color ?? "")}
     >
       <div
@@ -124,7 +126,7 @@ export function ChildCard({ child, color }: Props) {
       </div>
 
       <div
-        className={`mt-5 px-1 w-full gap-1 bg-card border-4 ${styles.border} rounded-md flex flex-col items-center font-gaegu`}
+        className={`mt-5 px-1 w-full gap-1 bg-card border-4 ${styles.border} rounded-md flex flex-col flex-1 items-center font-gaegu`}
       >
         <h3 className={`font-semibold mt-3 text-3xl ${styles.text}`}>{name}</h3>
 

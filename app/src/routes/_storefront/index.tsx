@@ -1,9 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
+import { StorefrontSearchFilters } from "@/components/storefront/StorefrontSearchFilters";
 import type { ChildCardData } from "@/components/storefront/ChildCard";
 import { ChildCard } from "@/components/storefront/ChildCard";
 import type { Child, Family } from "../../../../common/src/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Pagination } from "@/components/storefront/Pagination";
 
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/_storefront/")({
   validateSearch: z.object({
     search: z.string().optional(),
     sort: z.enum(["age-asc", "age-desc", "gifts-asc", "gifts-desc"]).optional(),
+    page: z.number().gt(0).default(1),
   }),
   component: App,
 });
@@ -135,15 +137,20 @@ const mockChildren: Array<ChildCardData & { familyId: string }> =
 
 function App() {
   const [childrenPerPage] = useState<number>(25);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const navigate = useNavigate();
 
   // STEP 2: read search/sort param
-  const { search, sort } = Route.useSearch();
+  const { search, sort, page } = Route.useSearch();
 
-  // Reset to page 1 when filters change
-  // useEffect(() => {
-  //   setCurrentPage(1);
-  // }, [search, sort]);
+  useEffect(() => {
+    navigate({
+      to: "/",
+      search: (prev) => ({
+        ...prev,
+        page: 1,
+      }),
+    });
+  }, [search, navigate, sort]);
 
   // STEP 3: filter children by search term (name or diagnosis) and sorting filters
   const filteredChildren = (
@@ -162,7 +169,7 @@ function App() {
     return 0;
   });
 
-  const lastChildIndex = currentPage * childrenPerPage;
+  const lastChildIndex = page * childrenPerPage;
   const firstChildIndex = lastChildIndex - childrenPerPage;
   const currentChildrenProfiles = filteredChildren.slice(
     firstChildIndex,
@@ -170,7 +177,8 @@ function App() {
   );
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="space-y-6">
+      <StorefrontSearchFilters />
       <GiftDriveStats
         days={22}
         giftsPurchased={876}
@@ -179,8 +187,8 @@ function App() {
         totalDonated={87}
       />
 
-      <div className="px-16 py-4">
-        <div className="grid grid-cols-5 gap-4">
+      <div className="py-4 px-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {currentChildrenProfiles.map((child) => {
             const familyIndex = mockFamilies.findIndex(
               (f) => f.id === child.familyId,
@@ -194,7 +202,7 @@ function App() {
                 to={`/`} // TEMP for `/child/${child.id}`
                 className="block transition-transform duration-200 ease-out hover:scale-105 hover:z-10"
               >
-                <ChildCard child={child} color={color} />
+                <ChildCard child={child} color={color} className="min-w-52" />
               </Link>
             );
           })}
@@ -203,8 +211,16 @@ function App() {
         <Pagination
           totalChildren={filteredChildren.length}
           childrenPerPage={childrenPerPage}
-          setCurrentPage={setCurrentPage}
-          currentPage={currentPage}
+          setCurrentPage={(p) =>
+            navigate({
+              to: "/",
+              search: (prev) => ({
+                ...prev,
+                page: p,
+              }),
+            })
+          }
+          currentPage={page}
           MAX_BUTTONS={9}
           IMMEDIATE_PAGES={4}
         />
