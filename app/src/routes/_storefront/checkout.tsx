@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_storefront/checkout")({
 });
 
 function CheckoutComponent() {
-  const { data: cartData, isLoading } = useCartGifts();
+  const { data: cartData, isLoading, isError } = useCartGifts();
   const removeGiftMutation = useRemoveGiftFromCart();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,6 +37,15 @@ function CheckoutComponent() {
     return (
       <div className="min-h-screen bg-kfk-blue py-8 flex items-center justify-center">
         <p className="text-white text-lg">Loading cart...</p>
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-kfk-blue py-8 flex items-center justify-center">
+        <p className="text-white text-lg">
+          Unable to load cart. Please try again.
+        </p>
       </div>
     );
   }
