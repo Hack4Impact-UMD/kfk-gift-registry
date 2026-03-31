@@ -5,7 +5,7 @@ import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
 
 export function StorefrontNavbar() {
   return (
-    <div className="mx-8">
+    <div className="px-8 border-b border-b-gray-300 pb-4">
       <div className="px-4 flex items-center justify-between">
         <Link to="/">
           <img
@@ -57,8 +57,6 @@ export function StorefrontNavbar() {
           <Button variant="destructive">Donate!</Button>
         </div>
       </div>
-
-      <div className="-mx-8 my-4 bg-sidebar-ring py-[0.5px]"></div>
     </div>
   );
 }
