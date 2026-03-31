@@ -13,7 +13,7 @@ export const createCartColumns = (
     header: "Gift",
     cell: (info) => (
       <a
-        href={`/storefront/product/${info.row.original.id}`}
+        href={`/_storefront/child/${info.row.original.childId}`}
         className="font-medium text-black hover:underline cursor-pointer font-gaegu flex items-center gap-2"
       >
         {info.getValue()}
