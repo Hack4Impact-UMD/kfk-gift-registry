@@ -3,8 +3,8 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { fieldContext, formContext } from "./fieldContext";
 import { useFormContext } from "@/components/providers/FormProvider";
+import type { ChildGiftSelections } from "@/lib/formSchemas";
 import {
-  ChildGiftSelections,
   childrenFormDefaults,
   childrenFormSchema,
   consentFormDefaults,

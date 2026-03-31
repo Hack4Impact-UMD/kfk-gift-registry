@@ -54,7 +54,7 @@ if (!admin.apps.length || admin.apps.length === 0) {
   admin.initializeApp();
   admin.firestore().settings({
     ignoreUndefinedProperties: true,
-  })
+  });
 }
 
 export const getServerAuth = createServerOnlyFn(() => {
@@ -62,7 +62,6 @@ export const getServerAuth = createServerOnlyFn(() => {
   auth = admin.auth();
   return auth;
 });
-
 
 export const getServerDB = createServerOnlyFn(() => {
   if (db) return db;
