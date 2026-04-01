@@ -155,7 +155,7 @@ export function useChildrenForm() {
 
         const requiresTreatmentLength =
           child.status === "recently_off_treatment" ||
-          child.status === "off_treatment_1yr+";
+          child.status === "off_treatment_5yr+";
 
         return {
           ...child,
