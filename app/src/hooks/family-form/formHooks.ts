@@ -20,6 +20,7 @@ import {
   FormFieldInput,
   FormInput,
   FormSelect,
+  FormTextarea,
 } from "@/components/form/FormComponents";
 
 export const { useAppForm } = createFormHook({
@@ -32,6 +33,7 @@ export const { useAppForm } = createFormHook({
     FormSelect,
     FormFieldInput,
     FormAgreement,
+    FormTextarea,
   },
   formComponents: {},
 });

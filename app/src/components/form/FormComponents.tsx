@@ -15,6 +15,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { useFieldContext } from "@/hooks/family-form/fieldContext";
 import { PhoneInput } from "../ui/phone-input";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 type FormInputProps = {
   label: string;
@@ -30,6 +32,7 @@ type FormInputProps = {
   autoComplete?: string;
   placeholder?: string;
   required?: boolean;
+  className?: string;
 };
 
 export function FormInput({
@@ -39,12 +42,13 @@ export function FormInput({
   autoComplete,
   placeholder,
   required = false,
+  className = "",
 }: FormInputProps) {
   const field = useFieldContext<string>();
   const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", className)}>
       <Label htmlFor={field.name} className="text-sm font-medium">
         {label}
         {required && <span className="text-destructive"> *</span>}
@@ -72,6 +76,7 @@ type FormCheckboxProps = {
   id?: string;
   value?: boolean;
   disabled?: boolean;
+  className?: string;
 };
 
 export function FormCheckbox({
@@ -79,12 +84,13 @@ export function FormCheckbox({
   id,
   value,
   disabled,
+  className = "",
 }: FormCheckboxProps) {
   const field = useFieldContext<boolean | undefined>();
   const checkboxId = id || field.name;
 
   return (
-    <div className="flex items-start gap-3 text-left">
+    <div className={cn("flex items-start gap-3 text-left", className)}>
       <Checkbox
         id={checkboxId}
         checked={field.state.value ?? value}
@@ -102,17 +108,19 @@ export function FormCheckbox({
 type FormBorderedCheckboxProps = {
   children: ReactNode;
   id?: string;
+  className?: string;
 };
 
 export function FormBorderedCheckbox({
   children,
   id,
+  className = "",
 }: FormBorderedCheckboxProps) {
   const field = useFieldContext<boolean>();
   const checkboxId = id || field.name;
 
   return (
-    <div className="flex items-start gap-3 p-4 border rounded-lg text-left">
+    <div className={cn("flex items-start gap-3 p-4 border rounded-lg text-left", className)}>
       <Checkbox
         id={checkboxId}
         checked={field.state.value}
@@ -139,6 +147,7 @@ interface FormSelectProps {
   required?: boolean;
   value?: string;
   disabled?: boolean;
+  className?: string;
 }
 
 export const FormSelect = ({
@@ -149,12 +158,13 @@ export const FormSelect = ({
   required,
   value,
   disabled,
+  className = "",
 }: FormSelectProps) => {
   const field = useFieldContext<string>();
   const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
-    <FormItem className="relative mt-6 w-full max-w-60">
+    <FormItem className={cn("relative mt-6 w-full max-w-60", className)}>
       <FieldLabel
         className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
           errorMessage ? "text-red-500" : "text-slate-600"
@@ -216,6 +226,7 @@ interface FormFieldInputProps {
   autoComplete?: string;
   value?: string;
   disabled?: boolean;
+  className?: string;
 }
 
 export const FormFieldInput = ({
@@ -228,12 +239,13 @@ export const FormFieldInput = ({
   autoComplete,
   value,
   disabled,
+  className = "",
 }: FormFieldInputProps) => {
   const field = useFieldContext<string>();
   const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
 
   return (
-    <FormItem className="group relative mt-6">
+    <FormItem className={cn("group relative mt-6", className)}>
       <CardDescription
         className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
           errorMessage
@@ -307,11 +319,63 @@ export const FormFieldInput = ({
   );
 };
 
+type FormTextareaProps = {
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  maxWords?: number;
+  disabled?: boolean;
+  className?: string;
+};
+
+export function FormTextarea({
+  label,
+  placeholder,
+  required = false,
+  maxWords,
+  disabled,
+  className = "",
+}: FormTextareaProps) {
+  const field = useFieldContext<string>();
+  const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
+  const wordCount = field.state.value
+    ? field.state.value.trim().split(/\s+/).filter(Boolean).length
+    : 0;
+
+  return (
+    <div className={cn("space-y-2", className)}>
+      {label && (
+        <p className="text-sm font-medium text-kfk-blue">
+          {label}
+          {required && <span className="text-destructive"> *</span>}
+        </p>
+      )}
+      <Textarea
+        placeholder={placeholder}
+        value={field.state.value || ""}
+        onChange={(e) => field.handleChange(e.target.value)}
+        onBlur={field.handleBlur}
+        disabled={disabled}
+        className={`resize-none min-h-[100px] ${errorMessage ? "border-red-500" : ""}`}
+      />
+      {maxWords !== undefined && !disabled && (
+        <p className="text-xs text-right text-slate-500">
+          {wordCount} out of {maxWords}
+        </p>
+      )}
+      {errorMessage && (
+        <span className="text-sm text-red-500">{errorMessage}</span>
+      )}
+    </div>
+  );
+}
+
 type FormAgreementProps = {
   children: ReactNode;
   checkboxLabel?: string;
   id?: string;
   disabled?: boolean;
+  className?: string;
 };
 
 export function FormAgreement({
@@ -319,12 +383,13 @@ export function FormAgreement({
   checkboxLabel = "I agree to the sharing of my mailing address",
   id,
   disabled,
+  className = "",
 }: FormAgreementProps) {
   const field = useFieldContext<boolean>();
   const checkboxId = id || field.name;
 
   return (
-    <div className="border bg-green-50 border-green-500 p-5 rounded-lg">
+    <div className={cn("border bg-green-50 border-green-500 p-5 rounded-lg", className)}>
       <div className="text-black text-sm mb-3">{children}</div>
       <div className="flex items-start gap-3">
         <Checkbox

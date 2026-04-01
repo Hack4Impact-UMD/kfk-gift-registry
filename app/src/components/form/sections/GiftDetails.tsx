@@ -93,7 +93,6 @@ export function GiftDetailsForm({
       }));
     }
   };
-  //TODO: add textarea bound form field component, use it here and elsewhere
   //TODO: update the child status dropdown wording/options
 
   return (
@@ -110,20 +109,20 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        if (i !== 0 && !value) return undefined;
-                        if (!value) return "URL is required";
-                        try {
-                          const url = new URL(value);
-                          if (!["http:", "https:"].includes(url.protocol)) {
-                            return "URL must start with http or https";
-                          }
-                          return undefined;
-                        } catch {
-                          return "Please enter a valid URL";
+                    onChange: ({ value }) => {
+                      if (i !== 0 && !value) return undefined;
+                      if (!value) return "URL is required";
+                      try {
+                        const url = new URL(value);
+                        if (!["http:", "https:"].includes(url.protocol)) {
+                          return "URL must start with http or https";
                         }
-                      },
-                    }
+                        return undefined;
+                      } catch {
+                        return "Please enter a valid URL";
+                      }
+                    },
+                  }
               }
             >
               {(field) => {
@@ -164,14 +163,14 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        if (i !== 0 && !value) return undefined;
-                        if (!value) return "Gift name is required";
-                        if (value.length > GIFT_NAME_MAX_CHARS)
-                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
-                        return undefined;
-                      },
-                    }
+                    onChange: ({ value }) => {
+                      if (i !== 0 && !value) return undefined;
+                      if (!value) return "Gift name is required";
+                      if (value.length > GIFT_NAME_MAX_CHARS)
+                        return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                      return undefined;
+                    },
+                  }
               }
             >
               {(field) => {
@@ -193,19 +192,14 @@ export function GiftDetailsForm({
             <form.AppField
               name={`giftSelections[${childIndex}].gifts[${i}].familyPublicNotes`}
             >
-              {(field) => {
-                return (
-                  <div>
-                    <field.FormFieldInput
-                      Icon={GiftIcon}
-                      label={`Gift #${i + 1} Public Notes`}
-                      placeholder="Add any additional information to be displayed along side the gift listing"
-                      required
-                      disabled={disabled}
-                    />
-                  </div>
-                );
-              }}
+              {(field) => (
+                <field.FormTextarea
+                  className="mt-2"
+                  label={`Gift #${i + 1} Public Notes`}
+                  placeholder="Add any additional information to be displayed along side the gift listing"
+                  disabled={disabled}
+                />
+              )}
             </form.AppField>
           </div>
         ))}
@@ -223,19 +217,19 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        if (!value) return "URL is required";
-                        try {
-                          const url = new URL(value);
-                          if (!["http:", "https:"].includes(url.protocol)) {
-                            return "URL must start with http or https";
-                          }
-                          return undefined;
-                        } catch {
-                          return "Please enter a valid URL";
+                    onChange: ({ value }) => {
+                      if (!value) return "URL is required";
+                      try {
+                        const url = new URL(value);
+                        if (!["http:", "https:"].includes(url.protocol)) {
+                          return "URL must start with http or https";
                         }
-                      },
-                    }
+                        return undefined;
+                      } catch {
+                        return "Please enter a valid URL";
+                      }
+                    },
+                  }
               }
             >
               {(field) => {
@@ -276,14 +270,14 @@ export function GiftDetailsForm({
                 disabled
                   ? undefined
                   : {
-                      onChange: ({ value }) => {
-                        const str = value;
-                        if (!str) return "Gift name is required";
-                        if (str.length > GIFT_NAME_MAX_CHARS)
-                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
-                        return undefined;
-                      },
-                    }
+                    onChange: ({ value }) => {
+                      const str = value;
+                      if (!str) return "Gift name is required";
+                      if (str.length > GIFT_NAME_MAX_CHARS)
+                        return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                      return undefined;
+                    },
+                  }
               }
             >
               {(field) => {
@@ -305,19 +299,14 @@ export function GiftDetailsForm({
             <form.AppField
               name={`giftSelections[${childIndex}].backupGifts[${i}].familyPublicNotes`}
             >
-              {(field) => {
-                return (
-                  <div>
-                    <field.FormFieldInput
-                      Icon={GiftIcon}
-                      label={`Backup Gift #${i + 1} Public Notes`}
-                      placeholder="Add any additional information to be displayed along side the gift listing"
-                      required
-                      disabled={disabled}
-                    />
-                  </div>
-                );
-              }}
+              {(field) => (
+                <field.FormTextarea
+                  className="mt-2"
+                  label={`Backup Gift #${i + 1} Public Notes`}
+                  placeholder="Add any additional information to be displayed along side the gift listing"
+                  disabled={disabled}
+                />
+              )}
             </form.AppField>
           </div>
         ))}

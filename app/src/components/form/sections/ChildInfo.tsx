@@ -1,7 +1,6 @@
 import { Building2, Stethoscope, User, UserCog } from "lucide-react";
 import { PhotoUpload } from "../PhotoUpload";
 import type { useChildrenForm } from "@/hooks/family-form/formHooks";
-import { Textarea } from "@/components/ui/textarea";
 import { CHILD_STATUS_VALUES, CHILD_STATUS_LABELS } from "@/lib/formSchemas";
 
 const CHILD_STATUS_OPTIONS = CHILD_STATUS_VALUES.map((value) => ({
@@ -351,44 +350,14 @@ export function ChildInfoForm({
                         },
                       }}
                     >
-                      {(field) => {
-                        const wordCount = field.state.value
-                          ? field.state.value
-                              .trim()
-                              .split(/\s+/)
-                              .filter(Boolean).length
-                          : 0;
-                        return (
-                          <div className="space-y-2">
-                            <p className="text-sm font-medium text-kfk-blue">
-                              You may write a blurb about your child to be
-                              displayed on the gift drive website (25 words or
-                              less)
-                            </p>
-                            <Textarea
-                              placeholder="You can share details like your child's activities, interests, favorite color, or anything else you'd like to include."
-                              value={field.state.value || ""}
-                              onChange={(e) =>
-                                field.handleChange(e.target.value)
-                              }
-                              onBlur={field.handleBlur}
-                              disabled={disabled}
-                              className="resize-none min-h-[100px]"
-                            />
-                            {!disabled && (
-                              <p className="text-xs text-right text-slate-500">
-                                {wordCount} out of 25
-                              </p>
-                            )}
-                            {field.state.meta.isTouched &&
-                              field.state.meta.errors[0] && (
-                                <span className="text-sm text-red-500">
-                                  {field.state.meta.errors[0]}
-                                </span>
-                              )}
-                          </div>
-                        );
-                      }}
+                      {(field) => (
+                        <field.FormTextarea
+                          label="You may write a blurb about your child to be displayed on the gift drive website (25 words or less)"
+                          placeholder="You can share details like your child's activities, interests, favorite color, or anything else you'd like to include."
+                          maxWords={25}
+                          disabled={disabled}
+                        />
+                      )}
                     </form.AppField>
                   </div>
                 </div>
@@ -411,37 +380,14 @@ export function ChildInfoForm({
           },
         }}
       >
-        {(field) => {
-          const wordCount = field.state.value
-            ? field.state.value.trim().split(/\s+/).filter(Boolean).length
-            : 0;
-          return (
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-kfk-blue">
-                Do you have any additional notes for the Kisses for Kyle team?
-                These will not appear on the gift drive page.
-              </p>
-              <Textarea
-                placeholder="e.g. Any information you would like the Kisses for Kyle team to know."
-                value={field.state.value || ""}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-                disabled={disabled}
-                className="resize-none min-h-30"
-              />
-              {!disabled && (
-                <p className="text-xs text-right text-slate-500">
-                  {wordCount} out of 100
-                </p>
-              )}
-              {field.state.meta.isTouched && field.state.meta.errors[0] && (
-                <span className="text-sm text-red-500">
-                  {field.state.meta.errors[0]}
-                </span>
-              )}
-            </div>
-          );
-        }}
+        {(field) => (
+          <field.FormTextarea
+            label="Do you have any additional notes for the Kisses for Kyle team? These will not appear on the gift drive page."
+            placeholder="e.g. Any information you would like the Kisses for Kyle team to know."
+            maxWords={100}
+            disabled={disabled}
+          />
+        )}
       </form.AppField>
 
       {/* Photo Consent */}
