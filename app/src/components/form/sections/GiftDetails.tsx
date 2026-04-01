@@ -196,7 +196,7 @@ export function GiftDetailsForm({
                 <field.FormTextarea
                   className="mt-2"
                   label={`Gift #${i + 1} Public Notes`}
-                  placeholder="Add any additional information to be displayed along side the gift listing"
+                  placeholder="Add any additional information to be displayed alongside the gift listing"
                   disabled={disabled}
                 />
               )}
@@ -303,7 +303,7 @@ export function GiftDetailsForm({
                 <field.FormTextarea
                   className="mt-2"
                   label={`Backup Gift #${i + 1} Public Notes`}
-                  placeholder="Add any additional information to be displayed along side the gift listing"
+                  placeholder="Add any additional information to be displayed alongside the gift listing"
                   disabled={disabled}
                 />
               )}

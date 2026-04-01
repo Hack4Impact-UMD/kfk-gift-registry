@@ -63,7 +63,7 @@ const childrenFormSchema = z.object({
 });
 
 const giftSelectionSchema = z.object({
-  giftUrl: z.url().optional().or(z.string("")),
+  giftUrl: z.url().optional().or(z.literal("")),
   giftName: z.string().optional(),
   familyPublicNotes: z.string().optional(),
 });
