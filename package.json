@@ -7,6 +7,7 @@
     "preinstall": "npx only-allow pnpm",
     "build": "pnpm -r run build",
     "dev": "firebase emulators:start",
+    "seed": "bash scripts/seed-mock-data.sh",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
