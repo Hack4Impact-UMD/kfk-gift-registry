@@ -9,7 +9,7 @@ export const CHILD_STATUS_VALUES = [
   "off_treatment_5yr+",
   "sibling_in_treatment",
   "bereaved_sibling",
-  "bereaved_sibling_5yr+"
+  "bereaved_sibling_5yr+",
 ] as const satisfies ReadonlyArray<ChildStatus>;
 
 export const CHILD_STATUS_LABELS: Record<ChildStatus, string> = {

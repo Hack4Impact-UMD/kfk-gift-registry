@@ -5,7 +5,9 @@ import admin from "firebase-admin";
 import { getServerDB } from "@/lib/firebase.server";
 import { createFamilyLink } from "@/server/services/familyLinkService.server";
 import { DateTime } from "luxon";
-import type { Family, Child, ChildStatus, Gift } from "common";
+import type { Family, Child, Gift } from "common";
+
+import { CHILD_STATUS_VALUES } from "@/lib/formSchemas";
 
 // --- Photo upload constants ---
 const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -20,17 +22,6 @@ const MIME_TO_EXT: Record<AllowedMimeType, string> = {
   "image/png": "png",
   "image/webp": "webp",
 };
-
-// ChildStatus values — must stay in sync with common/src/types/child.ts
-const CHILD_STATUS_VALUES = [
-  "recently_diagnosed_relapse",
-  "diagnosed_in_treatment_1yr+",
-  "recently_off_treatment",
-  "off_treatment_5yr+",
-  "sibling_in_treatment",
-  "bereaved_sibling",
-  "bereaved_sibling_5yr+",
-] as const satisfies ReadonlyArray<ChildStatus>;
 
 // --- Zod schemas ---
 
