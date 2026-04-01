@@ -120,7 +120,12 @@ export function FormBorderedCheckbox({
   const checkboxId = id || field.name;
 
   return (
-    <div className={cn("flex items-start gap-3 p-4 border rounded-lg text-left", className)}>
+    <div
+      className={cn(
+        "flex items-start gap-3 p-4 border rounded-lg text-left",
+        className,
+      )}
+    >
       <Checkbox
         id={checkboxId}
         checked={field.state.value}
@@ -389,7 +394,12 @@ export function FormAgreement({
   const checkboxId = id || field.name;
 
   return (
-    <div className={cn("border bg-green-50 border-green-500 p-5 rounded-lg", className)}>
+    <div
+      className={cn(
+        "border bg-green-50 border-green-500 p-5 rounded-lg",
+        className,
+      )}
+    >
       <div className="text-black text-sm mb-3">{children}</div>
       <div className="flex items-start gap-3">
         <Checkbox

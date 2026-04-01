@@ -217,39 +217,39 @@ export function ChildInfoForm({
                             {/* Length of Treatment */}
                             {(status === "recently_off_treatment" ||
                               status === "off_treatment_5yr+") && (
-                                <form.AppField
-                                  name={`children[${index}].treatmentLength`}
-                                  validators={{
-                                    onChange: ({ value }) => {
-                                      if (!value)
-                                        return "Please select treatment length";
-                                      return undefined;
-                                    },
-                                  }}
-                                >
-                                  {(field) => (
-                                    <div className="space-y-1">
-                                      <label className="text-sm font-medium">
-                                        How long has your child been off of
-                                        treatment?
-                                        <span className="text-destructive">
-                                          {" "}
-                                          *
-                                        </span>
-                                      </label>
-                                      <div className="-mt-2">
-                                        <field.FormSelect
-                                          label="Select"
-                                          placeholder="Select"
-                                          values={TREATMENT_LENGTH_OPTIONS}
-                                          required
-                                          disabled={disabled}
-                                        />
-                                      </div>
+                              <form.AppField
+                                name={`children[${index}].treatmentLength`}
+                                validators={{
+                                  onChange: ({ value }) => {
+                                    if (!value)
+                                      return "Please select treatment length";
+                                    return undefined;
+                                  },
+                                }}
+                              >
+                                {(field) => (
+                                  <div className="space-y-1">
+                                    <label className="text-sm font-medium">
+                                      How long has your child been off of
+                                      treatment?
+                                      <span className="text-destructive">
+                                        {" "}
+                                        *
+                                      </span>
+                                    </label>
+                                    <div className="-mt-2">
+                                      <field.FormSelect
+                                        label="Select"
+                                        placeholder="Select"
+                                        values={TREATMENT_LENGTH_OPTIONS}
+                                        required
+                                        disabled={disabled}
+                                      />
                                     </div>
-                                  )}
-                                </form.AppField>
-                              )}
+                                  </div>
+                                )}
+                              </form.AppField>
+                            )}
 
                             {/* Hospital */}
                             <form.AppField
