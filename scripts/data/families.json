@@ -1,0 +1,23 @@
+[
+  {
+    "id": "family_1",
+    "contactName": "Maria Johnson",
+    "email": "maria.johnson@test.com",
+    "phone": "301-555-0101",
+    "address": {
+      "street": "123 Main St",
+      "city": "College Park",
+      "state": "MD",
+      "zipCode": "20740"
+    },
+    "giftDrive": "gd_2026_halloween",
+    "createdAt": "2026-03-31T17:02:00.000Z",
+    "reviewStatus": {
+      "approved": true,
+      "held": false,
+      "lastReviewedAt": "2026-03-31T17:02:00.000Z",
+      "reviewedBy": "AW0ZkRsBvadjhxX2mctEZLBTnBvS",
+      "reviewNotes": "Approved for testing"
+    }
+  }
+]

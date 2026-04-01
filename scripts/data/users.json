@@ -1,0 +1,26 @@
+[
+  {
+    "id": "AW0ZkRsBvadjhxX2mctEZLBTnBvS",
+    "email": "admin@test.com",
+    "name": "Admin User",
+    "role": "ADMIN",
+    "createdAt": "2026-02-23T22:46:19.497Z",
+    "enabled": true
+  },
+  {
+    "id": "donor_1",
+    "email": "donor1@test.com",
+    "name": "Test Donor One",
+    "role": "DONOR",
+    "createdAt": "2026-03-31T17:01:00.000Z",
+    "enabled": true
+  },
+  {
+    "id": "donor_2",
+    "email": "donor2@test.com",
+    "name": "Test Donor Two",
+    "role": "DONOR",
+    "createdAt": "2026-03-31T17:01:30.000Z",
+    "enabled": true
+  }
+]

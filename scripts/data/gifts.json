@@ -1,0 +1,29 @@
+[
+  {
+    "id": "gift_1",
+    "childId": "child_1",
+    "familyId": "family_1",
+    "giftDrive": "gd_2026_halloween",
+    "title": "LEGO Classic Set",
+    "productUrl": "https://amazon.com/example-lego",
+    "listedPrice": 29.99,
+    "status": "AVAILABLE",
+    "createdAt": "2026-03-31T17:04:00.000Z",
+    "backup": false,
+    "active": true
+  },
+  {
+    "id": "gift_2",
+    "childId": "child_1",
+    "familyId": "family_1",
+    "giftDrive": "gd_2026_halloween",
+    "title": "Marvel Action Figures",
+    "productUrl": "https://amazon.com/example-marvel",
+    "listedPrice": 24.99,
+    "status": "CLAIMED",
+    "claimedByDonorId": "donor_1",
+    "createdAt": "2026-03-31T17:04:30.000Z",
+    "backup": false,
+    "active": true
+  }
+]

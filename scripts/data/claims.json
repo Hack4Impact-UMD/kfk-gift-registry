@@ -1,0 +1,10 @@
+[
+  {
+    "id": "claim_1",
+    "giftId": "gift_2",
+    "childId": "child_1",
+    "donorId": "donor_1",
+    "claimedAt": "2026-03-31T17:05:30.000Z",
+    "active": true
+  }
+]

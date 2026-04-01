@@ -1,0 +1,34 @@
+[
+  {
+    "id": "child_1",
+    "name": "Ethan Johnson",
+    "status": "recently_diagnosed_relapse",
+    "category": "warrior",
+    "familyId": "family_1",
+    "diagnosis": "Leukemia",
+    "diagnosisLengthYears": "6m-1y",
+    "livesAtHome": true,
+    "publicBlurb": "Loves Legos and Marvel.",
+    "createdAt": "2026-03-31T17:03:00.000Z",
+    "hospital": "Childrens National",
+    "age": 8,
+    "childSocialWorker": "SW1",
+    "giftDrive": "gd_2026_halloween",
+    "published": true
+  },
+  {
+    "id": "child_2",
+    "name": "Ava Johnson",
+    "status": "sibling_in_treatment",
+    "category": "super_sib",
+    "familyId": "family_1",
+    "diagnosis": "Sibling case",
+    "livesAtHome": true,
+    "createdAt": "2026-03-31T17:03:30.000Z",
+    "hospital": "Childrens National",
+    "age": 11,
+    "childSocialWorker": "SW1",
+    "giftDrive": "gd_2026_halloween",
+    "published": false
+  }
+]
