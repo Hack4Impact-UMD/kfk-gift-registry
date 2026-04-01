@@ -4,7 +4,105 @@
     "giftId": "gift_2",
     "childId": "child_1",
     "donorId": "donor_1",
-    "claimedAt": "2026-03-31T17:05:30.000Z",
+    "organizationName": "Riverside Dental Group",
+    "claimedAt": "2026-10-03T15:00:00.000Z",
+    "privateNotes": "Donor asked to be contacted if the wishlist changes.",
+    "expectedDeliveryDate": "2026-10-10T00:00:00.000Z",
+    "active": true
+  },
+  {
+    "id": "claim_2",
+    "giftId": "gift_4",
+    "childId": "child_2",
+    "donorId": "donor_2",
+    "claimedAt": "2026-10-04T12:15:00.000Z",
+    "purchaseConfirmation": {
+      "date": "2026-10-04T14:00:00.000Z",
+      "documentationUrl": "https://example.com/receipts/claim_2.pdf",
+      "verified": true,
+      "trackingNumber": "1Z999AA10123456784"
+    },
+    "expectedDeliveryDate": "2026-10-12T00:00:00.000Z",
+    "active": true
+  },
+  {
+    "id": "claim_3",
+    "giftId": "gift_6",
+    "childId": "child_3",
+    "donorId": "donor_3",
+    "claimedAt": "2026-10-05T09:30:00.000Z",
+    "purchaseConfirmation": {
+      "date": "2026-10-05T10:00:00.000Z",
+      "documentationUrl": "https://example.com/receipts/claim_3.pdf",
+      "verified": true,
+      "trackingNumber": "9400111206213811123456"
+    },
+    "deliveryConfirmed": {
+      "date": "2026-10-08T16:30:00.000Z",
+      "documentationUrl": "https://example.com/delivery/claim_3.jpg",
+      "verified": true
+    },
+    "expectedDeliveryDate": "2026-10-08T00:00:00.000Z",
+    "active": true
+  },
+  {
+    "id": "claim_4",
+    "giftId": "gift_7",
+    "childId": "child_3",
+    "donorId": "donor_2",
+    "organizationName": "Youth Sports Boosters",
+    "claimedAt": "2026-10-06T11:00:00.000Z",
+    "purchaseConfirmation": {
+      "date": "2026-10-06T11:45:00.000Z",
+      "documentationUrl": "https://example.com/receipts/claim_4.pdf",
+      "verified": true,
+      "trackingNumber": "TBA3344556677"
+    },
+    "deliveryConfirmed": {
+      "date": "2026-10-12T13:20:00.000Z",
+      "documentationUrl": "https://example.com/delivery/claim_4.jpg",
+      "verified": true
+    },
+    "privateNotes": "Family confirmed receipt by phone.",
+    "active": true
+  },
+  {
+    "id": "claim_5",
+    "giftId": "gift_10",
+    "childId": "child_4",
+    "donorId": "donor_1",
+    "claimedAt": "2026-10-07T09:10:00.000Z",
+    "expectedDeliveryDate": "2026-10-14T00:00:00.000Z",
+    "active": true
+  },
+  {
+    "id": "claim_6",
+    "giftId": "gift_12",
+    "childId": "child_5",
+    "donorId": "donor_3",
+    "claimedAt": "2026-10-08T17:25:00.000Z",
+    "purchaseConfirmation": {
+      "date": "2026-10-08T18:00:00.000Z",
+      "documentationUrl": "https://example.com/receipts/claim_6.pdf",
+      "verified": false,
+      "trackingNumber": "ORDER-NT-4421"
+    },
+    "expectedDeliveryDate": "2026-10-16T00:00:00.000Z",
+    "active": true
+  },
+  {
+    "id": "claim_7",
+    "giftId": "gift_14",
+    "childId": "child_6",
+    "donorId": "donor_2",
+    "claimedAt": "2026-11-28T14:05:00.000Z",
+    "purchaseConfirmation": {
+      "date": "2026-11-28T14:20:00.000Z",
+      "documentationUrl": "https://example.com/receipts/claim_7.pdf",
+      "verified": true,
+      "trackingNumber": "9405511899223377889900"
+    },
+    "expectedDeliveryDate": "2026-12-05T00:00:00.000Z",
     "active": true
   }
 ]

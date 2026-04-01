@@ -3,5 +3,20 @@
     "id": "fl_1",
     "familyId": "family_1",
     "active": true
+  },
+  {
+    "id": "fl_2",
+    "familyId": "family_2",
+    "active": true
+  },
+  {
+    "id": "fl_3",
+    "familyId": "family_3",
+    "active": false
+  },
+  {
+    "id": "fl_4",
+    "familyId": "family_4",
+    "active": true
   }
 ]

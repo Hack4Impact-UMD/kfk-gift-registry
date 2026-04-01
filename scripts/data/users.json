@@ -4,7 +4,34 @@
     "email": "admin@test.com",
     "name": "Admin User",
     "role": "ADMIN",
+    "phone": "+12675550100",
     "createdAt": "2026-02-23T22:46:19.497Z",
+    "enabled": true
+  },
+  {
+    "id": "director_1",
+    "email": "director@test.com",
+    "name": "Director Dana",
+    "role": "DIRECTOR",
+    "phone": "+12155550101",
+    "createdAt": "2026-03-25T14:15:00.000Z",
+    "enabled": true
+  },
+  {
+    "id": "volunteer_1",
+    "email": "volunteer1@test.com",
+    "name": "Sam Volunteer",
+    "role": "VOLUNTEER",
+    "phone": "+12675550102",
+    "createdAt": "2026-03-31T17:01:00.000Z",
+    "enabled": true
+  },
+  {
+    "id": "volunteer_2",
+    "email": "volunteer2@test.com",
+    "name": "Taylor Volunteer",
+    "role": "VOLUNTEER",
+    "createdAt": "2026-03-31T17:01:30.000Z",
     "enabled": true
   },
   {
@@ -12,15 +39,32 @@
     "email": "donor1@test.com",
     "name": "Test Donor One",
     "role": "DONOR",
-    "createdAt": "2026-03-31T17:01:00.000Z",
+    "createdAt": "2026-03-31T17:02:00.000Z",
     "enabled": true
   },
   {
-    "id": "volunteer_2",
-    "email": "volunteer2@test.com",
-    "name": "Test Volunteer Two",
-    "role": "VOLUNTEER",
-    "createdAt": "2026-03-31T17:01:30.000Z",
+    "id": "donor_2",
+    "email": "donor2@test.com",
+    "name": "Test Donor Two",
+    "role": "DONOR",
+    "createdAt": "2026-03-31T17:02:30.000Z",
     "enabled": true
+  },
+  {
+    "id": "donor_3",
+    "email": "donor3@test.com",
+    "name": "Neighborhood Donor",
+    "role": "DONOR",
+    "phone": "+13015550103",
+    "createdAt": "2026-03-31T17:03:00.000Z",
+    "enabled": true
+  },
+  {
+    "id": "donor_4",
+    "email": "donor4@test.com",
+    "name": "Dormant Donor",
+    "role": "DONOR",
+    "createdAt": "2026-03-31T17:03:30.000Z",
+    "enabled": false
   }
 ]

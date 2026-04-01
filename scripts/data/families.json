@@ -11,13 +11,78 @@
       "zipCode": "20740"
     },
     "giftDrive": "gd_2026_halloween",
-    "createdAt": "2026-03-31T17:02:00.000Z",
+    "createdAt": "2026-09-05T14:04:00.000Z",
     "reviewStatus": {
       "approved": true,
       "held": false,
-      "lastReviewedAt": "2026-03-31T17:02:00.000Z",
+      "lastReviewedAt": "2026-09-06T10:00:00.000Z",
       "reviewedBy": "AW0ZkRsBvadjhxX2mctEZLBTnBvS",
-      "reviewNotes": "Approved for testing"
+      "reviewNotes": "Approved for storefront testing."
+    }
+  },
+  {
+    "id": "family_2",
+    "contactName": "Daniel Rivera",
+    "email": "daniel.rivera@test.com",
+    "phone": "215-555-0102",
+    "address": {
+      "street": "78 Spruce Ave",
+      "addressLine2": "Apt 4B",
+      "city": "Philadelphia",
+      "state": "PA",
+      "zipCode": "19123"
+    },
+    "giftDrive": "gd_2026_halloween",
+    "createdAt": "2026-09-09T16:20:00.000Z",
+    "reviewStatus": {
+      "approved": true,
+      "held": false,
+      "lastReviewedAt": "2026-09-10T13:15:00.000Z",
+      "reviewedBy": "director_1",
+      "reviewNotes": "Verified by staff intake call."
+    }
+  },
+  {
+    "id": "family_3",
+    "contactName": "Priya Patel",
+    "email": "priya.patel@test.com",
+    "phone": "267-555-0103",
+    "address": {
+      "street": "54 Walnut Ave",
+      "city": "Lansdale",
+      "state": "PA",
+      "zipCode": "19446"
+    },
+    "privateNotes": "Awaiting updated residency paperwork before final approval.",
+    "giftDrive": "gd_2026_halloween",
+    "createdAt": "2026-09-12T12:05:00.000Z",
+    "reviewStatus": {
+      "approved": false,
+      "held": true,
+      "lastReviewedAt": "2026-09-13T09:45:00.000Z",
+      "reviewedBy": "AW0ZkRsBvadjhxX2mctEZLBTnBvS",
+      "holdNotes": "Requested proof of address before publishing profile."
+    }
+  },
+  {
+    "id": "family_4",
+    "contactName": "Alexis Chen",
+    "email": "alexis.chen@test.com",
+    "phone": "856-555-0104",
+    "address": {
+      "street": "9 Harbor View Rd",
+      "city": "Cherry Hill",
+      "state": "NJ",
+      "zipCode": "08002"
+    },
+    "giftDrive": "gd_2026_holiday",
+    "createdAt": "2026-11-18T18:10:00.000Z",
+    "reviewStatus": {
+      "approved": true,
+      "held": false,
+      "lastReviewedAt": "2026-11-19T14:00:00.000Z",
+      "reviewedBy": "director_1",
+      "reviewNotes": "Holiday drive submission approved."
     }
   }
 ]
