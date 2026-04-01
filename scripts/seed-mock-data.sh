@@ -1,3 +1,5 @@
+# pnpm seed
+
 #!/bin/bash
 set -e
 
@@ -18,10 +20,10 @@ echo "Uploading data..."
 
 DATA_DIR="scripts/data"
 
-cat ${DATA_DIR}/giftDrives.json | flame up giftDrives --idField="id"
+cat ${DATA_DIR}/gift-drives.json | flame up giftDrives --idField="id"
 cat ${DATA_DIR}/users.json | flame up users --idField="id"
 cat ${DATA_DIR}/families.json | flame up families --idField="id"
-cat ${DATA_DIR}/familyLinks.json | flame up familyLinks --idField="id"
+cat ${DATA_DIR}/family-links.json | flame up familyLinks --idField="id"
 cat ${DATA_DIR}/children.json | flame up children --idField="id"
 cat ${DATA_DIR}/gifts.json | flame up gifts --idField="id"
 cat ${DATA_DIR}/claims.json | flame up claims --idField="id"

@@ -16,10 +16,10 @@
     "enabled": true
   },
   {
-    "id": "donor_2",
-    "email": "donor2@test.com",
-    "name": "Test Donor Two",
-    "role": "DONOR",
+    "id": "volunteer_2",
+    "email": "volunteer2@test.com",
+    "name": "Test Volunteer Two",
+    "role": "VOLUNTEER",
     "createdAt": "2026-03-31T17:01:30.000Z",
     "enabled": true
   }
