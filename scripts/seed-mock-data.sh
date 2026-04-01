@@ -28,4 +28,8 @@ cat ${DATA_DIR}/children.json | flame up children --idField="id"
 cat ${DATA_DIR}/gifts.json | flame up gifts --idField="id"
 cat ${DATA_DIR}/claims.json | flame up claims --idField="id"
 
+# no data for these yet, but add them to the seeding script so we don't forget
+cat ${DATA_DIR}/profile-updates.json | flame up profileUpdates --idField="id"
+cat ${DATA_DIR}/invites.json | flame up invites --idField="id"
+
 echo "Done!"
