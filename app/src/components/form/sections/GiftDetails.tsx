@@ -93,6 +93,7 @@ export function GiftDetailsForm({
       }));
     }
   };
+  //TODO: update the child status dropdown wording/options
 
   return (
     <div className="flex flex-col gap-7">
@@ -187,6 +188,19 @@ export function GiftDetailsForm({
                 );
               }}
             </form.AppField>
+
+            <form.AppField
+              name={`giftSelections[${childIndex}].gifts[${i}].familyPublicNotes`}
+            >
+              {(field) => (
+                <field.FormTextarea
+                  className="mt-2"
+                  label={`Gift #${i + 1} Public Notes`}
+                  placeholder="Add any additional information to be displayed alongside the gift listing"
+                  disabled={disabled}
+                />
+              )}
+            </form.AppField>
           </div>
         ))}
       </div>
@@ -280,6 +294,19 @@ export function GiftDetailsForm({
                   </div>
                 );
               }}
+            </form.AppField>
+
+            <form.AppField
+              name={`giftSelections[${childIndex}].backupGifts[${i}].familyPublicNotes`}
+            >
+              {(field) => (
+                <field.FormTextarea
+                  className="mt-2"
+                  label={`Backup Gift #${i + 1} Public Notes`}
+                  placeholder="Add any additional information to be displayed alongside the gift listing"
+                  disabled={disabled}
+                />
+              )}
             </form.AppField>
           </div>
         ))}

@@ -55,20 +55,7 @@ function cleanChildrenObjects(
 function cleanGiftsObjects(
   g: GiftsFormData,
 ): NonNullable<FamilyFormInput["gifts"]> {
-  return {
-    giftSelections: g.giftSelections.map((sel) => ({
-      childName: sel.childName,
-      verified: sel.verified,
-      gifts: sel.gifts.map((gift) => ({
-        giftName: gift.giftName?.trim() || undefined,
-        giftUrl: gift.giftUrl?.trim() || undefined,
-      })),
-      backupGifts: sel.backupGifts.map((gift) => ({
-        giftName: gift.giftName?.trim() || undefined,
-        giftUrl: gift.giftUrl?.trim() || undefined,
-      })),
-    })),
-  };
+  return g;
 }
 
 export function useSubmitFamilyForm() {

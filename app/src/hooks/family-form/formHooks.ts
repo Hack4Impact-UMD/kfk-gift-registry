@@ -2,8 +2,8 @@ import { createFormHook } from "@tanstack/react-form";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { fieldContext, formContext } from "./fieldContext";
-import type { GiftSelection } from "@/components/providers/FormProvider";
 import { useFormContext } from "@/components/providers/FormProvider";
+import type { ChildGiftSelections } from "@/lib/formSchemas";
 import {
   childrenFormDefaults,
   childrenFormSchema,
@@ -20,6 +20,7 @@ import {
   FormFieldInput,
   FormInput,
   FormSelect,
+  FormTextarea,
 } from "@/components/form/FormComponents";
 
 export const { useAppForm } = createFormHook({
@@ -32,6 +33,7 @@ export const { useAppForm } = createFormHook({
     FormSelect,
     FormFieldInput,
     FormAgreement,
+    FormTextarea,
   },
   formComponents: {},
 });
@@ -153,7 +155,7 @@ export function useChildrenForm() {
 
         const requiresTreatmentLength =
           child.status === "recently_off_treatment" ||
-          child.status === "off_treatment_1yr+";
+          child.status === "off_treatment_5yr+";
 
         return {
           ...child,
@@ -206,13 +208,13 @@ export function useGiftsForm() {
         { giftName: "", giftUrl: "" },
         { giftName: "", giftUrl: "" },
         { giftName: "", giftUrl: "" },
-      ] as [GiftSelection, GiftSelection, GiftSelection],
+      ],
       backupGifts: [
         { giftName: "", giftUrl: "" },
         { giftName: "", giftUrl: "" },
-      ] as [GiftSelection, GiftSelection],
+      ],
       verified: false,
-    };
+    } satisfies ChildGiftSelections;
   });
 
   const form = useAppForm({

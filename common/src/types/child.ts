@@ -18,9 +18,10 @@ export type ChildStatus =
   | "recently_diagnosed_relapse"
   | "diagnosed_in_treatment_1yr+"
   | "recently_off_treatment"
-  | "off_treatment_1yr+"
+  | "off_treatment_5yr+"
   | "sibling_in_treatment"
-  | "bereaved_sibling";
+  | "bereaved_sibling"
+  | "bereaved_sibling_5yr+";
 
 type TimePeriod = "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
 
