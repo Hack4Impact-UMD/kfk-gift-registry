@@ -46,7 +46,7 @@ export function StorefrontNavbar() {
           </Link>
 
           <Link
-            to="/" // TEMP for "/checkout"
+            to="/checkout" // TEMP for "/checkout"
           >
             <Button variant="default">
               Your Cart
