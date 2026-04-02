@@ -101,16 +101,16 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={twMerge("flex flex-col gap-3", className)}>
-      <div className="rounded-md border bg-white">
+      <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-white">
+              <TableRow key={headerGroup.id} className="bg-card">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="font-normal text-gray-900 text-sm border-b-2 border-black"
+                      className="font-normal text-muted-foreground text-sm border-b-2 border-foreground"
                     >
                       {header.isPlaceholder
                         ? null
