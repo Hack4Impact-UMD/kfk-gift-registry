@@ -9,7 +9,7 @@ const columnHelper = createColumnHelper<CartGift>();
 export const createCartColumns = (
   onRemoveGift: (giftId: string) => void,
 ): Array<ColumnDef<CartGift>> => [
-  columnHelper.accessor("giftName", {
+  columnHelper.accessor("title", {
     header: "Gift",
     cell: (info) => (
       <a
@@ -25,13 +25,17 @@ export const createCartColumns = (
     header: "Child Name",
     cell: (info) => <span className="font-gaegu">{info.getValue()}</span>,
   }) as ColumnDef<CartGift>,
-  columnHelper.accessor("price", {
+  columnHelper.accessor("listedPrice", {
     header: "Price",
-    cell: (info) => (
-      <span className="text-kfk-red font-semibold font-gaegu">
-        ${info.getValue().toFixed(2)}
-      </span>
-    ),
+    cell: (info) => {
+      const price = info.getValue();
+
+      return (
+        <span className="text-kfk-red font-semibold font-gaegu">
+          {price !== undefined ? `$${price.toFixed(2)}` : "N/A"}
+        </span>
+      );
+    },
   }) as ColumnDef<CartGift>,
   columnHelper.display({
     id: "actions",

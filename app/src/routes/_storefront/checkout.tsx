@@ -25,7 +25,11 @@ function CheckoutComponent() {
   );
   const totalPrice = cartData?.reduce(
     (sum, family) =>
-      sum + family.gifts.reduce((familySum, gift) => familySum + gift.price, 0),
+      sum +
+      family.gifts.reduce(
+        (familySum, gift) => familySum + (gift.listedPrice ?? 0),
+        0,
+      ),
     0,
   );
 
