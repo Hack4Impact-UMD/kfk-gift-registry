@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as DataRouteImport } from './routes/data'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as StorefrontRouteRouteImport } from './routes/_storefront/route'
 import { Route as StorefrontIndexRouteImport } from './routes/_storefront/index'
@@ -49,11 +48,6 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DataRoute = DataRouteImport.update({
-  id: '/data',
-  path: '/data',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -209,7 +203,6 @@ const FamilyDriveDriveIdFormChildrenRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof StorefrontIndexRoute
-  '/data': typeof DataRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/donor': typeof AuthenticatedDonorRouteRoute
@@ -240,7 +233,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof StorefrontIndexRoute
-  '/data': typeof DataRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/donor': typeof AuthenticatedDonorRouteRoute
@@ -273,7 +265,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_storefront': typeof StorefrontRouteRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/data': typeof DataRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authenticated/donor': typeof AuthenticatedDonorRouteRoute
@@ -307,7 +298,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/data'
     | '/login'
     | '/register'
     | '/donor'
@@ -338,7 +328,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/data'
     | '/login'
     | '/register'
     | '/donor'
@@ -370,7 +359,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_storefront'
     | '/_authenticated'
-    | '/data'
     | '/login'
     | '/register'
     | '/_authenticated/donor'
@@ -404,7 +392,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   StorefrontRouteRoute: typeof StorefrontRouteRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  DataRoute: typeof DataRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   FamilyTokenRoute: typeof FamilyTokenRouteWithChildren
@@ -427,13 +414,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/data': {
-      id: '/data'
-      path: '/data'
-      fullPath: '/data'
-      preLoaderRoute: typeof DataRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -761,7 +741,6 @@ const FamilyDriveDriveIdRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   StorefrontRouteRoute: StorefrontRouteRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  DataRoute: DataRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   FamilyTokenRoute: FamilyTokenRouteWithChildren,

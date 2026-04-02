@@ -13,18 +13,6 @@ import {
   giftsFormDefaults,
 } from "@/lib/formSchemas";
 
-export type GiftSelection = {
-  giftUrl: string;
-  giftName: string;
-};
-
-export type ChildGiftSelections = {
-  childName: string;
-  gifts: Array<GiftSelection>;
-  backupGifts: Array<GiftSelection>;
-  verified: boolean;
-};
-
 // Central form state - organized by section
 export type FamilyFormState = {
   consentScreen?: ConsentFormData;

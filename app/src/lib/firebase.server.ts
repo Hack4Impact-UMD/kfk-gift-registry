@@ -50,8 +50,11 @@ type Database = {
 let auth: admin.auth.Auth | null = null;
 let db: Database | null = null;
 
-if (!admin.apps.length) {
+if (!admin.apps.length || admin.apps.length === 0) {
   admin.initializeApp();
+  admin.firestore().settings({
+    ignoreUndefinedProperties: true,
+  });
 }
 
 export const getServerAuth = createServerOnlyFn(() => {

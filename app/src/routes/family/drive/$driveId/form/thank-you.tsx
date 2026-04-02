@@ -15,7 +15,7 @@ function ThankYouComponent() {
   const { linkId } = Route.useSearch();
   return (
     <div className="flex flex-col gap-10 items-center justify-center text-center py-8">
-      <h2 className="text-2xl font-bold text-[var(--color-kfk-blue)]">
+      <h2 className="text-2xl font-bold text-kfk-blue">
         Thank you for submitting!
       </h2>
       <p className="text-gray-600 max-w-md">
@@ -23,7 +23,7 @@ function ThankYouComponent() {
         reviewed shortly.
       </p>
       <Button asChild>
-        <Link to={"/family/$token"} params={{ token: linkId }}>
+        <Link to={"/family/$token/home"} params={{ token: linkId }}>
           Go To Family Page
         </Link>
       </Button>

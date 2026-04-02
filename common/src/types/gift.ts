@@ -16,6 +16,7 @@ export interface Gift {
   status: GiftStatus;
   claimedByDonorId?: string;
   createdAt: string;
+  familyPublicNotes?: string;
   privateNotes?: string;
   backup: boolean;
   active: boolean;
