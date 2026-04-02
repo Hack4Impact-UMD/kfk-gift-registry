@@ -2,11 +2,37 @@ import { Link } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { Button } from "@/components/ui/button";
 import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Menu } from "lucide-react";
 
 export function StorefrontNavbar() {
   return (
-    <div className="px-8 border-b border-b-gray-300 pb-4">
-      <div className="px-4 flex items-center justify-between">
+    <div className="relative px-4 sm:px-8 border-b border-b-gray-300 pb-4">
+      {/* Mobile header row */}
+      <div className="flex sm:hidden flex-col items-start pt-4 pb-2 gap-3">
+        <Link to="/">
+          <img
+            src={KFKLogo}
+            alt="Kisses for Kyle"
+            className="max-w-[250px]"
+          />
+        </Link>
+
+        <Link
+          to="/"
+          className="border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-[250px] text-center"
+        >
+          2026 Gift Drive
+        </Link>
+
+        <SidebarTrigger 
+          className="bg-kfk-blue hover:bg-kfk-blue/90 text-white h-10 w-10 rounded-lg shrink-0" 
+          openIcon={<Menu size={24} />}
+        />
+      </div>
+
+      {/* Desktop header rows */}
+      <div className="hidden sm:flex px-4 items-center justify-between">
         <Link to="/">
           <img
             src={KFKLogo}
@@ -17,7 +43,7 @@ export function StorefrontNavbar() {
 
         <div className="flex items-center gap-3">
           <Link
-            to="/" // TEMP for "/tutorial"
+            to="/"
             className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline"
           >
             Storefront Tutorial
@@ -26,7 +52,7 @@ export function StorefrontNavbar() {
         </div>
       </div>
 
-      <div className="px-4 flex items-center justify-between">
+      <div className="hidden sm:flex px-4 items-center justify-between">
         <Link
           to="/"
           className="border border-kfk-red text-kfk-red py-1 px-20 rounded-sm font-gaegu"
@@ -40,13 +66,13 @@ export function StorefrontNavbar() {
           </Link>
 
           <Link
-            to="/" // TEMP for "/family/recover"
+            to="/"
           >
             <Button variant="default">Family Recovery Link</Button>
           </Link>
 
           <Link
-            to="/checkout" // TEMP for "/checkout"
+            to="/checkout"
           >
             <Button variant="default">
               Your Cart
