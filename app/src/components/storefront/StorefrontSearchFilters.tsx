@@ -1,4 +1,3 @@
-import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,12 +15,12 @@ import {
   MagnifyingGlassIcon,
 } from "@/components/icons";
 
-export type SortOption =
+export type StorefrontSortOption =
   | "age-asc"
   | "age-desc"
   | "gifts-asc"
   | "gifts-desc"
-  | undefined;
+  | "none";
 
 const sortLabel: Record<string, string> = {
   "age-asc": "Age: Youngest → Oldest",
@@ -30,24 +29,25 @@ const sortLabel: Record<string, string> = {
   "gifts-desc": "Gifts Fulfilled: Most → Least",
 };
 
-export function StorefrontSearchFilters() {
-  const navigate = useNavigate();
-  const search = useSearch({ from: "/_storefront/" });
-  const searchValue = search?.search ?? "";
-  const sortValue = search?.sort ?? "";
+type StorefrontSearchFiltersProps = {
+  searchValue: string;
+  onSearchChange: (value: string) => void;
+  sortValue: string;
+  onSortChange: (value: StorefrontSortOption) => void;
+};
 
+export function StorefrontSearchFilters({
+  searchValue,
+  onSearchChange,
+  onSortChange,
+  sortValue,
+}: StorefrontSearchFiltersProps) {
   const handleSearch = (value: string) => {
-    navigate({
-      to: "/",
-      search: (prev) => ({ ...prev, search: value || undefined }),
-    });
+    onSearchChange(value);
   };
 
-  const handleSort = (value: SortOption) => {
-    navigate({
-      to: "/",
-      search: (prev) => ({ ...prev, sort: value || undefined }),
-    });
+  const handleSort = (value: StorefrontSortOption) => {
+    onSortChange(value);
   };
 
   return (
@@ -68,7 +68,7 @@ export function StorefrontSearchFilters() {
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup
               value={sortValue}
-              onValueChange={(v) => handleSort(v as SortOption)}
+              onValueChange={(v) => handleSort(v as StorefrontSortOption)}
             >
               <DropdownMenuRadioItem value="age-asc">
                 Age: Youngest → Oldest
@@ -88,7 +88,7 @@ export function StorefrontSearchFilters() {
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => handleSort(undefined)}
+                  onClick={() => handleSort("none")}
                   className="text-muted-foreground"
                 >
                   Clear filter
