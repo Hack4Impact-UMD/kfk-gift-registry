@@ -6,21 +6,23 @@ export const CHILD_STATUS_VALUES = [
   "recently_diagnosed_relapse",
   "diagnosed_in_treatment_1yr+",
   "recently_off_treatment",
-  "off_treatment_1yr+",
+  "off_treatment_5yr+",
   "sibling_in_treatment",
   "bereaved_sibling",
+  "bereaved_sibling_5yr+",
 ] as const satisfies ReadonlyArray<ChildStatus>;
 
 export const CHILD_STATUS_LABELS: Record<ChildStatus, string> = {
   recently_diagnosed_relapse:
-    "Recently diagnosed or relapse with cancer (within 1 year)",
+    "Recently diagnosed or relapsed with cancer (within 1 year)",
   "diagnosed_in_treatment_1yr+":
     "Diagnosed and has been in treatment for more than 1 year",
-  recently_off_treatment: "Recently off treatment (within 1 year)",
-  "off_treatment_1yr+": "Off treatment (more than 1 year)",
+  recently_off_treatment: "Recently off treatment (up to 5 years)",
+  "off_treatment_5yr+": "Off treatment (more than 5 years)",
   sibling_in_treatment:
     "Sibling of child diagnosed with cancer (in or off treatment)",
-  bereaved_sibling: "Bereaved sibling",
+  bereaved_sibling: "Bereaved sibling (up to 5 years)",
+  "bereaved_sibling_5yr+": "Bereaved sibling for more than 5 years",
 };
 
 export const US_STATES = [
@@ -106,14 +108,20 @@ export const generalInfoSchema = z
       .email("Please enter a valid email address"),
     phoneNumber: z
       .string()
+      .trim()
+      .min(1, "Phone number is required")
       .regex(/^[\d\s\-()]+$/, "Please enter a valid phone number")
-      .optional()
-      .or(z.literal("")),
+      .refine((value) => value.replace(/\D/g, "").length >= 10, {
+        message: "Please enter a valid phone number",
+      }),
     phoneNumberConfirm: z
       .string()
+      .trim()
+      .min(1, "Phone number is required")
       .regex(/^[\d\s\-()]+$/, "Please enter a valid phone number")
-      .optional()
-      .or(z.literal("")),
+      .refine((value) => value.replace(/\D/g, "").length >= 10, {
+        message: "Please enter a valid phone number",
+      }),
     streetAddress: z
       .string()
       .min(1, "Street address is required")
@@ -246,6 +254,7 @@ const giftSchema = z
   .object({
     giftName: z.string(),
     giftUrl: z.string(),
+    familyPublicNotes: z.string().optional(),
   })
   .refine(
     (data) => {
@@ -260,24 +269,8 @@ const giftSchema = z
 
 export const childGiftSchema = z.object({
   childName: z.string(),
-  gifts: z.tuple([
-    z.object({
-      giftName: z.string().min(1, "Gift Name is required"),
-      giftUrl: z.string().url("Valid URL is required"),
-    }),
-    giftSchema,
-    giftSchema,
-  ]),
-  backupGifts: z.tuple([
-    z.object({
-      giftName: z.string().min(1, "Gift Name is required"),
-      giftUrl: z.string().url("Valid URL is required"),
-    }),
-    z.object({
-      giftName: z.string().min(1, "Gift Name is required"),
-      giftUrl: z.string().url("Valid URL is required"),
-    }),
-  ]),
+  gifts: z.tuple([giftSchema, giftSchema, giftSchema]),
+  backupGifts: z.tuple([giftSchema, giftSchema]),
   verified: z.boolean().refine((val) => val === true, {
     message: "You must agree the conditions",
   }),
@@ -303,3 +296,4 @@ export type GeneralInfoFormData = z.infer<typeof generalInfoSchema>;
 export type ChildInfo = z.infer<typeof childInfoSchema>;
 export type ChildrenFormData = z.infer<typeof childrenFormSchema>;
 export type GiftsFormData = z.infer<typeof giftsFormSchema>;
+export type ChildGiftSelections = z.infer<typeof childGiftSchema>;
