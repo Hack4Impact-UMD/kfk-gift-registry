@@ -51,7 +51,7 @@ export function StorefrontSearchFilters() {
   };
 
   return (
-    <div className="px-8 pb-3 flex items-center gap-3">
+    <div className="px-8 my-4 pb-3 flex items-center gap-3">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button

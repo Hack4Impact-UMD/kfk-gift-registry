@@ -26,7 +26,7 @@ export function CarouselCard({ sibling, className }: CarouselCardProps) {
 
   const badgeClass =
     sibling.category === "warrior"
-      ? "bg-kfk-yellow/15 text-kfk-yellow border-kfk-yellow/60"
+      ? "bg-kfk-muted-yellow/30 text-kfk-brown border-kfk-brown"
       : "bg-kfk-light-blue/80 text-kfk-blue border-kfk-blue/50";
 
   return (

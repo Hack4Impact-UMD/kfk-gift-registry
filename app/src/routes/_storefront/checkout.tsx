@@ -55,7 +55,7 @@ function CheckoutComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-kfk-blue py-8">
+    <div className="mx-16 my-8 rounded-lg bg-kfk-blue py-8">
       <div className="flex gap-8 px-8 max-w-full">
         {/* Left side - Cart */}
         <div className="w-[68%]">

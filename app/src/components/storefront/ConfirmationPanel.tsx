@@ -63,7 +63,7 @@ export function ConfirmationPanel({
         <Button
           onClick={onConfirm}
           disabled={!onConfirm || totalGifts === 0}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-normal py-2"
+          className="w-full rounded-full text-white font-normal py-2"
         >
           Commit to Gifts
         </Button>
