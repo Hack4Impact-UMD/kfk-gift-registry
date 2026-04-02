@@ -13,7 +13,9 @@ export const createCartColumns = (
     header: "Gift",
     cell: (info) => (
       <a
-        href={`/_storefront/child/${info.row.original.childId}`}
+        href={info.row.original.productUrl}
+        target="_blank"
+        rel="noopener noreferrer"
         className="font-medium text-black hover:underline cursor-pointer font-gaegu flex items-center gap-2"
       >
         {info.getValue()}
