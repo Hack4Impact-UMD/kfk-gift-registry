@@ -18,10 +18,9 @@ export function ConfirmationPanel({
     <div className={cn("", className)}>
       {/* Header */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Confirm Gifts</h2>
-        <p className="text-sm text-gray-500">
-          Please note that confirming these gifts means you are committing to
-          purchasing them
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Review Gifts</h2>
+        <p className="text-sm text-gray-700">
+          Please note that this step is a commitment to purchase the gifts, <b><u>NOT</u></b> the actual purchase.
         </p>
       </div>
 
@@ -62,7 +61,7 @@ export function ConfirmationPanel({
           disabled={!onConfirm || totalGifts === 0}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-normal py-2"
         >
-          Confirm Gifts
+          Commit to Gifts
         </Button>
       </div>
     </div>
