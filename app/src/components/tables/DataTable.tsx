@@ -105,12 +105,12 @@ export function DataTable<TData, TValue>({
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-gray-50/70">
+              <TableRow key={headerGroup.id} className="bg-white">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="font-semibold text-gray-600 text-sm"
+                      className="font-normal text-gray-900 text-sm border-b-2 border-black"
                     >
                       {header.isPlaceholder
                         ? null
@@ -157,11 +157,13 @@ export function DataTable<TData, TValue>({
       </div>
 
       <div className="flex items-center justify-between px-1">
-        <span className="text-sm text-gray-500">
-          {totalRows === 0
-            ? "No results"
-            : `Showing ${firstRow}-${lastRow} of ${totalRows}`}
-        </span>
+        {paginated && (
+          <span className="text-sm text-gray-500">
+            {totalRows === 0
+              ? "No results"
+              : `Showing ${firstRow}-${lastRow} of ${totalRows}`}
+          </span>
+        )}
 
         {paginated && pageCount > 1 && (
           <div className="flex items-center gap-1">
