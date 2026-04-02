@@ -178,14 +178,16 @@ function App() {
 
   return (
     <div className="space-y-6">
-      <StorefrontSearchFilters />
-      <GiftDriveStats
-        days={22}
-        giftsPurchased={876}
-        totalGiftsPurchased={1212}
-        giftsReceived={165}
-        totalDonated={87}
-      />
+      <div>
+        <StorefrontSearchFilters />
+        <GiftDriveStats
+          days={22}
+          giftsPurchased={876}
+          totalGiftsPurchased={1212}
+          giftsReceived={165}
+          totalDonated={87}
+        />
+      </div>
 
       <div className="py-4 px-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
