@@ -9,6 +9,7 @@ import type { CarouselApi } from "@/components/ui/carousel";
 import { CarouselCard } from "./CarouselCards";
 import type { CarouselCardSibling } from "./CarouselCards";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 type SiblingsCarouselProps = {
   siblings: Array<CarouselCardSibling>;
@@ -18,6 +19,8 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -25,15 +28,22 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
     const onSelect = () => {
       setCanScrollPrev(carouselApi.canScrollPrev());
       setCanScrollNext(carouselApi.canScrollNext());
+      setCurrentIndex(carouselApi.selectedScrollSnap());
     };
+
+    setScrollSnaps(carouselApi.scrollSnapList());
     onSelect();
+
     carouselApi.on("select", onSelect);
-    carouselApi.on("reInit", onSelect);
-    return () => {
-      carouselApi.off("select", onSelect);
-      carouselApi.off("reInit", onSelect);
-    };
-  }, [carouselApi]);
+    carouselApi.on("reInit", () => {
+      setScrollSnaps(carouselApi.scrollSnapList());
+      onSelect();
+    });
+
+  return () => {
+    carouselApi.off("select", onSelect);
+  };
+}, [carouselApi]);
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -77,19 +87,20 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
   };
 
   return (
-    <div className="flex w-full items-center gap-1 sm:gap-2 md:gap-4">
-      <button
+    <div className="flex flex-col sm:flex-row w-full items-center gap-1 sm:gap-2 md:gap-4">
+      <Button
         type="button"
+        variant="ghost"
         aria-label="Previous siblings"
         disabled={!canScrollPrev}
         onClick={() => carouselApi?.scrollPrev()}
         className={cn(
-          "shrink-0 cursor-pointer rounded-md p-1 text-black",
+          "hidden sm:block shrink-0 cursor-pointer rounded-md p-1 text-black",
           "disabled:pointer-events-none disabled:cursor-default",
         )}
       >
         <ChevronLeft {...chevronIconProps} />
-      </button>
+      </Button>
 
       <div className="min-w-0 flex-1">
         <Carousel
@@ -110,18 +121,33 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
         </Carousel>
       </div>
 
-      <button
+      <Button
         type="button"
+        variant="ghost"
         aria-label="Next siblings"
         disabled={!canScrollNext}
         onClick={() => carouselApi?.scrollNext()}
         className={cn(
-          "shrink-0 cursor-pointer rounded-md p-1 text-black",
+          "hidden sm:block shrink-0 cursor-pointer rounded-md p-1 text-black",
           "disabled:pointer-events-none disabled:cursor-default",
         )}
       >
         <ChevronRight {...chevronIconProps} />
-      </button>
+      </Button>
+      <div className="flex justify-center gap-2 mt-4 sm:hidden">
+        {scrollSnaps.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => carouselApi?.scrollTo(index)}
+            className={cn(
+              "h-2 w-2 rounded-full transition-all",
+              index === currentIndex
+                ? "bg-gray-800 w-3"
+                : "bg-gray-300"
+            )}
+          />
+        ))}
+      </div>
     </div>
   );
 }

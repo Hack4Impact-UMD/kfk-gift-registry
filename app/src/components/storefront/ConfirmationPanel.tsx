@@ -17,7 +17,7 @@ export function ConfirmationPanel({
   return (
     <div className={cn("", className)}>
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Review Gifts</h2>
         <p className="text-sm text-gray-700">
           Please note that this step is a commitment to purchase the gifts,{" "}

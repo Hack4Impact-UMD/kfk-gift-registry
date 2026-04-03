@@ -60,12 +60,7 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
           return (
             <div
               key={gift.id}
-              className={cn(
-                "rounded-md p-4 bg-card transition-colors",
-                isClaimed
-                  ? "bg-green-50"
-                  : "hover:bg-gray-50/60"
-              )}
+              className="rounded-md p-4 bg-card transition-colors"
             >
               <div className="text-sm text-foreground mb-1">
                 Gift #{index + 1}

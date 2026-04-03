@@ -55,11 +55,11 @@ function CheckoutComponent() {
   }
 
   return (
-    <div className="mx-16 my-8 rounded-lg bg-kfk-blue py-8">
-      <div className="flex gap-8 px-8 max-w-full">
+    <div className="m-4 md:mx-16 md:my-8 rounded-lg bg-kfk-blue py-8">
+      <div className="flex flex-col md:flex-row gap-8 px-8 max-w-full">
         {/* Left side - Cart */}
-        <div className="w-[68%]">
-          <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="md:w-[68%]">
+          <div className="bg-white rounded-lg shadow-lg p-4 md:p-8">
             <CartContainer
               cartData={cartData}
               onRemoveGift={handleRemoveGift}

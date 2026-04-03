@@ -190,6 +190,7 @@ const MOCK_SIBLINGS: Record<string, Array<CarouselCardSibling>> = {
 function RouteComponent() {
   const { childId } = Route.useParams();
   const child = MOCK_CHILDREN[childId];
+  const firstName = child.name.trim().split(" ")[0] || child.name;
   const siblings = MOCK_SIBLINGS[childId] ?? MOCK_SIBLINGS["1"] ?? [];
 
   if (!child) {
@@ -221,9 +222,9 @@ function RouteComponent() {
 
               <div className="w-full md:max-w-none md:flex-[2] md:min-w-0">
                 <Card className="w-full h-full">
-                  <CardHeader className="py-3 sm:py-6">
-                    <CardTitle className="text-xl sm:text-3xl text-center font-gaegu">
-                      {child.name}'s Wish List
+                  <CardHeader className="py-2 sm:py-6">
+                    <CardTitle className="text-2xl sm:text-3xl text-center font-gaegu">
+                      {firstName}'s Wish List
                     </CardTitle>
                     <CardDescription className="font-gaegu text-center text-muted-foreground md:text-lg">
                       Please check links before claiming as prices may change
@@ -242,7 +243,7 @@ function RouteComponent() {
       <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-8 font-gaegu">
-            {child.name}'s Siblings
+            {firstName}'s Siblings
           </h2>
           <SiblingsCarousel siblings={siblings} />
         </div>

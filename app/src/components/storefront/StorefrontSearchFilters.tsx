@@ -120,7 +120,7 @@ export function StorefrontSearchFilters() {
   return (
     <>
       {/* Desktop layout */}
-      <div className="hidden sm:flex px-8 pb-3 items-center gap-3">
+      <div className="hidden sm:flex px-8 py-3 items-center gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -140,13 +140,13 @@ export function StorefrontSearchFilters() {
           <SearchInput
             searchValue={searchValue}
             handleSearch={handleSearch}
-            className="pl-9 border-sidebar-ring"
+            className="pl-9 border-sidebar-ring max-w-[454px]"
           />
         </div>
       </div>
 
       {/* Mobile layout */}
-      <div className="flex sm:hidden px-4 pb-3 items-center gap-2">
+      <div className="flex sm:hidden px-4 py-3 items-center gap-2">
         <div className="relative flex-1">
           <SearchInput
             searchValue={searchValue}
