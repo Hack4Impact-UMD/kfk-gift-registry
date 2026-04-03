@@ -8,9 +8,11 @@ const familyPrivateNotes = [
   "Intake notes indicate the family may need an updated contact confirmation.",
 ] as const;
 
+type ReviewerIds = readonly [string, ...Array<string>];
+
 export function generateFamily(
   giftDriveId: string,
-  reviewerIds: ReadonlyArray<string>,
+  reviewerIds: ReviewerIds,
 ): Family {
   const createdAt = faker.date.recent({ days: 45 }).toISOString();
   const approved = faker.datatype.boolean({ probability: 0.72 });

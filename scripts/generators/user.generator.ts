@@ -5,6 +5,10 @@ type GenerateUserOverrides = Partial<
   Pick<UserProfile, "id" | "email" | "name" | "phone" | "enabled">
 >;
 
+function generateE164PhoneNumber() {
+  return `+1${faker.string.numeric(10)}`;
+}
+
 export function generateUser(
   role: UserProfile["role"],
   overrides: GenerateUserOverrides = {},
@@ -17,7 +21,7 @@ export function generateUser(
     phone:
       overrides.phone ??
       (faker.datatype.boolean({ probability: 0.7 })
-        ? faker.phone.number()
+        ? generateE164PhoneNumber()
         : undefined),
     createdAt: new Date().toISOString(),
     enabled: overrides.enabled ?? true,

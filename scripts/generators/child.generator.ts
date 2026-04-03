@@ -2,18 +2,25 @@ import { faker } from "@faker-js/faker";
 import { v7 as uuidv7 } from "uuid";
 import type { Child, ChildStatus } from "../../common/src/index.ts";
 
+type WarriorStatus = Exclude<
+  ChildStatus,
+  "sibling_in_treatment" | "bereaved_sibling" | "bereaved_sibling_5yr+"
+>;
+type SiblingStatus = Exclude<ChildStatus, WarriorStatus>;
+type ChildTimePeriod = NonNullable<Child["diagnosisLengthYears"]>;
+
 const warriorStatuses = [
   "recently_diagnosed_relapse",
   "diagnosed_in_treatment_1yr+",
   "recently_off_treatment",
   "off_treatment_5yr+",
-] as const satisfies ReadonlyArray<ChildStatus>;
+] as const satisfies ReadonlyArray<WarriorStatus>;
 
 const siblingStatuses = [
   "sibling_in_treatment",
   "bereaved_sibling",
   "bereaved_sibling_5yr+",
-] as const satisfies ReadonlyArray<ChildStatus>;
+] as const satisfies ReadonlyArray<SiblingStatus>;
 
 const diagnoses = [
   "Leukemia",
@@ -32,7 +39,15 @@ const hospitals = [
   "Cooper University Hospital",
 ] as const;
 
-const timePeriods = ["<6m", "6m-1y", "1-2y", "3-4y", "5+y"] as const;
+const recentTimePeriods = [
+  "<6m",
+  "6m-1y",
+] as const satisfies ReadonlyArray<ChildTimePeriod>;
+const extendedTimePeriods = [
+  "1-2y",
+  "3-4y",
+  "5+y",
+] as const satisfies ReadonlyArray<ChildTimePeriod>;
 
 const warriorBlurbs = [
   "Loves building sets, art projects, and movie nights.",
@@ -54,11 +69,52 @@ const staffPrivateNotes = [
   "Staff requested one more verification step before this child is published.",
 ] as const;
 
-export function generateChild(
-  familyId: string,
-  giftDriveId: string,
+type GenerateChildOptions = {
+  familyId: string;
+  giftDriveId: string;
+  allowPublishing?: boolean;
+  createdAfter?: Date;
+};
+
+function getLifecycleFields(
+  status: ChildStatus,
+): Pick<Child, "diagnosisLengthYears" | "offTreatmentDurationYears"> {
+  switch (status) {
+    case "recently_diagnosed_relapse":
+      return {
+        diagnosisLengthYears: faker.helpers.arrayElement(recentTimePeriods),
+        offTreatmentDurationYears: undefined,
+      };
+    case "diagnosed_in_treatment_1yr+":
+      return {
+        diagnosisLengthYears: faker.helpers.arrayElement(extendedTimePeriods),
+        offTreatmentDurationYears: undefined,
+      };
+    case "recently_off_treatment":
+      return {
+        diagnosisLengthYears: undefined,
+        offTreatmentDurationYears:
+          faker.helpers.arrayElement(recentTimePeriods),
+      };
+    case "off_treatment_5yr+":
+      return {
+        diagnosisLengthYears: undefined,
+        offTreatmentDurationYears: "5+y",
+      };
+    default:
+      return {
+        diagnosisLengthYears: undefined,
+        offTreatmentDurationYears: undefined,
+      };
+  }
+}
+
+export function generateChild({
+  familyId,
+  giftDriveId,
   allowPublishing = true,
-): Child {
+  createdAfter,
+}: GenerateChildOptions): Child {
   const category = faker.helpers.weightedArrayElement([
     { value: "warrior" as const, weight: 4 },
     { value: "super_sib" as const, weight: 1 },
@@ -67,13 +123,20 @@ export function generateChild(
     category === "warrior"
       ? faker.helpers.arrayElement(warriorStatuses)
       : faker.helpers.arrayElement(siblingStatuses);
-  const createdAt = faker.date.recent({ days: 30 }).toISOString();
+  const createdAt = (
+    createdAfter
+      ? faker.date.between({ from: createdAfter, to: new Date() })
+      : faker.date.recent({ days: 30 })
+  ).toISOString();
   const published =
     allowPublishing && faker.datatype.boolean({ probability: 0.75 });
+  const lifecycleFields = getLifecycleFields(status);
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.lastName();
 
   return {
     id: uuidv7(),
-    name: faker.person.firstName(),
+    name: `${firstName} ${lastName}`,
     status,
     category,
     treatmentLevel:
@@ -85,20 +148,8 @@ export function generateChild(
       category === "super_sib"
         ? "Sibling support case"
         : faker.helpers.arrayElement(diagnoses),
-    diagnosisLengthYears:
-      status === "recently_diagnosed_relapse"
-        ? faker.helpers.arrayElement(timePeriods.slice(0, 2))
-        : status === "diagnosed_in_treatment_1yr+"
-          ? faker.helpers.arrayElement(timePeriods.slice(2))
-          : undefined,
-    offTreatmentDurationYears:
-      status === "recently_off_treatment"
-        ? faker.helpers.arrayElement(timePeriods.slice(0, 2))
-        : status === "off_treatment_5yr+"
-          ? "5+y"
-          : status === "bereaved_sibling_5yr+"
-            ? faker.helpers.arrayElement(["3-4y", "5+y"] as const)
-            : undefined,
+    diagnosisLengthYears: lifecycleFields.diagnosisLengthYears,
+    offTreatmentDurationYears: lifecycleFields.offTreatmentDurationYears,
     livesAtHome: true,
     publicBlurb: faker.datatype.boolean({ probability: 0.8 })
       ? category === "warrior"

@@ -1,9 +1,9 @@
-import { faker } from "@faker-js/faker";
+import { randomBytes } from "node:crypto";
 import type { FamilyLink } from "../../common/src/index.ts";
 
 export function generateFamilyLink(familyId: string): FamilyLink {
   return {
-    id: faker.string.alphanumeric(22),
+    id: randomBytes(16).toString("base64url"),
     familyId,
     active: true,
   };
