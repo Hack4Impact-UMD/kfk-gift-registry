@@ -9,7 +9,7 @@ export function StorefrontNavbar() {
   return (
     <div className="relative px-4 sm:px-8 border-b border-b-gray-300 pb-4">
       {/* Mobile header row */}
-      <div className="flex sm:hidden flex-col items-start pt-4 pb-2 gap-3">
+      <div className="flex md:hidden flex-col items-start pt-4 pb-2 gap-3">
         <Link to="/">
           <img
             src={KFKLogo}
@@ -32,7 +32,7 @@ export function StorefrontNavbar() {
       </div>
 
       {/* Desktop header rows */}
-      <div className="hidden sm:flex px-4 items-center justify-between">
+      <div className="hidden md:flex px-4 items-center justify-between">
         <Link to="/">
           <img
             src={KFKLogo}
@@ -52,7 +52,7 @@ export function StorefrontNavbar() {
         </div>
       </div>
 
-      <div className="hidden sm:flex px-4 items-center justify-between">
+      <div className="hidden md:flex px-4 items-center justify-between">
         <Link
           to="/"
           className="border border-kfk-red text-kfk-red py-1 px-20 rounded-sm font-gaegu"
