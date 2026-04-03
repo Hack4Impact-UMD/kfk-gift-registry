@@ -24,6 +24,8 @@ type Args = {
   seed: number;
 };
 
+type NonEmptyArray<T> = [T, ...Array<T>];
+
 const defaults: Args = {
   families: 5,
   children: 2,
@@ -89,6 +91,14 @@ function pickGiftStatus(): GiftStatus {
   ]);
 }
 
+function toNonEmptyArray<T>(values: Array<T>, label: string): NonEmptyArray<T> {
+  if (values.length === 0) {
+    throw new Error(`${label} must contain at least one value`);
+  }
+
+  return values as NonEmptyArray<T>;
+}
+
 function main() {
   const { families, children, gifts, seed } = parseArgs();
 
@@ -142,12 +152,18 @@ function main() {
       enabled: false,
     }),
   ];
-  const reviewerIds = usersData
-    .filter((user) => user.role !== UserRole.DONOR && user.enabled)
-    .map((user) => user.id);
-  const donorIds = usersData
-    .filter((user) => user.role === UserRole.DONOR && user.enabled)
-    .map((user) => user.id);
+  const reviewerIds = toNonEmptyArray(
+    usersData
+      .filter((user) => user.role !== UserRole.DONOR && user.enabled)
+      .map((user) => user.id),
+    "reviewerIds",
+  );
+  const donorIds = toNonEmptyArray(
+    usersData
+      .filter((user) => user.role === UserRole.DONOR && user.enabled)
+      .map((user) => user.id),
+    "donorIds",
+  );
   const familiesData: Array<Family> = [];
   const familyLinksData: Array<FamilyLink> = [];
   const childrenData: Array<Child> = [];
@@ -164,7 +180,12 @@ function main() {
       family.reviewStatus.approved && !family.reviewStatus.held;
 
     for (let childIndex = 0; childIndex < children; childIndex += 1) {
-      const child = generateChild(family.id, giftDrive.id, allowPublishing);
+      const child = generateChild({
+        familyId: family.id,
+        giftDriveId: giftDrive.id,
+        allowPublishing,
+        createdAfter: new Date(family.createdAt),
+      });
       childrenData.push(child);
 
       if (faker.datatype.boolean({ probability: 0.1 })) {
@@ -173,25 +194,49 @@ function main() {
 
       for (let giftIndex = 0; giftIndex < gifts; giftIndex += 1) {
         const status = pickGiftStatus();
-        const donorId =
-          status === "AVAILABLE"
-            ? undefined
-            : faker.helpers.arrayElement(donorIds);
+        const backup = faker.datatype.boolean({ probability: 0.2 });
+        const active =
+          child.published && faker.datatype.boolean({ probability: 0.9 });
+
+        if (status === "AVAILABLE") {
+          giftsData.push(
+            generateGift({
+              childId: child.id,
+              familyId: family.id,
+              giftDriveId: giftDrive.id,
+              status,
+              backup,
+              active,
+              createdAfter: new Date(child.createdAt),
+            }),
+          );
+          continue;
+        }
+
+        const donorId = faker.helpers.arrayElement(donorIds);
         const gift = generateGift({
           childId: child.id,
           familyId: family.id,
           giftDriveId: giftDrive.id,
           status,
           donorId,
-          backup: faker.datatype.boolean({ probability: 0.2 }),
-          active:
-            child.published && faker.datatype.boolean({ probability: 0.9 }),
+          backup,
+          active,
+          createdAfter: new Date(child.createdAt),
         });
 
         giftsData.push(gift);
 
-        if (status !== "AVAILABLE" && donorId) {
-          claimsData.push(generateClaim(gift.id, child.id, donorId, status));
+        if (donorId) {
+          claimsData.push(
+            generateClaim({
+              giftId: gift.id,
+              childId: child.id,
+              donorId,
+              giftStatus: status,
+              createdAfter: new Date(gift.createdAt),
+            }),
+          );
         }
       }
     }
