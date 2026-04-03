@@ -3,14 +3,12 @@ import { getCookies, setCookie } from "@tanstack/react-start/server";
 import z from "zod";
 import { Duration } from "luxon";
 import { UserRole } from "common";
-import type { UserRecord } from "firebase-admin/auth";
 import { getServerAuth } from "@/lib/firebase.server";
 
 export type AuthUser = {
   uid: string;
   displayName: string | undefined;
   phone: string | undefined;
-  disabled: boolean;
   email: string | undefined;
   emailVerified: boolean;
   role: UserRole;
@@ -30,16 +28,6 @@ export type AuthContextNotAuthenticated = {
   authUser: null;
 };
 
-const toAuthUser = (user: UserRecord): AuthUser => ({
-  uid: user.uid,
-  displayName: user.displayName,
-  disabled: user.disabled,
-  email: user.email,
-  emailVerified: user.emailVerified,
-  role: user.customClaims?.role ?? UserRole.DONOR,
-  phone: user.phoneNumber,
-});
-
 const loginSchema = z.object({
   token: z.string().nonempty(),
 });
@@ -58,9 +46,15 @@ export const verifySession = createServerFn({
     const auth = getServerAuth();
 
     const result = await auth.verifySessionCookie(sessionCookie, true);
-    const user = await auth.getUser(result.uid);
 
-    return toAuthUser(user);
+    return {
+      uid: result.uid,
+      displayName: result.name,
+      phone: result.phone_number,
+      email: result.email,
+      emailVerified: result.email_verified ?? false,
+      role: (result["role"] as UserRole) ?? UserRole.DONOR,
+    };
   } catch (err) {
     console.warn("Session verification failed! ");
     return null;
@@ -97,13 +91,19 @@ export const loginWithToken = createServerFn({
     try {
       const auth = getServerAuth();
       const result = await auth.verifyIdToken(token);
-      const user = await auth.getUser(result.uid);
 
       await createSession({
         data: { token },
       });
 
-      return toAuthUser(user);
+      return {
+        uid: result.uid,
+        displayName: result.name,
+        phone: result.phone_number,
+        email: result.email,
+        emailVerified: result.email_verified ?? false,
+        role: (result["role"] as UserRole) ?? UserRole.DONOR,
+      };
     } catch (err) {
       console.error("Login failed");
       console.error(err);
