@@ -11,11 +11,7 @@ export function StorefrontNavbar() {
       {/* Mobile header row */}
       <div className="flex md:hidden flex-col items-start pt-4 pb-2 gap-3">
         <Link to="/">
-          <img
-            src={KFKLogo}
-            alt="Kisses for Kyle"
-            className="max-w-[250px]"
-          />
+          <img src={KFKLogo} alt="Kisses for Kyle" className="max-w-[250px]" />
         </Link>
 
         <Link
@@ -25,8 +21,8 @@ export function StorefrontNavbar() {
           2026 Gift Drive
         </Link>
 
-        <SidebarTrigger 
-          className="bg-kfk-blue hover:bg-kfk-blue/90 text-white h-10 w-10 rounded-lg shrink-0" 
+        <SidebarTrigger
+          className="bg-kfk-blue hover:bg-kfk-blue/90 text-white h-10 w-10 rounded-lg shrink-0"
           openIcon={<Menu size={24} />}
         />
       </div>
@@ -65,15 +61,11 @@ export function StorefrontNavbar() {
             <Button variant="default">Staff/Donor Log-in</Button>
           </Link>
 
-          <Link
-            to="/"
-          >
+          <Link to="/">
             <Button variant="default">Family Recovery Link</Button>
           </Link>
 
-          <Link
-            to="/checkout"
-          >
+          <Link to="/checkout">
             <Button variant="default">
               Your Cart
               <ShoppingCartIcon />

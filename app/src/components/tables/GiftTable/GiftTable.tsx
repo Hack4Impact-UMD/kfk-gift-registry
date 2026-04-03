@@ -67,9 +67,7 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
               </div>
 
               <div className="text-kfk-red font-medium text-sm mb-1">
-                {gift.listedPrice
-                  ? `$${gift.listedPrice.toFixed(2)}`
-                  : "N/A"}
+                {gift.listedPrice ? `$${gift.listedPrice.toFixed(2)}` : "N/A"}
               </div>
               <a
                 href={gift.productUrl}
@@ -83,11 +81,11 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
               <Button
                 onClick={() => handleClaimGift(gift.id)}
                 disabled={isClaimed}
-                className={ `rounded-full w-full ${
+                className={`rounded-full w-full ${
                   isClaimed
                     ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white h-auto whitespace-nowrap"
-                    : "h-auto whitespace-nowrap"}`
-                }
+                    : "h-auto whitespace-nowrap"
+                }`}
               >
                 {isClaimed ? "Gift Claimed!" : "Claim Gift!"}
               </Button>

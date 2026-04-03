@@ -20,7 +20,7 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+  const [scrollSnaps, setScrollSnaps] = useState<Array<number>>([]);
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -28,22 +28,19 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
     const onSelect = () => {
       setCanScrollPrev(carouselApi.canScrollPrev());
       setCanScrollNext(carouselApi.canScrollNext());
-      setCurrentIndex(carouselApi.selectedScrollSnap());
+      setScrollSnaps(carouselApi.scrollSnapList()); // ✅ move here
     };
 
-    setScrollSnaps(carouselApi.scrollSnapList());
     onSelect();
 
     carouselApi.on("select", onSelect);
-    carouselApi.on("reInit", () => {
-      setScrollSnaps(carouselApi.scrollSnapList());
-      onSelect();
-    });
+    carouselApi.on("reInit", onSelect);
 
-  return () => {
-    carouselApi.off("select", onSelect);
-  };
-}, [carouselApi]);
+    return () => {
+      carouselApi.off("select", onSelect);
+      carouselApi.off("reInit", onSelect);
+    };
+  }, [carouselApi]);
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -141,9 +138,7 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
             onClick={() => carouselApi?.scrollTo(index)}
             className={cn(
               "h-2 w-2 rounded-full transition-all",
-              index === currentIndex
-                ? "bg-gray-800 w-3"
-                : "bg-gray-300"
+              index === currentIndex ? "bg-gray-800 w-3" : "bg-gray-300",
             )}
           />
         ))}

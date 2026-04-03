@@ -2,7 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ChildInfoCard } from "@/components/storefront/ChildInfoCard";
 import type { CarouselCardSibling } from "@/components/storefront/CarouselCards";
 import { SiblingsCarousel } from "@/components/storefront/SiblingsCarousel";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import type { StorefrontChild } from "@/types/storefront";
 import { GiftTable } from "@/components/tables/GiftTable/GiftTable";
 import redStripedBackground from "@/assets/red-striped-background.png";

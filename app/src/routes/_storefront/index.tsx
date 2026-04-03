@@ -102,7 +102,7 @@ const mockFamilies: Array<Family> = [
 // Mock children per family
 const mockChildrenFull: Array<Child> = mockFamilies.flatMap((family) =>
   Array.from({ length: 5 }, (_, i) => ({
-    id: '1',
+    id: "1",
     name: `Ryan Peirce`,
     status: "recently_off_treatment",
     category: i % 5 === 0 ? "warrior" : "super_sib",

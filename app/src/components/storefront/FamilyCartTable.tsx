@@ -33,16 +33,22 @@ export function FamilyCartTable({
       {/* Mobile View */}
       <div className="flex flex-col gap-6 md:hidden">
         {Object.values(
-          family.gifts.reduce((acc, gift) => {
-            if (!acc[gift.childId]) {
-              acc[gift.childId] = {
-                childName: gift.childName,
-                gifts: [],
-              };
-            }
-            acc[gift.childId].gifts.push(gift);
-            return acc;
-          }, {} as Record<string, { childName: string; gifts: typeof family.gifts }>)
+          family.gifts.reduce(
+            (acc, gift) => {
+              if (!acc[gift.childId]) {
+                acc[gift.childId] = {
+                  childName: gift.childName,
+                  gifts: [],
+                };
+              }
+              acc[gift.childId].gifts.push(gift);
+              return acc;
+            },
+            {} as Record<
+              string,
+              { childName: string; gifts: typeof family.gifts }
+            >,
+          ),
         ).map((childGroup) => (
           <div key={childGroup.childName} className="flex flex-col gap-2">
             <h4 className="text-md font-semibold font-gaegu text-foreground">
@@ -50,10 +56,7 @@ export function FamilyCartTable({
             </h4>
 
             {childGroup.gifts.map((gift, index) => (
-              <div
-                key={gift.id}
-                className="p-2 bg-card flex flex-col gap-2"
-              >
+              <div key={gift.id} className="p-2 bg-card flex flex-col gap-2">
                 <span className="text-sm text-muted-foreground">
                   Gift #{index + 1}
                 </span>

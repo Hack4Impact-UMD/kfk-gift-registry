@@ -164,13 +164,19 @@ export function StorefrontSearchFilters() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
-              <FilterMenuContent sortValue={sortValue} handleSort={handleSort} />
+              <FilterMenuContent
+                sortValue={sortValue}
+                handleSort={handleSort}
+              />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
         <Link to="/checkout" className="shrink-0">
-          <Button className="h-10 w-10 bg-kfk-blue hover:bg-kfk-blue/90 text-white" size="icon">
+          <Button
+            className="h-10 w-10 bg-kfk-blue hover:bg-kfk-blue/90 text-white"
+            size="icon"
+          >
             <ShoppingCartIcon className="h-5 w-5" />
           </Button>
         </Link>
