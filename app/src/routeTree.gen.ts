@@ -16,6 +16,7 @@ import { Route as StorefrontRouteRouteImport } from './routes/_storefront/route'
 import { Route as StorefrontIndexRouteImport } from './routes/_storefront/index'
 import { Route as SignupSuccessRouteImport } from './routes/signup/success'
 import { Route as FamilyTokenRouteImport } from './routes/family/$token'
+import { Route as StorefrontCheckoutRouteImport } from './routes/_storefront/checkout'
 import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
 import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
 import { Route as AuthenticatedDonorRouteRouteImport } from './routes/_authenticated/donor/route'
@@ -71,6 +72,11 @@ const FamilyTokenRoute = FamilyTokenRouteImport.update({
   id: '/family/$token',
   path: '/family/$token',
   getParentRoute: () => rootRouteImport,
+} as any)
+const StorefrontCheckoutRoute = StorefrontCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => StorefrontRouteRoute,
 } as any)
 const AuthenticatedHelloRoute = AuthenticatedHelloRouteImport.update({
   id: '/hello',
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/donor': typeof AuthenticatedDonorRouteRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
+  '/checkout': typeof StorefrontCheckoutRoute
   '/family/$token': typeof FamilyTokenRouteWithChildren
   '/signup/success': typeof SignupSuccessRoute
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
@@ -231,6 +238,7 @@ export interface FileRoutesByTo {
   '/donor': typeof AuthenticatedDonorRouteRoute
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/hello': typeof AuthenticatedHelloRoute
+  '/checkout': typeof StorefrontCheckoutRoute
   '/family/$token': typeof FamilyTokenRouteWithChildren
   '/signup/success': typeof SignupSuccessRoute
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
@@ -262,6 +270,7 @@ export interface FileRoutesById {
   '/_authenticated/donor': typeof AuthenticatedDonorRouteRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/_authenticated/hello': typeof AuthenticatedHelloRoute
+  '/_storefront/checkout': typeof StorefrontCheckoutRoute
   '/family/$token': typeof FamilyTokenRouteWithChildren
   '/signup/success': typeof SignupSuccessRoute
   '/_storefront/': typeof StorefrontIndexRoute
@@ -294,6 +303,7 @@ export interface FileRouteTypes {
     | '/donor'
     | '/staff'
     | '/hello'
+    | '/checkout'
     | '/family/$token'
     | '/signup/success'
     | '/staff/admin'
@@ -323,6 +333,7 @@ export interface FileRouteTypes {
     | '/donor'
     | '/staff'
     | '/hello'
+    | '/checkout'
     | '/family/$token'
     | '/signup/success'
     | '/staff/admin'
@@ -353,6 +364,7 @@ export interface FileRouteTypes {
     | '/_authenticated/donor'
     | '/_authenticated/staff'
     | '/_authenticated/hello'
+    | '/_storefront/checkout'
     | '/family/$token'
     | '/signup/success'
     | '/_storefront/'
@@ -438,6 +450,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/family/$token'
       preLoaderRoute: typeof FamilyTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_storefront/checkout': {
+      id: '/_storefront/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof StorefrontCheckoutRouteImport
+      parentRoute: typeof StorefrontRouteRoute
     }
     '/_authenticated/hello': {
       id: '/_authenticated/hello'
@@ -597,11 +616,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface StorefrontRouteRouteChildren {
+  StorefrontCheckoutRoute: typeof StorefrontCheckoutRoute
   StorefrontIndexRoute: typeof StorefrontIndexRoute
   StorefrontChildChildIdRoute: typeof StorefrontChildChildIdRoute
 }
 
 const StorefrontRouteRouteChildren: StorefrontRouteRouteChildren = {
+  StorefrontCheckoutRoute: StorefrontCheckoutRoute,
   StorefrontIndexRoute: StorefrontIndexRoute,
   StorefrontChildChildIdRoute: StorefrontChildChildIdRoute,
 }
