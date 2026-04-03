@@ -18,6 +18,12 @@ type GenerateClaimOptions = {
   createdAfter?: Date;
 };
 
+function betweenOrNow(from: Date, to: Date) {
+  return from.getTime() >= to.getTime()
+    ? new Date(to)
+    : faker.date.between({ from, to });
+}
+
 export function generateClaim({
   giftId,
   childId,
@@ -26,27 +32,27 @@ export function generateClaim({
   createdAfter,
 }: GenerateClaimOptions): Claim {
   const id = uuidv7();
+  const now = new Date();
   const claimedAt = createdAfter
-    ? faker.date.between({ from: createdAfter, to: new Date() })
-    : faker.date.recent({ days: 14 });
+    ? betweenOrNow(createdAfter, now)
+    : faker.date.recent({ days: 14, refDate: now });
   const purchaseDate =
     giftStatus === "PURCHASED" ||
     giftStatus === "DELIVERED" ||
     giftStatus === "RECEIVED"
-      ? faker.date.soon({ days: 3, refDate: claimedAt })
+      ? betweenOrNow(claimedAt, now)
       : undefined;
   const expectedDeliveryDate =
     giftStatus === "CLAIMED"
       ? faker.date.soon({ days: 10, refDate: claimedAt })
-      : purchaseDate
+      : giftStatus === "PURCHASED" && purchaseDate
         ? faker.date.soon({ days: 7, refDate: purchaseDate })
-        : undefined;
+        : purchaseDate
+          ? betweenOrNow(purchaseDate, now)
+          : undefined;
   const deliveryDate =
     giftStatus === "DELIVERED" || giftStatus === "RECEIVED"
-      ? faker.date.soon({
-          days: 3,
-          refDate: expectedDeliveryDate ?? purchaseDate ?? claimedAt,
-        })
+      ? betweenOrNow(expectedDeliveryDate ?? purchaseDate ?? claimedAt, now)
       : undefined;
 
   return {

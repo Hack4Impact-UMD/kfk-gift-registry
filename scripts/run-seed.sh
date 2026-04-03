@@ -23,6 +23,30 @@ require_command flame
 require_command jq
 require_command pnpm
 
+remove_collection() {
+  local collection="$1"
+  local output
+
+  if output=$(flame rm "${collection}" --force 2>&1); then
+    return 0
+  fi
+
+  if [[ "${output}" == *"not found"* ]] || [[ "${output}" == *"does not exist"* ]] || [[ "${output}" == *"No documents"* ]]; then
+    return 0
+  fi
+
+  printf '%s\n' "${output}" >&2
+  return 1
+}
+
+upload_collection() {
+  local json_key="$1"
+  local collection="$2"
+
+  jq -e ".${json_key} | if type == \"array\" then . else error(\"Expected ${json_key} to be an array\") end" "${SEED_FILE}" \
+    | flame up "${collection}" --idField="id"
+}
+
 cd "${REPO_ROOT}"
 
 echo "Using flame emulator target..."
@@ -30,20 +54,20 @@ flame use emulator
 
 echo "Cleaning existing generated data..."
 for collection in claims gifts children family-links families invites users gift-drives; do
-  flame rm "${collection}" --force || true
+  remove_collection "${collection}"
 done
 
 echo "Generating seed data..."
 pnpm exec tsx scripts/seed.ts "$@" > "${SEED_FILE}"
 
 echo "Uploading generated data..."
-jq '.giftDrives' "${SEED_FILE}" | flame up gift-drives --idField="id"
-jq '.users' "${SEED_FILE}" | flame up users --idField="id"
-jq '.invites' "${SEED_FILE}" | flame up invites --idField="id"
-jq '.families' "${SEED_FILE}" | flame up families --idField="id"
-jq '.familyLinks' "${SEED_FILE}" | flame up family-links --idField="id"
-jq '.children' "${SEED_FILE}" | flame up children --idField="id"
-jq '.gifts' "${SEED_FILE}" | flame up gifts --idField="id"
-jq '.claims' "${SEED_FILE}" | flame up claims --idField="id"
+upload_collection "giftDrives" "gift-drives"
+upload_collection "users" "users"
+upload_collection "invites" "invites"
+upload_collection "families" "families"
+upload_collection "familyLinks" "family-links"
+upload_collection "children" "children"
+upload_collection "gifts" "gifts"
+upload_collection "claims" "claims"
 
-echo "Seed complete."
+echo "Seed complete :)"

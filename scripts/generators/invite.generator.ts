@@ -8,6 +8,11 @@ type GenerateInviteOptions = {
   used?: boolean;
 };
 
+function normalizeEmailPart(value: string, fallback: string) {
+  const normalized = value.toLowerCase().replace(/[^a-z]/g, "");
+  return normalized.length > 0 ? normalized : fallback;
+}
+
 export function generateInvite({
   sentBy,
   role,
@@ -15,8 +20,14 @@ export function generateInvite({
 }: GenerateInviteOptions): StaffInvite {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
-  const normalizedFirstName = firstName.toLowerCase().replace(/[^a-z]/g, "");
-  const normalizedLastName = lastName.toLowerCase().replace(/[^a-z]/g, "");
+  const normalizedFirstName = normalizeEmailPart(
+    firstName,
+    `invite${faker.string.numeric(3)}`,
+  );
+  const normalizedLastName = normalizeEmailPart(
+    lastName,
+    `user${faker.string.numeric(3)}`,
+  );
 
   return {
     id: uuidv7(),
