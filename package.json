@@ -9,7 +9,6 @@
     "dev": "firebase emulators:start",
     "seed": "bash scripts/run-seed.sh",
     "seed:generate": "pnpm exec tsx scripts/seed.ts",
-    "seed:mock": "bash scripts/seed-mock-data.sh",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
