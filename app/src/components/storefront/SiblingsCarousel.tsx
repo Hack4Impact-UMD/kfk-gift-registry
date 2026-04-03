@@ -28,7 +28,8 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
     const onSelect = () => {
       setCanScrollPrev(carouselApi.canScrollPrev());
       setCanScrollNext(carouselApi.canScrollNext());
-      setScrollSnaps(carouselApi.scrollSnapList()); // ✅ move here
+      setScrollSnaps(carouselApi.scrollSnapList());
+      setCurrentIndex(carouselApi.selectedScrollSnap());
     };
 
     onSelect();
