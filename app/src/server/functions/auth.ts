@@ -37,29 +37,34 @@ const MAX_SESSION_AGE = Duration.fromObject({ days: 14 });
 
 export const verifySession = createServerFn({
   method: "GET",
-}).handler(async () => {
-  try {
-    const cookies = getCookies();
-    const sessionCookie = cookies[SESSION_COOKIE_NAME];
-    if (!sessionCookie) return null;
+})
+  .inputValidator((data?: { checkRevocation?: boolean }) => data)
+  .handler(async ({ data }) => {
+    try {
+      const cookies = getCookies();
+      const sessionCookie = cookies[SESSION_COOKIE_NAME];
+      if (!sessionCookie) return null;
 
-    const auth = getServerAuth();
+      const auth = getServerAuth();
 
-    const result = await auth.verifySessionCookie(sessionCookie, true);
+      const result = await auth.verifySessionCookie(
+        sessionCookie,
+        data?.checkRevocation ?? false,
+      );
 
-    return {
-      uid: result.uid,
-      displayName: result.name,
-      phone: result.phone_number,
-      email: result.email,
-      emailVerified: result.email_verified ?? false,
-      role: (result["role"] as UserRole) ?? UserRole.DONOR,
-    };
-  } catch (err) {
-    console.warn("Session verification failed! ");
-    return null;
-  }
-});
+      return {
+        uid: result.uid,
+        displayName: result.name,
+        phone: result.phone_number,
+        email: result.email,
+        emailVerified: result.email_verified ?? false,
+        role: (result["role"] as UserRole) ?? UserRole.DONOR,
+      };
+    } catch (err) {
+      console.warn("Session verification failed! ");
+      return null;
+    }
+  });
 
 export const createSession = createServerFn({
   method: "POST",
