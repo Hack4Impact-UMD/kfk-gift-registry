@@ -7,6 +7,7 @@ import {
   type FamilyLink,
   type Gift,
   type GiftStatus,
+  type StaffInvite,
   type UserProfile,
 } from "../common/src/index.ts";
 import { generateChild } from "./generators/child.generator.ts";
@@ -15,6 +16,7 @@ import { generateFamily } from "./generators/family.generator.ts";
 import { generateFamilyLink } from "./generators/family-link.generator.ts";
 import { generateGiftDrive } from "./generators/gift-drive.generator.ts";
 import { generateGift } from "./generators/gift.generator.ts";
+import { generateInvite } from "./generators/invite.generator.ts";
 import { generateUser } from "./generators/user.generator.ts";
 
 type Args = {
@@ -164,6 +166,30 @@ function main() {
       .map((user) => user.id),
     "donorIds",
   );
+  const inviteSenderIds = toNonEmptyArray(
+    usersData
+      .filter(
+        (user) =>
+          (user.role === UserRole.ADMIN || user.role === UserRole.DIRECTOR) &&
+          user.enabled,
+      )
+      .map((user) => user.id),
+    "inviteSenderIds",
+  );
+  const invitesData: Array<StaffInvite> = [
+    generateInvite({
+      sentBy: faker.helpers.arrayElement(inviteSenderIds),
+      role: UserRole.ADMIN,
+    }),
+    generateInvite({
+      sentBy: faker.helpers.arrayElement(inviteSenderIds),
+      role: UserRole.VOLUNTEER,
+    }),
+    generateInvite({
+      sentBy: faker.helpers.arrayElement(inviteSenderIds),
+      role: UserRole.VOLUNTEER,
+    }),
+  ];
   const familiesData: Array<Family> = [];
   const familyLinksData: Array<FamilyLink> = [];
   const childrenData: Array<Child> = [];
@@ -247,6 +273,7 @@ function main() {
       {
         giftDrives: giftDrivesData,
         users: usersData,
+        invites: invitesData,
         families: familiesData,
         familyLinks: familyLinksData,
         children: childrenData,

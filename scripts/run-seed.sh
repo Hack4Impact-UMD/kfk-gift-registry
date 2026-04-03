@@ -29,7 +29,7 @@ echo "Using flame emulator target..."
 flame use emulator
 
 echo "Cleaning existing generated data..."
-for collection in claims gifts children family-links families users gift-drives; do
+for collection in claims gifts children family-links families invites users gift-drives; do
   flame rm "${collection}" --force || true
 done
 
@@ -39,6 +39,7 @@ pnpm exec tsx scripts/seed.ts "$@" > "${SEED_FILE}"
 echo "Uploading generated data..."
 jq '.giftDrives' "${SEED_FILE}" | flame up gift-drives --idField="id"
 jq '.users' "${SEED_FILE}" | flame up users --idField="id"
+jq '.invites' "${SEED_FILE}" | flame up invites --idField="id"
 jq '.families' "${SEED_FILE}" | flame up families --idField="id"
 jq '.familyLinks' "${SEED_FILE}" | flame up family-links --idField="id"
 jq '.children' "${SEED_FILE}" | flame up children --idField="id"
