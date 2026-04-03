@@ -15,6 +15,7 @@ type GenerateGiftBaseOptions = {
   backup?: boolean;
   active?: boolean;
   createdAfter?: Date;
+  createdBefore?: Date;
 };
 
 type AvailableGiftOptions = GenerateGiftBaseOptions & {
@@ -29,6 +30,12 @@ type ClaimedGiftOptions = GenerateGiftBaseOptions & {
 
 export type GenerateGiftOptions = AvailableGiftOptions | ClaimedGiftOptions;
 
+function pickDateBetween(from: Date, to: Date) {
+  return from.getTime() >= to.getTime()
+    ? new Date(to)
+    : faker.date.between({ from, to });
+}
+
 export function generateGift({
   childId,
   familyId,
@@ -38,7 +45,12 @@ export function generateGift({
   backup = false,
   active = true,
   createdAfter,
+  createdBefore,
 }: GenerateGiftOptions): Gift {
+  if (!active && status !== "AVAILABLE") {
+    throw new Error("Inactive seeded gifts must remain AVAILABLE");
+  }
+
   return {
     id: uuidv7(),
     childId,
@@ -46,11 +58,11 @@ export function generateGift({
     giftDrive: giftDriveId,
     title: faker.commerce.productName(),
     productUrl: faker.internet.url(),
-    listedPrice: Number(faker.commerce.price({ min: 10, max: 125, dec: 2 })),
+    listedPrice: Number(faker.commerce.price({ min: 5, max: 35, dec: 2 })),
     status,
     claimedByDonorId: status === "AVAILABLE" ? undefined : donorId,
     createdAt: (createdAfter
-      ? faker.date.between({ from: createdAfter, to: new Date() })
+      ? pickDateBetween(createdAfter, createdBefore ?? new Date())
       : faker.date.recent({ days: 21 })
     ).toISOString(),
     familyPublicNotes: faker.datatype.boolean({ probability: 0.2 })

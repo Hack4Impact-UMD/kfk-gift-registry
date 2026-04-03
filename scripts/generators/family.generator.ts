@@ -10,11 +10,31 @@ const familyPrivateNotes = [
 
 type ReviewerIds = readonly [string, ...Array<string>];
 
+type DateWindow = {
+  from: Date;
+  to: Date;
+};
+
+type GenerateFamilyOptions = {
+  createdBetween?: DateWindow;
+};
+
+function pickDateBetween(from: Date, to: Date) {
+  return from.getTime() >= to.getTime()
+    ? new Date(to)
+    : faker.date.between({ from, to });
+}
+
 export function generateFamily(
   giftDriveId: string,
   reviewerIds: ReviewerIds,
+  { createdBetween }: GenerateFamilyOptions = {},
 ): Family {
-  const createdAt = faker.date.recent({ days: 45 }).toISOString();
+  const createdAtDate = createdBetween
+    ? pickDateBetween(createdBetween.from, createdBetween.to)
+    : faker.date.recent({ days: 45 });
+  const createdAt = createdAtDate.toISOString();
+  const reviewWindowEnd = createdBetween?.to ?? new Date();
   const approved = faker.datatype.boolean({ probability: 0.72 });
   const held = !approved && faker.datatype.boolean({ probability: 0.35 });
 
@@ -22,9 +42,10 @@ export function generateFamily(
     ? {
         approved: true,
         held: false,
-        lastReviewedAt: faker.date
-          .between({ from: new Date(createdAt), to: new Date() })
-          .toISOString(),
+        lastReviewedAt: pickDateBetween(
+          createdAtDate,
+          reviewWindowEnd,
+        ).toISOString(),
         reviewedBy: faker.helpers.arrayElement(reviewerIds),
         reviewNotes: faker.helpers.arrayElement([
           "Approved for storefront publishing.",
@@ -36,9 +57,10 @@ export function generateFamily(
       ? {
           approved: false,
           held: true,
-          lastReviewedAt: faker.date
-            .between({ from: new Date(createdAt), to: new Date() })
-            .toISOString(),
+          lastReviewedAt: pickDateBetween(
+            createdAtDate,
+            reviewWindowEnd,
+          ).toISOString(),
           reviewedBy: faker.helpers.arrayElement(reviewerIds),
           holdNotes: faker.helpers.arrayElement([
             "Waiting on follow-up paperwork before review can continue.",

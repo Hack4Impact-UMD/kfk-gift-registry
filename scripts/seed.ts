@@ -93,6 +93,16 @@ function pickGiftStatus(): GiftStatus {
   ]);
 }
 
+function pickHistoricalGiftStatus(): GiftStatus {
+  return faker.helpers.weightedArrayElement([
+    { value: "AVAILABLE", weight: 6 },
+    { value: "CLAIMED", weight: 8 },
+    { value: "PURCHASED", weight: 18 },
+    { value: "DELIVERED", weight: 36 },
+    { value: "RECEIVED", weight: 32 },
+  ]);
+}
+
 function toNonEmptyArray<T>(values: Array<T>, label: string): NonEmptyArray<T> {
   if (values.length === 0) {
     throw new Error(`${label} must contain at least one value`);
@@ -101,10 +111,21 @@ function toNonEmptyArray<T>(values: Array<T>, label: string): NonEmptyArray<T> {
   return values as NonEmptyArray<T>;
 }
 
+function earlierDate(left: Date, right: Date) {
+  return left.getTime() <= right.getTime() ? left : right;
+}
+
+function addUtcDays(date: Date, days: number) {
+  const result = new Date(date);
+  result.setUTCDate(result.getUTCDate() + days);
+  return result;
+}
+
 function main() {
   const { families, children, gifts, seed } = parseArgs();
 
   faker.seed(seed);
+  const now = new Date();
 
   const giftDrivesData = [generateGiftDrive(0), generateGiftDrive(1)];
   const usersData: Array<UserProfile> = [
@@ -198,7 +219,19 @@ function main() {
 
   for (let familyIndex = 0; familyIndex < families; familyIndex += 1) {
     const giftDrive = giftDrivesData[familyIndex % giftDrivesData.length];
-    const family = generateFamily(giftDrive.id, reviewerIds);
+    const driveStart = new Date(giftDrive.startDate);
+    const driveEnd = new Date(giftDrive.endDate);
+    const familyUpperBound = earlierDate(driveEnd, now);
+    const driveHasEnded = driveEnd.getTime() < now.getTime();
+    const claimUpperBound = driveHasEnded
+      ? earlierDate(addUtcDays(driveEnd, 21), now)
+      : now;
+    const family = generateFamily(giftDrive.id, reviewerIds, {
+      createdBetween: {
+        from: driveStart,
+        to: familyUpperBound,
+      },
+    });
     familiesData.push(family);
     familyLinksData.push(generateFamilyLink(family.id));
 
@@ -211,6 +244,7 @@ function main() {
         giftDriveId: giftDrive.id,
         allowPublishing,
         createdAfter: new Date(family.createdAt),
+        createdBefore: familyUpperBound,
       });
       childrenData.push(child);
 
@@ -219,10 +253,17 @@ function main() {
       }
 
       for (let giftIndex = 0; giftIndex < gifts; giftIndex += 1) {
-        const status = pickGiftStatus();
         const backup = faker.datatype.boolean({ probability: 0.2 });
         const active =
-          child.published && faker.datatype.boolean({ probability: 0.9 });
+          child.published &&
+          faker.datatype.boolean({
+            probability: driveHasEnded ? 0.65 : 0.9,
+          });
+        const status = active
+          ? driveHasEnded
+            ? pickHistoricalGiftStatus()
+            : pickGiftStatus()
+          : "AVAILABLE";
 
         if (status === "AVAILABLE") {
           giftsData.push(
@@ -234,6 +275,7 @@ function main() {
               backup,
               active,
               createdAfter: new Date(child.createdAt),
+              createdBefore: familyUpperBound,
             }),
           );
           continue;
@@ -249,6 +291,7 @@ function main() {
           backup,
           active,
           createdAfter: new Date(child.createdAt),
+          createdBefore: familyUpperBound,
         });
 
         giftsData.push(gift);
@@ -261,6 +304,7 @@ function main() {
               donorId,
               giftStatus: status,
               createdAfter: new Date(gift.createdAt),
+              createdBefore: claimUpperBound,
             }),
           );
         }

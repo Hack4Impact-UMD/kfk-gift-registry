@@ -74,7 +74,14 @@ type GenerateChildOptions = {
   giftDriveId: string;
   allowPublishing?: boolean;
   createdAfter?: Date;
+  createdBefore?: Date;
 };
+
+function pickDateBetween(from: Date, to: Date) {
+  return from.getTime() >= to.getTime()
+    ? new Date(to)
+    : faker.date.between({ from, to });
+}
 
 function getLifecycleFields(
   status: ChildStatus,
@@ -114,6 +121,7 @@ export function generateChild({
   giftDriveId,
   allowPublishing = true,
   createdAfter,
+  createdBefore,
 }: GenerateChildOptions): Child {
   const category = faker.helpers.weightedArrayElement([
     { value: "warrior" as const, weight: 4 },
@@ -125,7 +133,7 @@ export function generateChild({
       : faker.helpers.arrayElement(siblingStatuses);
   const createdAt = (
     createdAfter
-      ? faker.date.between({ from: createdAfter, to: new Date() })
+      ? pickDateBetween(createdAfter, createdBefore ?? new Date())
       : faker.date.recent({ days: 30 })
   ).toISOString();
   const published =
