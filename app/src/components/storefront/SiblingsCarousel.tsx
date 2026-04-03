@@ -136,12 +136,22 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
         {scrollSnaps.map((_, index) => (
           <button
             key={index}
+            type="button"
+            aria-label={`Go to sibling ${index + 1}`}
             onClick={() => carouselApi?.scrollTo(index)}
             className={cn(
               "h-2 w-2 rounded-full transition-all",
               index === currentIndex ? "bg-gray-800 w-3" : "bg-gray-300",
             )}
-          />
+          >
+            <span
+              aria-hidden
+              className={cn(
+                "h-2 w-2 rounded-full transition-all",
+                index === currentIndex ? "w-3 bg-gray-800" : "bg-gray-300",
+              )}
+            />
+          </button>
         ))}
       </div>
     </div>

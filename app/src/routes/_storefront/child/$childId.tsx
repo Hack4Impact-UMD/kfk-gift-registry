@@ -196,7 +196,6 @@ const MOCK_SIBLINGS: Record<string, Array<CarouselCardSibling>> = {
 function RouteComponent() {
   const { childId } = Route.useParams();
   const child = MOCK_CHILDREN[childId];
-  const firstName = child.name.trim().split(" ")[0] || child.name;
   const siblings = MOCK_SIBLINGS[childId] ?? MOCK_SIBLINGS["1"] ?? [];
 
   if (!child) {
@@ -212,6 +211,8 @@ function RouteComponent() {
       </div>
     );
   }
+
+  const firstName = child.name.trim().split(" ")[0] || child.name;
 
   return (
     <div className="w-full min-h-screen bg-background">

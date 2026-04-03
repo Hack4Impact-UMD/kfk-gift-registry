@@ -53,8 +53,8 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
   return (
     <div className={cn("flex flex-col gap-4", className)}>
       {/* Mobile: stacked cards */}
-      <div className="flex flex-col gap-3 md:hidden">
-        {gifts.map((gift, index) => {
+      {gifts.length ? (
+        gifts.map((gift, index) => {
           const isClaimed = claimedGifts.has(gift.id);
 
           return (
@@ -91,8 +91,12 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
               </Button>
             </div>
           );
-        })}
-      </div>
+        })
+      ) : (
+        <div className="rounded-md bg-card p-4 text-center text-muted-foreground">
+          No gifts available.
+        </div>
+      )}
       {/* Desktop: table */}
       <div className="hidden md:block">
         <div className="rounded-md overflow-hidden">

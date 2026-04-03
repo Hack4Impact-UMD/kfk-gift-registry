@@ -32,7 +32,7 @@ export function ConfirmGiftsModal({
           <Button
             onClick={onConfirm}
             disabled={isLoading}
-            className="w-full text-card text-base font-gaegu py-2"
+            className="w-full text-base font-gaegu py-2"
           >
             {isLoading ? "Processing..." : "Yes, I am sure!"}
           </Button>
