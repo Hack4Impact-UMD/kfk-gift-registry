@@ -3,7 +3,6 @@ import type { CSSProperties } from "react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { ExternalLink, Gift } from "lucide-react";
 import { CheckmarkIcon } from "@/components/icons/CheckmarkIcon";
-import RedGift from "@/assets/red-gift.png";
 import DefaultProfile from "@/assets/default-profile-photo.png";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,16 +24,16 @@ type CommittedGift = {
   additionalInfo: string;
 };
 
-type ChildStatus = "Warrior" | "Supersib"
+type ChildStatus = "Warrior" | "Supersib";
 
 type CommittedChild = {
-  id: string,
-  firstName: string,
-  lastName: string,
-  photoUrl: string,
-  category: ChildStatus,
-  gifts: Array<CommittedGift>
-}
+  id: string;
+  firstName: string;
+  lastName: string;
+  photoUrl: string;
+  category: ChildStatus;
+  gifts: Array<CommittedGift>;
+};
 
 /** Placeholder data until donor commitments are loaded from the backend */
 const COMMITTED_GIFTS: Array<CommittedGift> = [
@@ -75,10 +74,10 @@ const JANE_COMMITTED_GIFTS: Array<CommittedGift> = [
     productUrl: "https://www.amazon.com",
     listedPrice: 15.99,
     additionalInfo: "medium; pink figurines",
-  }
+  },
 ];
 
-const COMMITED_CHILDREN: Array<CommittedChild> = [
+const COMMITTED_CHILDREN: Array<CommittedChild> = [
   {
     id: "john-doe",
     firstName: "John",
@@ -95,24 +94,32 @@ const COMMITED_CHILDREN: Array<CommittedChild> = [
     category: "Supersib",
     gifts: JANE_COMMITTED_GIFTS,
   },
-]
+];
 
 type GiftFormState = {
-  orderedConfirmed: boolean;
+  ordered: boolean;
+  delivered: boolean;
+  receivedByFamily: boolean;
   receiptFileName: string | null;
+  deliveryReceiptFileName: string | null;
   tracking: string;
-  showSaved: boolean;
+  unclaimed: boolean;
 };
 
-function createInitialGiftStates(gifts:Array<CommittedGift>): Record<string, GiftFormState> {
+function createInitialGiftStates(
+  gifts: Array<CommittedGift>,
+): Record<string, GiftFormState> {
   return Object.fromEntries(
     gifts.map((g) => [
       g.id,
       {
-        orderedConfirmed: false,
+        ordered: false,
+        delivered: false,
+        receivedByFamily: false,
         receiptFileName: null,
+        deliveryReceiptFileName: null,
         tracking: "",
-        showSaved: false,
+        unclaimed: false,
       },
     ]),
   );
@@ -190,7 +197,7 @@ function GiftInformationCard({
         </dl>
 
         <div className="space-y-4 rounded-lg border-2 border-kfk-blue bg-white p-4">
-          {!state.orderedConfirmed ? (
+          {!state.ordered ? (
             <>
               <p className="text-center text-base font-medium text-gray-900">
                 Did you order the gift?
@@ -276,12 +283,6 @@ function GiftInformationCard({
               className="rounded-lg border-gray-300"
             />
           </div>
-
-          <div className="flex justify-end">
-            {state.showSaved ? (
-              <span className="text-xs text-gray-500">Changes Saved</span>
-            ) : null}
-          </div>
         </div>
 
         <div className="flex justify-end pt-1">
@@ -303,12 +304,10 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col gap-10 overflow-x-hidden p-5">
-      <HomeHeaderCard displayName={auth.authUser.displayName ?? "Unnamed User"}/>
+      <HomeHeaderCard displayName={auth.authUser.displayName ?? "Unnamed User"} />
 
       <div className="mx-auto w-full min-w-0 max-w-150">
-        {/* Mock up children data */}
-        {COMMITED_CHILDREN.map((child) => {
-
+        {COMMITTED_CHILDREN.map((child) => {
           const [detailsOpen, setDetailsOpen] = useState(false);
           const [giftStates, setGiftStates] = useState<Record<string, GiftFormState>>(
             createInitialGiftStates(child.gifts),
@@ -319,8 +318,7 @@ function RouteComponent() {
               ...prev,
               [giftId]: {
                 ...prev[giftId]!,
-                orderedConfirmed: true,
-                showSaved: true,
+                ordered: true,
               },
             }));
           }, []);
@@ -329,7 +327,7 @@ function RouteComponent() {
             (giftId: string, fileName: string | null) => {
               setGiftStates((prev) => ({
                 ...prev,
-                [giftId]: { ...prev[giftId]!, receiptFileName: fileName, showSaved: true },
+                [giftId]: { ...prev[giftId]!, receiptFileName: fileName },
               }));
             },
             [],
@@ -338,7 +336,7 @@ function RouteComponent() {
           const handleTrackingChange = useCallback((giftId: string, value: string) => {
             setGiftStates((prev) => ({
               ...prev,
-              [giftId]: { ...prev[giftId]!, tracking: value, showSaved: true },
+              [giftId]: { ...prev[giftId]!, tracking: value },
             }));
           }, []);
 
@@ -346,103 +344,119 @@ function RouteComponent() {
             if (detailsOpen) {
               const element = document.getElementById(`${child.id}-gift`);
               if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                element.scrollIntoView({ behavior: "smooth", block: "start" });
               }
             }
           }, [detailsOpen]);
 
           return (
             <>
-            <Card
-              className="flex w-full flex-col gap-2 px-10 text-center text-white shadow-lg"
-              style={getBlueBackground()}
-            >
-              <h3 className="mb-2 font-bold">
-                Gifts you&apos;ve committed for {child.firstName}:
-              </h3>
-              <img
-                src={DefaultProfile}
-                className="mx-auto h-20 w-30 rounded-2xl border-3 border-white object-cover"
-                alt=""
-              />
-              <h2 className="font-gaegu text-2xl font-bold">{child.firstName + " " + child.lastName}</h2>
-              <h3 className={`mx-auto w-28 rounded-full ${child.category === "Warrior" ? "bg-[#FFF8C2] text-[#733C10]" : "bg-[#D4EAFF] text-kfk-blue"} px-1 py-0.5`}>
-                {child.category}
-              </h3>
-
-              <div className="my-3 flex w-full flex-col gap-2">
-                {child.gifts.map((g) => {
-                  const purchased = giftStates[g.id]?.orderedConfirmed ?? false;
-                  return (
-                    <Card
-                      key={g.id}
-                      className="flex flex-col gap-2 rounded-lg p-2"
-                    >
-                      <h3
-                        className={cn(
-                          "my-0 rounded-full text-center font-semibold",
-                          purchased
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-kfk-red",
-                        )}
-                      >
-                        {purchased ? "Purchased" : "Not Purchased"}
-                      </h3>
-                      <span className="p-0 font-gaegu text-primary">{g.title}</span>
-                    </Card>
-                  );
-                })}
-              </div>
-              <a href=""></a>
-              <Button
-                type="button"
-                aria-expanded={detailsOpen}
-                className="mx-auto w-40 rounded-full bg-white font-gaegu text-xl font-bold text-kfk-blue"
-                onClick={() => setDetailsOpen((o) => !o)}
+              <Card
+                className="flex w-full flex-col gap-2 px-10 text-center text-white shadow-lg"
+                style={getBlueBackground()}
               >
-                {detailsOpen ? "View Less" : "View More"}
-              </Button>
-            </Card>
+                <h3 className="mb-2 font-bold">
+                  Gifts you&apos;ve committed for {child.firstName}:
+                </h3>
+                <img
+                  src={DefaultProfile}
+                  className="mx-auto h-20 w-30 rounded-2xl border-3 border-white object-cover"
+                  alt=""
+                />
+                <h2 className="font-gaegu text-2xl font-bold">
+                  {child.firstName + " " + child.lastName}
+                </h2>
+                <h3
+                  className={`mx-auto w-28 rounded-full ${
+                    child.category === "Warrior"
+                      ? "bg-[#FFF8C2] text-[#733C10]"
+                      : "bg-[#D4EAFF] text-kfk-blue"
+                  } px-1 py-0.5`}
+                >
+                  {child.category}
+                </h3>
 
-            {detailsOpen && (
-              <div
-                className="mt-6 flex flex-col gap-4 text-left"
-                aria-label={`${child.firstName}'s gift details`}
-              >
-                {/* Full-bleed bar; column stays max-w-150 for cards below */}
-                <div id={`${child.id}-gift`} className="relative left-1/2 flex w-screen max-w-[100vw] -translate-x-1/2 items-center justify-center gap-2 bg-kfk-blue py-3 px-4 text-white">
-                  <Gift className="size-5 shrink-0 text-white" strokeWidth={1.75} aria-hidden />
-                  <span className="text-sm font-semibold md:text-base">
-                    {child.firstName}&apos;s Gift Information
-                  </span>
+                <div className="my-3 flex w-full flex-col gap-2">
+                  {child.gifts.map((g) => {
+                    const purchased = giftStates[g.id]?.ordered ?? false;
+                    return (
+                      <Card key={g.id} className="flex flex-col gap-2 rounded-lg p-2">
+                        <h3
+                          className={cn(
+                            "my-0 rounded-full text-center font-semibold",
+                            purchased
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-kfk-red",
+                          )}
+                        >
+                          {purchased ? "Purchased" : "Not Purchased"}
+                        </h3>
+                        <span className="p-0 font-gaegu text-primary">
+                          {g.title}
+                        </span>
+                      </Card>
+                    );
+                  })}
                 </div>
 
-                <div className="flex w-full min-w-0 flex-col gap-6">
-                  {[...child.gifts]
-                    .sort((a, b) => {
-                      const aDone = giftStates[a.id]?.orderedConfirmed ?? false;
-                      const bDone = giftStates[b.id]?.orderedConfirmed ?? false;
-                      if (aDone !== bDone) return aDone ? 1 : -1;
-                      return (
-                        child.gifts.findIndex((x) => x.id === a.id) -
-                        child.gifts.findIndex((x) => x.id === b.id)
-                      );
-                    })
-                    .map((gift) => (
-                      <GiftInformationCard
-                        key={gift.id}
-                        gift={gift}
-                        state={giftStates[gift.id]!}
-                        onOrdered={() => handleOrdered(gift.id)}
-                        onReceipt={(name) => handleReceipt(gift.id, name)}
-                        onTrackingChange={(v) => handleTrackingChange(gift.id, v)}
-                      />
-                    ))}
+                <Button
+                  type="button"
+                  aria-expanded={detailsOpen}
+                  className="mx-auto w-40 rounded-full bg-white font-gaegu text-xl font-bold text-kfk-blue"
+                  onClick={() => setDetailsOpen((o) => !o)}
+                >
+                  {detailsOpen ? "View Less" : "View More"}
+                </Button>
+              </Card>
+
+              {detailsOpen && (
+                <div
+                  className="mt-6 flex flex-col gap-4 text-left"
+                  aria-label={`${child.firstName}'s gift details`}
+                >
+                  <div
+                    id={`${child.id}-gift`}
+                    className="relative left-1/2 flex w-screen max-w-[100vw] -translate-x-1/2 items-center justify-center gap-2 bg-kfk-blue py-3 px-4 text-white"
+                  >
+                    <Gift
+                      className="size-5 shrink-0 text-white"
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
+                    <span className="text-sm font-semibold md:text-base">
+                      {child.firstName}&apos;s Gift Information
+                    </span>
+                  </div>
+
+                  <div className="flex w-full min-w-0 flex-col gap-6">
+                    {[...child.gifts]
+                      .sort((a, b) => {
+                        const aDone = giftStates[a.id]?.ordered ?? false;
+                        const bDone = giftStates[b.id]?.ordered ?? false;
+                        if (aDone !== bDone) return aDone ? 1 : -1;
+                        return (
+                          child.gifts.findIndex((x) => x.id === a.id) -
+                          child.gifts.findIndex((x) => x.id === b.id)
+                        );
+                      })
+                      .map((gift) => (
+                        <GiftInformationCard
+                          key={gift.id}
+                          gift={gift}
+                          state={giftStates[gift.id]!}
+                          onOrdered={() => handleOrdered(gift.id)}
+                          onReceipt={(name) => handleReceipt(gift.id, name)}
+                          onTrackingChange={(v) =>
+                            handleTrackingChange(gift.id, v)
+                          }
+                        />
+                      ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
             </>
-          )})}
+          );
+        })}
       </div>
     </div>
   );
