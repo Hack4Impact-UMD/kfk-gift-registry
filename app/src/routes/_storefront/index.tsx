@@ -1,18 +1,21 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
-import { StorefrontSearchFilters } from "@/components/storefront/StorefrontSearchFilters";
 import type { ChildCardData } from "@/components/storefront/ChildCard";
 import { ChildCard } from "@/components/storefront/ChildCard";
 import type { Child, Family } from "../../../../common/src/types";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { Pagination } from "@/components/storefront/Pagination";
+import { StorefrontSearchFilters } from "@/components/storefront/StorefrontSearchFilters";
+import type { StorefrontSortOption } from "@/components/storefront/StorefrontSearchFilters";
 
 export const Route = createFileRoute("/_storefront/")({
   // STEP 1: define the search param for TanStack Router
   validateSearch: z.object({
     search: z.string().optional(),
-    sort: z.enum(["age-asc", "age-desc", "gifts-asc", "gifts-desc"]).optional(),
+    sort: z
+      .enum(["age-asc", "age-desc", "gifts-asc", "gifts-desc", "none"])
+      .optional(),
     page: z.number().gt(0).default(1),
   }),
   component: App,
@@ -141,6 +144,10 @@ function App() {
 
   // STEP 2: read search/sort param
   const { search, sort, page } = Route.useSearch();
+  const [searchValue, setSearchValue] = useState<string>(search ?? "");
+  const [sortValue, setSortValue] = useState<StorefrontSortOption>(
+    sort ?? "none",
+  );
 
   useEffect(() => {
     navigate({
@@ -150,24 +157,30 @@ function App() {
         page: 1,
       }),
     });
-  }, [search, navigate, sort]);
+  }, [navigate]);
 
   // STEP 3: filter children by search term (name or diagnosis) and sorting filters
-  const filteredChildren = (
-    search
-      ? mockChildren.filter(
-          (child) =>
-            child.name.toLowerCase().includes(search.toLowerCase()) ||
-            child.diagnosis?.toLowerCase().includes(search.toLowerCase()),
-        )
-      : [...mockChildren]
-  ).sort((a, b) => {
-    if (sort === "age-asc") return a.age - b.age;
-    if (sort === "age-desc") return b.age - a.age;
-    if (sort === "gifts-asc") return a.giftsReceived - b.giftsReceived;
-    if (sort === "gifts-desc") return b.giftsReceived - a.giftsReceived;
-    return 0;
-  });
+  const filteredChildren = useMemo(
+    () =>
+      (searchValue
+        ? mockChildren.filter(
+            (child) =>
+              child.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+              child.diagnosis
+                ?.toLowerCase()
+                .includes(searchValue.toLowerCase()),
+          )
+        : [...mockChildren]
+      ).sort((a, b) => {
+        if (sortValue === "age-asc") return a.age - b.age;
+        if (sortValue === "age-desc") return b.age - a.age;
+        if (sortValue === "gifts-asc") return a.giftsReceived - b.giftsReceived;
+        if (sortValue === "gifts-desc")
+          return b.giftsReceived - a.giftsReceived;
+        return 0;
+      }),
+    [searchValue, sortValue],
+  );
 
   const lastChildIndex = page * childrenPerPage;
   const firstChildIndex = lastChildIndex - childrenPerPage;
@@ -178,14 +191,21 @@ function App() {
 
   return (
     <div className="space-y-6">
-      <StorefrontSearchFilters />
-      <GiftDriveStats
-        days={22}
-        giftsPurchased={876}
-        totalGiftsPurchased={1212}
-        giftsReceived={165}
-        totalDonated={87}
-      />
+      <div>
+        <StorefrontSearchFilters
+          searchValue={searchValue}
+          sortValue={sortValue}
+          onSearchChange={setSearchValue}
+          onSortChange={setSortValue}
+        />
+        <GiftDriveStats
+          days={22}
+          giftsPurchased={876}
+          totalGiftsPurchased={1212}
+          giftsReceived={165}
+          totalDonated={87}
+        />
+      </div>
 
       <div className="py-4 px-2 sm:px-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">

@@ -4,7 +4,7 @@ import { verifySession } from "@/server/functions/auth";
 
 export const authMiddleware = createMiddleware({ type: "function" }).server(
   async ({ next }) => {
-    const authUser = await verifySession();
+    const authUser = await verifySession({ data: { checkRevocation: true } });
     if (authUser) {
       return next({
         context: {

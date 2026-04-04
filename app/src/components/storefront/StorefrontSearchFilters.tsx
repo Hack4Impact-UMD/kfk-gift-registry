@@ -1,4 +1,4 @@
-import { useNavigate, useSearch, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,34 +17,41 @@ import {
   ShoppingCartIcon,
 } from "@/components/icons";
 
-export type SortOption =
+export type StorefrontSortOption =
   | "age-asc"
   | "age-desc"
   | "gifts-asc"
   | "gifts-desc"
-  | undefined;
+  | "none";
 
-const sortLabel: Record<string, string> = {
+const sortLabel: Record<Exclude<StorefrontSortOption, "none">, string> = {
   "age-asc": "Age: Youngest → Oldest",
   "age-desc": "Age: Oldest → Youngest",
   "gifts-asc": "Gifts Fulfilled: Least → Most",
   "gifts-desc": "Gifts Fulfilled: Most → Least",
 };
 
+type StorefrontSearchFiltersProps = {
+  searchValue: string;
+  onSearchChange: (value: string) => void;
+  sortValue: StorefrontSortOption;
+  onSortChange: (value: StorefrontSortOption) => void;
+};
+
 function FilterMenuContent({
   sortValue,
   handleSort,
 }: {
-  sortValue: string;
-  handleSort: (value: SortOption) => void;
+  sortValue: StorefrontSortOption;
+  handleSort: (value: StorefrontSortOption) => void;
 }) {
   return (
     <>
       <DropdownMenuLabel>Sort By</DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuRadioGroup
-        value={sortValue}
-        onValueChange={(v) => handleSort(v as SortOption)}
+        value={sortValue === "none" ? "" : sortValue}
+        onValueChange={(value) => handleSort(value as StorefrontSortOption)}
       >
         <DropdownMenuRadioItem value="age-asc">
           Age: Youngest → Oldest
@@ -60,11 +67,11 @@ function FilterMenuContent({
           Gifts Fulfilled: Most → Least
         </DropdownMenuRadioItem>
       </DropdownMenuRadioGroup>
-      {sortValue && (
+      {sortValue !== "none" && (
         <>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={() => handleSort(undefined)}
+            onClick={() => handleSort("none")}
             className="text-muted-foreground"
           >
             Clear filter
@@ -86,7 +93,7 @@ function SearchInput({
 }) {
   return (
     <>
-      <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         placeholder="Search"
         className={className}
@@ -97,68 +104,59 @@ function SearchInput({
   );
 }
 
-export function StorefrontSearchFilters() {
-  const navigate = useNavigate();
-  const search = useSearch({ from: "/_storefront/" });
-  const searchValue = search?.search ?? "";
-  const sortValue = search?.sort ?? "";
-
-  const handleSearch = (value: string) => {
-    navigate({
-      to: "/",
-      search: (prev) => ({ ...prev, search: value || undefined }),
-    });
-  };
-
-  const handleSort = (value: SortOption) => {
-    navigate({
-      to: "/",
-      search: (prev) => ({ ...prev, sort: value || undefined }),
-    });
-  };
+export function StorefrontSearchFilters({
+  searchValue,
+  onSearchChange,
+  onSortChange,
+  sortValue,
+}: StorefrontSearchFiltersProps) {
+  const activeSortLabel = sortValue !== "none" ? sortLabel[sortValue] : undefined;
 
   return (
     <>
-      {/* Desktop layout */}
-      <div className="hidden sm:flex px-8 py-3 items-center gap-3">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="border-sidebar-ring text-muted-foreground hover:bg-transparent whitespace-nowrap"
-            >
-              <AdjustmentsHorizontalIcon />
-              {sortValue ? sortLabel[sortValue] : "Filters"}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <FilterMenuContent sortValue={sortValue} handleSort={handleSort} />
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="hidden justify-center p-3 sm:flex">
+        <div className="flex w-full max-w-7xl items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="border-sidebar-ring text-muted-foreground hover:bg-transparent whitespace-nowrap"
+              >
+                <AdjustmentsHorizontalIcon />
+                {activeSortLabel ?? "Filters"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <FilterMenuContent
+                sortValue={sortValue}
+                handleSort={onSortChange}
+              />
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-        <div className="relative w-full">
-          <SearchInput
-            searchValue={searchValue}
-            handleSearch={handleSearch}
-            className="pl-9 border-sidebar-ring max-w-[454px]"
-          />
+          <div className="relative w-full">
+            <SearchInput
+              searchValue={searchValue}
+              handleSearch={onSearchChange}
+              className="border-sidebar-ring pl-9"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Mobile layout */}
-      <div className="flex sm:hidden px-4 py-3 items-center gap-2">
+      <div className="flex items-center gap-2 px-4 py-3 sm:hidden">
         <div className="relative flex-1">
           <SearchInput
             searchValue={searchValue}
-            handleSearch={handleSearch}
-            className="pl-9 pr-10 border-sidebar-ring"
+            handleSearch={onSearchChange}
+            className="border-sidebar-ring pl-9 pr-10"
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:bg-transparent"
+                className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:bg-transparent"
               >
                 <AdjustmentsHorizontalIcon />
               </Button>
@@ -166,7 +164,7 @@ export function StorefrontSearchFilters() {
             <DropdownMenuContent className="w-56" align="end">
               <FilterMenuContent
                 sortValue={sortValue}
-                handleSort={handleSort}
+                handleSort={onSortChange}
               />
             </DropdownMenuContent>
           </DropdownMenu>
@@ -174,7 +172,7 @@ export function StorefrontSearchFilters() {
 
         <Link to="/checkout" className="shrink-0">
           <Button
-            className="h-10 w-10 bg-kfk-blue hover:bg-kfk-blue/90 text-white"
+            className="h-10 w-10 bg-kfk-blue text-white hover:bg-kfk-blue/90"
             size="icon"
           >
             <ShoppingCartIcon className="h-5 w-5" />
