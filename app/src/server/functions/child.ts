@@ -19,13 +19,19 @@ export const getAllChildProfilesForDrive = createServerFn({
         return childProfiles.docs.map(doc => doc.data());
     })
 
-export const getAllApprovedFamilyProfilesForDrive= createServerFn({
+export const getAllApprovedFamilyProfilesForDrive = createServerFn({
     method: "GET"
 })
     .inputValidator(childParamSchema)
     .handler(async ({data}) => {
-        
+        const db = getServerDB();
+        const familyProfiles = await db.families.where("giftDrive", "==", data.driveId).where("reviewStatus.approved", "==", true).get();
+        if (familyProfiles.empty){
+            throw new Error("No family profiles exist for this specific drive ID.");
+        }
+        return familyProfiles.docs.map(doc => doc.data())
     })
+
 export const getApprovedProfileTableRows= createServerFn({
     method: "GET"
 })
