@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { Button } from "@/components/ui/button";
 import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
@@ -6,6 +6,9 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 
 export function StorefrontNavbar() {
+  const { pathname } = useLocation();
+  const showMobileSidebarTrigger = pathname !== "/";
+
   return (
     <div className="relative px-4 sm:px-8 border-b border-b-gray-300 pb-4">
       {/* Mobile header row */}
@@ -21,10 +24,12 @@ export function StorefrontNavbar() {
           2026 Gift Drive
         </Link>
 
-        <SidebarTrigger
-          className="bg-kfk-blue hover:bg-kfk-blue/90 text-white h-10 w-10 rounded-lg shrink-0"
-          openIcon={<Menu size={24} />}
-        />
+        {showMobileSidebarTrigger && (
+          <SidebarTrigger
+            className="bg-kfk-blue hover:bg-kfk-blue/90 text-white h-10 w-10 rounded-lg shrink-0"
+            openIcon={<Menu size={24} />}
+          />
+        )}
       </div>
 
       {/* Desktop header rows */}

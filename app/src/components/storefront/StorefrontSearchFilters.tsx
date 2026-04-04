@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -16,6 +17,7 @@ import {
   MagnifyingGlassIcon,
   ShoppingCartIcon,
 } from "@/components/icons";
+import { Menu } from "lucide-react";
 
 export type StorefrontSortOption =
   | "age-asc"
@@ -146,6 +148,11 @@ export function StorefrontSearchFilters({
       </div>
 
       <div className="flex items-center gap-2 px-4 py-3 sm:hidden">
+        <SidebarTrigger
+          className="h-10 w-10 shrink-0 rounded-lg bg-kfk-blue text-white hover:bg-kfk-blue/90"
+          openIcon={<Menu size={24} />}
+        />
+
         <div className="relative flex-1">
           <SearchInput
             searchValue={searchValue}
