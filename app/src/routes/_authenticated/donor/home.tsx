@@ -199,7 +199,7 @@ function GiftInformationCard({
             <div className="flex w-full justify-center">
               <div className="flex min-h-12 w-[92%] max-w-md flex-wrap items-center justify-center gap-2 rounded-xl bg-kfk-green px-3 py-2 font-gaegu text-[20px] font-bold text-white">
                 <span className="text-center text-balance">
-                  Gift purchase confirmed
+                  Gift Purchase Confirmed
                 </span>
                 <CheckmarkIcon className="size-6 shrink-0" aria-hidden />
               </div>
@@ -272,7 +272,60 @@ function GiftInformationCard({
   );
 }
 
-/** ✅ NEW: extracted component (fixes hooks-in-map) */
+function ChildDetailSection({
+  child,
+  giftStates,
+  onOrdered,
+  onReceipt,
+  onTrackingChange,
+}: {
+  child: CommittedChild;
+  giftStates: Record<string, GiftFormState>;
+  onOrdered: (giftId: string) => void;
+  onReceipt: (giftId: string, fileName: string | null) => void;
+  onTrackingChange: (giftId: string, value: string) => void;
+}) {
+  return (
+    <div
+      className="mt-6 flex flex-col gap-4 text-left"
+      aria-label={`${child.firstName}'s gift details`}
+    >
+      <div
+        id={`${child.id}-gift`}
+        className="relative left-1/2 flex w-screen max-w-[100vw] -translate-x-1/2 items-center justify-center gap-2 bg-kfk-blue py-3 px-4 text-white"
+      >
+        <Gift className="size-5 shrink-0 text-white" strokeWidth={1.75} />
+        <span className="text-sm font-semibold md:text-base">
+          {child.firstName}&apos;s Gift Information
+        </span>
+      </div>
+
+      <div className="flex w-full min-w-0 flex-col gap-6">
+        {[...child.gifts]
+          .sort((a, b) => {
+            const aDone = giftStates[a.id]?.ordered ?? false;
+            const bDone = giftStates[b.id]?.ordered ?? false;
+            if (aDone !== bDone) return aDone ? 1 : -1;
+            return (
+              child.gifts.findIndex((x) => x.id === a.id) -
+              child.gifts.findIndex((x) => x.id === b.id)
+            );
+          })
+          .map((gift) => (
+            <GiftInformationCard
+              key={gift.id}
+              gift={gift}
+              state={giftStates[gift.id]!}
+              onOrdered={() => onOrdered(gift.id)}
+              onReceipt={(name) => onReceipt(gift.id, name)}
+              onTrackingChange={(v) => onTrackingChange(gift.id, v)}
+            />
+          ))}
+      </div>
+    </div>
+  );
+}
+
 function ChildBlock({ child }: { child: CommittedChild }) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [giftStates, setGiftStates] = useState<Record<string, GiftFormState>>(
@@ -313,7 +366,7 @@ function ChildBlock({ child }: { child: CommittedChild }) {
         element.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
-  }, [detailsOpen]);
+  }, [detailsOpen, child.id]);
 
   return (
     <>
@@ -376,45 +429,13 @@ function ChildBlock({ child }: { child: CommittedChild }) {
       </Card>
 
       {detailsOpen && (
-        <div
-          className="mt-6 flex flex-col gap-4 text-left"
-          aria-label={`${child.firstName}'s gift details`}
-        >
-          <div
-            id={`${child.id}-gift`}
-            className="relative left-1/2 flex w-screen max-w-[100vw] -translate-x-1/2 items-center justify-center gap-2 bg-kfk-blue py-3 px-4 text-white"
-          >
-            <Gift className="size-5 shrink-0 text-white" strokeWidth={1.75} />
-            <span className="text-sm font-semibold md:text-base">
-              {child.firstName}&apos;s Gift Information
-            </span>
-          </div>
-
-          <div className="flex w-full min-w-0 flex-col gap-6">
-            {[...child.gifts]
-              .sort((a, b) => {
-                const aDone = giftStates[a.id]?.ordered ?? false;
-                const bDone = giftStates[b.id]?.ordered ?? false;
-                if (aDone !== bDone) return aDone ? 1 : -1;
-                return (
-                  child.gifts.findIndex((x) => x.id === a.id) -
-                  child.gifts.findIndex((x) => x.id === b.id)
-                );
-              })
-              .map((gift) => (
-                <GiftInformationCard
-                  key={gift.id}
-                  gift={gift}
-                  state={giftStates[gift.id]!}
-                  onOrdered={() => handleOrdered(gift.id)}
-                  onReceipt={(name) => handleReceipt(gift.id, name)}
-                  onTrackingChange={(v) =>
-                    handleTrackingChange(gift.id, v)
-                  }
-                />
-              ))}
-          </div>
-        </div>
+        <ChildDetailSection
+          child={child}
+          giftStates={giftStates}
+          onOrdered={handleOrdered}
+          onReceipt={handleReceipt}
+          onTrackingChange={handleTrackingChange}
+        />
       )}
     </>
   );
