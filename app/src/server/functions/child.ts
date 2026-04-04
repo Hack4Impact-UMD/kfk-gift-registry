@@ -11,8 +11,14 @@ export const getAllChildProfilesForDrive = createServerFn({
 })
     .inputValidator(childParamSchema)
     .handler(async ({data}) => {
-        
+        const db = getServerDB();
+        const childProfiles = await db.children.where("giftDrive", "==", data.driveId).get();
+        if (childProfiles.empty){
+            throw new Error("No child profiles exist for this specific drive ID.");
+        }
+        return childProfiles.docs.map(doc => doc.data());
     })
+
 export const getAllApprovedFamilyProfilesForDrive= createServerFn({
     method: "GET"
 })
