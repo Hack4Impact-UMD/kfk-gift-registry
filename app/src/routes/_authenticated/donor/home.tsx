@@ -149,12 +149,16 @@ function GiftInformationCard({
   onOrdered,
   onReceipt,
   onTrackingChange,
+  onDelivered,
+  onReceived
 }: {
   gift: CommittedGift;
   state: GiftFormState;
   onOrdered: () => void;
   onReceipt: (fileName: string | null) => void;
   onTrackingChange: (value: string) => void;
+  onDelivered: () => void;
+  onReceived: () => void;
 }) {
   const receiptInputId = useId();
   const receiptInputRef = useRef<HTMLInputElement>(null);
@@ -256,6 +260,47 @@ function GiftInformationCard({
               className="rounded-lg border-gray-300"
             />
           </div>
+
+          {state.ordered && (
+            <>
+              <Separator className="bg-gray-200" />
+
+              {!state.delivered ? (
+                <div className="flex w-full justify-center">
+                  <Button
+                    type="button"
+                    className="h-12 w-[92%] max-w-md rounded-xl font-gaegu text-[20px] font-bold text-white"
+                    onClick={onDelivered}
+                  >
+                    Mark as Delivered
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-center text-sm font-medium text-green-700">
+                  Gift marked as delivered
+                </p>
+              )}
+
+              {state.delivered && !state.receivedByFamily && (
+                <div className="flex w-full justify-center">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-[92%] max-w-md"
+                    onClick={onReceived}
+                  >
+                    Mark as Received by Family
+                  </Button>
+                </div>
+              )}
+
+              {state.receivedByFamily && (
+                <p className="text-center text-sm font-medium text-green-700">
+                  Family confirmed receipt
+                </p>
+              )}
+            </>
+          )}
         </div>
 
         <div className="flex justify-end pt-1">
@@ -278,12 +323,16 @@ function ChildDetailSection({
   onOrdered,
   onReceipt,
   onTrackingChange,
+  onDelivered,
+  onReceived
 }: {
   child: CommittedChild;
   giftStates: Record<string, GiftFormState>;
   onOrdered: (giftId: string) => void;
   onReceipt: (giftId: string, fileName: string | null) => void;
   onTrackingChange: (giftId: string, value: string) => void;
+  onDelivered: (giftId: string) => void;
+  onReceived: (giftId: string) => void;
 }) {
   return (
     <div
@@ -319,6 +368,8 @@ function ChildDetailSection({
               onOrdered={() => onOrdered(gift.id)}
               onReceipt={(name) => onReceipt(gift.id, name)}
               onTrackingChange={(v) => onTrackingChange(gift.id, v)}
+              onDelivered={() => onDelivered(gift.id)}
+              onReceived={() => onReceived(gift.id)}
             />
           ))}
       </div>
@@ -356,6 +407,26 @@ function ChildBlock({ child }: { child: CommittedChild }) {
     setGiftStates((prev) => ({
       ...prev,
       [giftId]: { ...prev[giftId]!, tracking: value },
+    }));
+  }, []);
+
+  const handleDelivered = useCallback((giftId: string) => {
+    setGiftStates((prev) => ({
+      ...prev,
+      [giftId]: {
+        ...prev[giftId]!,
+        delivered: true,
+      },
+    }));
+  }, []);
+
+  const handleReceived = useCallback((giftId: string) => {
+    setGiftStates((prev) => ({
+      ...prev,
+      [giftId]: {
+        ...prev[giftId]!,
+        receivedByFamily: true,
+      },
     }));
   }, []);
 
@@ -435,6 +506,8 @@ function ChildBlock({ child }: { child: CommittedChild }) {
           onOrdered={handleOrdered}
           onReceipt={handleReceipt}
           onTrackingChange={handleTrackingChange}
+          onDelivered={handleDelivered}
+          onReceived={handleReceived}
         />
       )}
     </>
