@@ -60,7 +60,7 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
           return (
             <div
               key={gift.id}
-              className="rounded-md p-4 bg-card transition-colors"
+              className="rounded-md p-4 bg-card md:hidden transition-colors"
             >
               <div className="text-sm text-foreground mb-1">
                 Gift #{index + 1}
@@ -93,7 +93,7 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
           );
         })
       ) : (
-        <div className="rounded-md bg-card p-4 text-center text-muted-foreground">
+        <div className="rounded-md md:hidden bg-card p-4 text-center text-muted-foreground">
           No gifts available.
         </div>
       )}
