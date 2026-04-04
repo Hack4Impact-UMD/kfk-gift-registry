@@ -110,7 +110,8 @@ export function StorefrontSearchFilters({
   onSortChange,
   sortValue,
 }: StorefrontSearchFiltersProps) {
-  const activeSortLabel = sortValue !== "none" ? sortLabel[sortValue] : undefined;
+  const activeSortLabel =
+    sortValue !== "none" ? sortLabel[sortValue] : undefined;
 
   return (
     <>

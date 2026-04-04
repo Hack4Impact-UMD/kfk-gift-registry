@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import LadybugIcon from "@/assets/ladybug-storefront.svg";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +22,11 @@ import {
 import { CircleDollarSign } from "lucide-react";
 
 export function StorefrontMobileSidebar() {
+  const { pathname } = useLocation();
+  // Add more page checks as needed
+  const isHomePage = pathname === "/" || pathname.startsWith("/child/");
+  const isCheckoutPage = pathname === "/checkout";
+
   return (
     <Sidebar collapsible="offcanvas" side="left" className="sm:hidden">
       <SidebarHeader className="flex flex-col p-0">
@@ -53,7 +58,7 @@ export function StorefrontMobileSidebar() {
         <SidebarGroup>
           <SidebarMenu className="flex-col gap-2 px-2">
             <SidebarMenuItem>
-              <SidebarMenuButton asChild size="lg">
+              <SidebarMenuButton asChild size="lg" isActive={isHomePage}>
                 <Link
                   to="/"
                   className="flex items-center gap-3 w-full text-left"
@@ -77,7 +82,7 @@ export function StorefrontMobileSidebar() {
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton asChild size="lg">
+              <SidebarMenuButton asChild size="lg" isActive={isCheckoutPage}>
                 <Link
                   to="/checkout"
                   className="flex items-center gap-3 w-full text-left"
@@ -90,13 +95,13 @@ export function StorefrontMobileSidebar() {
 
             <SidebarMenuItem>
               <SidebarMenuButton asChild size="lg">
-                <Link
-                  to="/"
+                <a
+                  href="https://kissesforkyle.org/donations/"
                   className="flex items-center gap-3 w-full text-left text-red-600 hover:text-red-600"
                 >
                   <CircleDollarSign className="size-6" />
                   <span className="text-base font-semibold">Donate!</span>
-                </Link>
+                </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

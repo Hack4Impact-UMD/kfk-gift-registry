@@ -128,7 +128,11 @@ export function ChildCard({ child, color, className = "" }: Props) {
       <div
         className={`mt-3 sm:mt-5 px-1 w-full gap-0.5 sm:gap-1 bg-card border-2 sm:border-4 ${styles.border} rounded-md flex flex-col flex-1 items-center font-gaegu`}
       >
-        <h3 className={`font-semibold mt-2 sm:mt-3 text-xl sm:text-3xl ${styles.text} text-center line-clamp-2`}>{name}</h3>
+        <h3
+          className={`font-semibold mt-2 sm:mt-3 text-xl sm:text-3xl ${styles.text} text-center line-clamp-2`}
+        >
+          {name}
+        </h3>
 
         <span
           className={`text-xs sm:text-s px-4 sm:px-10 py-0.5 rounded-sm font-semibold border ${
@@ -151,8 +155,12 @@ export function ChildCard({ child, color, className = "" }: Props) {
         )}
 
         <div className="mb-2 sm:mb-3 flex items-center gap-1 sm:gap-1.5 text-xs sm:text-s font-semibold text-muted-foreground">
-          <GiftIcon className={`h-3 w-3 sm:h-4 sm:w-4 text-card ${styles.fill}`} />
-          <span className="text-center">{giftsReceived} / {giftsRequested} Gifts Fulfilled</span>
+          <GiftIcon
+            className={`h-3 w-3 sm:h-4 sm:w-4 text-card ${styles.fill}`}
+          />
+          <span className="text-center">
+            {giftsReceived} / {giftsRequested} Gifts Fulfilled
+          </span>
         </div>
       </div>
 
