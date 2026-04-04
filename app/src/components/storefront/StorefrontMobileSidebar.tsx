@@ -24,22 +24,28 @@ import { CircleDollarSign } from "lucide-react";
 export function StorefrontMobileSidebar() {
   return (
     <Sidebar collapsible="offcanvas" side="left" className="sm:hidden">
-      <SidebarHeader className="border-b px-4 py-4 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <img
-            src={LadybugIcon}
-            alt="KFK Ladybug"
-            className="h-10 w-10 object-contain"
-          />
-          <SidebarTrigger
-            className="rounded transition-colors duration-200 hover:bg-gray-100"
-            closeIcon={<ChevronDoubleLeftIcon className="size-6" />}
-          />
+      <SidebarHeader className="flex flex-col p-0">
+        <div className="px-4 pt-2">
+          <div className="flex flex-col">
+            <img
+              src={LadybugIcon}
+              alt="KFK Ladybug"
+              className="h-10 w-10 object-contain"
+            />
+            <div className="flex justify-end">
+              <SidebarTrigger
+                className="rounded transition-colors duration-200 hover:bg-gray-100"
+                closeIcon={<ChevronDoubleLeftIcon className="size-6" />}
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <UserCircleIcon className="size-8 text-gray-700" />
-          <span className="text-base font-medium">Charlie Hemsworth</span>
+        <div className="border-t border-b border-gray-300 px-4 py-4">
+          <div className="flex items-center gap-3">
+            <UserCircleIcon className="size-8 text-gray-700" />
+            <span className="text-base font-medium">Charlie Hemsworth</span>
+          </div>
         </div>
       </SidebarHeader>
 
