@@ -53,14 +53,14 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     ...(paginated
       ? {
-          getPaginationRowModel: getPaginationRowModel(),
-          initialState: {
-            pagination: {
-              pageSize: rowsPerPage,
-              pageIndex: 0,
-            },
+        getPaginationRowModel: getPaginationRowModel(),
+        initialState: {
+          pagination: {
+            pageSize: rowsPerPage,
+            pageIndex: 0,
           },
-        }
+        },
+      }
       : {}),
     ...options,
   });
@@ -110,14 +110,14 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      className="font-normal text-muted-foreground text-sm border-b-2 border-foreground"
+                      className="font-normal text-muted-foreground text-sm"
                     >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}

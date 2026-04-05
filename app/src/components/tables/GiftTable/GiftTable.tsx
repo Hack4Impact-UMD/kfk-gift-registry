@@ -42,6 +42,7 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
     onClaimGift: handleClaimGift,
   };
 
+  //TODO: Move this over to the data table component
   const table = useReactTable({
     data: gifts,
     columns,
@@ -81,11 +82,10 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
               <Button
                 onClick={() => handleClaimGift(gift.id)}
                 disabled={isClaimed}
-                className={`rounded-full w-full ${
-                  isClaimed
+                className={`rounded-full w-full ${isClaimed
                     ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white h-auto whitespace-nowrap"
                     : "h-auto whitespace-nowrap"
-                }`}
+                  }`}
               >
                 {isClaimed ? "Gift Claimed!" : "Claim Gift!"}
               </Button>
@@ -118,9 +118,9 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                       </TableHead>
                     );
                   })}

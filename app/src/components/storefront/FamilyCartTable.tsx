@@ -92,7 +92,7 @@ export function FamilyCartTable({
           columns={columns}
           data={family.gifts}
           paginated={false}
-          className="[&_.rounded-md.border]:rounded-none [&_.rounded-md.border]:border-none [&_table]:border-collapse [&_tbody_tr]:border-b [&_tbody_tr]:border-gray-300 [&_tbody_tr:last-child]:border-b-0 [&_tr.hover\:bg-gray-50\/60]:hover:bg-transparent"
+          className="[&_.rounded-md.border]:rounded-none [&_.rounded-md.border]:border-none [&_table]:border-collapse [&_tbody_tr]:border-b [&_tbody_tr]:border-gray-300 [&_tbody_tr:last-child]:border-b-0 [&_tr.hover\:bg-gray-50\/60]:hover:bg-transparent [&_th]:border-b-2 [&_th]:border-b-foreground"
         />
       </div>
     </div>
