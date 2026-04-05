@@ -6,7 +6,10 @@ import {
 } from "@tanstack/react-table";
 import { columns } from "./columns";
 import { SuccessMessage } from "./SuccessMessage";
-import type { GiftTableProps as ChildGiftTableProps, GiftTableMeta } from "./types";
+import type {
+  GiftTableProps as ChildGiftTableProps,
+  GiftTableMeta,
+} from "./types";
 import { cn } from "@/lib/utils";
 import {
   Table,
@@ -82,10 +85,11 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
               <Button
                 onClick={() => handleClaimGift(gift.id)}
                 disabled={isClaimed}
-                className={`rounded-full w-full ${isClaimed
-                  ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white h-auto whitespace-nowrap"
-                  : "h-auto whitespace-nowrap"
-                  }`}
+                className={`rounded-full w-full ${
+                  isClaimed
+                    ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white h-auto whitespace-nowrap"
+                    : "h-auto whitespace-nowrap"
+                }`}
               >
                 {isClaimed ? "Gift Claimed!" : "Claim Gift!"}
               </Button>
@@ -118,9 +122,9 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
                       </TableHead>
                     );
                   })}

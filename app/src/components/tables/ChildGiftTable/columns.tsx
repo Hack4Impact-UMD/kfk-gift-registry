@@ -50,10 +50,11 @@ export const columns = [
         <Button
           onClick={() => meta?.onClaimGift(giftId)}
           disabled={isClaimed}
-          className={`rounded-full min-w-[132px] my-4 ${isClaimed
-            ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
-            : "text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
-            }`}
+          className={`rounded-full min-w-[132px] my-4 ${
+            isClaimed
+              ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
+              : "text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
+          }`}
         >
           {isClaimed ? "Gift Claimed!" : "Claim Gift!"}
         </Button>
