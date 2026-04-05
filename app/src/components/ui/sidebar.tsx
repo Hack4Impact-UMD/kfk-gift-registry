@@ -266,9 +266,10 @@ function SidebarTrigger({
   closeIcon,
   ...props
 }: SidebarTriggerProps) {
-  const { state, toggleSidebar } = useSidebar();
+  const { state, toggleSidebar, isMobile, openMobile } = useSidebar();
 
-  const Icon = state === "expanded" ? closeIcon : openIcon;
+  const isOpen = isMobile ? openMobile : state === "expanded";
+  const Icon = isOpen ? closeIcon : openIcon;
 
   return (
     <Button
