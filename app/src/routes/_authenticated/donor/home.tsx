@@ -1,6 +1,6 @@
 import { createFileRoute, useBlocker } from "@tanstack/react-router";
 import type { CSSProperties } from "react";
-import { useCallback, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { ExternalLink, Gift, ChevronDown, ChevronUp } from "lucide-react";
 import DefaultProfile from "@/assets/default-profile-photo.png";
 import { Card } from "@/components/ui/card";
@@ -172,7 +172,7 @@ function FileUploadRow({
       </Label>
       <div className="flex min-w-0 flex-1 flex-col items-end gap-1">
         <input ref={inputRef} id={inputId} type="file" accept="image/*,.pdf" className="sr-only"
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f.name); }} />
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f.name); e.target.value = ''}} />
         <div className="flex items-center gap-2 w-full justify-end">
           <button type="button"
             className="inline-flex min-h-10 items-center justify-center rounded-xl bg-kfk-blue px-8 py-2 font-gaegu text-[18px] font-bold text-white transition-colors hover:bg-kfk-blue/80"
@@ -225,6 +225,12 @@ function GiftInformationCard({
 }) {
   const [undoMode, setUndoMode] = useState(false);
 
+  // Keeps track of the most recent saved states
+  const [trackingNum, setTrackingNum] = useState(state.tracking);
+  const [isDelivered, setIsDelivered] = useState(state.delivered);
+  const [orderReceipt, setOrderReceipt] = useState(state.receiptFileName);
+  const [orderDeliveryReceipt, setOrderDeliveryReceipt] = useState(state.deliveryReceiptFileName);
+
   if (state.receivedByFamily || state.unclaimed) return null;
 
   return (
@@ -266,7 +272,13 @@ function GiftInformationCard({
                 <div className="flex w-full justify-center">
                   <Button type="button"
                     className="h-12 w-[92%] max-w-md rounded-xl bg-kfk-blue font-gaegu text-[20px] font-bold text-white hover:bg-kfk-blue/80"
-                    onClick={onDelivered}>
+                    onClick={() => {
+                      onDelivered();
+                      if (!undoMode) {
+                        setIsDelivered(true);
+                        onSave();
+                      }
+                    }}>
                     Yes, it was delivered!
                   </Button>
                 </div>
@@ -293,7 +305,13 @@ function GiftInformationCard({
             <p className="text-center text-base text-gray-700">Optional, but helpful for us!</p>
             <FileUploadRow
               fileName={state.deliveryReceiptFileName}
-              onFile={(n) => onDeliveryReceipt(n)}
+              onFile={(n) => {
+                onDeliveryReceipt(n); 
+                if (!undoMode) {
+                  onSave();
+                  setOrderDeliveryReceipt(n);
+                }
+              }}
               onClear={() => onDeliveryReceipt(null)}
               showClear={undoMode}
             />
@@ -307,7 +325,11 @@ function GiftInformationCard({
               <div className="flex w-full justify-center">
                 <Button type="button"
                   className="h-12 w-[92%] max-w-md rounded-xl bg-kfk-blue font-gaegu text-[20px] font-bold text-white hover:bg-kfk-blue/80"
-                  onClick={onOrdered}>
+                  onClick={() => {
+                    onOrdered();
+                    setTrackingNum(state.tracking)
+                    onSave();
+                  }}>
                   Yes, I ordered the gift!
                 </Button>
               </div>
@@ -329,20 +351,29 @@ function GiftInformationCard({
           <p className="text-center text-base text-gray-700">Optional, but helpful for us!</p>
           <FileUploadRow
             fileName={state.receiptFileName}
-            onFile={(n) => onReceipt(n)}
+            onFile={(n) => {
+                onReceipt(n); 
+                if (!undoMode) {
+                  onSave();
+                  setOrderReceipt(n);
+                }
+              }}
             onClear={() => onReceipt(null)}
             showClear={undoMode}
           />
 
-          <div className="space-y-2">
-            <Label htmlFor={`${gift.id}-tracking`} className="text-sm font-bold text-gray-900">Tracking #</Label>
-            <Input
-              id={`${gift.id}-tracking`}
-              value={state.tracking}
-              onChange={(e) => onTrackingChange(e.target.value)}
-              placeholder="Enter tracking number"
-              className="rounded-lg border-gray-300"
-            />
+          <div className="flex flex-row justify-between gap-2">
+            <Label htmlFor={`${gift.id}-tracking`} className="text-sm font-bold whitespace-nowrap text-gray-900">Tracking #</Label>
+            {!state.ordered || undoMode ? (
+              <Input
+                id={`${gift.id}-tracking`}
+                value={state.tracking}
+                onChange={(e) => onTrackingChange(e.target.value)}
+                placeholder="Enter tracking number"
+                className="rounded-lg border-gray-300"
+              />
+            ) : <Label className="justify-self-end text-primary">{state.tracking}</Label>}
+            
           </div>
 
           {/* Changes Saved */}
@@ -365,12 +396,12 @@ function GiftInformationCard({
           <div className="flex justify-between pt-1">
             <Button type="button" variant="outline"
               className="border-gray-300 bg-white font-medium text-gray-700 hover:bg-gray-50"
-              onClick={() => setUndoMode(false)}>
+              onClick={() => { if (isDelivered) onDelivered(); else onUndoDelivery(); onTrackingChange(trackingNum); onReceipt(orderReceipt); onDeliveryReceipt(orderDeliveryReceipt); onSave(); setUndoMode(false);}}>
               Cancel
             </Button>
             <Button type="button"
               className="bg-kfk-blue font-medium text-white hover:bg-kfk-blue/80"
-              onClick={() => { onSave(); setUndoMode(false); }}>
+              onClick={() => { onSave(); setUndoMode(false); setIsDelivered(state.delivered); setTrackingNum(state.tracking); setOrderReceipt(state.receiptFileName); setOrderDeliveryReceipt(state.deliveryReceiptFileName)}}>
               Save
             </Button>
           </div>
@@ -411,9 +442,17 @@ function ChildDetailSection({ child, giftStates, onOrdered, onDelivered, onUndoD
   onUnclaimRequest: (id: string) => void;
   onSave: (id: string) => void;
 }) {
+  useEffect(() => {
+    const element = document.getElementById(`${child.id}-gift`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+  }, []);
+
   return (
     <div className="mt-2 flex flex-col gap-4 text-left">
-      <div className="relative left-1/2 flex w-screen max-w-[100vw] -translate-x-1/2 items-center justify-center gap-2 bg-kfk-blue py-3 px-4 text-white">
+      <div id={`${child.id}-gift`} className="relative left-1/2 flex w-screen max-w-[100vw] -translate-x-1/2 items-center justify-center gap-2 bg-kfk-blue py-3 px-4 text-white">
         <Gift className="size-5 shrink-0" strokeWidth={1.75} />
         <span className="text-sm font-semibold md:text-base">{child.firstName}&apos;s Gift Information</span>
       </div>
@@ -457,7 +496,8 @@ function ChildBlock({ child }: { child: CommittedChild }) {
 
   // Single definition of set — marks dirty on every state change
   const set = useCallback((id: string, patch: Partial<GiftFormState>) => {
-    setGiftStates((p) => ({ ...p, [id]: { ...p[id]!, ...patch } }));
+    // setGiftStates((p) => ({ ...p, [id]: { ...p[id]!, ...patch } }));
+    setGiftStates((p) => ({ ...p, [id]: { ...p[id]!, ...patch, changesSaved: false } }));
     setIsDirty(true);
   }, []);
 
