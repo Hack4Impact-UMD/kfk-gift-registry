@@ -117,7 +117,7 @@ export function StorefrontSearchFilters({
 
   return (
     <>
-      <div className="hidden justify-center p-3 sm:flex">
+      <div className="hidden justify-center p-4 md:px-8 sm:flex">
         <div className="flex w-full max-w-7xl items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
