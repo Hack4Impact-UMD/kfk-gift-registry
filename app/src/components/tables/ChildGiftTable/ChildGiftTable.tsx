@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-table";
 import { columns } from "./columns";
 import { SuccessMessage } from "./SuccessMessage";
-import type { GiftTableProps, GiftTableMeta } from "./types";
+import type { GiftTableProps as ChildGiftTableProps, GiftTableMeta } from "./types";
 import { cn } from "@/lib/utils";
 import {
   Table,
@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
-export function GiftTable({ gifts, className }: GiftTableProps) {
+export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
   const [claimedGifts, setClaimedGifts] = useState<Set<string>>(new Set());
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
@@ -83,8 +83,8 @@ export function GiftTable({ gifts, className }: GiftTableProps) {
                 onClick={() => handleClaimGift(gift.id)}
                 disabled={isClaimed}
                 className={`rounded-full w-full ${isClaimed
-                    ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white h-auto whitespace-nowrap"
-                    : "h-auto whitespace-nowrap"
+                  ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white h-auto whitespace-nowrap"
+                  : "h-auto whitespace-nowrap"
                   }`}
               >
                 {isClaimed ? "Gift Claimed!" : "Claim Gift!"}
