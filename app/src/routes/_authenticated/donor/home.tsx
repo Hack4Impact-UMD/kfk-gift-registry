@@ -77,7 +77,7 @@ function createInitialGiftStates(gifts: Array<CommittedGift>): Record<string, Gi
     gifts.map((g) => [g.id, {
       ordered: false, delivered: false, receivedByFamily: false,
       receiptFileName: null, deliveryReceiptFileName: null,
-      tracking: "", unclaimed: false, changesSaved: false,
+      tracking: "", unclaimed: false, changesSaved: true,
       pendingUnclaim: false
     }])
   );
@@ -373,7 +373,7 @@ function GiftInformationCard({
                 className="rounded-lg border-gray-300"
               />
             ) : <Label className="justify-self-end text-primary">{state.tracking}</Label>}
-            
+
           </div>
 
           {/* Changes Saved */}
@@ -496,9 +496,7 @@ function ChildBlock({ child }: { child: CommittedChild }) {
 
   // Single definition of set — marks dirty on every state change
   const set = useCallback((id: string, patch: Partial<GiftFormState>) => {
-    // setGiftStates((p) => ({ ...p, [id]: { ...p[id]!, ...patch } }));
     setGiftStates((p) => ({ ...p, [id]: { ...p[id]!, ...patch, changesSaved: false } }));
-    setIsDirty(true);
   }, []);
 
   const handleOrdered = useCallback((id: string) => set(id, { ordered: true }), [set]);
@@ -518,8 +516,17 @@ function ChildBlock({ child }: { child: CommittedChild }) {
         unclaimed: p[id]!.pendingUnclaim, // promote pending to actual
       },
     }));
-    setIsDirty(false);
   }, []);
+
+  useEffect(() => {
+    const allSaved = Object.values(giftStates).every((gift) => gift.changesSaved);
+    
+    if (allSaved) {
+      setIsDirty(false);
+    } else {
+      setIsDirty(true);
+    }
+  }, [giftStates]);
 
   const handleUnclaimConfirm = useCallback(() => {
     if (!unclaimTargetId) return;
