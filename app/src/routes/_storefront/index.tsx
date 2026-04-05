@@ -105,7 +105,7 @@ const mockFamilies: Array<Family> = [
 // Mock children per family
 const mockChildrenFull: Array<Child> = mockFamilies.flatMap((family) =>
   Array.from({ length: 5 }, (_, i) => ({
-    id: `${family.id}-child-${i + 1}`,
+    id: "1",
     name: `Ryan Peirce`,
     status: "recently_off_treatment",
     category: i % 5 === 0 ? "warrior" : "super_sib",
@@ -207,8 +207,8 @@ function App() {
         />
       </div>
 
-      <div className="py-4 px-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="py-4 px-2 sm:px-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
           {currentChildrenProfiles.map((child) => {
             const familyIndex = mockFamilies.findIndex(
               (f) => f.id === child.familyId,
@@ -222,7 +222,7 @@ function App() {
                 to={`/`} // TEMP for `/child/${child.id}`
                 className="block transition-transform duration-200 ease-out hover:scale-105 hover:z-10"
               >
-                <ChildCard child={child} color={color} className="min-w-52" />
+                <ChildCard child={child} color={color} />
               </Link>
             );
           })}

@@ -26,7 +26,7 @@ export function CarouselCard({ sibling, className }: CarouselCardProps) {
 
   const badgeClass =
     sibling.category === "warrior"
-      ? "bg-kfk-yellow/15 text-kfk-yellow border-kfk-yellow/60"
+      ? "bg-kfk-muted-yellow/30 text-kfk-brown border-kfk-brown"
       : "bg-kfk-light-blue/80 text-kfk-blue border-kfk-blue/50";
 
   return (
@@ -79,7 +79,7 @@ export function CarouselCard({ sibling, className }: CarouselCardProps) {
             {categoryLabel}
           </span>
           <span
-            className="flex w-full items-center justify-center rounded-full border-2 border-kfk-red bg-white px-[clamp(0.75rem,3cqw,1rem)] py-[clamp(0.25rem,1.5cqw,0.5rem)] font-gaegu font-bold text-kfk-red [font-size:clamp(0.8rem,4cqw,1rem)]"
+            className="flex w-full items-center text-center justify-center rounded-full border-2 border-kfk-red bg-white px-[clamp(0.75rem,3cqw,1rem)] py-[clamp(0.25rem,1.5cqw,0.5rem)] font-gaegu font-bold text-kfk-red [font-size:clamp(0.8rem,4cqw,1rem)]"
             aria-hidden
           >
             View More
