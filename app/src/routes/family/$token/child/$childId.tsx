@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { GiftIcon } from "@/components/icons";
 import { GiftCard } from "@/components/family/GiftCard";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
-import { getChildById } from "@/server/functions/child";
-import { getChildGiftsByChildId } from "@/server/functions/child";
+import { getChildById, getChildGiftsByChildId } from "@/server/functions/child";
 import type { Gift as CommonGift } from "common";
 import type { Gift } from "@/mocks/mockFamily";
 
@@ -44,7 +43,7 @@ function ChildPage() {
   };
 
   // Map common Gift type to format expected by GiftCard
-  const formattedGifts: Gift[] = gifts.map((gift: CommonGift) => ({
+  const formattedGifts: Array<Gift> = gifts.map((gift: CommonGift) => ({
     id: gift.id,
     name: gift.title,
     price: gift.listedPrice ?? 0,

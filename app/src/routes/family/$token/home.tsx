@@ -11,9 +11,12 @@ export const Route = createFileRoute("/family/$token/home")({
 
 function FamilyHome() {
   const data = FamilyTokenRoute.useLoaderData();
-
   const family = data.family;
   const children = data.children || [];
+
+  const [visibleIds, setVisibleIds] = useState<Array<string>>(() =>
+    notifications.map((n) => n.id),
+  );
 
   if (!family) {
     return (
@@ -23,7 +26,7 @@ function FamilyHome() {
     );
   }
 
-  const notifications: any[] = [];
+  const notifications: Array<any> = [];
   // TODO: Load notifications when gift data is available
   // const notifications = children?.flatMap((child: any) =>
   //   child.gifts
@@ -36,9 +39,7 @@ function FamilyHome() {
   // ) ?? [];
 
   // TODO: implement clear functionality (swap out local storage implementation)
-  const [visibleIds, setVisibleIds] = useState<Array<string>>(() =>
-    notifications.map((n) => n.id),
-  );
+  
 
   const visibleNotifications = notifications.filter((n) =>
     visibleIds.includes(n.id),
