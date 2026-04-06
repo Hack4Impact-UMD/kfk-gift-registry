@@ -1,5 +1,7 @@
 import { ApprovedProfilesTable } from "@/components/tables/ApprovedProfilesTable/ApprovedProfilesTable";
 import { createFileRoute } from "@tanstack/react-router";
+import { useApprovedProfileTableRows } from "@/hooks/queries/useApprovedProfileTableRows";
+import { queries } from "@/queries";
 
 const testData = [
   {
@@ -357,9 +359,21 @@ const testData = [
 ];
 
 export const Route = createFileRoute("/_authenticated/staff/approved")({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      queries.children.approvedProfileTableRows("drive-123") // need an actual driveid here!!!
+    );
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  return <ApprovedProfilesTable data={testData} />;
+  const {data, isPending, error} = useApprovedProfileTableRows("drive-123"); // same here!!
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+  return <ApprovedProfilesTable data={data || testData} />;
 }
