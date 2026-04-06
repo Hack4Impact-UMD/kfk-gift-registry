@@ -55,7 +55,7 @@ function FamilyRoute() {
                 "ring-kfk-red",
                 "ring-kfk-blue",
                 "ring-kfk-green",
-              ];
+              ] as const;
               const ringClass = ringClasses[index % ringClasses.length];
 
               return (

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
-import type { Child } from "@/mocks/mockFamily";
+import type { Child } from "common";
 import { Button } from "@/components/ui/button";
 import { ChildProfileCircle } from "@/components/family/ChildProfileCircle";
 

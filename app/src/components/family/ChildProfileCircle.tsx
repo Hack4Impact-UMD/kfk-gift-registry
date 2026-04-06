@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { ExclamationCircleIcon } from "../icons";
 import type { Child } from "common";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
 

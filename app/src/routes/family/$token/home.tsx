@@ -13,6 +13,7 @@ function FamilyHome() {
   const data = FamilyTokenRoute.useLoaderData();
   const family = data.family;
   const children = data.children || [];
+  const notifications: Array<any> = [];
 
   const [visibleIds, setVisibleIds] = useState<Array<string>>(() =>
     notifications.map((n) => n.id),
@@ -26,7 +27,7 @@ function FamilyHome() {
     );
   }
 
-  const notifications: Array<any> = [];
+  
   // TODO: Load notifications when gift data is available
   // const notifications = children?.flatMap((child: any) =>
   //   child.gifts
@@ -39,7 +40,6 @@ function FamilyHome() {
   // ) ?? [];
 
   // TODO: implement clear functionality (swap out local storage implementation)
-  
 
   const visibleNotifications = notifications.filter((n) =>
     visibleIds.includes(n.id),
