@@ -24,7 +24,7 @@ export function NotificationCard({
   onDismiss,
 }: NotificationCardProps) {
   // hash function to determine color (persists as the same across all renders)
-  const colorIndex = child.id.charCodeAt(0) % color_selections.length;
+  const colorIndex = (child.id.charCodeAt(0) || 0) % color_selections.length;
   const colorClasses = color_selections[colorIndex];
 
   return (
