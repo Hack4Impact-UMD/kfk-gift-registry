@@ -138,12 +138,12 @@ function UnsavedChangesDialog({ open, onDiscard, onSave }: { open: boolean; onDi
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction onClick={onDiscard} className="bg-kfk-blue hover:bg-kfk-blue/80 text-white">
+          <AlertDialogCancel onClick={onDiscard} className="border-kfk-blue text-kfk-blue hover:bg-kfk-blue/10">
             Discard
-          </AlertDialogAction>
-          <AlertDialogCancel onClick={onSave} className="border-kfk-blue text-kfk-blue hover:bg-kfk-blue/10">
-            Save Changes
           </AlertDialogCancel>
+          <AlertDialogAction onClick={onSave} className="bg-kfk-blue hover:bg-kfk-blue/80 text-white">
+            Save Changes
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
