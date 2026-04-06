@@ -22,24 +22,24 @@ function RouteComponent() {
 
   return (
     <DriveProvider>
-    <div>
-      <SidebarProvider open={open} onOpenChange={setOpen}>
-        <div className="flex flex-row w-full h-full">
-          <StaffSidebar />
-          <main className="flex-1 w-full">
-            <div className="w-full bg-accent border-b block md:hidden">
-              <SidebarTrigger
-                openIcon={<XIcon />}
-                closeIcon={<MenuIcon />}
-              ></SidebarTrigger>
-            </div>
-            <div className="p-4">
-              <Outlet />
-            </div>
-          </main>
-        </div>
-      </SidebarProvider>
-    </div>
+      <div>
+        <SidebarProvider open={open} onOpenChange={setOpen}>
+          <div className="flex flex-row w-full h-full">
+            <StaffSidebar />
+            <main className="flex-1 w-full">
+              <div className="w-full bg-accent border-b block md:hidden">
+                <SidebarTrigger
+                  openIcon={<XIcon />}
+                  closeIcon={<MenuIcon />}
+                ></SidebarTrigger>
+              </div>
+              <div className="p-4">
+                <Outlet />
+              </div>
+            </main>
+          </div>
+        </SidebarProvider>
+      </div>
     </DriveProvider>
   );
 }
