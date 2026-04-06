@@ -10,8 +10,10 @@ import type { Gift } from "@/mocks/mockFamily";
 export const Route = createFileRoute("/family/$token/child/$childId")({
   loader: async ({ params }) => {
     const child = await getChildById({ data: { childId: params.childId } });
-    const gifts = await getChildGiftsByChildId({ data: { childId: params.childId } });
-    
+    const gifts = await getChildGiftsByChildId({
+      data: { childId: params.childId },
+    });
+
     return {
       child,
       gifts,
@@ -32,11 +34,11 @@ function ChildPage() {
   // Map common Gift status to mock Gift status
   const mapStatus = (status: string): Gift["status"] => {
     const statusMap: Record<string, Gift["status"]> = {
-      "AVAILABLE": "unordered",
-      "CLAIMED": "claimed",
-      "PURCHASED": "in_transit",
-      "DELIVERED": "delivered",
-      "RECEIVED": "received",
+      AVAILABLE: "unordered",
+      CLAIMED: "claimed",
+      PURCHASED: "in_transit",
+      DELIVERED: "delivered",
+      RECEIVED: "received",
     };
     return statusMap[status] || "unordered";
   };

@@ -96,7 +96,9 @@ function FamilyHome() {
                   />
                 )}
                 <p className="font-semibold">{child.name}</p>
-                <p className="text-sm text-muted-foreground">{child.diagnosis}</p>
+                <p className="text-sm text-muted-foreground">
+                  {child.diagnosis}
+                </p>
               </div>
             ))}
           </div>

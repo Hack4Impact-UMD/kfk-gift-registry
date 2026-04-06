@@ -8,8 +8,10 @@ import { getChildProfilesForFamily } from "@/server/functions/child";
 export const Route = createFileRoute("/family/$token")({
   loader: async ({ params }) => {
     const family = await getFamilyByToken({ data: { token: params.token } });
-    const children = family ? await getChildProfilesForFamily({ data: { familyId: family.id } }) : [];
-    
+    const children = family
+      ? await getChildProfilesForFamily({ data: { familyId: family.id } })
+      : [];
+
     return {
       token: params.token,
       family,
