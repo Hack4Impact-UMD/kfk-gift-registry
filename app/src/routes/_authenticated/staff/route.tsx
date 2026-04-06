@@ -4,6 +4,7 @@ import { MenuIcon, XIcon } from "lucide-react";
 import { UserRole } from "common";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { StaffSidebar } from "@/components/StaffSidebar/StaffSidebar";
+import { DriveProvider } from "@/context/DriveContext";
 
 export const Route = createFileRoute("/_authenticated/staff")({
   beforeLoad: ({ context }) => {
@@ -20,6 +21,7 @@ function RouteComponent() {
   const [open, setOpen] = useState(true);
 
   return (
+    <DriveProvider>
     <div>
       <SidebarProvider open={open} onOpenChange={setOpen}>
         <div className="flex flex-row w-full h-full">
@@ -38,5 +40,6 @@ function RouteComponent() {
         </div>
       </SidebarProvider>
     </div>
+    </DriveProvider>
   );
 }
