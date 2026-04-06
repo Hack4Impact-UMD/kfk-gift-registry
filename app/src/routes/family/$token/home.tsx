@@ -27,7 +27,6 @@ function FamilyHome() {
     );
   }
 
-  
   // TODO: Load notifications when gift data is available
   // const notifications = children?.flatMap((child: any) =>
   //   child.gifts

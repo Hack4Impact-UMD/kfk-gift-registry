@@ -11,17 +11,21 @@ type NotificationCardProps = {
   onDismiss?: () => void;
 };
 
+const color_selections = [
+  { bar: "bg-kfk-red", ring: "ring-kfk-red" },
+  { bar: "bg-kfk-blue", ring: "ring-kfk-blue" },
+  { bar: "bg-kfk-green", ring: "ring-kfk-green" },
+] as const;
+
 export function NotificationCard({
   child,
   giftTitle,
   token,
   onDismiss,
 }: NotificationCardProps) {
-  const colorClasses = {
-    "kfk-red": { bar: "bg-kfk-red", ring: "ring-kfk-red" },
-    "kfk-blue": { bar: "bg-kfk-blue", ring: "ring-kfk-blue" },
-    "kfk-green": { bar: "bg-kfk-green", ring: "ring-kfk-green" },
-  }[child.color] ?? { bar: "bg-kfk-red", ring: "ring-kfk-red" };
+  // hash function to determine color (persists as the same across all renders)
+  const colorIndex = child.id.charCodeAt(0) % color_selections.length;
+  const colorClasses = color_selections[colorIndex];
 
   return (
     <div className="flex items-stretch rounded-r-[20px] bg-card overflow-hidden border-[2px] border-[#ececec]">
