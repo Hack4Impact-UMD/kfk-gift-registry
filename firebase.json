@@ -22,7 +22,7 @@
       ],
       "predeploy": [
         "pnpm run build",
-        "npx isolate-package isolate",
+        "isolate",
         "pnpm --dir functions/isolate install --frozen-lockfile"
       ]
     }
