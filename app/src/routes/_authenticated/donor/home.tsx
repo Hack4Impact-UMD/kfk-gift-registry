@@ -327,8 +327,10 @@ function GiftInformationCard({
                   className="h-12 w-[92%] max-w-md rounded-xl bg-kfk-blue font-gaegu text-[20px] font-bold text-white hover:bg-kfk-blue/80"
                   onClick={() => {
                     onOrdered();
-                    setTrackingNum(state.tracking)
-                    onSave();
+                    if (!undoMode){
+                      setTrackingNum(state.tracking)
+                      onSave();
+                    }
                   }}>
                   Yes, I ordered the gift!
                 </Button>
@@ -417,7 +419,7 @@ function ReceivedGiftsCard({ gifts, giftStates }: { gifts: Array<CommittedGift>;
   return (
     <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="space-y-3 p-5">
-        <p className="border-b pb-2 text-center font-semibold text-gray-800">The family received your gift(s).</p>
+        <p className="border-b-1 border-b-[#126912] border-t-1 border-t-[#126912] py-2 -mx-5 text-center font-semibold text-[#126912] bg-green-100">The family received your gift(s).</p>
         {received.map((g) => (
           <div key={g.id} className="grid grid-cols-[minmax(7rem,auto)_1fr] gap-x-4 text-sm">
             <span className="font-bold">Gift Name:</span>
@@ -492,7 +494,6 @@ function ChildBlock({ child }: { child: CommittedChild }) {
     createInitialGiftStates(child.gifts),
   );
   const [unclaimTargetId, setUnclaimTargetId] = useState<string | null>(null);
-  const [isDirty, setIsDirty] = useState(false);
 
   // Single definition of set — marks dirty on every state change
   const set = useCallback((id: string, patch: Partial<GiftFormState>) => {
@@ -518,15 +519,7 @@ function ChildBlock({ child }: { child: CommittedChild }) {
     }));
   }, []);
 
-  useEffect(() => {
-    const allSaved = Object.values(giftStates).every((gift) => gift.changesSaved);
-    
-    if (allSaved) {
-      setIsDirty(false);
-    } else {
-      setIsDirty(true);
-    }
-  }, [giftStates]);
+  const allSaved = Object.values(giftStates).every((gift) => gift.changesSaved);
 
   const handleUnclaimConfirm = useCallback(() => {
     if (!unclaimTargetId) return;
@@ -541,7 +534,7 @@ function ChildBlock({ child }: { child: CommittedChild }) {
       !giftStates[g.id]?.receivedByFamily,
   );
 
-  const blocker = useBlocker({ condition: isDirty });
+  const blocker = useBlocker({ condition: !allSaved });
 
   return (
     <>
