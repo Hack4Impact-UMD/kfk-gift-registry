@@ -10,7 +10,7 @@ interface StatProps {
 
 function StatLabel({ children, startIcon }: StatProps) {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 items-center flex-col md:flex-row text-center md:text-left">
       {startIcon}
       <span>{children}</span>
     </div>
@@ -57,7 +57,7 @@ export function GiftDriveStats({
           </div>
         </div>
 
-        <div className="flex justify-around text-xl">
+        <div className="flex justify-around text-xl gap-2">
           <StatLabel startIcon={<GiftIcon className="h-5 w-5" />}>
             <span className="text-kfk-yellow">{giftsPurchased}</span> out of{" "}
             {totalGiftsPurchased} Gifts Purchased

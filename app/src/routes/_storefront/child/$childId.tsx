@@ -2,9 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ChildInfoCard } from "@/components/storefront/ChildInfoCard";
 import type { CarouselCardSibling } from "@/components/storefront/CarouselCards";
 import { SiblingsCarousel } from "@/components/storefront/SiblingsCarousel";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import type { StorefrontChild } from "@/types/storefront";
-import { GiftTable } from "@/components/tables/GiftTable/GiftTable";
+import { ChildGiftTable } from "@/components/tables/ChildGiftTable/ChildGiftTable";
 import redStripedBackground from "@/assets/red-striped-background.png";
 
 export const Route = createFileRoute("/_storefront/child/$childId")({
@@ -206,12 +212,14 @@ function RouteComponent() {
     );
   }
 
+  const firstName = child.name.trim().split(" ")[0] || child.name;
+
   return (
     <div className="w-full min-h-screen bg-background">
       <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
         <div className="max-w-7xl mx-auto">
           <div
-            className="w-full px-3 py-6 sm:py-8 md:py-10 lg:px-12 lg:py-12 rounded-3xl bg-cover bg-center bg-repeat-y"
+            className="w-full px-3 py-8 sm:py-8 md:py-10 lg:px-12 lg:py-12 rounded-3xl bg-cover"
             style={{ backgroundImage: `url(${redStripedBackground})` }}
           >
             <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 items-center md:items-stretch w-full">
@@ -219,15 +227,18 @@ function RouteComponent() {
                 <ChildInfoCard child={child} className="h-full" />
               </div>
 
-              <div className="w-full md:max-w-none md:flex-[2] md:min-w-0">
+              <div className="w-full md:max-w-none md:flex-2 md:min-w-0">
                 <Card className="w-full h-full">
-                  <CardHeader className="py-3 sm:py-6">
-                    <CardTitle className="text-xl sm:text-2xl text-center font-gaegu">
-                      {child.name}'s Wish List
+                  <CardHeader className="py-2 sm:py-6">
+                    <CardTitle className="text-2xl sm:text-3xl text-center font-gaegu">
+                      {firstName}'s Wish List
                     </CardTitle>
+                    <CardDescription className="font-gaegu text-center text-muted-foreground md:text-lg">
+                      Please check links before claiming as prices may change
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="px-3 sm:px-6">
-                    <GiftTable gifts={child.gifts} />
+                    <ChildGiftTable gifts={child.gifts} />
                   </CardContent>
                 </Card>
               </div>
@@ -239,7 +250,7 @@ function RouteComponent() {
       <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-8 font-gaegu">
-            {child.name}'s Siblings
+            {firstName}'s Siblings
           </h2>
           <SiblingsCarousel siblings={siblings} />
         </div>

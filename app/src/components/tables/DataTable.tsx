@@ -101,16 +101,16 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={twMerge("flex flex-col gap-3", className)}>
-      <div className="rounded-md border bg-white">
+      <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-gray-50/70">
+              <TableRow key={headerGroup.id} className="bg-card">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="font-semibold text-gray-600 text-sm"
+                      className="font-normal text-muted-foreground text-sm"
                     >
                       {header.isPlaceholder
                         ? null
@@ -157,11 +157,13 @@ export function DataTable<TData, TValue>({
       </div>
 
       <div className="flex items-center justify-between px-1">
-        <span className="text-sm text-gray-500">
-          {totalRows === 0
-            ? "No results"
-            : `Showing ${firstRow}-${lastRow} of ${totalRows}`}
-        </span>
+        {paginated && (
+          <span className="text-sm text-gray-500">
+            {totalRows === 0
+              ? "No results"
+              : `Showing ${firstRow}-${lastRow} of ${totalRows}`}
+          </span>
+        )}
 
         {paginated && pageCount > 1 && (
           <div className="flex items-center gap-1">
