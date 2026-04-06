@@ -1,10 +1,5 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import type { ReactNode } from "react";
+import { createContext, useContext, useState } from "react";
 
 const DriveContext = createContext<
   { activeDriveId: string; setActiveDriveId: (id: string) => void } | undefined
@@ -14,25 +9,14 @@ const STORAGE_KEY = "kfk_active_drive_id";
 const DEFAULT_DRIVE_ID = "gift-drive-2026"; // setting as the def for now
 
 export function DriveProvider({ children }: { children: ReactNode }) {
-  const [activeDriveId, setActiveDriveIdState] =
-    useState<string>(DEFAULT_DRIVE_ID);
-  const [isLoaded, setIsLoaded] = useState(false); // tracking if it's been loaded from storage yet
-
-  useEffect(() => {
+  const [activeDriveId, setActiveDriveIdState] = useState<string>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      setActiveDriveIdState(stored);
-    }
-    setIsLoaded(true);
-  }, []);
-
+    return stored || DEFAULT_DRIVE_ID;
+  });
   const setActiveDriveId = (driveId: string) => {
     setActiveDriveIdState(driveId);
     localStorage.setItem(STORAGE_KEY, driveId);
   };
-  if (!isLoaded) {
-    return null;
-  }
 
   return (
     <DriveContext.Provider value={{ activeDriveId, setActiveDriveId }}>
