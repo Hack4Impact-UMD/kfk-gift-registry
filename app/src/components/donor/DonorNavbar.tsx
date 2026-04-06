@@ -8,7 +8,7 @@ export function DonorNavbar() {
 
     return (
         <>
-            <img src={KFKLogo} className="w-45 mb-2"/>
+            <img src={KFKLogo} alt="Kisses for Kyle Foundations Logo" className="w-45 mb-2"/>
             <div className=" flex justify-center gap-10 bg-kfk-blue py-5 text-white shadow-md">
                 <Link className="flex flex-col" to="/donor/home">
                     <HomeIcon className={`size-6 mx-auto`}/>

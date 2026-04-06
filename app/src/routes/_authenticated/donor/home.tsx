@@ -450,7 +450,7 @@ function ChildDetailSection({ child, giftStates, onOrdered, onDelivered, onUndoD
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
-  }, []);
+  }, [child.id]);
 
   return (
     <div className="mt-2 flex flex-col gap-4 text-left">
