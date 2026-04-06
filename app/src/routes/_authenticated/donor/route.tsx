@@ -1,7 +1,4 @@
-import { Outlet ,createFileRoute, useRouter } from "@tanstack/react-router";
-import { useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { logout } from "@/services/authService.client";
+import { Outlet ,createFileRoute } from "@tanstack/react-router";
 import { DonorNavbar } from "@/components/donor/DonorNavbar";
 
 export const Route = createFileRoute("/_authenticated/donor")({
