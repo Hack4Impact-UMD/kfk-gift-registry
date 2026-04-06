@@ -219,7 +219,7 @@ function RouteComponent() {
       <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
         <div className="max-w-7xl mx-auto">
           <div
-            className="w-full px-3 py-8 sm:py-8 md:py-10 lg:px-12 lg:py-12 rounded-3xl bg-cover"
+            className="w-full px-3 py-8 sm:py-8 md:py-10 lg:px-12 lg:py-12 rounded-3xl bg-cover bg-center flex items-center justify-center"
             style={{ backgroundImage: `url(${redStripedBackground})` }}
           >
             <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 items-center md:items-stretch w-full">
