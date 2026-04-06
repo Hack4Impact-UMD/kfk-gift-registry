@@ -1,21 +1,56 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Route as FamilyTokenRoute } from "../../$token";
 import { GiftIcon } from "@/components/icons";
 import { GiftCard } from "@/components/family/GiftCard";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
+import { getChildById } from "@/server/functions/child";
+import { getChildGiftsByChildId } from "@/server/functions/child";
+import type { Gift as CommonGift } from "common";
+import type { Gift } from "@/mocks/mockFamily";
 
 export const Route = createFileRoute("/family/$token/child/$childId")({
+  loader: async ({ params }) => {
+    const child = await getChildById({ data: { childId: params.childId } });
+    const gifts = await getChildGiftsByChildId({ data: { childId: params.childId } });
+    
+    return {
+      child,
+      gifts,
+    };
+  },
   component: ChildPage,
+  errorComponent: ChildError,
 });
 
 function ChildPage() {
-  const { childId } = Route.useParams();
-  const family = FamilyTokenRoute.useLoaderData();
-
-  const child = family.children.find((c) => c.id === childId);
+  const data = Route.useLoaderData();
+  const child = data.child;
+  const gifts = data.gifts || [];
   const firstName = child?.name.trim().split(/\s+/)[0];
 
   if (!child) return <div>Child not found</div>;
+
+  // Map common Gift status to mock Gift status
+  const mapStatus = (status: string): Gift["status"] => {
+    const statusMap: Record<string, Gift["status"]> = {
+      "AVAILABLE": "unordered",
+      "CLAIMED": "claimed",
+      "PURCHASED": "in_transit",
+      "DELIVERED": "delivered",
+      "RECEIVED": "received",
+    };
+    return statusMap[status] || "unordered";
+  };
+
+  // Map common Gift type to format expected by GiftCard
+  const formattedGifts: Gift[] = gifts.map((gift: CommonGift) => ({
+    id: gift.id,
+    name: gift.title,
+    price: gift.listedPrice ?? 0,
+    status: mapStatus(gift.status),
+    trackingNumber: undefined,
+    dateDelivered: undefined,
+    dateReceived: undefined,
+  }));
 
   return (
     <div>
@@ -46,7 +81,7 @@ function ChildPage() {
           <div className="flex flex-col items-center gap-3 min-w-[140px]">
             <div className="w-28 h-32">
               <img
-                src={child.profileImage ?? ProfilePhoto}
+                src={child.photoUrl ?? ProfilePhoto}
                 alt={child.name}
                 className="w-full h-full object-cover rounded-3xl border-4 border-white"
               />
@@ -59,17 +94,17 @@ function ChildPage() {
             <span
               className={`px-4 py-1 rounded-full border border-foreground text-sm font-gaegu text-foreground
               ${
-                child.label === "Warrior"
+                child.category === "warrior"
                   ? "bg-kfk-muted-yellow" // TODO: ask about styles.css colors (this is #FFF8C2 in wireframe)
                   : "bg-kfk-light-blue"
               }`}
             >
-              {child.label}
+              {child.category === "warrior" ? "Warrior" : "Super Sib"}
             </span>
           </div>
 
           <div className="flex-1 flex flex-col gap-4">
-            {child.gifts.map((gift) => {
+            {formattedGifts.map((gift) => {
               const received = gift.status === "received";
 
               return (
@@ -99,9 +134,20 @@ function ChildPage() {
         <h2 className="text-semibold">{firstName}'s Gift Information</h2>
       </div>
 
-      {child.gifts.map((gift) => (
+      {formattedGifts.map((gift) => (
         <GiftCard key={gift.id} gift={gift} />
       ))}
+    </div>
+  );
+}
+
+function ChildError({ error }: { error: unknown }) {
+  const message = error instanceof Error ? error.message : "Child not found";
+
+  return (
+    <div>
+      <h1>Unable to load child</h1>
+      <p>{message}</p>
     </div>
   );
 }

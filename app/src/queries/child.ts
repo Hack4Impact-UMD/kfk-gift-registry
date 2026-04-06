@@ -5,4 +5,7 @@ export const childQueries = createQueryKeys("children", {
     "approvedProfileTableRows",
     driveId,
   ],
+  byFamilyId: (familyId: string) => ["byFamilyId", familyId],
+  byId: (childId: string) => ["byId", childId],
+  gifts: (childId: string) => ["gifts", childId],
 });

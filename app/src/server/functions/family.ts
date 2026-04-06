@@ -7,6 +7,10 @@ const tokenInputSchema = z.object({
   token: z.string().min(1),
 });
 
+const familyIdInputSchema = z.object({
+  familyId: z.string().min(1),
+});
+
 export const getFamilyByToken = createServerFn({ method: "GET" })
   .inputValidator(tokenInputSchema)
   .handler(async ({ data }) => {
@@ -45,4 +49,19 @@ export const getFamilyLink = createServerFn({ method: "GET" })
     }
 
     return link;
+  });
+
+export const getFamilyById = createServerFn({ method: "GET" })
+  .inputValidator(familyIdInputSchema)
+  .handler(async ({ data }) => {
+    const { familyId } = data;
+
+    const db = getServerDB();
+    const familyDoc = await db.families.doc(familyId).get();
+
+    if (!familyDoc.exists) {
+      throw new Error("Family not found");
+    }
+
+    return familyDoc.data();
   });

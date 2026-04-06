@@ -8,6 +8,14 @@ const childParamSchema = z.object({
   driveId: z.string(),
 });
 
+const familyIdSchema = z.object({
+  familyId: z.string().min(1),
+});
+
+const childIdSchema = z.object({
+  childId: z.string().min(1),
+});
+
 export const getAllChildProfilesForDrive = createServerFn({
   method: "GET",
 })
@@ -78,4 +86,51 @@ export const getApprovedProfileTableRows = createServerFn({
       }
     }
     return rows;
+  });
+
+export const getChildProfilesForFamily = createServerFn({ method: "GET" })
+  .inputValidator(familyIdSchema)
+  .handler(async ({ data }) => {
+    const { familyId } = data;
+
+    const db = getServerDB();
+    const childProfiles = await db.children
+      .where("familyId", "==", familyId)
+      .get();
+
+    if (childProfiles.empty) {
+      return [];
+    }
+
+    return childProfiles.docs.map((doc) => doc.data());
+  });
+
+export const getChildById = createServerFn({ method: "GET" })
+  .inputValidator(childIdSchema)
+  .handler(async ({ data }) => {
+    const { childId } = data;
+
+    const db = getServerDB();
+    const childDoc = await db.children.doc(childId).get();
+
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    return childDoc.data();
+  });
+
+export const getChildGiftsByChildId = createServerFn({ method: "GET" })
+  .inputValidator(childIdSchema)
+  .handler(async ({ data }) => {
+    const { childId } = data;
+
+    const db = getServerDB();
+    const gifts = await db.gifts.where("childId", "==", childId).get();
+
+    if (gifts.empty) {
+      return [];
+    }
+
+    return gifts.docs.map((doc) => doc.data());
   });
