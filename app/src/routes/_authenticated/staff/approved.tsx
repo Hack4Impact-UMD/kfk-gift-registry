@@ -361,14 +361,14 @@ const testData = [
 export const Route = createFileRoute("/_authenticated/staff/approved")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
-      queries.children.approvedProfileTableRows("drive-123") // need an actual driveid here!!!
+      queries.children.approvedProfileTableRows("tbd") // need an actual driveid here!!!
     );
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const {data, isPending, error} = useApprovedProfileTableRows("drive-123"); // same here!!
+  const {data, isPending, error} = useApprovedProfileTableRows("tbd"); // same here!!
   if (isPending) {
     return <div>Loading...</div>;
   }
