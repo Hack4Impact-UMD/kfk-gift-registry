@@ -57,34 +57,91 @@ type GiftFormState = {
 };
 
 const COMMITTED_GIFTS: Array<CommittedGift> = [
-  { id: "gift-uno", title: "Uno Card Game", productUrl: "https://www.amazon.com", listedPrice: 9.99, additionalInfo: "Classic family version" },
-  { id: "gift-hues", title: "HUES and CUES - Color Guessing Board Game", productUrl: "https://www.amazon.com", listedPrice: 9.95, additionalInfo: "small; Color: Navy/Grey/White" },
+  {
+    id: "gift-uno",
+    title: "Uno Card Game",
+    productUrl: "https://www.amazon.com",
+    listedPrice: 9.99,
+    additionalInfo: "Classic family version",
+  },
+  {
+    id: "gift-hues",
+    title: "HUES and CUES - Color Guessing Board Game",
+    productUrl: "https://www.amazon.com",
+    listedPrice: 9.95,
+    additionalInfo: "small; Color: Navy/Grey/White",
+  },
 ];
 
 const JANE_COMMITTED_GIFTS: Array<CommittedGift> = [
-  { id: "gift-sorry", title: "Sorry! The Board Game", productUrl: "https://www.amazon.com", listedPrice: 9.99, additionalInfo: "Classic family version" },
-  { id: "gift-lego", title: "Lego Disney Pixar Up", productUrl: "https://www.amazon.com", listedPrice: 19.95, additionalInfo: "medium; figurines" },
-  { id: "gift-barbie", title: "Barbie Dreamhouse", productUrl: "https://www.amazon.com", listedPrice: 15.99, additionalInfo: "medium; pink figurines" },
+  {
+    id: "gift-sorry",
+    title: "Sorry! The Board Game",
+    productUrl: "https://www.amazon.com",
+    listedPrice: 9.99,
+    additionalInfo: "Classic family version",
+  },
+  {
+    id: "gift-lego",
+    title: "Lego Disney Pixar Up",
+    productUrl: "https://www.amazon.com",
+    listedPrice: 19.95,
+    additionalInfo: "medium; figurines",
+  },
+  {
+    id: "gift-barbie",
+    title: "Barbie Dreamhouse",
+    productUrl: "https://www.amazon.com",
+    listedPrice: 15.99,
+    additionalInfo: "medium; pink figurines",
+  },
 ];
 
 const COMMITTED_CHILDREN: Array<CommittedChild> = [
-  { id: "john-doe", firstName: "John", lastName: "Doe", photoUrl: DefaultProfile, category: "Warrior", gifts: COMMITTED_GIFTS },
-  { id: "jane-doe", firstName: "Jane", lastName: "Doe", photoUrl: DefaultProfile, category: "Supersib", gifts: JANE_COMMITTED_GIFTS },
+  {
+    id: "john-doe",
+    firstName: "John",
+    lastName: "Doe",
+    photoUrl: DefaultProfile,
+    category: "Warrior",
+    gifts: COMMITTED_GIFTS,
+  },
+  {
+    id: "jane-doe",
+    firstName: "Jane",
+    lastName: "Doe",
+    photoUrl: DefaultProfile,
+    category: "Supersib",
+    gifts: JANE_COMMITTED_GIFTS,
+  },
 ];
 
-function createInitialGiftStates(gifts: Array<CommittedGift>): Record<string, GiftFormState> {
+function createInitialGiftStates(
+  gifts: Array<CommittedGift>,
+): Record<string, GiftFormState> {
   return Object.fromEntries(
-    gifts.map((g) => [g.id, {
-      ordered: false, delivered: false, receivedByFamily: false,
-      receiptFileName: null, deliveryReceiptFileName: null,
-      tracking: "", unclaimed: false, changesSaved: true,
-      pendingUnclaim: false
-    }])
+    gifts.map((g) => [
+      g.id,
+      {
+        ordered: false,
+        delivered: false,
+        receivedByFamily: false,
+        receiptFileName: null,
+        deliveryReceiptFileName: null,
+        tracking: "",
+        unclaimed: false,
+        changesSaved: true,
+        pendingUnclaim: false,
+      },
+    ]),
   );
 }
 
 function formatUsd(price: number): string {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(price);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(price);
 }
 
 export function getBlueBackground(): CSSProperties {
@@ -104,21 +161,38 @@ export function getBlueBackground(): CSSProperties {
   };
 }
 
-function UnclaimDialog({ open, onCancel, onConfirm }: { open: boolean; onCancel: () => void; onConfirm: () => void }) {
+function UnclaimDialog({
+  open,
+  onCancel,
+  onConfirm,
+}: {
+  open: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
   return (
     <AlertDialog open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure you want to un-claim the gift?</AlertDialogTitle>
+          <AlertDialogTitle>
+            Are you sure you want to un-claim the gift?
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            This action is irreversible and will return the gift back to the storefront.
+            This action is irreversible and will return the gift back to the
+            storefront.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction onClick={onCancel} className="bg-kfk-blue hover:bg-kfk-blue/80 text-white">
+          <AlertDialogAction
+            onClick={onCancel}
+            className="bg-kfk-blue hover:bg-kfk-blue/80 text-white"
+          >
             Cancel
           </AlertDialogAction>
-          <AlertDialogCancel onClick={onConfirm} className="border-kfk-blue text-kfk-blue hover:bg-kfk-blue/10">
+          <AlertDialogCancel
+            onClick={onConfirm}
+            className="border-kfk-blue text-kfk-blue hover:bg-kfk-blue/10"
+          >
             Yes, I am sure
           </AlertDialogCancel>
         </AlertDialogFooter>
@@ -127,7 +201,15 @@ function UnclaimDialog({ open, onCancel, onConfirm }: { open: boolean; onCancel:
   );
 }
 
-function UnsavedChangesDialog({ open, onDiscard, onSave }: { open: boolean; onDiscard: () => void; onSave: () => void }) {
+function UnsavedChangesDialog({
+  open,
+  onDiscard,
+  onSave,
+}: {
+  open: boolean;
+  onDiscard: () => void;
+  onSave: () => void;
+}) {
   return (
     <AlertDialog open={open}>
       <AlertDialogContent>
@@ -138,10 +220,16 @@ function UnsavedChangesDialog({ open, onDiscard, onSave }: { open: boolean; onDi
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onDiscard} className="border-kfk-blue text-kfk-blue hover:bg-kfk-blue/10">
+          <AlertDialogCancel
+            onClick={onDiscard}
+            className="border-kfk-blue text-kfk-blue hover:bg-kfk-blue/10"
+          >
             Discard
           </AlertDialogCancel>
-          <AlertDialogAction onClick={onSave} className="bg-kfk-blue hover:bg-kfk-blue/80 text-white">
+          <AlertDialogAction
+            onClick={onSave}
+            className="bg-kfk-blue hover:bg-kfk-blue/80 text-white"
+          >
             Save Changes
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -166,29 +254,49 @@ function FileUploadRow({
 
   return (
     <div className="flex flex-row items-center gap-4">
-      <Label htmlFor={inputId} className="flex shrink-0 cursor-pointer flex-col gap-0 text-base font-medium leading-tight text-gray-800">
+      <Label
+        htmlFor={inputId}
+        className="flex shrink-0 cursor-pointer flex-col gap-0 text-base font-medium leading-tight text-gray-800"
+      >
         <span>Attach</span>
         <span>Receipt</span>
       </Label>
       <div className="flex min-w-0 flex-1 flex-col items-end gap-1">
-        <input ref={inputRef} id={inputId} type="file" accept="image/*,.pdf" className="sr-only"
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f.name); e.target.value = ''}} />
+        <input
+          ref={inputRef}
+          id={inputId}
+          type="file"
+          accept="image/*,.pdf"
+          className="sr-only"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onFile(f.name);
+            e.target.value = "";
+          }}
+        />
         <div className="flex items-center gap-2 w-full justify-end">
-          <button type="button"
+          <button
+            type="button"
             className="inline-flex min-h-10 items-center justify-center rounded-xl bg-kfk-blue px-8 py-2 font-gaegu text-[18px] font-bold text-white transition-colors hover:bg-kfk-blue/80"
-            onClick={() => inputRef.current?.click()}>
+            onClick={() => inputRef.current?.click()}
+          >
             Upload
           </button>
           {showClear && fileName && (
-            <button type="button" onClick={onClear}
+            <button
+              type="button"
+              onClick={onClear}
               className="text-gray-500 hover:text-gray-700 text-xl font-medium leading-none"
-              aria-label="Remove file">
+              aria-label="Remove file"
+            >
               ×
             </button>
           )}
         </div>
         {fileName && (
-          <p className="max-w-[220px] truncate text-right text-xs text-gray-500">{fileName}</p>
+          <p className="max-w-[220px] truncate text-right text-xs text-gray-500">
+            {fileName}
+          </p>
         )}
       </div>
     </div>
@@ -207,10 +315,16 @@ function ConfirmedBanner({ label }: { label: string }) {
 }
 
 function GiftInformationCard({
-  gift, state,
-  onOrdered, onDelivered, onUndoDelivery,
-  onReceipt, onDeliveryReceipt, onTrackingChange,
-  onUnclaimRequest, onSave,
+  gift,
+  state,
+  onOrdered,
+  onDelivered,
+  onUndoDelivery,
+  onReceipt,
+  onDeliveryReceipt,
+  onTrackingChange,
+  onUnclaimRequest,
+  onSave,
 }: {
   gift: CommittedGift;
   state: GiftFormState;
@@ -229,27 +343,37 @@ function GiftInformationCard({
   const [trackingNum, setTrackingNum] = useState(state.tracking);
   const [isDelivered, setIsDelivered] = useState(state.delivered);
   const [orderReceipt, setOrderReceipt] = useState(state.receiptFileName);
-  const [orderDeliveryReceipt, setOrderDeliveryReceipt] = useState(state.deliveryReceiptFileName);
+  const [orderDeliveryReceipt, setOrderDeliveryReceipt] = useState(
+    state.deliveryReceiptFileName,
+  );
 
   if (state.receivedByFamily || state.unclaimed) return null;
 
   return (
-    <div className={cn(
-      "w-full overflow-hidden rounded-xl bg-white text-left transition-all",
-      "shadow-[0_0_24px_rgba(15,23,42,0.12)]",
-      "text-gray-900",
-      // Highlight entire card in orange/yellow when undo mode is active
-      undoMode && "ring-4 ring-amber-400 ring-offset-1",
-    )}>
+    <div
+      className={cn(
+        "w-full overflow-hidden rounded-xl bg-white text-left transition-all",
+        "shadow-[0_0_24px_rgba(15,23,42,0.12)]",
+        "text-gray-900",
+        // Highlight entire card in orange/yellow when undo mode is active
+        undoMode && "ring-4 ring-amber-400 ring-offset-1",
+      )}
+    >
       <div className="space-y-4 p-4 md:p-5">
-
         <dl className="grid grid-cols-[minmax(7.5rem,auto)_1fr] gap-x-4 gap-y-3 text-sm">
           <dt className="shrink-0 font-bold">Gift Name</dt>
           <dd className="min-w-0">
-            <a href={gift.productUrl} target="_blank" rel="noopener noreferrer"
-              className="inline-flex max-w-full items-center gap-1.5 font-medium text-kfk-blue hover:underline">
+            <a
+              href={gift.productUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex max-w-full items-center gap-1.5 font-medium text-kfk-blue hover:underline"
+            >
               <span className="break-words">{gift.title}</span>
-              <ExternalLink className="size-4 shrink-0 translate-y-px" aria-hidden />
+              <ExternalLink
+                className="size-4 shrink-0 translate-y-px"
+                aria-hidden
+              />
             </a>
           </dd>
           <dt className="shrink-0 font-bold">Price</dt>
@@ -268,9 +392,12 @@ function GiftInformationCard({
           <div className="space-y-4 rounded-lg border-2 border-kfk-blue bg-white p-4">
             {!state.delivered ? (
               <>
-                <p className="text-center text-base font-medium text-gray-900">Was the gift delivered?</p>
+                <p className="text-center text-base font-medium text-gray-900">
+                  Was the gift delivered?
+                </p>
                 <div className="flex w-full justify-center">
-                  <Button type="button"
+                  <Button
+                    type="button"
                     className="h-12 w-[92%] max-w-md rounded-xl bg-kfk-blue font-gaegu text-[20px] font-bold text-white hover:bg-kfk-blue/80"
                     onClick={() => {
                       onDelivered();
@@ -278,7 +405,8 @@ function GiftInformationCard({
                         setIsDelivered(true);
                         onSave();
                       }
-                    }}>
+                    }}
+                  >
                     Yes, it was delivered!
                   </Button>
                 </div>
@@ -286,9 +414,14 @@ function GiftInformationCard({
             ) : undoMode ? (
               // In undo mode: show undo button instead of confirmed banner
               <div className="flex w-full justify-center">
-                <Button type="button" variant="outline"
+                <Button
+                  type="button"
+                  variant="outline"
                   className="h-12 w-[92%] max-w-md rounded-xl border-2 border-kfk-blue font-gaegu text-[18px] font-bold text-kfk-blue hover:bg-kfk-blue/10"
-                  onClick={() => { onUndoDelivery(); }}>
+                  onClick={() => {
+                    onUndoDelivery();
+                  }}
+                >
                   Undo Delivery Confirmation
                 </Button>
                 {state.pendingUnclaim && (
@@ -302,11 +435,13 @@ function GiftInformationCard({
             )}
 
             <Separator className="bg-gray-200" />
-            <p className="text-center text-base text-gray-700">Optional, but helpful for us!</p>
+            <p className="text-center text-base text-gray-700">
+              Optional, but helpful for us!
+            </p>
             <FileUploadRow
               fileName={state.deliveryReceiptFileName}
               onFile={(n) => {
-                onDeliveryReceipt(n); 
+                onDeliveryReceipt(n);
                 if (!undoMode) {
                   onSave();
                   setOrderDeliveryReceipt(n);
@@ -321,17 +456,21 @@ function GiftInformationCard({
         <div className="space-y-4 rounded-lg border-2 border-kfk-blue bg-white p-4">
           {!state.ordered ? (
             <>
-              <p className="text-center text-base font-medium text-gray-900">Did you order the gift?</p>
+              <p className="text-center text-base font-medium text-gray-900">
+                Did you order the gift?
+              </p>
               <div className="flex w-full justify-center">
-                <Button type="button"
+                <Button
+                  type="button"
                   className="h-12 w-[92%] max-w-md rounded-xl bg-kfk-blue font-gaegu text-[20px] font-bold text-white hover:bg-kfk-blue/80"
                   onClick={() => {
                     onOrdered();
-                    if (!undoMode){
-                      setTrackingNum(state.tracking)
+                    if (!undoMode) {
+                      setTrackingNum(state.tracking);
                       onSave();
                     }
-                  }}>
+                  }}
+                >
                   Yes, I ordered the gift!
                 </Button>
               </div>
@@ -339,9 +478,12 @@ function GiftInformationCard({
           ) : undoMode ? (
             // In undo mode: show un-claim button instead of confirmed banner
             <div className="flex w-full justify-center">
-              <Button type="button" variant="outline"
+              <Button
+                type="button"
+                variant="outline"
                 className="h-12 w-[92%] max-w-md rounded-xl border-2 border-kfk-blue font-gaegu text-[18px] font-bold text-kfk-blue hover:bg-kfk-blue/10"
-                onClick={onUnclaimRequest}>
+                onClick={onUnclaimRequest}
+              >
                 Un-Claim Gift
               </Button>
             </div>
@@ -350,22 +492,29 @@ function GiftInformationCard({
           )}
 
           <Separator className="bg-gray-200" />
-          <p className="text-center text-base text-gray-700">Optional, but helpful for us!</p>
+          <p className="text-center text-base text-gray-700">
+            Optional, but helpful for us!
+          </p>
           <FileUploadRow
             fileName={state.receiptFileName}
             onFile={(n) => {
-                onReceipt(n); 
-                if (!undoMode) {
-                  onSave();
-                  setOrderReceipt(n);
-                }
-              }}
+              onReceipt(n);
+              if (!undoMode) {
+                onSave();
+                setOrderReceipt(n);
+              }
+            }}
             onClear={() => onReceipt(null)}
             showClear={undoMode}
           />
 
           <div className="flex flex-row justify-between gap-2">
-            <Label htmlFor={`${gift.id}-tracking`} className="text-sm font-bold whitespace-nowrap text-gray-900">Tracking #</Label>
+            <Label
+              htmlFor={`${gift.id}-tracking`}
+              className="text-sm font-bold whitespace-nowrap text-gray-900"
+            >
+              Tracking #
+            </Label>
             {!state.ordered || undoMode ? (
               <Input
                 id={`${gift.id}-tracking`}
@@ -374,8 +523,11 @@ function GiftInformationCard({
                 placeholder="Enter tracking number"
                 className="rounded-lg border-gray-300"
               />
-            ) : <Label className="justify-self-end text-primary">{state.tracking}</Label>}
-
+            ) : (
+              <Label className="justify-self-end text-primary">
+                {state.tracking}
+              </Label>
+            )}
           </div>
 
           {/* Changes Saved */}
@@ -388,22 +540,45 @@ function GiftInformationCard({
 
         {!undoMode ? (
           <div className="flex justify-end pt-1">
-            <Button type="button" variant="outline"
+            <Button
+              type="button"
+              variant="outline"
               className="border-gray-300 bg-white font-medium text-gray-700 hover:bg-gray-50"
-              onClick={() => setUndoMode(true)}>
+              onClick={() => setUndoMode(true)}
+            >
               Undo Actions
             </Button>
           </div>
         ) : (
           <div className="flex justify-between pt-1">
-            <Button type="button" variant="outline"
+            <Button
+              type="button"
+              variant="outline"
               className="border-gray-300 bg-white font-medium text-gray-700 hover:bg-gray-50"
-              onClick={() => { if (isDelivered) onDelivered(); else onUndoDelivery(); onTrackingChange(trackingNum); onReceipt(orderReceipt); onDeliveryReceipt(orderDeliveryReceipt); onSave(); setUndoMode(false);}}>
+              onClick={() => {
+                if (isDelivered) onDelivered();
+                else onUndoDelivery();
+                onTrackingChange(trackingNum);
+                onReceipt(orderReceipt);
+                onDeliveryReceipt(orderDeliveryReceipt);
+                onSave();
+                setUndoMode(false);
+              }}
+            >
               Cancel
             </Button>
-            <Button type="button"
+            <Button
+              type="button"
               className="bg-kfk-blue font-medium text-white hover:bg-kfk-blue/80"
-              onClick={() => { onSave(); setUndoMode(false); setIsDelivered(state.delivered); setTrackingNum(state.tracking); setOrderReceipt(state.receiptFileName); setOrderDeliveryReceipt(state.deliveryReceiptFileName)}}>
+              onClick={() => {
+                onSave();
+                setUndoMode(false);
+                setIsDelivered(state.delivered);
+                setTrackingNum(state.tracking);
+                setOrderReceipt(state.receiptFileName);
+                setOrderDeliveryReceipt(state.deliveryReceiptFileName);
+              }}
+            >
               Save
             </Button>
           </div>
@@ -413,26 +588,50 @@ function GiftInformationCard({
   );
 }
 
-function ReceivedGiftsCard({ gifts, giftStates }: { gifts: Array<CommittedGift>; giftStates: Record<string, GiftFormState> }) {
+function ReceivedGiftsCard({
+  gifts,
+  giftStates,
+}: {
+  gifts: Array<CommittedGift>;
+  giftStates: Record<string, GiftFormState>;
+}) {
   const received = gifts.filter((g) => giftStates[g.id]?.receivedByFamily);
   if (received.length === 0) return null;
   return (
     <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="space-y-3 p-5">
-        <p className="border-b-1 border-b-[#126912] border-t-1 border-t-[#126912] py-2 -mx-5 text-center font-semibold text-[#126912] bg-green-100">The family received your gift(s).</p>
+        <p className="border-b-1 border-b-[#126912] border-t-1 border-t-[#126912] py-2 -mx-5 text-center font-semibold text-[#126912] bg-green-100">
+          The family received your gift(s).
+        </p>
         {received.map((g) => (
-          <div key={g.id} className="grid grid-cols-[minmax(7rem,auto)_1fr] gap-x-4 text-sm">
+          <div
+            key={g.id}
+            className="grid grid-cols-[minmax(7rem,auto)_1fr] gap-x-4 text-sm"
+          >
             <span className="font-bold">Gift Name:</span>
             <span>{g.title}</span>
           </div>
         ))}
-        <p className="pt-2 text-center font-bold italic text-gray-800">Thank you for your contribution!</p>
+        <p className="pt-2 text-center font-bold italic text-gray-800">
+          Thank you for your contribution!
+        </p>
       </div>
     </div>
   );
 }
 
-function ChildDetailSection({ child, giftStates, onOrdered, onDelivered, onUndoDelivery, onReceipt, onDeliveryReceipt, onTrackingChange, onUnclaimRequest, onSave }: {
+function ChildDetailSection({
+  child,
+  giftStates,
+  onOrdered,
+  onDelivered,
+  onUndoDelivery,
+  onReceipt,
+  onDeliveryReceipt,
+  onTrackingChange,
+  onUnclaimRequest,
+  onSave,
+}: {
   child: CommittedChild;
   giftStates: Record<string, GiftFormState>;
   onOrdered: (id: string) => void;
@@ -447,16 +646,20 @@ function ChildDetailSection({ child, giftStates, onOrdered, onDelivered, onUndoD
   useEffect(() => {
     const element = document.getElementById(`${child.id}-gift`);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    
   }, [child.id]);
 
   return (
     <div className="mt-2 flex flex-col gap-4 text-left">
-      <div id={`${child.id}-gift`} className="relative left-1/2 flex w-screen max-w-[100vw] -translate-x-1/2 items-center justify-center gap-2 bg-kfk-blue py-3 px-4 text-white">
+      <div
+        id={`${child.id}-gift`}
+        className="relative left-1/2 flex w-screen max-w-[100vw] -translate-x-1/2 items-center justify-center gap-2 bg-kfk-blue py-3 px-4 text-white"
+      >
         <Gift className="size-5 shrink-0" strokeWidth={1.75} />
-        <span className="text-sm font-semibold md:text-base">{child.firstName}&apos;s Gift Information</span>
+        <span className="text-sm font-semibold md:text-base">
+          {child.firstName}&apos;s Gift Information
+        </span>
       </div>
 
       <div className="flex w-full min-w-0 flex-col gap-6">
@@ -466,7 +669,10 @@ function ChildDetailSection({ child, giftStates, onOrdered, onDelivered, onUndoD
             const aDone = giftStates[a.id]?.ordered ?? false;
             const bDone = giftStates[b.id]?.ordered ?? false;
             if (aDone !== bDone) return aDone ? 1 : -1;
-            return child.gifts.findIndex((x) => x.id === a.id) - child.gifts.findIndex((x) => x.id === b.id);
+            return (
+              child.gifts.findIndex((x) => x.id === a.id) -
+              child.gifts.findIndex((x) => x.id === b.id)
+            );
           })
           .map((gift) => (
             <GiftInformationCard
@@ -497,15 +703,36 @@ function ChildBlock({ child }: { child: CommittedChild }) {
 
   // Single definition of set — marks dirty on every state change
   const set = useCallback((id: string, patch: Partial<GiftFormState>) => {
-    setGiftStates((p) => ({ ...p, [id]: { ...p[id]!, ...patch, changesSaved: false } }));
+    setGiftStates((p) => ({
+      ...p,
+      [id]: { ...p[id]!, ...patch, changesSaved: false },
+    }));
   }, []);
 
-  const handleOrdered = useCallback((id: string) => set(id, { ordered: true }), [set]);
-  const handleDelivered = useCallback((id: string) => set(id, { delivered: true }), [set]);
-  const handleUndoDelivery = useCallback((id: string) => set(id, { delivered: false }), [set]);
-  const handleReceipt = useCallback((id: string, f: string | null) => set(id, { receiptFileName: f }), [set]);
-  const handleDeliveryReceipt = useCallback((id: string, f: string | null) => set(id, { deliveryReceiptFileName: f }), [set]);
-  const handleTrackingChange = useCallback((id: string, v: string) => set(id, { tracking: v }), [set]);
+  const handleOrdered = useCallback(
+    (id: string) => set(id, { ordered: true }),
+    [set],
+  );
+  const handleDelivered = useCallback(
+    (id: string) => set(id, { delivered: true }),
+    [set],
+  );
+  const handleUndoDelivery = useCallback(
+    (id: string) => set(id, { delivered: false }),
+    [set],
+  );
+  const handleReceipt = useCallback(
+    (id: string, f: string | null) => set(id, { receiptFileName: f }),
+    [set],
+  );
+  const handleDeliveryReceipt = useCallback(
+    (id: string, f: string | null) => set(id, { deliveryReceiptFileName: f }),
+    [set],
+  );
+  const handleTrackingChange = useCallback(
+    (id: string, v: string) => set(id, { tracking: v }),
+    [set],
+  );
 
   // Single definition of handleSave — promotes pendingUnclaim and clears dirty
   const handleSave = useCallback((id: string) => {
@@ -642,7 +869,9 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col gap-10 overflow-x-hidden p-5">
-      <HomeHeaderCard displayName={auth.authUser.displayName ?? "Unnamed User"} />
+      <HomeHeaderCard
+        displayName={auth.authUser.displayName ?? "Unnamed User"}
+      />
       <div className="mx-auto w-full min-w-0 max-w-150 flex flex-col gap-6">
         {COMMITTED_CHILDREN.map((child) => (
           <ChildBlock key={child.id} child={child} />

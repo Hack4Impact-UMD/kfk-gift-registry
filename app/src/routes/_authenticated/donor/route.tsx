@@ -1,4 +1,4 @@
-import { Outlet ,createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { DonorNavbar } from "@/components/donor/DonorNavbar";
 
 export const Route = createFileRoute("/_authenticated/donor")({
@@ -6,7 +6,6 @@ export const Route = createFileRoute("/_authenticated/donor")({
 });
 
 function DonorPage() {
-
   return (
     <div>
       <DonorNavbar></DonorNavbar>
@@ -14,4 +13,3 @@ function DonorPage() {
     </div>
   );
 }
-
