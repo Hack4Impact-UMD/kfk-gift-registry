@@ -55,36 +55,38 @@ function CheckoutComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-kfk-blue py-8">
-      <div className="flex gap-8 px-8 max-w-full">
-        {/* Left side - Cart */}
-        <div className="w-[68%]">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <CartContainer
-              cartData={cartData}
-              onRemoveGift={handleRemoveGift}
-              showWrapper={false}
+    <div className="w-full flex justify-center px-4 py-8 md:py-4">
+      <div className="max-w-7xl w-full rounded-lg bg-kfk-blue p-4 md:p-8">
+        <div className="flex flex-col md:flex-row gap-8 max-w-full">
+          {/* Left side - Cart */}
+          <div className="md:w-[68%]">
+            <div className="bg-white rounded-lg shadow-lg p-4 md:p-8">
+              <CartContainer
+                cartData={cartData}
+                onRemoveGift={handleRemoveGift}
+                showWrapper={false}
+              />
+            </div>
+          </div>
+
+          {/* Right side - Confirmation Panel */}
+          <div className="flex-1">
+            <ConfirmationPanel
+              totalGifts={totalGifts ?? 0}
+              totalPrice={totalPrice ?? 0}
+              onConfirm={handleConfirmGifts}
             />
           </div>
         </div>
 
-        {/* Right side - Confirmation Panel */}
-        <div className="flex-1">
-          <ConfirmationPanel
-            totalGifts={totalGifts ?? 0}
-            totalPrice={totalPrice ?? 0}
-            onConfirm={handleConfirmGifts}
-          />
-        </div>
+        <ConfirmGiftsModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={() => {
+            setIsModalOpen(false);
+          }}
+        />
       </div>
-
-      <ConfirmGiftsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={() => {
-          setIsModalOpen(false);
-        }}
-      />
     </div>
   );
 }
