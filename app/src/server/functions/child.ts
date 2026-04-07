@@ -1,6 +1,7 @@
 import { getServerDB } from "@/lib/firebase.server";
 import z from "zod";
 import { createServerFn } from "@tanstack/react-start";
+import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 
 const childParamSchema = z.object({
@@ -13,6 +14,16 @@ const familyIdSchema = z.object({
 });
 
 const childIdSchema = z.object({
+  childId: z.string().min(1),
+});
+
+const tokenChildSchema = z.object({
+  token: z.string().min(1),
+  childId: z.string().min(1),
+});
+
+const tokenChildGiftsSchema = z.object({
+  token: z.string().min(1),
   childId: z.string().min(1),
 });
 
@@ -128,6 +139,80 @@ export const getChildGiftsByChildId = createServerFn({ method: "GET" })
     const db = getServerDB();
     const gifts = await db.gifts.where("childId", "==", childId).get();
 
+    if (gifts.empty) {
+      return [];
+    }
+
+    return gifts.docs.map((doc) => doc.data());
+  });
+
+/**
+ * Token-authenticated child retrieval.
+ * Validates that the token has access to the requested child before returning data.
+ */
+export const getChildByIdWithToken = createServerFn({ method: "GET" })
+  .inputValidator(tokenChildSchema)
+  .handler(async ({ data }) => {
+    const { token, childId } = data;
+
+    // Validate token
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+
+    // Fetch child
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+
+    // Verify child belongs to the token's family
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    return child;
+  });
+
+/**
+ * Token-authenticated child gifts retrieval.
+ * Validates that the token has access to the child before returning its gifts.
+ */
+export const getChildGiftsByChildIdWithToken = createServerFn({
+  method: "GET",
+})
+  .inputValidator(tokenChildGiftsSchema)
+  .handler(async ({ data }) => {
+    const { token, childId } = data;
+
+    // Validate token
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+
+    // Fetch child to verify ownership
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+
+    // Verify child belongs to the token's family
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    // Fetch gifts
+    const gifts = await db.gifts.where("childId", "==", childId).get();
     if (gifts.empty) {
       return [];
     }

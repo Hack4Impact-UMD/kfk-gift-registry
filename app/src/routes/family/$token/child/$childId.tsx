@@ -2,15 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { GiftIcon } from "@/components/icons";
 import { GiftCard } from "@/components/family/GiftCard";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
-import { getChildById, getChildGiftsByChildId } from "@/server/functions/child";
+import {
+  getChildByIdWithToken,
+  getChildGiftsByChildIdWithToken,
+} from "@/server/functions/child";
 import type { Gift as CommonGift } from "common";
 import type { Gift } from "@/mocks/mockFamily";
 
 export const Route = createFileRoute("/family/$token/child/$childId")({
   loader: async ({ params }) => {
-    const child = await getChildById({ data: { childId: params.childId } });
-    const gifts = await getChildGiftsByChildId({
-      data: { childId: params.childId },
+    const child = await getChildByIdWithToken({
+      data: { token: params.token, childId: params.childId },
+    });
+    const gifts = await getChildGiftsByChildIdWithToken({
+      data: { token: params.token, childId: params.childId },
     });
 
     return {
