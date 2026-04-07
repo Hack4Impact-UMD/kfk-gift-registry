@@ -11,6 +11,7 @@
   },
   "ignorePatterns": ["/lib/**/*", "/generated/**/*"],
   "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
     "import/no-unresolved": "off"
   }
 }

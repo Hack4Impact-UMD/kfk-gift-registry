@@ -12,10 +12,10 @@ export const Route = createFileRoute("/family/$token/home")({
 function FamilyHome() {
   const family = FamilyTokenRoute.useLoaderData();
 
-  const notifications = family.children.flatMap((child: any) =>
+  const notifications = family.children.flatMap((child) =>
     child.gifts
-      .filter((gift: any) => gift.status === "delivered")
-      .map((gift: any) => ({
+      .filter((gift) => gift.status === "delivered")
+      .map((gift) => ({
         id: gift.id,
         child: child,
         giftTitle: gift.name,

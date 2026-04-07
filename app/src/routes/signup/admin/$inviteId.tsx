@@ -2,6 +2,7 @@ import * as React from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import z from "zod";
 import { useForm, useStore } from "@tanstack/react-form";
+import type { AnyFieldApi } from "@tanstack/react-form";
 import KFKLogo from "@/assets/kfk-logo.png";
 import Ladybug from "@/assets/ladybug-signup.png";
 import { Input } from "@/components/ui/input";
@@ -65,7 +66,7 @@ export const registerSchema = z
 
 type InviteFieldProps = {
   type?: string;
-  field: any;
+  field: AnyFieldApi;
   placeholder: string;
   disabled?: boolean;
   startIcon: React.ReactNode;
@@ -100,7 +101,6 @@ function InviteFieldInput({
         <InputComponent
           type={inputType}
           name={field.name}
-          id={field.id}
           value={field.state.value}
           placeholder={placeholder}
           className={`w-full border border-muted-foreground rounded-md px-3 pl-8 py-2 mt-1
@@ -167,7 +167,7 @@ function RouteComponent() {
           onSuccess: () => {
             navigate({ to: "/signup/success" });
           },
-          onError: (err: any) => {
+          onError: (err: unknown) => {
             console.error(err);
           },
         },
