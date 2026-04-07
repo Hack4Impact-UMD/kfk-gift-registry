@@ -2,20 +2,18 @@ import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { HomeIcon } from "@/components/icons";
 import { ChildProfileCircle } from "@/components/family/ChildProfileCircle";
-import { getFamilyByToken } from "@/server/functions/family";
-import { getChildProfilesForFamily } from "@/server/functions/child";
+import { getFamilyDashboardDataByToken } from "@/server/functions/family";
 
 export const Route = createFileRoute("/family/$token")({
   loader: async ({ params }) => {
-    const family = await getFamilyByToken({ data: { token: params.token } });
-    const children = family
-      ? await getChildProfilesForFamily({ data: { familyId: family.id } })
-      : [];
+    const data = await getFamilyDashboardDataByToken({
+      data: { token: params.token },
+    });
 
     return {
       token: params.token,
-      family,
-      children,
+      family: data.family,
+      children: data.children,
     };
   },
   component: FamilyRoute,

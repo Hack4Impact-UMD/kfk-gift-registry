@@ -65,3 +65,44 @@ export const getFamilyById = createServerFn({ method: "GET" })
 
     return familyDoc.data();
   });
+
+export const getFamilyDashboardDataByToken = createServerFn({ method: "GET" })
+  .inputValidator(tokenInputSchema)
+  .handler(async ({ data }) => {
+    const { token } = data;
+
+    // Validate token and load family link
+    const link = await getFamilyLinkById(token);
+
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+
+    // Load family by familyId
+    const familyDoc = await db.families.doc(link.familyId).get();
+
+    if (!familyDoc.exists) {
+      throw new Error("Family not found");
+    }
+
+    const familyData = familyDoc.data();
+
+    // Load children for this family
+    const childProfiles = await db.children
+      .where("familyId", "==", link.familyId)
+      .get();
+
+    const children = childProfiles.docs.map((doc) => doc.data());
+
+    // Return only public fields
+    return {
+      family: {
+        id: familyData.id,
+        contactName: familyData.contactName,
+        giftDrive: familyData.giftDrive,
+      },
+      children,
+    };
+  });
