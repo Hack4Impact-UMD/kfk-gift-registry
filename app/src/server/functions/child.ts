@@ -126,9 +126,7 @@ export const getApprovedProfileTableRows = createServerFn({
         diagnosis: child.diagnosis,
         type: child.category === "warrior" ? "warrior" : "supersib",
         giftsFulfilled: gifts.filter((g) =>
-          ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(
-            g.status,
-          ),
+          ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
         ).length,
         giftsTotal: gifts.length,
       };

@@ -36,8 +36,6 @@ function ChildPage() {
 
   const firstName = child.name.trim().split(/\s+/)[0];
 
-  
-
   // Map common Gift status to mock Gift status
   const mapStatus = (status: string): Gift["status"] => {
     const statusMap: Record<string, Gift["status"]> = {
