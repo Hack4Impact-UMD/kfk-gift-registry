@@ -1,0 +1,6 @@
+{
+  "useEmulator": true,
+  "emulatorHost": "127.0.0.1",
+  "emulatorPort": 8080,
+  "project": "kfk-gift-registry"
+}
