@@ -64,38 +64,77 @@ export const getApprovedProfileTableRows = createServerFn({
   .inputValidator(childParamSchema)
   .handler(async ({ data }) => {
     const db = getServerDB();
-    const rows = [];
-    const families = await getAllApprovedFamilyProfilesForDrive({ data });
+    const rows: ApprovedProfileTableRow[] = [];
 
-    for (const family of families) {
-      const eachFamChildren = await db.children
-        .where("familyId", "==", family.id)
-        .get();
-      const childrenData = eachFamChildren.docs.map((doc) => doc.data());
-      for (const child of childrenData) {
-        const eachChildGifts = await db.gifts
-          .where("childId", "==", child.id)
-          .get();
-        const gifts = eachChildGifts.docs.map((doc) => doc.data());
-        const row: ApprovedProfileTableRow = {
-          id: child.id,
-          childName: child.name,
-          profilePictureUrl: child.photoUrl,
-          parentGuardian: family.contactName,
-          email: family.email,
-          age: child.age,
-          diagnosis: child.diagnosis,
-          type: child.category === "warrior" ? "warrior" : "supersib",
-          giftsFulfilled: gifts.filter((g) =>
-            ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(
-              g.status,
-            ),
-          ).length,
-          giftsTotal: gifts.length,
-        };
-        rows.push(row);
-      }
+    // 1. Get all approved families
+    const families = await getAllApprovedFamilyProfilesForDrive({ data });
+    if (families.length === 0) {
+      return rows;
     }
+
+    const familyIds = families.map((f) => f.id);
+
+    // 2. Batch-fetch all children for these families (Firestore `in` max 10)
+    const allChildren: any[] = [];
+    for (let i = 0; i < familyIds.length; i += 10) {
+      const batch = familyIds.slice(i, i + 10);
+      const childrenQuery = await db.children
+        .where("familyId", "in", batch)
+        .get();
+      allChildren.push(...childrenQuery.docs.map((doc) => doc.data()));
+    }
+
+    if (allChildren.length === 0) {
+      return rows;
+    }
+
+    const childIds = allChildren.map((c) => c.id);
+
+    // 3. Batch-fetch all gifts for these children (Firestore `in` max 10)
+    const allGifts: any[] = [];
+    for (let i = 0; i < childIds.length; i += 10) {
+      const batch = childIds.slice(i, i + 10);
+      const giftsQuery = await db.gifts.where("childId", "in", batch).get();
+      allGifts.push(...giftsQuery.docs.map((doc) => doc.data()));
+    }
+
+    // 4. Index gifts by childId for O(1) lookup
+    const giftsByChildId = new Map<string, any[]>();
+    for (const gift of allGifts) {
+      if (!giftsByChildId.has(gift.childId)) {
+        giftsByChildId.set(gift.childId, []);
+      }
+      giftsByChildId.get(gift.childId)!.push(gift);
+    }
+
+    // 5. Index families by id for O(1) lookup
+    const familiesById = new Map(families.map((f) => [f.id, f]));
+
+    // 6. Compose rows in memory
+    for (const child of allChildren) {
+      const family = familiesById.get(child.familyId);
+      if (!family) continue;
+
+      const gifts = giftsByChildId.get(child.id) || [];
+      const row: ApprovedProfileTableRow = {
+        id: child.id,
+        childName: child.name,
+        profilePictureUrl: child.photoUrl,
+        parentGuardian: family.contactName,
+        email: family.email,
+        age: child.age,
+        diagnosis: child.diagnosis,
+        type: child.category === "warrior" ? "warrior" : "supersib",
+        giftsFulfilled: gifts.filter((g) =>
+          ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(
+            g.status,
+          ),
+        ).length,
+        giftsTotal: gifts.length,
+      };
+      rows.push(row);
+    }
+
     return rows;
   });
 
