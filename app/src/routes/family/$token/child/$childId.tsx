@@ -26,9 +26,12 @@ function ChildPage() {
   const data = Route.useLoaderData();
   const child = data.child;
   const gifts = data.gifts || [];
-  const firstName = child?.name.trim().split(/\s+/)[0];
 
   if (!child) return <div>Child not found</div>;
+
+  const firstName = child.name.trim().split(/\s+/)[0];
+
+  
 
   // Map common Gift status to mock Gift status
   const mapStatus = (status: string): Gift["status"] => {

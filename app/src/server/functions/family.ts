@@ -87,7 +87,7 @@ export const getFamilyDashboardDataByToken = createServerFn({ method: "GET" })
       throw new Error("Family not found");
     }
 
-    const familyData = familyDoc.data();
+    const familyData = familyDoc.data()!;
 
     // Load children for this family
     const childProfiles = await db.children
