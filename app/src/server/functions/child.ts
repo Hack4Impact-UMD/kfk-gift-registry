@@ -37,7 +37,7 @@ export const getAllChildProfilesForDrive = createServerFn({
       .where("giftDrive", "==", data.driveId)
       .get();
     if (childProfiles.empty) {
-      throw new Error("No child profiles exist for this specific drive ID.");
+      return [];
     }
     return childProfiles.docs.map((doc) => doc.data());
   });
@@ -53,7 +53,7 @@ export const getAllApprovedFamilyProfilesForDrive = createServerFn({
       .where("reviewStatus.approved", "==", true)
       .get();
     if (familyProfiles.empty) {
-      throw new Error("No family profiles exist for this specific drive ID.");
+      return [];
     }
     return familyProfiles.docs.map((doc) => doc.data());
   });
