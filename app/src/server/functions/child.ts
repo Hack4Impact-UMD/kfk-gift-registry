@@ -64,7 +64,7 @@ export const getApprovedProfileTableRows = createServerFn({
   .inputValidator(childParamSchema)
   .handler(async ({ data }) => {
     const db = getServerDB();
-    const rows: ApprovedProfileTableRow[] = [];
+    const rows: Array<ApprovedProfileTableRow> = [];
 
     // 1. Get all approved families
     const families = await getAllApprovedFamilyProfilesForDrive({ data });
@@ -75,7 +75,7 @@ export const getApprovedProfileTableRows = createServerFn({
     const familyIds = families.map((f) => f.id);
 
     // 2. Batch-fetch all children for these families (Firestore `in` max 10)
-    const allChildren: any[] = [];
+    const allChildren: Array<any> = [];
     for (let i = 0; i < familyIds.length; i += 10) {
       const batch = familyIds.slice(i, i + 10);
       const childrenQuery = await db.children
@@ -91,7 +91,7 @@ export const getApprovedProfileTableRows = createServerFn({
     const childIds = allChildren.map((c) => c.id);
 
     // 3. Batch-fetch all gifts for these children (Firestore `in` max 10)
-    const allGifts: any[] = [];
+    const allGifts: Array<any> = [];
     for (let i = 0; i < childIds.length; i += 10) {
       const batch = childIds.slice(i, i + 10);
       const giftsQuery = await db.gifts.where("childId", "in", batch).get();
@@ -99,7 +99,7 @@ export const getApprovedProfileTableRows = createServerFn({
     }
 
     // 4. Index gifts by childId for O(1) lookup
-    const giftsByChildId = new Map<string, any[]>();
+    const giftsByChildId = new Map<string, Array<any>>();
     for (const gift of allGifts) {
       if (!giftsByChildId.has(gift.childId)) {
         giftsByChildId.set(gift.childId, []);
