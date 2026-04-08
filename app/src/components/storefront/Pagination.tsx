@@ -41,7 +41,7 @@ const getPaginationRange = (
 interface PaginationProp {
   totalChildren: number;
   childrenPerPage: number;
-  setCurrentPage: (page: number) => any;
+  setCurrentPage: (page: number) => void;
   currentPage: number;
   MAX_BUTTONS: number;
   IMMEDIATE_PAGES: number;

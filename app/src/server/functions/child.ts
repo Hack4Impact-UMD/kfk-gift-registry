@@ -3,6 +3,7 @@ import z from "zod";
 import { createServerFn } from "@tanstack/react-start";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
+import type { Child, Gift } from "common";
 
 const childParamSchema = z.object({
   // just so it's clean for the input validator
@@ -75,7 +76,7 @@ export const getApprovedProfileTableRows = createServerFn({
     const familyIds = families.map((f) => f.id);
 
     // 2. Batch-fetch all children for these families (Firestore `in` max 10)
-    const allChildren: Array<any> = [];
+    const allChildren: Array<Child> = [];
     for (let i = 0; i < familyIds.length; i += 10) {
       const batch = familyIds.slice(i, i + 10);
       const childrenQuery = await db.children
@@ -91,7 +92,7 @@ export const getApprovedProfileTableRows = createServerFn({
     const childIds = allChildren.map((c) => c.id);
 
     // 3. Batch-fetch all gifts for these children (Firestore `in` max 10)
-    const allGifts: Array<any> = [];
+    const allGifts: Array<Gift> = [];
     for (let i = 0; i < childIds.length; i += 10) {
       const batch = childIds.slice(i, i + 10);
       const giftsQuery = await db.gifts.where("childId", "in", batch).get();
@@ -99,7 +100,7 @@ export const getApprovedProfileTableRows = createServerFn({
     }
 
     // 4. Index gifts by childId for O(1) lookup
-    const giftsByChildId = new Map<string, Array<any>>();
+    const giftsByChildId = new Map<string, Array<Gift>>();
     for (const gift of allGifts) {
       if (!giftsByChildId.has(gift.childId)) {
         giftsByChildId.set(gift.childId, []);

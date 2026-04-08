@@ -4,6 +4,7 @@ import { Route as FamilyTokenRoute } from "../$token";
 import { Button } from "@/components/ui/button";
 import { NotificationCard } from "@/components/family/NotificationCard";
 import RedGift from "@/assets/red-gift.png";
+import type { Child } from "common";
 
 export const Route = createFileRoute("/family/$token/home")({
   component: FamilyHome,
@@ -13,8 +14,10 @@ function FamilyHome() {
   const data = FamilyTokenRoute.useLoaderData();
   const family = data.family;
   const children = data.children || [];
-  const notifications: Array<any> = [];
+  const notifications: Array<{ id: string; child: Child; giftTitle: string }> =
+    [];
 
+  // TODO: implement clear functionality (swap out local storage implementation)
   const [visibleIds, setVisibleIds] = useState<Array<string>>(() =>
     notifications.map((n) => n.id),
   );

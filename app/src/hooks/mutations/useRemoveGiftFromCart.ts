@@ -28,7 +28,11 @@ export function useRemoveGiftFromCart() {
 
       return { previousData };
     },
-    onError: (_err, _giftId, context: any) => {
+    onError: (
+      _err,
+      _giftId,
+      context: { previousData: Array<CartFamily> | undefined } | undefined,
+    ) => {
       if (context?.previousData) {
         queryClient.setQueryData(cartQueryKey, context.previousData);
       }
