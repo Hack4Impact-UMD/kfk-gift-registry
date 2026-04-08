@@ -33,10 +33,14 @@ const mockFamily: Family = {
 };
 
 function RouteComponent() {
+  const lastName = mockFamily.contactName.trim().split(/\s+/).pop() ?? "";
+
   return (
     <div>
-      <h1 className="text-3xl font-bold">{mockFamily.id} Family</h1>
-      <GuardianInfoCard family={mockFamily} />
+      <h1 className="text-4xl ml-16 mt-6 font-bold">{lastName} Family</h1>
+      <div className="shadow-xl border max-w-3xl rounded-md p-8 mt-6 ml-6 flex justify-center">
+        <GuardianInfoCard family={mockFamily} />
+      </div>
     </div>
   );
 }
