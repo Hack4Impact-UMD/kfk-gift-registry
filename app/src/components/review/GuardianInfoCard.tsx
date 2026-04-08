@@ -6,9 +6,10 @@ import * as React from "react";
 
 interface ChildInfoCardProps {
   family: Family;
+  onSave?: (updatedFamily: Family) => void;
 }
 
-export function GuardianInfoCard({ family }: ChildInfoCardProps) {
+export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
   const [editing, setEditing] = React.useState(false);
   const [formState, setFormState] = React.useState({
     contactName: family.contactName,
@@ -23,7 +24,15 @@ export function GuardianInfoCard({ family }: ChildInfoCardProps) {
   };
 
   const handleSave = () => {
-    // Update database
+    const updatedFamily: Family = {
+      ...family,
+      contactName: formState.contactName,
+      phone: formState.phone,
+      email: formState.email,
+      privateNotes: formState.privateNotes,
+    };
+
+    if (onSave) onSave(updatedFamily);
 
     setEditing(false);
   };
