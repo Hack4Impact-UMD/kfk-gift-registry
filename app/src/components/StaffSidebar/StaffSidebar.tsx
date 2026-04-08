@@ -139,14 +139,11 @@ export function StaffSidebar() {
                     </SelectTrigger>
                   </SidebarMenuButtonWithTooltip>
                   <SelectContent>
-                    <SelectItem value="gift-drive-2026">
+                    <SelectItem value="gd_seed_spring_2026_1">
                       Gift Drive 2026
                     </SelectItem>
-                    <SelectItem value="gift-drive-2025">
+                    <SelectItem value="gd_seed_fall_2025_2">
                       Gift Drive 2025
-                    </SelectItem>
-                    <SelectItem value="gift-drive-2024">
-                      Gift Drive 2024
                     </SelectItem>
                   </SelectContent>
                 </Select>

@@ -6,7 +6,7 @@ const DriveContext = createContext<
 >(undefined);
 
 const STORAGE_KEY = "kfk_active_drive_id";
-const DEFAULT_DRIVE_ID = "gift-drive-2026"; // setting as the def for now
+const DEFAULT_DRIVE_ID = "gd_seed_spring_2026_1"; // matches seeded gift drive ID
 
 export function DriveProvider({ children }: { children: ReactNode }) {
   const [activeDriveId, setActiveDriveIdState] = useState<string>(() => {
