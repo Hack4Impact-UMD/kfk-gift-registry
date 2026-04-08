@@ -1,7 +1,9 @@
 import { getServerDB } from "@/lib/firebase.server";
 import z from "zod";
 import { createServerFn } from "@tanstack/react-start";
+import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
+import { verifySession } from "./auth";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 import type { Child, Gift } from "common";
 
@@ -33,6 +35,18 @@ export const getAllChildProfilesForDrive = createServerFn({
 })
   .inputValidator(childParamSchema)
   .handler(async ({ data }) => {
+    // Verify authentication
+    const authUser = await verifySession();
+    if (!authUser) {
+      throw new Error("Unauthorized: not authenticated");
+    }
+
+    // Verify staff authorization (ADMIN, DIRECTOR, VOLUNTEER)
+    const staffRoles = [UserRole.ADMIN, UserRole.DIRECTOR, UserRole.VOLUNTEER];
+    if (!staffRoles.includes(authUser.role)) {
+      throw new Error("Unauthorized: insufficient permissions");
+    }
+
     const db = getServerDB();
     const childProfiles = await db.children
       .where("giftDrive", "==", data.driveId)
@@ -48,6 +62,18 @@ export const getAllApprovedFamilyProfilesForDrive = createServerFn({
 })
   .inputValidator(childParamSchema)
   .handler(async ({ data }) => {
+    // Verify authentication
+    const authUser = await verifySession();
+    if (!authUser) {
+      throw new Error("Unauthorized: not authenticated");
+    }
+
+    // Verify staff authorization (ADMIN, DIRECTOR, VOLUNTEER)
+    const staffRoles = [UserRole.ADMIN, UserRole.DIRECTOR, UserRole.VOLUNTEER];
+    if (!staffRoles.includes(authUser.role)) {
+      throw new Error("Unauthorized: insufficient permissions");
+    }
+
     const db = getServerDB();
     const familyProfiles = await db.families
       .where("giftDrive", "==", data.driveId)
@@ -64,6 +90,18 @@ export const getApprovedProfileTableRows = createServerFn({
 })
   .inputValidator(childParamSchema)
   .handler(async ({ data }) => {
+    // Verify authentication
+    const authUser = await verifySession();
+    if (!authUser) {
+      throw new Error("Unauthorized: not authenticated");
+    }
+
+    // Verify staff authorization (ADMIN, DIRECTOR, VOLUNTEER)
+    const staffRoles = [UserRole.ADMIN, UserRole.DIRECTOR, UserRole.VOLUNTEER];
+    if (!staffRoles.includes(authUser.role)) {
+      throw new Error("Unauthorized: insufficient permissions");
+    }
+
     const db = getServerDB();
     const rows: Array<ApprovedProfileTableRow> = [];
 
