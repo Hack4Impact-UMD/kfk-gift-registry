@@ -125,7 +125,7 @@ export const columns = [
         <div className="flex items-center gap-2">
           <div className={`h-3 w-3 rounded-full ${dotColor}`}></div>
           <div>
-            {fulfilled}/{total} Gifts
+            {fulfilled}/3 Gifts
           </div>
         </div>
       );
