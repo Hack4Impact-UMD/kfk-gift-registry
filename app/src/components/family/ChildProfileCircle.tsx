@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ExclamationCircleIcon } from "../icons";
-import type { Child } from "@/mocks/mockFamily";
+import type { Child } from "common";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
 
 type ChildProfileCircleProps = {
@@ -18,9 +17,10 @@ export function ChildProfileCircle({
   compact,
   disableLink,
 }: ChildProfileCircleProps) {
-  const needsAttention = child.gifts.some(
-    (gift) => gift.status === "delivered",
-  );
+  // TODO: Add notification badge logic when gifts are available
+  // const needsAttention = child.gifts.some(
+  //   (gift) => gift.status === "delivered",
+  // );
 
   const content = (
     <>
@@ -29,16 +29,11 @@ export function ChildProfileCircle({
           className={`w-16 h-16 rounded-full border-2 border-background ring-2 ${ringClass} flex items-center justify-center overflow-hidden`}
         >
           <img
-            src={child.profileImage ?? ProfilePhoto}
+            src={child.photoUrl ?? ProfilePhoto}
             alt={child.name}
             className="w-full h-full object-cover"
           />
         </div>
-        {needsAttention && !compact && (
-          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-kfk-red flex items-center justify-center text-white">
-            <ExclamationCircleIcon className="size-5" />
-          </div>
-        )}
       </div>
       {!compact && <span className="text-sm font-medium">{child.name}</span>}
     </>

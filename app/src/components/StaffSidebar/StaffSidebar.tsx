@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
+import { useDrive } from "@/context/DriveContext";
 
 import {
   Sidebar,
@@ -85,7 +86,7 @@ const SidebarMenuButtonWithHovering = ({
 export function StaffSidebar() {
   const { auth } = useRouteContext({ from: "/_authenticated" });
   const user = auth.authUser;
-  const [year, setYear] = useState("2026");
+  const { activeDriveId, setActiveDriveId } = useDrive();
   const [, setIsDropdownPressed] = useState<boolean>(false);
 
   return (
@@ -122,10 +123,10 @@ export function StaffSidebar() {
               <SidebarMenuButton asChild size="lg">
                 <Select
                   onOpenChange={setIsDropdownPressed}
-                  value={year}
-                  onValueChange={setYear}
+                  value={activeDriveId}
+                  onValueChange={setActiveDriveId}
                 >
-                  <SidebarMenuButtonWithTooltip label={year}>
+                  <SidebarMenuButtonWithTooltip label="Drive">
                     <SelectTrigger
                       chevron={false}
                       className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:min-w-12 min-h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 data-[state=open]:text-[var(--color-kfk-blue)]"
@@ -138,9 +139,12 @@ export function StaffSidebar() {
                     </SelectTrigger>
                   </SidebarMenuButtonWithTooltip>
                   <SelectContent>
-                    <SelectItem value="2024">2024</SelectItem>
-                    <SelectItem value="2025">2025</SelectItem>
-                    <SelectItem value="2026">2026</SelectItem>
+                    <SelectItem value="gd_seed_spring_2026_1">
+                      Gift Drive 2026
+                    </SelectItem>
+                    <SelectItem value="gd_seed_fall_2025_2">
+                      Gift Drive 2025
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </SidebarMenuButton>
