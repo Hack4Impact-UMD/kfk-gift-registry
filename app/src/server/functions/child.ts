@@ -30,6 +30,11 @@ const tokenChildGiftsSchema = z.object({
   childId: z.string().min(1),
 });
 
+const tokenChildClaimsSchema = z.object({
+  token: z.string().min(1),
+  childId: z.string().min(1),
+});
+
 const tokenGiftConfirmationSchema = z.object({
   token: z.string().min(1),
   childId: z.string().min(1),
@@ -302,6 +307,38 @@ export const getChildGiftsByChildIdWithToken = createServerFn({
     return gifts.docs.map((doc) => doc.data());
   });
 
+export const getChildClaimsByChildIdWithToken = createServerFn({
+  method: "GET",
+})
+  .inputValidator(tokenChildClaimsSchema)
+  .handler(async ({ data }) => {
+    const { token, childId } = data;
+
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    const claims = await db.claims.where("childId", "==", childId).get();
+    if (claims.empty) {
+      return [];
+    }
+
+    return claims.docs.map((doc) => doc.data()).filter((claim) => claim.active);
+  });
+
 export const confirmGiftReceivedWithToken = createServerFn({
   method: "POST",
 })
@@ -344,9 +381,21 @@ export const confirmGiftReceivedWithToken = createServerFn({
       throw new Error("Only delivered gifts can be confirmed as received");
     }
 
+    const claims = await db.claims.where("giftId", "==", giftId).get();
+    const activeClaim = claims.docs
+      .map((doc) => doc.data())
+      .find((claim) => claim.active);
+    const receivedAt = new Date().toISOString();
+
     await db.gifts.doc(giftId).update({
       status: "RECEIVED",
     });
+
+    if (activeClaim) {
+      await db.claims.doc(activeClaim.id).update({
+        receivedAt,
+      });
+    }
 
     return {
       ...gift,

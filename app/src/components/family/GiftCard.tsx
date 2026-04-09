@@ -4,7 +4,7 @@ import { useRouter } from "@tanstack/react-router";
 import { Button } from "../ui/button";
 import { ConfirmGiftModal } from "./ConfirmGiftModal";
 import { ThankYouNoteModal } from "./ThankYouNoteModal";
-import type { Gift } from "@/mocks/mockFamily";
+import type { Claim, Gift } from "common";
 import { ExclamationCircleIcon } from "@/components/icons";
 import { confirmGiftReceivedWithToken } from "@/server/functions/child";
 
@@ -25,6 +25,7 @@ const GIFT_STATUS_ORDER = [
 
 type GiftCardProps = {
   gift: Gift;
+  claim?: Claim;
   token: string;
   childId: string;
 };
@@ -32,7 +33,22 @@ type GiftCardProps = {
 const TRACK_START = 10;
 const TRACK_WIDTH = 80;
 
-export function GiftCard({ gift, token, childId }: GiftCardProps) {
+function formatDate(value?: string) {
+  if (!value) return "N/A";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "N/A";
+  }
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
   const formattedStatus = gift.status
     .toLowerCase()
     .replaceAll("_", " ")
@@ -81,11 +97,12 @@ export function GiftCard({ gift, token, childId }: GiftCardProps) {
         )}
 
         <p>
-          <span className="font-bold">Gift Name:</span> {gift.name}
+          <span className="font-bold">Gift Name:</span> {gift.title}
         </p>
 
         <p>
-          <span className="font-bold">Price:</span> ${gift.price.toFixed(2)}
+          <span className="font-bold">Price:</span> $
+          {(gift.listedPrice ?? 0).toFixed(2)}
         </p>
 
         {gift.status === "DELIVERED" && (
@@ -173,18 +190,33 @@ export function GiftCard({ gift, token, childId }: GiftCardProps) {
 
         <p>
           <span className="font-bold">Tracking Number:</span>{" "}
-          {gift.trackingNumber ?? "N/A"}
+          {claim?.purchaseConfirmation?.trackingNumber ?? "N/A"}
+        </p>
+
+        <p>
+          <span className="font-bold">Claimed On:</span>{" "}
+          {formatDate(claim?.claimedAt)}
+        </p>
+
+        <p>
+          <span className="font-bold">Purchase Confirmed:</span>{" "}
+          {formatDate(claim?.purchaseConfirmation?.date)}
+        </p>
+
+        <p>
+          <span className="font-bold">Expected Delivery:</span>{" "}
+          {formatDate(claim?.expectedDeliveryDate)}
         </p>
 
         <p>
           <span className="font-bold">Date Delivered:</span>{" "}
-          {gift.dateDelivered ?? "N/A"}
+          {formatDate(claim?.deliveryConfirmed?.date)}
         </p>
 
         {gift.status === "RECEIVED" && (
           <p>
             <span className="font-bold">Date Received:</span>{" "}
-            {gift.dateReceived ?? "N/A"}
+            {formatDate(claim?.receivedAt)}
           </p>
         )}
       </div>

@@ -4,10 +4,9 @@ import { GiftCard } from "@/components/family/GiftCard";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
 import {
   getChildByIdWithToken,
+  getChildClaimsByChildIdWithToken,
   getChildGiftsByChildIdWithToken,
 } from "@/server/functions/child";
-import type { Gift as CommonGift } from "common";
-import type { Gift } from "@/mocks/mockFamily";
 import type { Claim, Gift } from "common";
 
 const getGiftSummaryStatus = (
@@ -35,16 +34,22 @@ const getGiftSummaryStatus = (
 
 export const Route = createFileRoute("/family/$token/child/$childId")({
   loader: async ({ params }) => {
-    const child = await getChildByIdWithToken({
-      data: { token: params.token, childId: params.childId },
-    });
-    const gifts = await getChildGiftsByChildIdWithToken({
-      data: { token: params.token, childId: params.childId },
-    });
+    const [child, gifts, claims] = await Promise.all([
+      getChildByIdWithToken({
+        data: { token: params.token, childId: params.childId },
+      }),
+      getChildGiftsByChildIdWithToken({
+        data: { token: params.token, childId: params.childId },
+      }),
+      getChildClaimsByChildIdWithToken({
+        data: { token: params.token, childId: params.childId },
+      }),
+    ]);
 
     return {
       child,
       gifts,
+      claims,
     };
   },
   component: ChildPage,
@@ -53,8 +58,10 @@ export const Route = createFileRoute("/family/$token/child/$childId")({
 
 function ChildPage() {
   const data = Route.useLoaderData();
+  const params = Route.useParams();
   const child = data.child;
-  const gifts = data.gifts || [];
+  const gifts: Array<Gift> = data.gifts || [];
+  const claims: Array<Claim> = data.claims || [];
 
   if (!child) return <div>Child not found</div>;
 
@@ -124,7 +131,7 @@ function ChildPage() {
                     {summaryStatus.label}
                   </div>
 
-                  <p className="text-center text-sm font-gaegu">{gift.name}</p>
+                  <p className="text-center text-sm font-gaegu">{gift.title}</p>
                 </div>
               );
             })}
@@ -139,10 +146,11 @@ function ChildPage() {
         <h2 className="text-semibold">{firstName}'s Gift Information</h2>
       </div>
 
-      {formattedGifts.map((gift) => (
+      {gifts.map((gift) => (
         <GiftCard
           key={gift.id}
           gift={gift}
+          claim={claimsByGiftId.get(gift.id)}
           token={params.token}
           childId={params.childId}
         />

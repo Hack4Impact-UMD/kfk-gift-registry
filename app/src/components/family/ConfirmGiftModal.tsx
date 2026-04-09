@@ -22,7 +22,9 @@ export function ConfirmGiftModal({
         <p className="my-6 text-center">Are you sure you received the gift?</p>
 
         {errorMessage ? (
-          <p className="mb-4 text-center text-sm text-kfk-red">{errorMessage}</p>
+          <p className="mb-4 text-center text-sm text-kfk-red">
+            {errorMessage}
+          </p>
         ) : null}
 
         <Button
