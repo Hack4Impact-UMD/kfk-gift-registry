@@ -8,6 +8,30 @@ import {
 } from "@/server/functions/child";
 import type { Gift as CommonGift } from "common";
 import type { Gift } from "@/mocks/mockFamily";
+import type { Claim, Gift } from "common";
+
+const getGiftSummaryStatus = (
+  status: Gift["status"],
+): { label: string; className: string } => {
+  switch (status) {
+    case "RECEIVED":
+      return {
+        label: "Received",
+        className: "bg-kfk-muted-green/30 text-kfk-green",
+      };
+    case "PURCHASED":
+    case "DELIVERED":
+      return {
+        label: "Purchased",
+        className: "bg-kfk-muted-yellow/30 text-kfk-brown",
+      };
+    default:
+      return {
+        label: "Not Received",
+        className: "bg-kfk-muted-red/30 text-kfk-red",
+      };
+  }
+};
 
 export const Route = createFileRoute("/family/$token/child/$childId")({
   loader: async ({ params }) => {
@@ -35,29 +59,7 @@ function ChildPage() {
   if (!child) return <div>Child not found</div>;
 
   const firstName = child.name.trim().split(/\s+/)[0];
-
-  // Map common Gift status to mock Gift status
-  const mapStatus = (status: string): Gift["status"] => {
-    const statusMap: Record<string, Gift["status"]> = {
-      AVAILABLE: "unordered",
-      CLAIMED: "claimed",
-      PURCHASED: "in_transit",
-      DELIVERED: "delivered",
-      RECEIVED: "received",
-    };
-    return statusMap[status] || "unordered";
-  };
-
-  // Map common Gift type to format expected by GiftCard
-  const formattedGifts: Array<Gift> = gifts.map((gift: CommonGift) => ({
-    id: gift.id,
-    name: gift.title,
-    price: gift.listedPrice ?? 0,
-    status: mapStatus(gift.status),
-    trackingNumber: undefined,
-    dateDelivered: undefined,
-    dateReceived: undefined,
-  }));
+  const claimsByGiftId = new Map(claims.map((claim) => [claim.giftId, claim]));
 
   return (
     <div>
@@ -111,19 +113,15 @@ function ChildPage() {
           </div>
 
           <div className="flex-1 flex flex-col gap-4">
-            {formattedGifts.map((gift) => {
-              const received = gift.status === "received";
+            {gifts.map((gift) => {
+              const summaryStatus = getGiftSummaryStatus(gift.status);
 
               return (
                 <div key={gift.id} className="bg-white rounded-2xl p-4 shadow">
                   <div
-                    className={`text-center py-1 rounded-full mb-2 ${
-                      received
-                        ? "bg-kfk-muted-green/30 text-kfk-green"
-                        : "bg-kfk-muted-red/30 text-kfk-red"
-                    }`}
+                    className={`text-center py-1 rounded-full mb-2 ${summaryStatus.className}`}
                   >
-                    {received ? "Received" : "Not Received"}
+                    {summaryStatus.label}
                   </div>
 
                   <p className="text-center text-sm font-gaegu">{gift.name}</p>
