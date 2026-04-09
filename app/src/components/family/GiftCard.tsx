@@ -60,6 +60,7 @@ export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
+  const [noteDraft, setNoteDraft] = useState("");
   const router = useRouter();
 
   const confirmGiftMutation = useMutation({
@@ -155,6 +156,7 @@ export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
               <Button
                 onClick={() => {
                   thankYouNoteMutation.reset();
+                  setNoteDraft(claim?.thankYouNote ?? "");
                   setNoteOpen(true);
                 }}
                 className="bg-kfk-blue text-white px-2 py-2 rounded-md font-gaegu"
@@ -271,7 +273,8 @@ export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
           }
           setNoteOpen(open);
         }}
-        initialNote={claim?.thankYouNote}
+        note={noteDraft}
+        onNoteChange={setNoteDraft}
         onSend={(note) => thankYouNoteMutation.mutate(note)}
         isPending={thankYouNoteMutation.isPending}
         errorMessage={

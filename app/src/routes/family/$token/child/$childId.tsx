@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { GiftIcon } from "@/components/icons";
 import { GiftCard } from "@/components/family/GiftCard";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
+import type { FamilyGiftClaim } from "@/server/functions/child";
 import {
-  type FamilyGiftClaim,
   getChildByIdWithToken,
   getChildClaimsByChildIdWithToken,
   getChildGiftsByChildIdWithToken,
