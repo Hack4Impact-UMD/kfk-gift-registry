@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { Button } from "../ui/button";
 import { ConfirmGiftModal } from "./ConfirmGiftModal";
 import { ThankYouNoteModal } from "./ThankYouNoteModal";
 import type { Gift } from "@/mocks/mockFamily";
 import { ExclamationCircleIcon } from "@/components/icons";
+import { confirmGiftReceivedWithToken } from "@/server/functions/child";
 
 const GIFT_STEPS = [
   "Available",
@@ -22,18 +25,37 @@ const GIFT_STATUS_ORDER = [
 
 type GiftCardProps = {
   gift: Gift;
+  token: string;
+  childId: string;
 };
 
 const TRACK_START = 10;
 const TRACK_WIDTH = 80;
 
-export function GiftCard({ gift }: GiftCardProps) {
+export function GiftCard({ gift, token, childId }: GiftCardProps) {
   const formattedStatus = gift.status
+    .toLowerCase()
     .replaceAll("_", " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
+  const router = useRouter();
+
+  const confirmGiftMutation = useMutation({
+    mutationFn: () =>
+      confirmGiftReceivedWithToken({
+        data: {
+          token,
+          childId,
+          giftId: gift.id,
+        },
+      }),
+    onSuccess: async () => {
+      setConfirmOpen(false);
+      await router.invalidate();
+    },
+  });
 
   const currentStep = GIFT_STATUS_ORDER.indexOf(
     gift.status as (typeof GIFT_STATUS_ORDER)[number],
@@ -78,8 +100,12 @@ export function GiftCard({ gift }: GiftCardProps) {
               </p>
 
               <Button
-                onClick={() => setConfirmOpen(true)}
+                onClick={() => {
+                  confirmGiftMutation.reset();
+                  setConfirmOpen(true);
+                }}
                 className="bg-kfk-blue text-white px-2 py-2 rounded-md font-gaegu"
+                disabled={confirmGiftMutation.isPending}
               >
                 Yes, I got the gift!
               </Button>
@@ -165,7 +191,19 @@ export function GiftCard({ gift }: GiftCardProps) {
 
       <ConfirmGiftModal
         open={confirmOpen}
-        onOpenChange={() => setConfirmOpen(false)}
+        onOpenChange={(open) => {
+          if (!open) {
+            confirmGiftMutation.reset();
+          }
+          setConfirmOpen(open);
+        }}
+        onConfirm={() => confirmGiftMutation.mutate()}
+        isPending={confirmGiftMutation.isPending}
+        errorMessage={
+          confirmGiftMutation.error instanceof Error
+            ? confirmGiftMutation.error.message
+            : undefined
+        }
       />
 
       <ThankYouNoteModal

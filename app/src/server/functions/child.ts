@@ -30,6 +30,12 @@ const tokenChildGiftsSchema = z.object({
   childId: z.string().min(1),
 });
 
+const tokenGiftConfirmationSchema = z.object({
+  token: z.string().min(1),
+  childId: z.string().min(1),
+  giftId: z.string().min(1),
+});
+
 export const getAllChildProfilesForDrive = createServerFn({
   method: "GET",
 })
@@ -294,4 +300,56 @@ export const getChildGiftsByChildIdWithToken = createServerFn({
     }
 
     return gifts.docs.map((doc) => doc.data());
+  });
+
+export const confirmGiftReceivedWithToken = createServerFn({
+  method: "POST",
+})
+  .inputValidator(tokenGiftConfirmationSchema)
+  .handler(async ({ data }) => {
+    const { token, childId, giftId } = data;
+
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    const giftDoc = await db.gifts.doc(giftId).get();
+    if (!giftDoc.exists) {
+      throw new Error("Gift not found");
+    }
+
+    const gift = giftDoc.data()!;
+    if (gift.childId !== childId || gift.familyId !== link.familyId) {
+      throw new Error("Unauthorized: gift does not belong to this family");
+    }
+
+    if (gift.status === "RECEIVED") {
+      return gift;
+    }
+
+    if (gift.status !== "DELIVERED") {
+      throw new Error("Only delivered gifts can be confirmed as received");
+    }
+
+    await db.gifts.doc(giftId).update({
+      status: "RECEIVED",
+    });
+
+    return {
+      ...gift,
+      status: "RECEIVED" as const,
+    };
   });

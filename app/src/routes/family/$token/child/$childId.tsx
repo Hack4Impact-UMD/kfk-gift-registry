@@ -142,7 +142,12 @@ function ChildPage() {
       </div>
 
       {formattedGifts.map((gift) => (
-        <GiftCard key={gift.id} gift={gift} />
+        <GiftCard
+          key={gift.id}
+          gift={gift}
+          token={params.token}
+          childId={params.childId}
+        />
       ))}
     </div>
   );
