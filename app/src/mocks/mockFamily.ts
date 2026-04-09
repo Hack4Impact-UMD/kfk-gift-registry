@@ -33,6 +33,19 @@ export type Family = {
   children: Array<Child>;
 };
 
+export type ReviewChild = {
+  childName: string;
+  status: "Warrior" | "Supersib";
+  treatmentLength?: string;
+  diagnosis?: string;
+  age: number;
+  level: string;
+  blurb: string;
+  gifts: Array<Gift>;
+  socialWorkerName?: string;
+  hospitalName?: string;
+}
+
 export const mockFamily: Family = {
   token: "abc123",
   parentName: "Sarah Johnson",
