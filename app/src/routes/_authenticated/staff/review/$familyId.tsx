@@ -3,13 +3,28 @@ import type { Family } from "../../../../../../common/src/types/family";
 import { GuardianInfoCard } from "@/components/review/GuardianInfoCard";
 import * as React from "react";
 import { ChildCard } from "@/components/review/ChildCard";
-import { ReviewChild } from "@/mocks/mockFamily";
+import { Gift } from "node_modules/common/src/types/gift";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   component: RouteComponent,
 });
 
+export type ReviewChild = {
+  id: string;
+  childName: string;
+  status: "Warrior" | "Supersib";
+  treatmentLength?: string;
+  diagnosis?: string;
+  age: number;
+  level: string;
+  blurb: string;
+  gifts: Array<Gift>;
+  socialWorkerName?: string;
+  hospitalName?: string;
+};
+
 export const MOCK_CHILD: ReviewChild = {
+  id: "john-smith",
   childName: "John Smith",
   status: "Warrior",
   treatmentLength: "2 weeks",
@@ -52,18 +67,23 @@ const mockFamily: Family = {
 function RouteComponent() {
   const lastName = mockFamily.contactName.trim().split(/\s+/).pop() ?? "";
   const [familyData, setFamilyData] = React.useState<Family>(mockFamily);
+  const [childData, setChildData] = React.useState<ReviewChild>(MOCK_CHILD);
 
   const handleFamilyUpdate = (updatedFamily: Family) => {
     // update database
     setFamilyData(updatedFamily);
   };
 
+  const handleChildUpdate = (updatedChild: ReviewChild) => {
+    setChildData(updatedChild);
+  }
+
   return (
     <div>
       <h1 className="text-4xl ml-16 mt-6 font-bold">{lastName} Family</h1>
       <div className="shadow-xl border max-w-3xl rounded-md p-8 mt-6 ml-6 flex flex-col gap-5 justify-center">
         <GuardianInfoCard family={familyData} onSave={handleFamilyUpdate} />
-        <ChildCard child={MOCK_CHILD}></ChildCard>
+        <ChildCard child={childData} onSave={handleChildUpdate}></ChildCard>
       </div>
     </div>
   );

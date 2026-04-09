@@ -2,9 +2,10 @@ import { useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-interface EditableFieldProps
-  extends React.ComponentProps<typeof Input> {
+interface EditableFieldProps extends React.ComponentProps<typeof Input> {
   editable?: boolean;
+  children?: React.ReactNode;
+  fieldSize?: number;
 }
 
 export function EditableField({
@@ -12,6 +13,8 @@ export function EditableField({
   onChange,
   editable = false,
   className,
+  fieldSize,
+  children,
   ...props
 }: EditableFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,27 +25,22 @@ export function EditableField({
 
   if (!editable) {
     return (
-      <p
-        className={cn(
-          "h-9 py-1 pr-10 flex items-center",
-          className
-        )}
-      >
-        {value}
+      <p className={cn(`py-1 ${!children && "flex h-9"} items-center break-all`, className)}>
+        <b>{children}</b> {value}
       </p>
     );
   }
 
   return (
-    <Input
-      ref={inputRef}
-      value={value}
-      onChange={onChange}
-      className={cn(
-          "border-foreground",
-          className
-        )}
-      {...props}
-    />
+    <>
+      { children && (<b className="whitespace-nowrap my-auto mr-2">{children}</b>)}
+      <Input
+        ref={inputRef}
+        value={value}
+        onChange={onChange}
+        className={cn(`border-foreground w-${fieldSize}`, className)}
+        {...props}
+      />
+    </>
   );
 }

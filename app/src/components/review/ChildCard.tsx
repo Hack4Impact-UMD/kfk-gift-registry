@@ -4,36 +4,56 @@ import { EditableField } from "./EditableField";
 import { useState } from "react";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
-import { ReviewChild } from "@/mocks/mockFamily";
+import { ReviewChild } from "@/routes/_authenticated/staff/review/$familyId";
 
 interface ChildInfoCardProps {
   child: ReviewChild;
+  onSave?: (updatedChild: ReviewChild) => void;
 }
 
-export function ChildCard({ child }: ChildInfoCardProps) {
-  const [editing, setEditing] = useState(true);
+export function ChildCard({ child, onSave }: ChildInfoCardProps) {
+  const [editing, setEditing] = useState(false);
   const [formState, setFormState] = useState({
-    childName: child.childName,
     treatmentLength: child.treatmentLength,
     diagnosis: child.diagnosis,
     age: child.age,
     level: child.level,
     blurb: child.blurb,
     socialWorkerName: child.socialWorkerName,
-    hospital: child.hospitalName,
+    hospitalName: child.hospitalName,
   });
 
   const handleCancelClick = () => {
     setFormState({
-      childName: child.childName,
       treatmentLength: child.treatmentLength,
       diagnosis: child.diagnosis,
       age: child.age,
       level: child.level,
       blurb: child.blurb,
       socialWorkerName: child.socialWorkerName,
-      hospital: child.hospitalName,
+      hospitalName: child.hospitalName,
     });
+    setEditing(false);
+  };
+
+  const handleEditClick = () => {
+    setEditing(true);
+  };
+
+  const handleSave = () => {
+    const updatedChild: ReviewChild = {
+      ...child,
+      treatmentLength: formState.treatmentLength,
+      diagnosis: formState.diagnosis,
+      age: formState.age,
+      level: formState.level,
+      blurb: formState.blurb,
+      socialWorkerName: formState.socialWorkerName,
+      hospitalName: formState.hospitalName,
+    };
+
+    if (onSave) onSave(updatedChild);
+
     setEditing(false);
   };
 
@@ -46,10 +66,10 @@ export function ChildCard({ child }: ChildInfoCardProps) {
               <AvatarImage src={ProfileHeader}></AvatarImage>
             </Avatar>
             <h2 className="text-xl sm:text-3xl font-bold my-auto">
-              {formState.childName}
+              {child.childName}
             </h2>
             <span
-              className={`my-auto py-2 px-5 rounded-full font-bold ${child.status == "Warrior" ? "bg-[#FFF8C2] text-[#733C10]" : "bg-[#D4EAFF] text-[#0036CE]"}`}
+              className={`my-auto py-1 px-5 rounded-full border-1 border-gray-200 ${child.status == "Warrior" ? "bg-[#FFF8C2] text-[#733C10]" : "bg-[#D4EAFF] text-[#0036CE]"}`}
             >
               {child.status}
             </span>
@@ -58,8 +78,7 @@ export function ChildCard({ child }: ChildInfoCardProps) {
             <Button
               type="button"
               size="xs"
-              // onClick={editing ? handleSave : handleEditClick}
-              onClick={() => {setEditing(true)}}
+              onClick={editing ? handleSave : handleEditClick}
               className="rounded-sm px-6"
             >
               {editing ? "Save" : "Edit"}
@@ -78,62 +97,70 @@ export function ChildCard({ child }: ChildInfoCardProps) {
           </div>
         </div>
 
-        <div className="flex flex-col bg-card px-4 sm:px-6 py-4 gap-4 -mx-6">
-          <div className="flex gap-5 items-center">
-            {child.status == "Warrior" && (
-              <>
-                <p className="font-bold">Treatment Length:</p>
-                <EditableField
-                  value={formState.treatmentLength}
-                  editable={editing}
-                  onChange={(e) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      treatmentLength: e.target.value,
-                    }))
-                  }
-                />
-                <p>Diagnosis: {child.diagnosis}</p>
-                <EditableField
-                  value={formState.diagnosis}
-                  editable={editing}
-                  onChange={(e) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      diagnosis: e.target.value,
-                    }))
-                  }
-                />
-              </>
-            )}
+        <div className="flex flex-col bg-card px-4 sm:px-6 py-4 gap-3 -mx-6">
+          <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <p className="font-bold whitespace-nowrap">Treatment Length:</p>
+              <EditableField
+                value={formState.treatmentLength}
+                editable={editing}
+                size={20}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    treatmentLength: e.target.value,
+                  }))
+                }
+              />
+            </div>
 
-            <p>Age:</p>
-            <EditableField
-              value={formState.age}
-              editable={editing}
-              onChange={(e) =>
-                setFormState((prev) => ({
-                  ...prev,
-                  age: Number(e.target.value),
-                }))
-              }
-            />
+            <div className="flex items-center gap-2">
+              <p className="font-bold whitespace-nowrap">Diagnosis:</p>
+              <EditableField
+                value={formState.diagnosis}
+                editable={editing}
+                size={20}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    diagnosis: e.target.value,
+                  }))
+                }
+              />
+            </div>
 
-            <p>Level:</p>
-            <EditableField
-              value={formState.level}
-              editable={editing}
-              onChange={(e) =>
-                setFormState((prev) => ({
-                  ...prev,
-                  level: e.target.value,
-                }))
-              }
-            />
+            <div className="flex items-center gap-2">
+              <p className="font-bold whitespace-nowrap">Age:</p>
+              <EditableField
+                value={formState.age}
+                editable={editing}
+                size={5}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    age: Number(e.target.value),
+                  }))
+                }
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <p className="font-bold whitespace-nowrap">Level:</p>
+              <EditableField
+                value={formState.level}
+                editable={editing}
+                fieldSize={10}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    level: e.target.value,
+                  }))
+                }
+              />
+            </div>
           </div>
 
-          <div className="flex items-center">
-            <p>Personal Blurb:</p>
+          <div className="flex">
             <EditableField
               value={formState.blurb}
               editable={editing}
@@ -143,7 +170,9 @@ export function ChildCard({ child }: ChildInfoCardProps) {
                   blurb: e.target.value,
                 }))
               }
-            />
+            >
+              Personal Blurb:
+            </EditableField>
           </div>
         </div>
       </CardContent>
