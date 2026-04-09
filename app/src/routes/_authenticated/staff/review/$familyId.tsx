@@ -4,6 +4,7 @@ import { GuardianInfoCard } from "@/components/review/GuardianInfoCard";
 import * as React from "react";
 import { ChildCard } from "@/components/review/ChildCard";
 import { Gift } from "node_modules/common/src/types/gift";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   component: RouteComponent,
@@ -61,7 +62,8 @@ const mockFamily: Family = {
     reviewNotes: "Family information verified by staff intake.",
   },
 
-  privateNotes: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis",
+  privateNotes:
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis",
 };
 
 function RouteComponent() {
@@ -76,15 +78,17 @@ function RouteComponent() {
 
   const handleChildUpdate = (updatedChild: ReviewChild) => {
     setChildData(updatedChild);
-  }
+  };
 
   return (
     <div>
       <h1 className="text-4xl ml-16 mt-6 font-bold">{lastName} Family</h1>
-      <div className="shadow-xl border max-w-3xl rounded-md p-8 mt-6 ml-6 flex flex-col gap-5 justify-center">
-        <GuardianInfoCard family={familyData} onSave={handleFamilyUpdate} />
-        <ChildCard child={childData} onSave={handleChildUpdate}></ChildCard>
-      </div>
+      <ScrollArea className="shadow-xl border max-w-3xl h-150 rounded-md p-9 mt-6 ml-6">
+        <div className="flex flex-col gap-7 justify-center">
+          <GuardianInfoCard family={familyData} onSave={handleFamilyUpdate} />
+          <ChildCard child={childData} onSave={handleChildUpdate}></ChildCard>
+        </div>
+      </ScrollArea>
     </div>
   );
 }
