@@ -6,18 +6,18 @@ import type { Gift } from "@/mocks/mockFamily";
 import { ExclamationCircleIcon } from "@/components/icons";
 
 const GIFT_STEPS = [
-  "Unordered",
+  "Available",
   "Claimed",
-  "In Transit",
+  "Purchased",
   "Delivered",
   "Received",
 ];
 const GIFT_STATUS_ORDER = [
-  "unordered",
-  "claimed",
-  "in_transit",
-  "delivered",
-  "received",
+  "AVAILABLE",
+  "CLAIMED",
+  "PURCHASED",
+  "DELIVERED",
+  "RECEIVED",
 ];
 
 type GiftCardProps = {
@@ -42,9 +42,9 @@ export function GiftCard({ gift }: GiftCardProps) {
   const fillWidthPercent =
     filledTo > 0 ? TRACK_WIDTH * ((filledTo - 1) / (GIFT_STEPS.length - 1)) : 0;
   const progressColor =
-    gift.status === "received" ? "bg-kfk-green" : "bg-kfk-yellow";
+    gift.status === "RECEIVED" ? "bg-kfk-green" : "bg-kfk-yellow";
   const progressBorderColor =
-    gift.status === "received" ? "border-kfk-green" : "border-kfk-yellow";
+    gift.status === "RECEIVED" ? "border-kfk-green" : "border-kfk-yellow";
 
   return (
     <>
@@ -52,7 +52,7 @@ export function GiftCard({ gift }: GiftCardProps) {
         className="rounded-xl border p-4 mb-4 bg-card space-y-2"
         style={{ boxShadow: "0 0 8px rgba(0,0,0,0.35)" }}
       >
-        {gift.status === "received" && (
+        {gift.status === "RECEIVED" && (
           <div className="-mx-4 mb-4 bg-kfk-green text-white text-center shrink-0">
             <p className="p-2 font-bold">Yay! You received this gift!</p>
           </div>
@@ -66,7 +66,7 @@ export function GiftCard({ gift }: GiftCardProps) {
           <span className="font-bold">Price:</span> ${gift.price.toFixed(2)}
         </p>
 
-        {gift.status === "delivered" && (
+        {gift.status === "DELIVERED" && (
           <div className="grid grid-cols-2 gap-4 my-6 relative">
             <div className="relative cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition">
               <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red/50 blur-sm animate-ping"></span>
@@ -155,7 +155,7 @@ export function GiftCard({ gift }: GiftCardProps) {
           {gift.dateDelivered ?? "N/A"}
         </p>
 
-        {gift.status === "received" && (
+        {gift.status === "RECEIVED" && (
           <p>
             <span className="font-bold">Date Received:</span>{" "}
             {gift.dateReceived ?? "N/A"}
