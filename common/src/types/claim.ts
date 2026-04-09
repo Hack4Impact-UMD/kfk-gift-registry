@@ -7,6 +7,7 @@ export interface Claim {
   claimedAt: string;
   purchaseConfirmation?: ClaimPurchaseConfirmation;
   deliveryConfirmed?: DeliveryConfirmation;
+  receivedAt?: string;
   privateNotes?: string;
   expectedDeliveryDate?: string;
   active: boolean;
