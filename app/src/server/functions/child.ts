@@ -19,6 +19,7 @@ export type FamilyGiftClaim = {
   };
   expectedDeliveryDate?: string;
   receivedAt?: string;
+  thankYouNote?: string;
 };
 
 const childParamSchema = z.object({
@@ -53,6 +54,13 @@ const tokenGiftConfirmationSchema = z.object({
   token: z.string().min(1),
   childId: z.string().min(1),
   giftId: z.string().min(1),
+});
+
+const tokenGiftThankYouNoteSchema = z.object({
+  token: z.string().min(1),
+  childId: z.string().min(1),
+  giftId: z.string().min(1),
+  note: z.string().trim().min(1).max(1000),
 });
 
 export const getAllChildProfilesForDrive = createServerFn({
@@ -370,8 +378,62 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
             : undefined,
           expectedDeliveryDate: claim.expectedDeliveryDate,
           receivedAt: claim.receivedAt,
+          thankYouNote: claim.thankYouNote,
         }),
       );
+  });
+
+export const saveGiftThankYouNoteWithToken = createServerFn({
+  method: "POST",
+})
+  .inputValidator(tokenGiftThankYouNoteSchema)
+  .handler(async ({ data }) => {
+    const { token, childId, giftId, note } = data;
+
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    const giftDoc = await db.gifts.doc(giftId).get();
+    if (!giftDoc.exists) {
+      throw new Error("Gift not found");
+    }
+
+    const gift = giftDoc.data()!;
+    if (gift.childId !== childId || gift.familyId !== link.familyId) {
+      throw new Error("Unauthorized: gift does not belong to this family");
+    }
+
+    const claims = await db.claims.where("giftId", "==", giftId).get();
+    const activeClaim = claims.docs
+      .map((doc) => doc.data())
+      .find((claim) => claim.active);
+
+    if (!activeClaim) {
+      throw new Error("No donor claim found for this gift");
+    }
+
+    await db.claims.doc(activeClaim.id).update({
+      thankYouNote: note,
+    });
+
+    return {
+      giftId,
+      thankYouNote: note,
+    };
   });
 
 export const confirmGiftReceivedWithToken = createServerFn({

@@ -5,7 +5,10 @@ import { Button } from "../ui/button";
 import { ConfirmGiftModal } from "./ConfirmGiftModal";
 import { ThankYouNoteModal } from "./ThankYouNoteModal";
 import type { FamilyGiftClaim } from "@/server/functions/child";
-import { confirmGiftReceivedWithToken } from "@/server/functions/child";
+import {
+  confirmGiftReceivedWithToken,
+  saveGiftThankYouNoteWithToken,
+} from "@/server/functions/child";
 import type { Gift } from "common";
 import { ExclamationCircleIcon } from "@/components/icons";
 
@@ -73,6 +76,21 @@ export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
       await router.invalidate();
     },
   });
+  const thankYouNoteMutation = useMutation({
+    mutationFn: (note: string) =>
+      saveGiftThankYouNoteWithToken({
+        data: {
+          token,
+          childId,
+          giftId: gift.id,
+          note,
+        },
+      }),
+    onSuccess: async () => {
+      setNoteOpen(false);
+      await router.invalidate();
+    },
+  });
 
   const currentStep = GIFT_STATUS_ORDER.indexOf(
     gift.status as (typeof GIFT_STATUS_ORDER)[number],
@@ -106,37 +124,43 @@ export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
           {(gift.listedPrice ?? 0).toFixed(2)}
         </p>
 
-        {gift.status === "DELIVERED" && (
+        {(gift.status === "DELIVERED" || gift.status === "RECEIVED") && (
           <div className="grid grid-cols-2 gap-4 my-6 relative">
-            <div className="relative cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition">
-              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red/50 blur-sm animate-ping"></span>
-              <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red flex items-center justify-center text-white">
-                <ExclamationCircleIcon className="size-5" />
-              </div>
-              <p className="mb-3">
-                Please confirm if you have received this gift!
-              </p>
+            {gift.status === "DELIVERED" && (
+              <div className="relative cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition">
+                <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red/50 blur-sm animate-ping"></span>
+                <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red flex items-center justify-center text-white">
+                  <ExclamationCircleIcon className="size-5" />
+                </div>
+                <p className="mb-3">
+                  Please confirm if you have received this gift!
+                </p>
 
-              <Button
-                onClick={() => {
-                  confirmGiftMutation.reset();
-                  setConfirmOpen(true);
-                }}
-                className="bg-kfk-blue text-white px-2 py-2 rounded-md font-gaegu"
-                disabled={confirmGiftMutation.isPending}
-              >
-                Yes, I got the gift!
-              </Button>
-            </div>
+                <Button
+                  onClick={() => {
+                    confirmGiftMutation.reset();
+                    setConfirmOpen(true);
+                  }}
+                  className="bg-kfk-blue text-white px-2 py-2 rounded-md font-gaegu"
+                  disabled={confirmGiftMutation.isPending}
+                >
+                  Yes, I got the gift!
+                </Button>
+              </div>
+            )}
 
             <div className="cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition">
               <p className="mb-3">Send a thank you note to your donor</p>
 
               <Button
-                onClick={() => setNoteOpen(true)}
+                onClick={() => {
+                  thankYouNoteMutation.reset();
+                  setNoteOpen(true);
+                }}
                 className="bg-kfk-blue text-white px-2 py-2 rounded-md font-gaegu"
+                disabled={thankYouNoteMutation.isPending}
               >
-                Write your note
+                {claim?.thankYouNote ? "Edit your note" : "Write your note"}
               </Button>
             </div>
           </div>
@@ -241,7 +265,20 @@ export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
 
       <ThankYouNoteModal
         open={noteOpen}
-        onOpenChange={() => setNoteOpen(false)}
+        onOpenChange={(open) => {
+          if (!open) {
+            thankYouNoteMutation.reset();
+          }
+          setNoteOpen(open);
+        }}
+        initialNote={claim?.thankYouNote}
+        onSend={(note) => thankYouNoteMutation.mutate(note)}
+        isPending={thankYouNoteMutation.isPending}
+        errorMessage={
+          thankYouNoteMutation.error instanceof Error
+            ? thankYouNoteMutation.error.message
+            : undefined
+        }
       />
     </>
   );

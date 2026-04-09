@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,13 +6,28 @@ import { Textarea } from "@/components/ui/textarea";
 type ThankYouNoteModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialNote?: string;
+  onSend: (note: string) => void;
+  isPending?: boolean;
+  errorMessage?: string;
 };
 
 export function ThankYouNoteModal({
   open,
   onOpenChange,
+  initialNote,
+  onSend,
+  isPending = false,
+  errorMessage,
 }: ThankYouNoteModalProps) {
   const [note, setNote] = useState("");
+  const trimmedNote = note.trim();
+
+  useEffect(() => {
+    if (open) {
+      setNote(initialNote ?? "");
+    }
+  }, [initialNote, open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -29,12 +44,17 @@ export function ThankYouNoteModal({
           className="min-h-[140px] resize-none"
         />
 
+        {errorMessage ? (
+          <p className="mt-3 text-sm text-kfk-red">{errorMessage}</p>
+        ) : null}
+
         <div className="flex justify-end mt-4">
           <Button
-            onClick={() => onOpenChange(false)}
+            onClick={() => onSend(trimmedNote)}
             className="bg-kfk-blue text-white"
+            disabled={isPending || trimmedNote.length === 0}
           >
-            Send
+            {isPending ? "Sending..." : "Send"}
           </Button>
         </div>
       </DialogContent>
