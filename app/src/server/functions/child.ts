@@ -7,6 +7,20 @@ import { verifySession } from "./auth";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 import type { Child, Gift } from "common";
 
+export type FamilyGiftClaim = {
+  giftId: string;
+  claimedAt: string;
+  purchaseConfirmation?: {
+    date: string;
+    trackingNumber?: string;
+  };
+  deliveryConfirmed?: {
+    date: string;
+  };
+  expectedDeliveryDate?: string;
+  receivedAt?: string;
+};
+
 const childParamSchema = z.object({
   // just so it's clean for the input validator
   driveId: z.string(),
@@ -336,7 +350,28 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
       return [];
     }
 
-    return claims.docs.map((doc) => doc.data()).filter((claim) => claim.active);
+    return claims.docs
+      .map((doc) => doc.data())
+      .filter((claim) => claim.active)
+      .map(
+        (claim): FamilyGiftClaim => ({
+          giftId: claim.giftId,
+          claimedAt: claim.claimedAt,
+          purchaseConfirmation: claim.purchaseConfirmation
+            ? {
+                date: claim.purchaseConfirmation.date,
+                trackingNumber: claim.purchaseConfirmation.trackingNumber,
+              }
+            : undefined,
+          deliveryConfirmed: claim.deliveryConfirmed
+            ? {
+                date: claim.deliveryConfirmed.date,
+              }
+            : undefined,
+          expectedDeliveryDate: claim.expectedDeliveryDate,
+          receivedAt: claim.receivedAt,
+        }),
+      );
   });
 
 export const confirmGiftReceivedWithToken = createServerFn({
@@ -387,15 +422,19 @@ export const confirmGiftReceivedWithToken = createServerFn({
       .find((claim) => claim.active);
     const receivedAt = new Date().toISOString();
 
-    await db.gifts.doc(giftId).update({
+    const batch = db._instance.batch();
+
+    batch.update(db.gifts.doc(giftId), {
       status: "RECEIVED",
     });
 
     if (activeClaim) {
-      await db.claims.doc(activeClaim.id).update({
+      batch.update(db.claims.doc(activeClaim.id), {
         receivedAt,
       });
     }
+
+    await batch.commit();
 
     return {
       ...gift,

@@ -3,11 +3,12 @@ import { GiftIcon } from "@/components/icons";
 import { GiftCard } from "@/components/family/GiftCard";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
 import {
+  type FamilyGiftClaim,
   getChildByIdWithToken,
   getChildClaimsByChildIdWithToken,
   getChildGiftsByChildIdWithToken,
 } from "@/server/functions/child";
-import type { Claim, Gift } from "common";
+import type { Gift } from "common";
 
 const getGiftSummaryStatus = (
   status: Gift["status"],
@@ -61,7 +62,7 @@ function ChildPage() {
   const params = Route.useParams();
   const child = data.child;
   const gifts: Array<Gift> = data.gifts || [];
-  const claims: Array<Claim> = data.claims || [];
+  const claims: Array<FamilyGiftClaim> = data.claims || [];
 
   if (!child) return <div>Child not found</div>;
 

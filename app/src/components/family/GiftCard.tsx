@@ -4,9 +4,10 @@ import { useRouter } from "@tanstack/react-router";
 import { Button } from "../ui/button";
 import { ConfirmGiftModal } from "./ConfirmGiftModal";
 import { ThankYouNoteModal } from "./ThankYouNoteModal";
-import type { Claim, Gift } from "common";
-import { ExclamationCircleIcon } from "@/components/icons";
+import type { FamilyGiftClaim } from "@/server/functions/child";
 import { confirmGiftReceivedWithToken } from "@/server/functions/child";
+import type { Gift } from "common";
+import { ExclamationCircleIcon } from "@/components/icons";
 
 const GIFT_STEPS = [
   "Available",
@@ -25,7 +26,7 @@ const GIFT_STATUS_ORDER = [
 
 type GiftCardProps = {
   gift: Gift;
-  claim?: Claim;
+  claim?: FamilyGiftClaim;
   token: string;
   childId: string;
 };
