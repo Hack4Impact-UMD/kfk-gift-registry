@@ -16,9 +16,9 @@ function RouteComponent() {
   if (error) {
     return <div>Error: {error.message}</div>;
   }
-  if (!data || data.length === 0) {
-    return <div>No approved profiles found for this drive.</div>;
-  }
+  // if (!data || data.length === 0) {
+  //   return <div>No approved profiles found for this drive.</div>;
+  // }
 
   return <ApprovedProfilesTable data={data} />;
 }
