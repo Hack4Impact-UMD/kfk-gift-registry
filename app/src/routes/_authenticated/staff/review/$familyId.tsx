@@ -24,7 +24,7 @@ export type ReviewChild = {
   hospitalName?: string;
 };
 
-export const MOCK_CHILD: ReviewChild = {
+const MOCK_CHILD: ReviewChild = {
   id: "john-smith",
   childName: "John Smith",
   status: "Warrior",
@@ -38,6 +38,21 @@ export const MOCK_CHILD: ReviewChild = {
   socialWorkerName: "Amanada Reese",
   hospitalName: "Children National Hospital",
 };
+
+const MOCK_CHILD2: ReviewChild = {
+  id: "jane-smith",
+  childName: "Jane Smith",
+  status: "Supersib",
+  age: 5,
+  level: "B",
+  blurb:
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
+  gifts: [],
+};
+
+const MOCK_CHILDREN: Array<ReviewChild> = [
+  MOCK_CHILD, MOCK_CHILD2
+];
 
 const mockFamily: Family = {
   id: "family123",
@@ -69,7 +84,7 @@ const mockFamily: Family = {
 function RouteComponent() {
   const lastName = mockFamily.contactName.trim().split(/\s+/).pop() ?? "";
   const [familyData, setFamilyData] = React.useState<Family>(mockFamily);
-  const [childData, setChildData] = React.useState<ReviewChild>(MOCK_CHILD);
+  const [childrenData, setChildrenData] = React.useState<Array<ReviewChild>>(MOCK_CHILDREN);
 
   const handleFamilyUpdate = (updatedFamily: Family) => {
     // update database
@@ -77,16 +92,20 @@ function RouteComponent() {
   };
 
   const handleChildUpdate = (updatedChild: ReviewChild) => {
-    setChildData(updatedChild);
+    const newChildrenForm = MOCK_CHILDREN.map((child) => 
+      child.id === updatedChild.id ? updatedChild : child
+    )
+    setChildrenData(newChildrenForm);
   };
 
   return (
     <div>
       <h1 className="text-4xl ml-16 mt-6 font-bold">{lastName} Family</h1>
-      <ScrollArea className="shadow-xl border max-w-3xl h-150 rounded-md p-9 mt-6 ml-6">
+      <ScrollArea className="shadow-xl border max-w-3xl h-175 rounded-md p-9 mt-6 ml-6">
         <div className="flex flex-col gap-7 justify-center">
           <GuardianInfoCard family={familyData} onSave={handleFamilyUpdate} />
-          <ChildCard child={childData} onSave={handleChildUpdate}></ChildCard>
+          {childrenData.map((childData) => (<ChildCard child={childData} onSave={handleChildUpdate}></ChildCard>))}
+          {/* <ChildCard child={childData} onSave={handleChildUpdate}></ChildCard> */}
         </div>
       </ScrollArea>
     </div>
