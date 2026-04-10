@@ -210,36 +210,38 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
           </p>
         </div>
 
-        <div className="flex flex-row rounded-b-xl bg-card px-4 sm:px-6 py-4 gap-3 -mx-6">
-          <div className="flex items-center gap-2">
-            <p className="font-bold whitespace-nowrap">Social Worker Name:</p>
-            <EditableField
-              value={formState.socialWorkerName}
-              editable={editing}
-              size={15}
-              onChange={(e) =>
-                setFormState((prev) => ({
-                  ...prev,
-                  socialWorkerName: e.target.value,
-                }))
-              }
-            />
+        {child.status == "Warrior" && (
+          <div className="flex flex-row rounded-b-xl bg-card px-4 sm:px-6 py-4 gap-3 -mx-6">
+            <div className="flex items-center gap-2">
+              <p className="font-bold whitespace-nowrap">Social Worker Name:</p>
+              <EditableField
+                value={formState.socialWorkerName}
+                editable={editing}
+                size={15}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    socialWorkerName: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="font-bold whitespace-nowrap">Hospital:</p>
+              <EditableField
+                value={formState.hospitalName}
+                editable={editing}
+                size={20}
+                onChange={(e) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    hospitalName: e.target.value,
+                  }))
+                }
+              />
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <p className="font-bold whitespace-nowrap">Hospital:</p>
-            <EditableField
-              value={formState.hospitalName}
-              editable={editing}
-              size={20}
-              onChange={(e) =>
-                setFormState((prev) => ({
-                  ...prev,
-                  hospitalName: e.target.value,
-                }))
-              }
-            />
-          </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
