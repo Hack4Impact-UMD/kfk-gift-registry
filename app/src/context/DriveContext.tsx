@@ -1,4 +1,4 @@
-import { mostRecentDrive } from "@/lib/utils";
+import { closestDrive } from "@/lib/utils";
 import type { GiftDrive } from "common";
 import type { ReactNode } from "react";
 import { createContext, useContext, useState } from "react";
@@ -20,7 +20,7 @@ export function DriveProvider({
   onDriveChange: (drive: string) => void;
 }) {
   const [activeDriveId, setActiveDriveIdState] = useState<string | null>(() => {
-    return initialDriveId ?? mostRecentDrive(drives)?.id ?? null;
+    return initialDriveId ?? closestDrive(drives)?.id ?? null;
   });
   const setActiveDriveId = (driveId: string) => {
     setActiveDriveIdState(driveId);

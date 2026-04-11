@@ -241,6 +241,13 @@ export const getChildById = createServerFn({ method: "GET" })
 
 export const getChildGiftsByChildId = createServerFn({ method: "GET" })
   .inputValidator(childIdSchema)
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
   .handler(async ({ data }) => {
     const { childId } = data;
 

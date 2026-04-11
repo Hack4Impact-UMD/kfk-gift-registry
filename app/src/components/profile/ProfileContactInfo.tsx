@@ -23,7 +23,6 @@ export function ContactInfoSection({
   const [editingPhone, setEditingPhone] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
   const [phoneLocal, setPhoneLocal] = useState(() => {
-    console.log(authCtx.authUser.phone);
     return e164ToDisplay(authCtx.authUser.phone ?? "");
   });
   const [email, setEmail] = useState(authCtx.authUser.email ?? "");

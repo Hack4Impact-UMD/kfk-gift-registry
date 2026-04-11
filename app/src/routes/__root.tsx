@@ -44,7 +44,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
   beforeLoad: async () => {
     const authUser = await verifySession();
-    const currentDrive = await getActiveGiftDrive();
+    const currentDrive = await getActiveGiftDrive().catch(() => undefined);
 
     if (authUser) {
       return {

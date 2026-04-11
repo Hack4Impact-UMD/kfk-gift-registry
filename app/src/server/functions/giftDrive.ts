@@ -15,7 +15,7 @@ export const getGiftDriveById = createServerFn()
   });
 
 export const getActiveGiftDrive = createServerFn().handler(async () => {
-  const now = DateTime.now();
+  const now = DateTime.utc();
   const db = getServerDB();
 
   const active = (

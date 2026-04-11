@@ -8,7 +8,7 @@ export function cn(...inputs: Array<ClassValue>) {
   return twMerge(clsx(inputs));
 }
 
-export function mostRecentDrive(drives: Array<GiftDrive>) {
+export function closestDrive(drives: Array<GiftDrive>) {
   return [...drives].sort((a, b) => {
     const aStart = DateTime.fromISO(a.startDate);
     const bStart = DateTime.fromISO(b.startDate);
