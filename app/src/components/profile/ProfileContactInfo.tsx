@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/phone-input";
 import { useUpdateUserProfile } from "@/hooks/mutations/useUpdateUserProfile";
 import { useRouter } from "@tanstack/react-router";
+import { toast } from "@/lib/toast";
 import { ReauthAlertDialog } from "../auth/ReauthAlertDialog";
 import { verifyBeforeUpdateEmail } from "firebase/auth";
 import { getClientAuth } from "@/lib/firebase.client";
@@ -47,13 +48,12 @@ export function ContactInfoSection({
       },
       {
         onError: (err) => {
-          //TODO: replace with toast
           console.error(err);
+          toast.error("Failed to update phone number.");
           setPhoneLocal(e164ToDisplay(authCtx.authUser.phone ?? ""));
         },
         onSuccess: () => {
-          //TODO: replace with toast
-          console.log("worked");
+          toast.success("Phone number updated.");
           router.invalidate();
         },
         onSettled: () => {
@@ -73,8 +73,8 @@ export function ContactInfoSection({
       setPendingVerification(true);
       setShowReauth(false);
     } catch (err) {
-      //TODO: toast
       console.error(err);
+      toast.error("Failed to send verification email.");
     }
   }, [email, authCtx]);
 

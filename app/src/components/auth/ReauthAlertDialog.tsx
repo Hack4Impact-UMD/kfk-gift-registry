@@ -14,6 +14,7 @@ import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import type { AuthContextAuthenticated } from "@/server/functions/auth";
 import { getClientAuth } from "@/lib/firebase.client";
 import { Label } from "../ui/label";
+import { toast } from "@/lib/toast";
 
 type ReauthAlertDialogProps = {
   authCtx: AuthContextAuthenticated;
@@ -45,8 +46,8 @@ export function ReauthAlertDialog({
       setErr(false);
       onConfirmed();
     } catch (error) {
-      //TODO: toast
       console.error(error);
+      toast.error("Failed to authenticate.");
       setErr(true);
     } finally {
       setPending(false);
