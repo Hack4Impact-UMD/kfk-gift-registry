@@ -9,7 +9,7 @@ type HeaderProps = {
 export function HomeHeaderCard({ displayName }: HeaderProps) {
   return (
     <Card
-      className="mx-auto flex w-full max-w-150 flex-row justify-center px-5 py-7 text-white"
+      className="flex items-center w-full max-w-150 flex-row justify-center px-5 py-7 text-white"
       style={getBlueBackground()}
     >
       <div className="flex flex-col">

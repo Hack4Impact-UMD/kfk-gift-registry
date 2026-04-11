@@ -766,7 +766,7 @@ function ChildBlock({ child }: { child: CommittedChild }) {
   return (
     <>
       <Card
-        className="flex w-full flex-col gap-2 px-10 py-6 text-center text-white shadow-lg"
+        className="flex w-full flex-col gap-2 px-10 py-6 text-center text-white shadow-lg items-center"
         style={getBlueBackground()}
       >
         <h3 className="mb-2 font-bold">
@@ -774,7 +774,7 @@ function ChildBlock({ child }: { child: CommittedChild }) {
         </h3>
         <img
           src={child.photoUrl}
-          className="mx-auto h-20 w-30 rounded-2xl border-3 border-white object-cover"
+          className="h-20 w-30 rounded-2xl border-3 border-white object-cover"
           alt={`${child.firstName} ${child.lastName}`}
         />
         <h2 className="font-gaegu text-2xl font-bold">
@@ -782,7 +782,7 @@ function ChildBlock({ child }: { child: CommittedChild }) {
         </h2>
         <h3
           className={cn(
-            "mx-auto w-28 rounded-full px-1 py-0.5 text-sm font-medium",
+            "w-28 rounded-full px-1 py-0.5 text-sm font-medium",
             child.category === "Warrior"
               ? "bg-[#FFF8C2] text-[#733C10]"
               : "bg-[#D4EAFF] text-kfk-blue",
@@ -817,7 +817,7 @@ function ChildBlock({ child }: { child: CommittedChild }) {
         <Button
           type="button"
           aria-expanded={detailsOpen}
-          className="mx-auto flex items-center gap-1 rounded-full bg-white px-6 font-gaegu text-lg font-bold text-kfk-blue hover:bg-white/90"
+          className="flex items-center gap-1 rounded-full bg-white px-6 font-gaegu text-lg font-bold text-kfk-blue hover:bg-white/90"
           onClick={() => setDetailsOpen((o) => !o)}
         >
           {detailsOpen ? (
@@ -868,11 +868,11 @@ function RouteComponent() {
   const { auth } = Route.useRouteContext();
 
   return (
-    <div className="flex flex-col gap-10 overflow-x-hidden p-5">
+    <div className="flex flex-col gap-10 overflow-x-hidden p-5 items-center">
       <HomeHeaderCard
         displayName={auth.authUser.displayName ?? "Unnamed User"}
       />
-      <div className="mx-auto w-full min-w-0 max-w-150 flex flex-col gap-6">
+      <div className="w-full min-w-0 max-w-150 flex flex-col gap-6 items-center">
         {COMMITTED_CHILDREN.map((child) => (
           <ChildBlock key={child.id} child={child} />
         ))}
