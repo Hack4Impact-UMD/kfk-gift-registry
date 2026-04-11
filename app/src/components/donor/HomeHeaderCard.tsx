@@ -1,5 +1,5 @@
 import { Card } from "../ui/card";
-import { getBlueBackground } from "@/routes/_authenticated/donor/home";
+import { getBlueBackground } from "@/components/donor/home/utils";
 import RedGift from "@/assets/red-gift.png";
 
 type HeaderProps = {
