@@ -1,11 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { EditableField } from "./EditableField";
+import { ReviewGift } from "./ReviewGift";
 import { useState } from "react";
+import type { ChangeEventHandler } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
-import { ReviewChild } from "@/routes/_authenticated/staff/review/$familyId";
+import type { ReviewChild } from "@/routes/_authenticated/staff/review/$familyId";
 import { PencilIcon } from "@heroicons/react/24/solid";
+import type { Gift } from "common";
 
 interface ChildInfoCardProps {
   child: ReviewChild;
@@ -13,6 +16,13 @@ interface ChildInfoCardProps {
 }
 
 const levelOptions: Array<string> = ["A", "B", "C", "D"];
+
+function parsePriceInput(raw: string): number | undefined {
+  const t = raw.trim();
+  if (t === "") return undefined;
+  const n = parseFloat(t);
+  return Number.isFinite(n) ? n : undefined;
+}
 
 export function ChildCard({ child, onSave }: ChildInfoCardProps) {
   const [editing, setEditing] = useState(false);
@@ -25,7 +35,17 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
     blurb: child.blurb,
     socialWorkerName: child.socialWorkerName,
     hospitalName: child.hospitalName,
+    gifts: child.gifts,
   });
+
+  const updateGift = (giftId: string, patch: Partial<Gift>) => {
+    setFormState((prev) => ({
+      ...prev,
+      gifts: prev.gifts.map((g) =>
+        g.id === giftId ? { ...g, ...patch } : g,
+      ),
+    }));
+  };
 
   const handleCancelClick = () => {
     setFormState({
@@ -36,6 +56,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
       blurb: child.blurb,
       socialWorkerName: child.socialWorkerName,
       hospitalName: child.hospitalName,
+      gifts: child.gifts,
     });
     setEditing(false);
   };
@@ -58,6 +79,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
       blurb: formState.blurb,
       socialWorkerName: formState.socialWorkerName,
       hospitalName: formState.hospitalName,
+      gifts: formState.gifts,
     };
 
     if (onSave) {
@@ -173,11 +195,12 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                 size={10}
                 fieldType="select"
                 selectOptions={levelOptions}
-                onChange={(e: any) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    level: e,
-                  }))
+                onChange={
+                  ((value: string) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      level: value,
+                    }))) as unknown as ChangeEventHandler<HTMLInputElement>
                 }
               />
             </div>
@@ -204,11 +227,30 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
           </div>
         </div>
 
-        <div className="w-full text-sm sm:text-base text-muted-foreground py-4">
-          <p className="text-foreground text-wrap">
-            <span className="font-bold">/* Gifts Here: */</span>
-          </p>
-        </div>
+        {formState.gifts.length > 0 && (
+          <div className="w-full py-4">
+            <div className="rounded-md bg-slate-100 px-3 py-1 sm:px-4">
+              {formState.gifts.map((gift) => (
+                <ReviewGift
+                  key={gift.id}
+                  gift={gift}
+                  editable={editing}
+                  onTitleChange={(value) =>
+                    updateGift(gift.id, { title: value })
+                  }
+                  onPriceChange={(value) =>
+                    updateGift(gift.id, {
+                      listedPrice: parsePriceInput(value),
+                    })
+                  }
+                  onNotesChange={(value) =>
+                    updateGift(gift.id, { privateNotes: value || undefined })
+                  }
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {child.status == "Warrior" && (
           <div className="flex flex-row rounded-b-xl bg-card px-4 sm:px-6 py-4 gap-3 -mx-6">
