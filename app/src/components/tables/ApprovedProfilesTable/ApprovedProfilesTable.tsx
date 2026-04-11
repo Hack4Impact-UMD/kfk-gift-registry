@@ -19,7 +19,7 @@ export function ApprovedProfilesTable({
   const [globalSearch, setGlobalSearch] = useState("");
 
   return (
-    <div className={cn("flex flex-col gap-4 pt-6", className)}>
+    <div className={cn("flex flex-col gap-4 pt-6 w-full", className)}>
       <div className="flex items-center">
         <div className="relative flex items-center w-64">
           <Search className="absolute ml-2 h-4 w-4 text-gray-500" />
@@ -42,6 +42,7 @@ export function ApprovedProfilesTable({
         </div>
       </div>
       <DataTable
+        className="w-full"
         columns={columns}
         data={data}
         globalSearch={globalSearch}

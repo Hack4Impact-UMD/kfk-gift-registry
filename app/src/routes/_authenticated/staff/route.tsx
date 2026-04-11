@@ -33,12 +33,12 @@ function RouteComponent() {
         <SidebarProvider open={open} onOpenChange={setOpen}>
           <div className="flex flex-row w-full h-full">
             <StaffSidebar currentDrive={currentDrive} />
-            <main className="flex-1 w-full">
+            <main className="flex-1 min-w-0">
               <div className="w-full bg-accent border-b block md:hidden">
                 <SidebarTrigger
                   openIcon={<XIcon />}
                   closeIcon={<MenuIcon />}
-                ></SidebarTrigger>
+                />
               </div>
               <div className="p-4">
                 <Outlet />

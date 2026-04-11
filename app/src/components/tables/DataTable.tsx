@@ -53,14 +53,14 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     ...(paginated
       ? {
-          getPaginationRowModel: getPaginationRowModel(),
-          initialState: {
-            pagination: {
-              pageSize: rowsPerPage,
-              pageIndex: 0,
-            },
+        getPaginationRowModel: getPaginationRowModel(),
+        initialState: {
+          pagination: {
+            pageSize: rowsPerPage,
+            pageIndex: 0,
           },
-        }
+        },
+      }
       : {}),
     ...options,
   });
@@ -101,7 +101,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={twMerge("flex flex-col gap-3", className)}>
-      <div className="rounded-md border bg-card">
+      <div className="rounded-md border bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -115,9 +115,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
