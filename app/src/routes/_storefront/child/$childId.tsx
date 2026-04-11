@@ -12,191 +12,76 @@ import {
 import type { StorefrontChild } from "@/types/storefront";
 import { ChildGiftTable } from "@/components/tables/ChildGiftTable/ChildGiftTable";
 import redStripedBackground from "@/assets/red-striped-background.png";
+import { queries } from "@/queries";
+import { useStorefrontChildProfiles } from "@/hooks/queries/useStorefrontChildProfiles";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/_storefront/child/$childId")({
+  loader: async ({ context }) => {
+    const driveId = context.currentDrive?.id;
+    if (driveId) {
+      await context.queryClient.ensureQueryData(
+        queries.storefront.profilesForDrive(driveId),
+      );
+    }
+  },
   component: RouteComponent,
 });
 
-const MOCK_CHILDREN: Record<string, StorefrontChild> = {
-  "1": {
-    id: "1",
-    name: "Ryan Peirce",
-    category: "warrior",
-    age: 6,
-    diagnosis: "Acute Lymphocytic Leukemia",
-    photoUrl: undefined,
-    publicBlurb:
-      "Ryan has the biggest heart. He is now a big brother and he cannot get enough of his little brother Gunner. Lincoln enjoys art and crafts. He always wants to learn something new.",
-    status: "diagnosed_in_treatment_1yr+",
-    gifts: [
-      {
-        id: "gift-1",
-        title: "Taco Cat Goat Cheese Pizza Card Game",
-        productUrl:
-          "https://www.amazon.com/Taco-Cat-Goat-Cheese-Pizza/dp/B07JZTBL5M",
-        listedPrice: 19.95,
-        status: "AVAILABLE",
-      },
-      {
-        id: "gift-2",
-        title: "HUES and CUES - Color Guessing Board Game",
-        productUrl:
-          "https://www.amazon.com/Hues-Cues-Award-Winning-Vibrant-Guessing/dp/B083K4V8TK",
-        listedPrice: 19.95,
-        status: "AVAILABLE",
-      },
-      {
-        id: "gift-3",
-        title: "Sorry! Classic Board Game",
-        productUrl:
-          "https://www.amazon.com/Hasbro-Gaming-A5065-Sorry-Game/dp/B00000DMFW",
-        listedPrice: 19.95,
-        status: "AVAILABLE",
-      },
-    ],
-    published: true,
-  },
-  "2": {
-    id: "2",
-    name: "Christina Anne T. Montgomery",
-    category: "super_sib",
-    age: 8,
-    diagnosis: "Leukemia",
-    photoUrl: undefined,
-    publicBlurb:
-      "Christina is a bright and caring sister who loves to read and play with her siblings.",
-    published: true,
-    status: "sibling_in_treatment",
-    gifts: [
-      {
-        id: "gift-4",
-        title: "Art Supply Kit",
-        productUrl:
-          "https://www.amazon.com/Pentel-Arts-Pastel-Assorted-Colors/dp/B001E63EKW/\
-          ref=sr_1_7?crid=2TN55QEC2C55Z&dib=eyJ2IjoiMSJ9.9dMqDKZgu1zEyiyUnCopEuT-XHb\
-          MC521m8grtaYdIDCBhJSNX13atUZJ-4nM7jCjs4Szaicy93F8JPf9fLP1oiiFAPD7z7y0nS52t\
-          fbpeoYDf35yWtpr9cLmzOvzsU17a9REIF2iK75G2X8uy8UBsk_twc-z8X6kKE55Ley_e4aYNV7\
-          -eNP8D_HnUfG-M_LRcnEj5ug5yjgi0ZaUh1Prkle366XJlbwlRfvUQBZYbMtfqugHXqA4B_bIG\
-          mxyCPuhJpTUweL-VOUEuTCP8PaX_iHOHKSYUJvcBGhoY2eNLm0.F_SUrjBjJlfs94Q_SKMu2jcU\
-          oaX4sxV5irQokjegVPU&dib_tag=se&keywords=art+supplies&qid=1774550253&sprefix=\
-          art+sup%2Caps%2C151&sr=8-7",
-        listedPrice: 24.99,
-        status: "AVAILABLE",
-      },
-      {
-        id: "gift-5",
-        title: "Art Supply Kit",
-        productUrl:
-          "https://www.amazon.com/Pentel-Arts-Pastel-Assorted-Colors/dp/B001E63EKW/\
-          ref=sr_1_7?crid=2TN55QEC2C55Z&dib=eyJ2IjoiMSJ9.9dMqDKZgu1zEyiyUnCopEuT-XHb\
-          MC521m8grtaYdIDCBhJSNX13atUZJ-4nM7jCjs4Szaicy93F8JPf9fLP1oiiFAPD7z7y0nS52t\
-          fbpeoYDf35yWtpr9cLmzOvzsU17a9REIF2iK75G2X8uy8UBsk_twc-z8X6kKE55Ley_e4aYNV7\
-          -eNP8D_HnUfG-M_LRcnEj5ug5yjgi0ZaUh1Prkle366XJlbwlRfvUQBZYbMtfqugHXqA4B_bIG\
-          mxyCPuhJpTUweL-VOUEuTCP8PaX_iHOHKSYUJvcBGhoY2eNLm0.F_SUrjBjJlfs94Q_SKMu2jcU\
-          oaX4sxV5irQokjegVPU&dib_tag=se&keywords=art+supplies&qid=1774550253&sprefix=\
-          art+sup%2Caps%2C151&sr=8-7",
-        listedPrice: 24.99,
-        status: "AVAILABLE",
-      },
-      {
-        id: "gift-6",
-        title: "Art Supply Kit",
-        productUrl:
-          "https://www.amazon.com/Pentel-Arts-Pastel-Assorted-Colors/dp/B001E63EKW/ref=\
-          sr_1_7?crid=2TN55QEC2C55Z&dib=eyJ2IjoiMSJ9.9dMqDKZgu1zEyiyUnCopEuT-XHbMC521m8g\
-          rtaYdIDCBhJSNX13atUZJ-4nM7jCjs4Szaicy93F8JPf9fLP1oiiFAPD7z7y0nS52tfbpeoYDf35yW\
-          tpr9cLmzOvzsU17a9REIF2iK75G2X8uy8UBsk_twc-z8X6kKE55Ley_e4aYNV7-eNP8D_HnUfG-M_LR\
-          cnEj5ug5yjgi0ZaUh1Prkle366XJlbwlRfvUQBZYbMtfqugHXqA4B_bIGmxyCPuhJpTUweL-VOUEuTCP\
-          8PaX_iHOHKSYUJvcBGhoY2eNLm0.F_SUrjBjJlfs94Q_SKMu2jcUoaX4sxV5irQokjegVPU&dib_tag=s\
-          e&keywords=art+supplies&qid=1774550253&sprefix=art+sup%2Caps%2C151&sr=8-7",
-        listedPrice: 24.99,
-        status: "AVAILABLE",
-      },
-    ],
-  },
-};
-
-const MOCK_SIBLINGS: Record<string, Array<CarouselCardSibling>> = {
-  "1": [
-    {
-      id: "2",
-      name: "Christina Anne T. Montgomery",
-      category: "super_sib",
-      giftsFulfilled: 0,
-      giftsTotal: 3,
-    },
-    {
-      id: "sib-a",
-      name: "Alex Martinez",
-      category: "warrior",
-      giftsFulfilled: 1,
-      giftsTotal: 3,
-    },
-    {
-      id: "sib-b",
-      name: "Jordan Kim",
-      category: "super_sib",
-      giftsFulfilled: 2,
-      giftsTotal: 3,
-    },
-    {
-      id: "sib-c",
-      name: "Sam Rivera",
-      category: "warrior",
-      giftsFulfilled: 0,
-      giftsTotal: 5,
-    },
-    {
-      id: "sib-d",
-      name: "Morgan Lee",
-      category: "super_sib",
-      giftsFulfilled: 3,
-      giftsTotal: 4,
-    },
-    {
-      id: "sib-e",
-      name: "Casey Nguyen",
-      category: "warrior",
-      giftsFulfilled: 1,
-      giftsTotal: 2,
-    },
-  ],
-  "2": [
-    {
-      id: "1",
-      name: "Ryan Peirce",
-      category: "warrior",
-      giftsFulfilled: 0,
-      giftsTotal: 3,
-    },
-    {
-      id: "sib-a",
-      name: "Alex Martinez",
-      category: "warrior",
-      giftsFulfilled: 1,
-      giftsTotal: 3,
-    },
-    {
-      id: "sib-b",
-      name: "Jordan Kim",
-      category: "super_sib",
-      giftsFulfilled: 2,
-      giftsTotal: 3,
-    },
-    {
-      id: "sib-c",
-      name: "Sam Rivera",
-      category: "warrior",
-      giftsFulfilled: 0,
-      giftsTotal: 5,
-    },
-  ],
-};
-
 function RouteComponent() {
   const { childId } = Route.useParams();
-  const child = MOCK_CHILDREN[childId];
-  const siblings = MOCK_SIBLINGS[childId] ?? MOCK_SIBLINGS["1"] ?? [];
+  const context = Route.useRouteContext();
+  const driveId = context.currentDrive?.id ?? "";
+
+  const { data: allChildren, isLoading, isError } = useStorefrontChildProfiles(driveId);
+
+  const child = useMemo(() => {
+    if (!allChildren) return undefined;
+    return allChildren.find((c) => c.id === childId);
+  }, [allChildren, childId]);
+
+  const siblings = useMemo(() => {
+    if (!allChildren || !child) return [];
+    
+    return allChildren
+      .filter((c) => c.familyId === child.familyId && c.id !== childId)
+      .map((sibling): CarouselCardSibling => ({
+        id: sibling.id,
+        name: sibling.name,
+        photoUrl: sibling.photoUrl,
+        category: sibling.category,
+        giftsFulfilled: sibling.gifts.filter((g) =>
+          ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
+        ).length,
+        giftsTotal: sibling.gifts.length,
+      }));
+  }, [allChildren, child, childId]);
+
+  if (isLoading) {
+    return (
+      <div className="w-full min-h-screen">
+        <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
+          <div className="max-w-7xl mx-auto">
+            <p className="text-center text-lg font-gaegu">Loading child profile...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="w-full min-h-screen">
+        <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
+          <div className="max-w-7xl mx-auto">
+            <p className="text-center text-lg font-gaegu text-red-600">
+              Error loading child profile. Please try again later.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!child) {
     return (
@@ -247,14 +132,16 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8 font-gaegu">
-            {firstName}'s Siblings
-          </h2>
-          <SiblingsCarousel siblings={siblings} />
+      {siblings.length > 0 && (
+        <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-8 font-gaegu">
+              {firstName}'s Siblings
+            </h2>
+            <SiblingsCarousel siblings={siblings} />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -35,10 +35,15 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
     const { driveId } = data;
     const db = getServerDB();
 
+    console.log("[getProfilesForStorefront] Fetching children for driveId:", driveId);
+
+    // NOTE: Removed .where("published", "==", true) for development with seed data
+    // Add it back for production if you want to filter by published status
     const childrenSnapshot = await db.children
       .where("giftDrive", "==", driveId)
-      .where("published", "==", true)
       .get();
+
+    console.log("[getProfilesForStorefront] Found children count:", childrenSnapshot.size);
 
     if (childrenSnapshot.empty) {
       return [];
@@ -123,6 +128,8 @@ export const getActiveDrive = createServerFn({ method: "GET" }).handler(
     const now = DateTime.utc();
     const db = getServerDB();
 
+    console.log("[getActiveDrive] Checking for active drive at:", now.toISO());
+
     const active = (
       await db.giftDrives
         .where("startDate", "<=", now.toISO())
@@ -132,8 +139,19 @@ export const getActiveDrive = createServerFn({ method: "GET" }).handler(
     ).docs[0];
 
     if (active && active.exists) {
-      return active.data();
+      const driveData = active.data();
+      console.log("[getActiveDrive] Found active drive:", driveData.id, "cycle:", driveData.cycle);
+      return driveData;
     } else {
+      console.log("[getActiveDrive] No active drive found. Checking all drives...");
+      const allDrives = await db.giftDrives.get();
+      console.log("[getActiveDrive] Total drives in database:", allDrives.size);
+      if (allDrives.size > 0) {
+        allDrives.docs.forEach((doc) => {
+          const d = doc.data();
+          console.log(`  - Drive ${d.id}: ${d.startDate} to ${d.endDate}`);
+        });
+      }
       return undefined;
     }
   },
