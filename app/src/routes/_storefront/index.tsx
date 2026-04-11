@@ -164,12 +164,12 @@ function App() {
     () =>
       (searchValue
         ? mockChildren.filter(
-            (child) =>
-              child.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-              child.diagnosis
-                ?.toLowerCase()
-                .includes(searchValue.toLowerCase()),
-          )
+          (child) =>
+            child.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+            child.diagnosis
+              ?.toLowerCase()
+              .includes(searchValue.toLowerCase()),
+        )
         : [...mockChildren]
       ).sort((a, b) => {
         if (sortValue === "age-asc") return a.age - b.age;
@@ -244,8 +244,8 @@ function App() {
             })
           }
           currentPage={page}
-          MAX_BUTTONS={9}
-          IMMEDIATE_PAGES={4}
+          maxButtons={9}
+          immediatePages={4}
         />
       </div>
     </div>

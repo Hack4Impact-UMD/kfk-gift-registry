@@ -3,9 +3,9 @@ import z from "zod";
 import { createServerFn } from "@tanstack/react-start";
 import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
-import { verifySession } from "./auth";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 import type { Child, Gift } from "common";
+import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
 export type FamilyGiftClaim = {
   giftId: string;
@@ -66,20 +66,15 @@ const tokenGiftThankYouNoteSchema = z.object({
 export const getAllChildProfilesForDrive = createServerFn({
   method: "GET",
 })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
   .inputValidator(childParamSchema)
   .handler(async ({ data }) => {
-    // Verify authentication
-    const authUser = await verifySession();
-    if (!authUser) {
-      throw new Error("Unauthorized: not authenticated");
-    }
-
-    // Verify staff authorization (ADMIN, DIRECTOR, VOLUNTEER)
-    const staffRoles = [UserRole.ADMIN, UserRole.DIRECTOR, UserRole.VOLUNTEER];
-    if (!staffRoles.includes(authUser.role)) {
-      throw new Error("Unauthorized: insufficient permissions");
-    }
-
     const db = getServerDB();
     const childProfiles = await db.children
       .where("giftDrive", "==", data.driveId)
@@ -93,20 +88,15 @@ export const getAllChildProfilesForDrive = createServerFn({
 export const getAllApprovedFamilyProfilesForDrive = createServerFn({
   method: "GET",
 })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
   .inputValidator(childParamSchema)
   .handler(async ({ data }) => {
-    // Verify authentication
-    const authUser = await verifySession();
-    if (!authUser) {
-      throw new Error("Unauthorized: not authenticated");
-    }
-
-    // Verify staff authorization (ADMIN, DIRECTOR, VOLUNTEER)
-    const staffRoles = [UserRole.ADMIN, UserRole.DIRECTOR, UserRole.VOLUNTEER];
-    if (!staffRoles.includes(authUser.role)) {
-      throw new Error("Unauthorized: insufficient permissions");
-    }
-
     const db = getServerDB();
     const familyProfiles = await db.families
       .where("giftDrive", "==", data.driveId)
@@ -121,20 +111,15 @@ export const getAllApprovedFamilyProfilesForDrive = createServerFn({
 export const getApprovedProfileTableRows = createServerFn({
   method: "GET",
 })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
   .inputValidator(childParamSchema)
   .handler(async ({ data }) => {
-    // Verify authentication
-    const authUser = await verifySession();
-    if (!authUser) {
-      throw new Error("Unauthorized: not authenticated");
-    }
-
-    // Verify staff authorization (ADMIN, DIRECTOR, VOLUNTEER)
-    const staffRoles = [UserRole.ADMIN, UserRole.DIRECTOR, UserRole.VOLUNTEER];
-    if (!staffRoles.includes(authUser.role)) {
-      throw new Error("Unauthorized: insufficient permissions");
-    }
-
     const db = getServerDB();
     const rows: Array<ApprovedProfileTableRow> = [];
 
@@ -209,6 +194,13 @@ export const getApprovedProfileTableRows = createServerFn({
   });
 
 export const getChildProfilesForFamily = createServerFn({ method: "GET" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
   .inputValidator(familyIdSchema)
   .handler(async ({ data }) => {
     const { familyId } = data;
@@ -226,6 +218,13 @@ export const getChildProfilesForFamily = createServerFn({ method: "GET" })
   });
 
 export const getChildById = createServerFn({ method: "GET" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
   .inputValidator(childIdSchema)
   .handler(async ({ data }) => {
     const { childId } = data;
@@ -367,14 +366,14 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
           claimedAt: claim.claimedAt,
           purchaseConfirmation: claim.purchaseConfirmation
             ? {
-                date: claim.purchaseConfirmation.date,
-                trackingNumber: claim.purchaseConfirmation.trackingNumber,
-              }
+              date: claim.purchaseConfirmation.date,
+              trackingNumber: claim.purchaseConfirmation.trackingNumber,
+            }
             : undefined,
           deliveryConfirmed: claim.deliveryConfirmed
             ? {
-                date: claim.deliveryConfirmed.date,
-              }
+              date: claim.deliveryConfirmed.date,
+            }
             : undefined,
           expectedDeliveryDate: claim.expectedDeliveryDate,
           receivedAt: claim.receivedAt,
