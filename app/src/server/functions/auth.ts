@@ -51,11 +51,12 @@ export const verifySession = createServerFn({
         sessionCookie,
         data?.checkRevocation ?? false,
       );
+      const phone = (await auth.getUser(result.uid)).phoneNumber
 
       return {
         uid: result.uid,
         displayName: result.name,
-        phone: result.phone_number,
+        phone,
         email: result.email,
         emailVerified: result.email_verified ?? false,
         role: (result["role"] as UserRole) ?? UserRole.DONOR,
@@ -96,6 +97,7 @@ export const loginWithToken = createServerFn({
     try {
       const auth = getServerAuth();
       const result = await auth.verifyIdToken(token);
+      const phone = (await auth.getUser(result.uid)).phoneNumber
 
       await createSession({
         data: { token },
@@ -104,7 +106,7 @@ export const loginWithToken = createServerFn({
       return {
         uid: result.uid,
         displayName: result.name,
-        phone: result.phone_number,
+        phone,
         email: result.email,
         emailVerified: result.email_verified ?? false,
         role: (result["role"] as UserRole) ?? UserRole.DONOR,

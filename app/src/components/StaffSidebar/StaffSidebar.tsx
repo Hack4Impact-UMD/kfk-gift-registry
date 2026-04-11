@@ -37,11 +37,11 @@ import {
   ClipboardCheckIcon,
   ClipboardIcon,
   HomeIcon,
-  UserCircleIcon,
   UsersIcon,
 } from "@/components/icons";
 import { useAllGiftDrives } from "@/hooks/queries/useAllGiftDrives";
 import type { GiftDrive } from "common";
+import { UserCircleIcon } from "lucide-react";
 
 // Tooltip wrapper for sidebar menu items to show labels only when collapsed
 function SidebarMenuButtonWithTooltip({
@@ -149,7 +149,7 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
                   </SidebarMenuButtonWithTooltip>
                   <SelectContent>
                     {drives?.map((drive) => (
-                      <SelectItem value={drive.id}>{drive.cycle}</SelectItem>
+                      <SelectItem key={drive.id} value={drive.id}>{drive.cycle}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

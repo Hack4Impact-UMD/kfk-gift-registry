@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InlineEditInput } from "@/components/ui/inline-edit-input";
 import { getClientAuth } from "@/lib/firebase.client";
 import type { AuthContextAuthenticated } from "@/server/functions/auth";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 export function AccountDetailsSection({
   authCtx,
@@ -29,12 +31,18 @@ export function AccountDetailsSection({
         <div className="flex flex-col gap-2">
           <label className="text-md font-semibold">Password</label>
 
-          <InlineEditInput
+          <Input
             type="password"
             value="placeholder"
             disabled
-            onEditClick={handlePasswordReset}
+            className="opacity-100!"
           />
+          <Button
+            onClick={handlePasswordReset}
+            className="w-32 self-end"
+          >
+            Change Password
+          </Button>
         </div>
       </CardContent>
     </Card>
