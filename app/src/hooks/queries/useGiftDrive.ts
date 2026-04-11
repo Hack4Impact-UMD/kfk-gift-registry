@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { queries } from "@/queries";
 
-export function useChild(childId: string) {
+export function useGiftDrive(id: string) {
   return useQuery({
-    ...queries.children.byId(childId),
-    enabled: childId.length > 0,
+    ...queries.drives.id(id),
+    enabled: id.length > 0,
   });
 }

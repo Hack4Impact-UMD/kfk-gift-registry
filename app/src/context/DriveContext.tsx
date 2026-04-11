@@ -1,21 +1,30 @@
+import { closestDrive } from "@/lib/utils";
+import type { GiftDrive } from "common";
 import type { ReactNode } from "react";
 import { createContext, useContext, useState } from "react";
 
 const DriveContext = createContext<
-  { activeDriveId: string; setActiveDriveId: (id: string) => void } | undefined
+  | { activeDriveId: string | null; setActiveDriveId: (id: string) => void }
+  | undefined
 >(undefined);
 
-const STORAGE_KEY = "kfk_active_drive_id";
-const DEFAULT_DRIVE_ID = "gd_seed_spring_2026_1"; // matches seeded gift drive ID
-
-export function DriveProvider({ children }: { children: ReactNode }) {
-  const [activeDriveId, setActiveDriveIdState] = useState<string>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored || DEFAULT_DRIVE_ID;
+export function DriveProvider({
+  children,
+  drives,
+  initialDriveId,
+  onDriveChange,
+}: {
+  children: ReactNode;
+  drives: Array<GiftDrive>;
+  initialDriveId?: string | null;
+  onDriveChange: (drive: string) => void;
+}) {
+  const [activeDriveId, setActiveDriveIdState] = useState<string | null>(() => {
+    return initialDriveId ?? closestDrive(drives)?.id ?? null;
   });
   const setActiveDriveId = (driveId: string) => {
     setActiveDriveIdState(driveId);
-    localStorage.setItem(STORAGE_KEY, driveId);
+    onDriveChange(driveId);
   };
 
   return (

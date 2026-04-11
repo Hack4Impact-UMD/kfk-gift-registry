@@ -7,6 +7,7 @@ import { useCallback, useState } from "react";
 import { Input } from "../ui/input";
 import { useUpdateUserProfile } from "@/hooks/mutations/useUpdateUserProfile";
 import { useRouter } from "@tanstack/react-router";
+import { toast } from "@/lib/toast";
 
 interface ProfileHeaderProps {
   authCtx: AuthContextAuthenticated;
@@ -47,7 +48,7 @@ export function ProfileHeader({ authCtx, avatarUrl }: ProfileHeaderProps) {
       {
         onError: (err) => {
           console.error(err);
-          //TODO: toast
+          toast.error("Failed to update name.");
         },
         onSettled: () => {
           router.invalidate();

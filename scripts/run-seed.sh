@@ -53,7 +53,7 @@ echo "Using flame emulator target..."
 flame use emulator
 
 echo "Cleaning existing generated data..."
-for collection in claims gifts children family-links families invites users gift-drives; do
+for collection in claims gifts children family-links families invites gift-drives; do
   remove_collection "${collection}"
 done
 

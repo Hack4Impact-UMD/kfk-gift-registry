@@ -20,5 +20,9 @@ function RouteComponent() {
   //   return <div>No approved profiles found for this drive.</div>;
   // }
 
-  return <ApprovedProfilesTable data={data} />;
+  return (
+    <div className="">
+      <ApprovedProfilesTable data={data} />
+    </div>
+  );
 }

@@ -244,8 +244,8 @@ function App() {
             })
           }
           currentPage={page}
-          MAX_BUTTONS={9}
-          IMMEDIATE_PAGES={4}
+          maxButtons={9}
+          immediatePages={4}
         />
       </div>
     </div>

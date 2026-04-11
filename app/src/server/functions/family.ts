@@ -3,7 +3,7 @@ import z from "zod";
 import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import { getServerDB } from "@/lib/firebase.server";
-import { verifySession } from "./auth";
+import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
 const tokenInputSchema = z.object({
   token: z.string().min(1),
@@ -55,20 +55,15 @@ export const getFamilyLink = createServerFn({ method: "GET" })
 
 export const getFamilyById = createServerFn({ method: "GET" })
   .inputValidator(familyIdInputSchema)
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
   .handler(async ({ data }) => {
     const { familyId } = data;
-
-    // Verify authentication
-    const authUser = await verifySession();
-    if (!authUser) {
-      throw new Error("Unauthorized: not authenticated");
-    }
-
-    // Verify staff authorization (ADMIN, DIRECTOR, VOLUNTEER)
-    const staffRoles = [UserRole.ADMIN, UserRole.DIRECTOR, UserRole.VOLUNTEER];
-    if (!staffRoles.includes(authUser.role)) {
-      throw new Error("Unauthorized: insufficient permissions");
-    }
 
     const db = getServerDB();
     const familyDoc = await db.families.doc(familyId).get();
