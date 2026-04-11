@@ -60,10 +60,12 @@ export function ChildInfoForm({
                   min={1}
                   max={10}
                   placeholder="e.g. 2"
-                  value={(field.state.value as any) ?? ""}
+                  value={(field.state.value as number | undefined) ?? ""}
                   onChange={(e) => {
                     const raw = e.target.value;
-                    field.handleChange(raw === "" ? ("" as any) : Number(raw));
+                    (field.handleChange as (v: number | string) => void)(
+                      raw === "" ? "" : Number(raw),
+                    );
                   }}
                   onBlur={field.handleBlur}
                   disabled={disabled}
@@ -320,9 +322,8 @@ export function ChildInfoForm({
                         </>
                       )}
                       <form.AppField name={`children[${index}].photoUrl`}>
-                        {(field) => (
+                        {() => (
                           <PhotoUpload
-                            field={field}
                             label=""
                             childName={
                               form.state.values.children[index]?.name ||

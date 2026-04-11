@@ -65,7 +65,7 @@ export const getAllUserProfiles = createServerFn({
     const db = getServerDB();
     const snapshot = await db.users.get();
 
-    return snapshot.docs.map((doc: any) => {
+    return snapshot.docs.map((doc) => {
       const data = doc.data();
       return data;
     });

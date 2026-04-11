@@ -78,9 +78,9 @@ function issueToMessage(issue: unknown): string {
   if (
     typeof issue === "object" &&
     "message" in issue &&
-    typeof (issue as any).message === "string"
+    typeof (issue as { message: unknown }).message === "string"
   ) {
-    return (issue as any).message;
+    return (issue as { message: string }).message;
   }
   return "Invalid value";
 }

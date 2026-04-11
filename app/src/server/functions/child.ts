@@ -1,0 +1,505 @@
+import { getServerDB } from "@/lib/firebase.server";
+import z from "zod";
+import { createServerFn } from "@tanstack/react-start";
+import { UserRole } from "common";
+import { getFamilyLinkById } from "../services/familyLinkService.server";
+import { verifySession } from "./auth";
+import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
+import type { Child, Gift } from "common";
+
+export type FamilyGiftClaim = {
+  giftId: string;
+  claimedAt: string;
+  purchaseConfirmation?: {
+    date: string;
+    trackingNumber?: string;
+  };
+  deliveryConfirmed?: {
+    date: string;
+  };
+  expectedDeliveryDate?: string;
+  receivedAt?: string;
+  thankYouNote?: string;
+};
+
+const childParamSchema = z.object({
+  // just so it's clean for the input validator
+  driveId: z.string(),
+});
+
+const familyIdSchema = z.object({
+  familyId: z.string().min(1),
+});
+
+const childIdSchema = z.object({
+  childId: z.string().min(1),
+});
+
+const tokenChildSchema = z.object({
+  token: z.string().min(1),
+  childId: z.string().min(1),
+});
+
+const tokenChildGiftsSchema = z.object({
+  token: z.string().min(1),
+  childId: z.string().min(1),
+});
+
+const tokenChildClaimsSchema = z.object({
+  token: z.string().min(1),
+  childId: z.string().min(1),
+});
+
+const tokenGiftConfirmationSchema = z.object({
+  token: z.string().min(1),
+  childId: z.string().min(1),
+  giftId: z.string().min(1),
+});
+
+const tokenGiftThankYouNoteSchema = z.object({
+  token: z.string().min(1),
+  childId: z.string().min(1),
+  giftId: z.string().min(1),
+  note: z.string().trim().min(1).max(1000),
+});
+
+export const getAllChildProfilesForDrive = createServerFn({
+  method: "GET",
+})
+  .inputValidator(childParamSchema)
+  .handler(async ({ data }) => {
+    // Verify authentication
+    const authUser = await verifySession();
+    if (!authUser) {
+      throw new Error("Unauthorized: not authenticated");
+    }
+
+    // Verify staff authorization (ADMIN, DIRECTOR, VOLUNTEER)
+    const staffRoles = [UserRole.ADMIN, UserRole.DIRECTOR, UserRole.VOLUNTEER];
+    if (!staffRoles.includes(authUser.role)) {
+      throw new Error("Unauthorized: insufficient permissions");
+    }
+
+    const db = getServerDB();
+    const childProfiles = await db.children
+      .where("giftDrive", "==", data.driveId)
+      .get();
+    if (childProfiles.empty) {
+      return [];
+    }
+    return childProfiles.docs.map((doc) => doc.data());
+  });
+
+export const getAllApprovedFamilyProfilesForDrive = createServerFn({
+  method: "GET",
+})
+  .inputValidator(childParamSchema)
+  .handler(async ({ data }) => {
+    // Verify authentication
+    const authUser = await verifySession();
+    if (!authUser) {
+      throw new Error("Unauthorized: not authenticated");
+    }
+
+    // Verify staff authorization (ADMIN, DIRECTOR, VOLUNTEER)
+    const staffRoles = [UserRole.ADMIN, UserRole.DIRECTOR, UserRole.VOLUNTEER];
+    if (!staffRoles.includes(authUser.role)) {
+      throw new Error("Unauthorized: insufficient permissions");
+    }
+
+    const db = getServerDB();
+    const familyProfiles = await db.families
+      .where("giftDrive", "==", data.driveId)
+      .where("reviewStatus.approved", "==", true)
+      .get();
+    if (familyProfiles.empty) {
+      return [];
+    }
+    return familyProfiles.docs.map((doc) => doc.data());
+  });
+
+export const getApprovedProfileTableRows = createServerFn({
+  method: "GET",
+})
+  .inputValidator(childParamSchema)
+  .handler(async ({ data }) => {
+    // Verify authentication
+    const authUser = await verifySession();
+    if (!authUser) {
+      throw new Error("Unauthorized: not authenticated");
+    }
+
+    // Verify staff authorization (ADMIN, DIRECTOR, VOLUNTEER)
+    const staffRoles = [UserRole.ADMIN, UserRole.DIRECTOR, UserRole.VOLUNTEER];
+    if (!staffRoles.includes(authUser.role)) {
+      throw new Error("Unauthorized: insufficient permissions");
+    }
+
+    const db = getServerDB();
+    const rows: Array<ApprovedProfileTableRow> = [];
+
+    // 1. Get all approved families
+    const families = await getAllApprovedFamilyProfilesForDrive({ data });
+    if (families.length === 0) {
+      return rows;
+    }
+
+    const familyIds = families.map((f) => f.id);
+
+    // 2. Batch-fetch all children for these families (Firestore `in` max 10)
+    const allChildren: Array<Child> = [];
+    for (let i = 0; i < familyIds.length; i += 10) {
+      const batch = familyIds.slice(i, i + 10);
+      const childrenQuery = await db.children
+        .where("familyId", "in", batch)
+        .get();
+      allChildren.push(...childrenQuery.docs.map((doc) => doc.data()));
+    }
+
+    if (allChildren.length === 0) {
+      return rows;
+    }
+
+    const childIds = allChildren.map((c) => c.id);
+
+    // 3. Batch-fetch all gifts for these children (Firestore `in` max 10)
+    const allGifts: Array<Gift> = [];
+    for (let i = 0; i < childIds.length; i += 10) {
+      const batch = childIds.slice(i, i + 10);
+      const giftsQuery = await db.gifts.where("childId", "in", batch).get();
+      allGifts.push(...giftsQuery.docs.map((doc) => doc.data()));
+    }
+
+    // 4. Index gifts by childId for O(1) lookup
+    const giftsByChildId = new Map<string, Array<Gift>>();
+    for (const gift of allGifts) {
+      if (!giftsByChildId.has(gift.childId)) {
+        giftsByChildId.set(gift.childId, []);
+      }
+      giftsByChildId.get(gift.childId)!.push(gift);
+    }
+
+    // 5. Index families by id for O(1) lookup
+    const familiesById = new Map(families.map((f) => [f.id, f]));
+
+    // 6. Compose rows in memory
+    for (const child of allChildren) {
+      const family = familiesById.get(child.familyId);
+      if (!family) continue;
+
+      const gifts = giftsByChildId.get(child.id) || [];
+      const row: ApprovedProfileTableRow = {
+        id: child.id,
+        childName: child.name,
+        profilePictureUrl: child.photoUrl,
+        parentGuardian: family.contactName,
+        email: family.email,
+        age: child.age,
+        diagnosis: child.diagnosis,
+        type: child.category === "warrior" ? "warrior" : "supersib",
+        giftsFulfilled: gifts.filter((g) =>
+          ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
+        ).length,
+        giftsTotal: gifts.length,
+      };
+      rows.push(row);
+    }
+
+    return rows;
+  });
+
+export const getChildProfilesForFamily = createServerFn({ method: "GET" })
+  .inputValidator(familyIdSchema)
+  .handler(async ({ data }) => {
+    const { familyId } = data;
+
+    const db = getServerDB();
+    const childProfiles = await db.children
+      .where("familyId", "==", familyId)
+      .get();
+
+    if (childProfiles.empty) {
+      return [];
+    }
+
+    return childProfiles.docs.map((doc) => doc.data());
+  });
+
+export const getChildById = createServerFn({ method: "GET" })
+  .inputValidator(childIdSchema)
+  .handler(async ({ data }) => {
+    const { childId } = data;
+
+    const db = getServerDB();
+    const childDoc = await db.children.doc(childId).get();
+
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    return childDoc.data();
+  });
+
+export const getChildGiftsByChildId = createServerFn({ method: "GET" })
+  .inputValidator(childIdSchema)
+  .handler(async ({ data }) => {
+    const { childId } = data;
+
+    const db = getServerDB();
+    const gifts = await db.gifts.where("childId", "==", childId).get();
+
+    if (gifts.empty) {
+      return [];
+    }
+
+    return gifts.docs.map((doc) => doc.data());
+  });
+
+/**
+ * Token-authenticated child retrieval.
+ * Validates that the token has access to the requested child before returning data.
+ */
+export const getChildByIdWithToken = createServerFn({ method: "GET" })
+  .inputValidator(tokenChildSchema)
+  .handler(async ({ data }) => {
+    const { token, childId } = data;
+
+    // Validate token
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+
+    // Fetch child
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+
+    // Verify child belongs to the token's family
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    return child;
+  });
+
+/**
+ * Token-authenticated child gifts retrieval.
+ * Validates that the token has access to the child before returning its gifts.
+ */
+export const getChildGiftsByChildIdWithToken = createServerFn({
+  method: "GET",
+})
+  .inputValidator(tokenChildGiftsSchema)
+  .handler(async ({ data }) => {
+    const { token, childId } = data;
+
+    // Validate token
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+
+    // Fetch child to verify ownership
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+
+    // Verify child belongs to the token's family
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    // Fetch gifts
+    const gifts = await db.gifts.where("childId", "==", childId).get();
+    if (gifts.empty) {
+      return [];
+    }
+
+    return gifts.docs.map((doc) => doc.data());
+  });
+
+export const getChildClaimsByChildIdWithToken = createServerFn({
+  method: "GET",
+})
+  .inputValidator(tokenChildClaimsSchema)
+  .handler(async ({ data }) => {
+    const { token, childId } = data;
+
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    const claims = await db.claims.where("childId", "==", childId).get();
+    if (claims.empty) {
+      return [];
+    }
+
+    return claims.docs
+      .map((doc) => doc.data())
+      .filter((claim) => claim.active)
+      .map(
+        (claim): FamilyGiftClaim => ({
+          giftId: claim.giftId,
+          claimedAt: claim.claimedAt,
+          purchaseConfirmation: claim.purchaseConfirmation
+            ? {
+                date: claim.purchaseConfirmation.date,
+                trackingNumber: claim.purchaseConfirmation.trackingNumber,
+              }
+            : undefined,
+          deliveryConfirmed: claim.deliveryConfirmed
+            ? {
+                date: claim.deliveryConfirmed.date,
+              }
+            : undefined,
+          expectedDeliveryDate: claim.expectedDeliveryDate,
+          receivedAt: claim.receivedAt,
+          thankYouNote: claim.thankYouNote,
+        }),
+      );
+  });
+
+export const saveGiftThankYouNoteWithToken = createServerFn({
+  method: "POST",
+})
+  .inputValidator(tokenGiftThankYouNoteSchema)
+  .handler(async ({ data }) => {
+    const { token, childId, giftId, note } = data;
+
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    const giftDoc = await db.gifts.doc(giftId).get();
+    if (!giftDoc.exists) {
+      throw new Error("Gift not found");
+    }
+
+    const gift = giftDoc.data()!;
+    if (gift.childId !== childId || gift.familyId !== link.familyId) {
+      throw new Error("Unauthorized: gift does not belong to this family");
+    }
+
+    const claims = await db.claims.where("giftId", "==", giftId).get();
+    const activeClaim = claims.docs
+      .map((doc) => doc.data())
+      .find((claim) => claim.active);
+
+    if (!activeClaim) {
+      throw new Error("No donor claim found for this gift");
+    }
+
+    await db.claims.doc(activeClaim.id).update({
+      thankYouNote: note,
+    });
+
+    return {
+      giftId,
+      thankYouNote: note,
+    };
+  });
+
+export const confirmGiftReceivedWithToken = createServerFn({
+  method: "POST",
+})
+  .inputValidator(tokenGiftConfirmationSchema)
+  .handler(async ({ data }) => {
+    const { token, childId, giftId } = data;
+
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    const giftDoc = await db.gifts.doc(giftId).get();
+    if (!giftDoc.exists) {
+      throw new Error("Gift not found");
+    }
+
+    const gift = giftDoc.data()!;
+    if (gift.childId !== childId || gift.familyId !== link.familyId) {
+      throw new Error("Unauthorized: gift does not belong to this family");
+    }
+
+    if (gift.status === "RECEIVED") {
+      return gift;
+    }
+
+    if (gift.status !== "DELIVERED") {
+      throw new Error("Only delivered gifts can be confirmed as received");
+    }
+
+    const claims = await db.claims.where("giftId", "==", giftId).get();
+    const activeClaim = claims.docs
+      .map((doc) => doc.data())
+      .find((claim) => claim.active);
+    const receivedAt = new Date().toISOString();
+
+    const batch = db._instance.batch();
+
+    batch.update(db.gifts.doc(giftId), {
+      status: "RECEIVED",
+    });
+
+    if (activeClaim) {
+      batch.update(db.claims.doc(activeClaim.id), {
+        receivedAt,
+      });
+    }
+
+    await batch.commit();
+
+    return {
+      ...gift,
+      status: "RECEIVED" as const,
+    };
+  });

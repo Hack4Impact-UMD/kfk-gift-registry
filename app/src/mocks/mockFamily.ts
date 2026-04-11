@@ -1,9 +1,4 @@
-export type GiftStatus =
-  | "unordered"
-  | "claimed"
-  | "in_transit"
-  | "delivered"
-  | "received";
+import type { GiftStatus } from "common";
 
 export type Gift = {
   id: string;
@@ -51,7 +46,7 @@ export const mockFamily: Family = {
           id: "gift-1",
           name: "Taco Cat Goat Cheese Pizza Card Game",
           price: 9.95,
-          status: "delivered",
+          status: "DELIVERED",
           trackingNumber: 123456789,
           dateDelivered: "2026-10-22",
         },
@@ -59,14 +54,14 @@ export const mockFamily: Family = {
           id: "gift-2",
           name: "HUES and CUES - Color Board Game",
           price: 10.56,
-          status: "in_transit",
+          status: "PURCHASED",
           trackingNumber: 987654321,
         },
         {
           id: "gift-3",
           name: "Sorry! Classic Board Game",
           price: 8.62,
-          status: "claimed",
+          status: "CLAIMED",
           trackingNumber: 294839102,
         },
       ],
@@ -82,7 +77,7 @@ export const mockFamily: Family = {
           id: "gift-4",
           name: "Unicorn Academy Doll",
           price: 24.99,
-          status: "received",
+          status: "RECEIVED",
           trackingNumber: 564738291,
           dateDelivered: "2026-10-20",
           dateReceived: "2026-10-23",
@@ -100,7 +95,7 @@ export const mockFamily: Family = {
           id: "gift-5",
           name: "Mermaid Doll with Pink Hair",
           price: 19.99,
-          status: "delivered",
+          status: "DELIVERED",
           trackingNumber: 564738291,
           dateDelivered: "2026-10-20",
         },
@@ -108,7 +103,7 @@ export const mockFamily: Family = {
           id: "gift-6",
           name: "Kids Mini Play Kitchen",
           price: 39.99,
-          status: "delivered",
+          status: "DELIVERED",
           trackingNumber: 564738291,
           dateDelivered: "2026-10-20",
         },
@@ -125,7 +120,7 @@ export const mockFamily: Family = {
           id: "gift-7",
           name: "Truck Toy Set",
           price: 19.99,
-          status: "unordered",
+          status: "AVAILABLE",
         },
       ],
     },
@@ -140,7 +135,7 @@ export const mockFamily: Family = {
           id: "gift-8",
           name: "Volleyball",
           price: 15.99,
-          status: "received",
+          status: "RECEIVED",
           trackingNumber: 564738291,
           dateDelivered: "2026-11-05",
           dateReceived: "2026-11-10",

@@ -1,23 +1,23 @@
 import { useRef, useState } from "react";
 import { ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFieldContext } from "@/hooks/family-form/fieldContext";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 interface PhotoUploadProps {
-  field: any;
   label?: string;
   childName?: string;
   disabled?: boolean;
 }
 
 export function PhotoUpload({
-  field,
   label = "Photo",
   childName = "Child",
   disabled = false,
 }: PhotoUploadProps) {
+  const field = useFieldContext<string>();
   // Restore preview from form state (e.g. user navigated back to this page)
   const existingValue = field.state.value as string | undefined;
   const [preview, setPreview] = useState<string | null>(

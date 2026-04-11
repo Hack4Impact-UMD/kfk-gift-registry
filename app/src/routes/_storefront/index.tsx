@@ -219,7 +219,10 @@ function App() {
             return (
               <Link
                 key={child.id}
-                to={`/`} // TEMP for `/child/${child.id}`
+                // to={`/`} // TEMP for `/child/${child.id}`
+                // NEED TO UPDATE FOR LATER
+                to="/child/$childId"
+                params={{ childId: child.id }}
                 className="block transition-transform duration-200 ease-out hover:scale-105 hover:z-10"
               >
                 <ChildCard child={child} color={color} />
