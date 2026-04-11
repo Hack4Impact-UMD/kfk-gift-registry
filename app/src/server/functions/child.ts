@@ -366,14 +366,14 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
           claimedAt: claim.claimedAt,
           purchaseConfirmation: claim.purchaseConfirmation
             ? {
-              date: claim.purchaseConfirmation.date,
-              trackingNumber: claim.purchaseConfirmation.trackingNumber,
-            }
+                date: claim.purchaseConfirmation.date,
+                trackingNumber: claim.purchaseConfirmation.trackingNumber,
+              }
             : undefined,
           deliveryConfirmed: claim.deliveryConfirmed
             ? {
-              date: claim.deliveryConfirmed.date,
-            }
+                date: claim.deliveryConfirmed.date,
+              }
             : undefined,
           expectedDeliveryDate: claim.expectedDeliveryDate,
           receivedAt: claim.receivedAt,

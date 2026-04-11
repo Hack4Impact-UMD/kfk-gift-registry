@@ -1,4 +1,5 @@
 import {
+  getActiveGiftDrive,
   getAllGiftDrives,
   getGiftDriveById,
 } from "@/server/functions/giftDrive";
@@ -13,4 +14,8 @@ export const giftDriveQueries = createQueryKeys("drives", {
     queryKey: ["id", id],
     queryFn: () => getGiftDriveById({ data: { id } }),
   }),
+  active: {
+    queryKey: ["active"],
+    queryFn: () => getActiveGiftDrive(),
+  },
 });
