@@ -149,7 +149,9 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
                   </SidebarMenuButtonWithTooltip>
                   <SelectContent>
                     {drives?.map((drive) => (
-                      <SelectItem key={drive.id} value={drive.id}>{drive.cycle}</SelectItem>
+                      <SelectItem key={drive.id} value={drive.id}>
+                        {drive.cycle}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

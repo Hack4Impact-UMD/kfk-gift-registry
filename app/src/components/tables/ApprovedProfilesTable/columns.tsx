@@ -96,10 +96,11 @@ export const columns = [
       const type = getValue();
       return (
         <span
-          className={`inline-flex items-center justify-center rounded-full min-w-22.5 py-1 text-sm font-semibold ${type === "warrior"
+          className={`inline-flex items-center justify-center rounded-full min-w-22.5 py-1 text-sm font-semibold ${
+            type === "warrior"
               ? "bg-yellow-100 text-yellow-800"
               : "bg-blue-100 text-blue-800"
-            }`}
+          }`}
         >
           {type === "warrior" ? "Warrior" : "SuperSib"}
         </span>

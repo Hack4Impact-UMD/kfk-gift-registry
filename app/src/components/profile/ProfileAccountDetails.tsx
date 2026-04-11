@@ -1,6 +1,5 @@
 import { sendPasswordResetEmail } from "firebase/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { InlineEditInput } from "@/components/ui/inline-edit-input";
 import { getClientAuth } from "@/lib/firebase.client";
 import type { AuthContextAuthenticated } from "@/server/functions/auth";
 import { toast } from "@/lib/toast";
@@ -17,7 +16,7 @@ export function AccountDetailsSection({
     try {
       if (!authCtx.authUser.email) throw new Error("Email not available");
       await sendPasswordResetEmail(auth, authCtx.authUser.email);
-      toast.success("Password reset email sent")
+      toast.success("Password reset email sent");
     } catch (err) {
       console.error(err);
       toast.error("Failed to send password reset email.");

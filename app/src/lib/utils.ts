@@ -12,7 +12,9 @@ export function mostRecentDrive(drives: Array<GiftDrive>) {
   return [...drives].sort((a, b) => {
     const aStart = DateTime.fromISO(a.startDate);
     const bStart = DateTime.fromISO(b.startDate);
-    return Math.abs(aStart.diffNow().as("days")) - Math.abs(bStart.diffNow().as("days"));
+    return (
+      Math.abs(aStart.diffNow().as("days")) -
+      Math.abs(bStart.diffNow().as("days"))
+    );
   })[0];
 }
-

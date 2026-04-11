@@ -51,7 +51,7 @@ export const verifySession = createServerFn({
         sessionCookie,
         data?.checkRevocation ?? false,
       );
-      const phone = (await auth.getUser(result.uid)).phoneNumber
+      const phone = (await auth.getUser(result.uid)).phoneNumber;
 
       return {
         uid: result.uid,
@@ -97,7 +97,7 @@ export const loginWithToken = createServerFn({
     try {
       const auth = getServerAuth();
       const result = await auth.verifyIdToken(token);
-      const phone = (await auth.getUser(result.uid)).phoneNumber
+      const phone = (await auth.getUser(result.uid)).phoneNumber;
 
       await createSession({
         data: { token },

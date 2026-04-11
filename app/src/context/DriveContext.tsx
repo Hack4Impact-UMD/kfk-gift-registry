@@ -8,13 +8,23 @@ const DriveContext = createContext<
   | undefined
 >(undefined);
 
-export function DriveProvider({ children, drives, initialDriveId, onDriveChange }: { children: ReactNode, drives: Array<GiftDrive>, initialDriveId?: string | null, onDriveChange: (drive: string) => void }) {
+export function DriveProvider({
+  children,
+  drives,
+  initialDriveId,
+  onDriveChange,
+}: {
+  children: ReactNode;
+  drives: Array<GiftDrive>;
+  initialDriveId?: string | null;
+  onDriveChange: (drive: string) => void;
+}) {
   const [activeDriveId, setActiveDriveIdState] = useState<string | null>(() => {
     return initialDriveId ?? mostRecentDrive(drives)?.id ?? null;
   });
   const setActiveDriveId = (driveId: string) => {
     setActiveDriveIdState(driveId);
-    onDriveChange(driveId)
+    onDriveChange(driveId);
   };
 
   return (
