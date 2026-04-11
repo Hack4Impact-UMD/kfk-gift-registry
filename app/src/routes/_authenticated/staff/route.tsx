@@ -41,7 +41,7 @@ function RouteComponent() {
       navigate({
         to: location.pathname,
         search: { drive: driveId }
-      } as any)
+      })
     }}>
       <div>
         <SidebarProvider open={open} onOpenChange={setOpen}>
