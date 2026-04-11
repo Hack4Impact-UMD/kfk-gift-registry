@@ -21,7 +21,7 @@ export function ApprovedProfilesTable({
   return (
     <div className={cn("flex flex-col gap-4 pt-6", className)}>
       <div className="flex items-center">
-        <div className="relative flex items-center mr-auto ml-6 w-48">
+        <div className="relative flex items-center w-64">
           <Search className="absolute ml-2 h-4 w-4 text-gray-500" />
           <Input
             placeholder="Search"
@@ -30,7 +30,7 @@ export function ApprovedProfilesTable({
             className="pl-7 border-gray-400 text-gray-500"
           />
         </div>
-        <div className="flex gap-6 ml-auto mr-6">
+        <div className="flex gap-2 ml-auto">
           <Button variant="outline">
             <Undo2 className="h-4 w-4" />
             Withdraw Approval
