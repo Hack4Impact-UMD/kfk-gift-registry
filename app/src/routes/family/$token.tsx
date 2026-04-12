@@ -24,9 +24,9 @@ function FamilyRoute() {
   const data = Route.useLoaderData();
 
   return (
-    <div className="h-screen bg-background flex flex-col items-center overflow-hidden">
-      <div className="flex h-screen flex-col max-w-2xl w-full">
-        <div className="z-100 bg-white w-full">
+    <div className="h-screen flex flex-col items-center overflow-hidden bg-muted md:p-4">
+      <div className="flex h-screen flex-col max-w-2xl w-full bg-white md:rounded-lg shadow overflow-clip">
+        <div className="z-10 bg-white w-full">
           <div className="flex items-center py-3 px-4">
             <img
               src={KFKLogo}
