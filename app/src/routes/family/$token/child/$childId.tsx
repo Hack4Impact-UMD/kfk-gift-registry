@@ -49,7 +49,7 @@ export const Route = createFileRoute("/family/$token/child/$childId")({
 
     return {
       child,
-      gifts,
+      gifts: gifts.filter((g) => !g.backup),
       claims,
     };
   },
@@ -95,7 +95,7 @@ function ChildPage() {
         </svg>
 
         <div className="relative z-10 flex gap-6 items-center">
-          <div className="flex flex-col items-center gap-3 min-w-[140px]">
+          <div className="flex flex-col items-center gap-3 max-w-[180px] w-full">
             <div className="w-28 h-32">
               <img
                 src={child.photoUrl ?? ProfilePhoto}
@@ -104,7 +104,7 @@ function ChildPage() {
               />
             </div>
 
-            <p className="text-white text-lg tracking-widest font-gaegu">
+            <p className="text-white text-lg tracking-widest font-gaegu text-center">
               {child.name}
             </p>
 

@@ -13,7 +13,7 @@ export const Route = createFileRoute("/family/$token/home")({
 function FamilyHome() {
   const data = FamilyTokenRoute.useLoaderData();
   const family = data.family;
-  const children = data.children || [];
+  // const children = data.children || [];
   const notifications: Array<{ id: string; child: Child; giftTitle: string }> =
     [];
 
@@ -82,61 +82,36 @@ function FamilyHome() {
         <img src={RedGift} alt="Gift Box" className="max-w-32 mt-4 z-20" />
       </div>
 
-      <div className="py-4 mt-4">
-        <h3 className="text-lg font-semibold mx-2 mb-4">Your Children</h3>
-        {children && children.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4 mx-2">
-            {children.map((child) => (
-              <div
-                key={child.id}
-                className="bg-white rounded-lg p-4 shadow flex flex-col items-center text-center"
-              >
-                {child.photoUrl && (
-                  <img
-                    src={child.photoUrl}
-                    alt={child.name}
-                    className="w-16 h-16 rounded-full object-cover mb-2"
-                  />
-                )}
-                <p className="font-semibold">{child.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {child.diagnosis}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-muted-foreground mx-2">No children found</p>
-        )}
-      </div>
+      <>
+        <div className="py-4 mt-4 flex justify-between items-center">
+          <h3 className="text-lg font-semibold mx-2">Notifications</h3>
+          <Button
+            variant="outline"
+            className="rounded-full border-ring text-foreground"
+            // TODO: implement clear functionality (swap out local storage implementation)
+            onClick={handleClearAll}
+          >
+            Clear All
+          </Button>
+        </div>
 
-      {visibleNotifications.length > 0 && (
-        <>
-          <div className="py-4 mt-4 flex justify-between items-center">
-            <h3 className="text-lg font-semibold mx-2">Notifications</h3>
-            <Button
-              variant="outline"
-              className="rounded-full border-ring text-foreground"
-              // TODO: implement clear functionality (swap out local storage implementation)
-              onClick={handleClearAll}
-            >
-              Clear All
-            </Button>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {visibleNotifications.map((n) => (
-              <NotificationCard
-                key={n.id}
-                child={n.child}
-                giftTitle={n.giftTitle}
-                token={data.token}
-                onDismiss={() => handleDismiss(n.id)}
-              />
-            ))}
-          </div>
-        </>
-      )}
+        <div className="flex flex-col gap-3">
+          {visibleNotifications.length === 0 && (
+            <span className="w-full text-center text-sm text-muted-foreground">
+              No notifications
+            </span>
+          )}
+          {visibleNotifications.map((n) => (
+            <NotificationCard
+              key={n.id}
+              child={n.child}
+              giftTitle={n.giftTitle}
+              token={data.token}
+              onDismiss={() => handleDismiss(n.id)}
+            />
+          ))}
+        </div>
+      </>
     </div>
   );
 }
