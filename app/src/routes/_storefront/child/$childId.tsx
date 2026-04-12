@@ -9,55 +9,38 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { StorefrontChild } from "@/types/storefront";
 import { ChildGiftTable } from "@/components/tables/ChildGiftTable/ChildGiftTable";
 import redStripedBackground from "@/assets/red-striped-background.png";
-import { queries } from "@/queries";
-import { useStorefrontChildProfiles } from "@/hooks/queries/useStorefrontChildProfiles";
+import { useStorefrontChild } from "@/hooks/queries/useStorefrontChild";
+import { useStorefrontSiblings } from "@/hooks/queries/useStorefrontSiblings";
 import { useMemo } from "react";
 
 export const Route = createFileRoute("/_storefront/child/$childId")({
-  loader: async ({ context }) => {
-    const driveId = context.currentDrive?.id;
-    if (driveId) {
-      await context.queryClient.ensureQueryData(
-        queries.storefront.profilesForDrive(driveId),
-      );
-    }
-  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const { childId } = Route.useParams();
-  const context = Route.useRouteContext();
-  const driveId = context.currentDrive?.id ?? "";
 
-  const { data: allChildren, isLoading, isError } = useStorefrontChildProfiles(driveId);
+  const { data: child, isLoading: childLoading, isError: childError } = useStorefrontChild(childId);
+  const { data: siblings, isLoading: siblingsLoading, isError: siblingsError } = useStorefrontSiblings(childId);
 
-  const child = useMemo(() => {
-    if (!allChildren) return undefined;
-    return allChildren.find((c) => c.id === childId);
-  }, [allChildren, childId]);
-
-  const siblings = useMemo(() => {
-    if (!allChildren || !child) return [];
+  const siblingsCarouselData = useMemo(() => {
+    if (!siblings) return [];
     
-    return allChildren
-      .filter((c) => c.familyId === child.familyId && c.id !== childId)
-      .map((sibling): CarouselCardSibling => ({
-        id: sibling.id,
-        name: sibling.name,
-        photoUrl: sibling.photoUrl,
-        category: sibling.category,
-        giftsFulfilled: sibling.gifts.filter((g) =>
-          ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
-        ).length,
-        giftsTotal: sibling.gifts.length,
-      }));
-  }, [allChildren, child, childId]);
+    return siblings.map((sibling): CarouselCardSibling => ({
+      id: sibling.id,
+      name: sibling.name,
+      photoUrl: sibling.photoUrl,
+      category: sibling.category,
+      giftsFulfilled: sibling.gifts.filter((g) =>
+        ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
+      ).length,
+      giftsTotal: sibling.gifts.length,
+    }));
+  }, [siblings]);
 
-  if (isLoading) {
+  if (childLoading || siblingsLoading) {
     return (
       <div className="w-full min-h-screen">
         <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
@@ -69,7 +52,7 @@ function RouteComponent() {
     );
   }
 
-  if (isError) {
+  if (childError || siblingsError) {
     return (
       <div className="w-full min-h-screen">
         <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
@@ -132,13 +115,13 @@ function RouteComponent() {
         </div>
       </div>
 
-      {siblings.length > 0 && (
+      {siblingsCarouselData.length > 0 && (
         <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-8 font-gaegu">
               {firstName}'s Siblings
             </h2>
-            <SiblingsCarousel siblings={siblings} />
+            <SiblingsCarousel siblings={siblingsCarouselData} />
           </div>
         </div>
       )}
