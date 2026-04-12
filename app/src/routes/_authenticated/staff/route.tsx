@@ -54,14 +54,14 @@ function RouteComponent() {
       }}
     >
       <div>
-        <SidebarProvider open={open} onOpenChange={setOpen}>
-          <div className="flex flex-row w-full h-full">
+        <SidebarProvider className="h-svh" open={open} onOpenChange={setOpen}>
+          <div className="flex h-full w-full flex-row">
             <StaffSidebar currentDrive={currentDrive} />
-            <main className="flex-1 min-w-0">
+            <main className="flex min-w-0 flex-1 flex-col">
               <div className="w-full bg-accent border-b block md:hidden">
                 <SidebarTrigger openIcon={<XIcon />} closeIcon={<MenuIcon />} />
               </div>
-              <div className="p-4">
+              <div className="flex min-h-0 flex-1 flex-col p-4">
                 <Outlet />
               </div>
             </main>

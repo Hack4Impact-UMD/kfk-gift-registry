@@ -157,14 +157,14 @@ function RouteComponent() {
   };
 
   return (
-    <div className="pb-10 pl-6 pr-6 pt-6 lg:pl-16 lg:pr-10">
+    <div className="flex h-full flex-col pb-10 pl-6 pr-6 pt-6 lg:pl-16 lg:pr-10">
       <h1 className="text-4xl font-bold">{lastName} Family</h1>
-      <div className="mt-6 flex w-full flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
+      <div className="mt-6 flex min-h-0 w-full flex-1 flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
         <section
-          className="max-w-3xl min-w-0 shrink-0"
+          className="w-full max-w-3xl min-w-0 lg:self-stretch"
           aria-label="Family information"
         >
-          <ScrollArea className="h-[calc(100vh-10rem)] min-h-[40rem] w-full rounded-md border p-9 shadow-xl">
+          <ScrollArea className="h-full min-h-[40rem] w-full rounded-md border p-9 shadow-xl">
             <div className="flex flex-col gap-7 pr-4">
               <GuardianInfoCard
                 family={familyData}

@@ -151,13 +151,10 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                 className="hidden"
                 onChange={handlePhotoChange}
               />
-              <button
+              <Button
                 type="button"
-                className={`rounded-full transition-all ${
-                  editing
-                    ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kfk-blue/50 focus-visible:ring-offset-2 hover:scale-105"
-                    : "cursor-default"
-                }`}
+                variant="ghost"
+                className="h-auto w-auto rounded-full p-0 transition-all hover:bg-transparent focus-visible:ring-kfk-blue/50 focus-visible:ring-offset-2 enabled:hover:scale-105 disabled:opacity-100"
                 onClick={editing ? openPhotoPicker : undefined}
                 aria-label={`Upload photo for ${child.childName}`}
                 disabled={!editing}
@@ -176,7 +173,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                     <PhotoIcon className="size-6" />
                   </AvatarFallback>
                 </Avatar>
-              </button>
+              </Button>
               {editing && (
                 <button
                   type="button"
