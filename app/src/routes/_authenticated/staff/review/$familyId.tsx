@@ -8,6 +8,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
+  loader: async ({ params }) => {
+    // TODO: handle database fetching here
+
+    return {
+      familyId: params.familyId,
+    };
+  },
   component: RouteComponent,
 });
 
@@ -140,6 +147,9 @@ const mockFamily: Family = {
 };
 
 function RouteComponent() {
+  const params = Route.useParams();
+  const familyId = params.familyId;
+
   const lastName = mockFamily.contactName.trim().split(/\s+/).pop() ?? "";
   const [familyData, setFamilyData] = React.useState<Family>(mockFamily);
   const [childrenData, setChildrenData] =
