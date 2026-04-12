@@ -120,7 +120,7 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
               <EditableField
                 value={formState.contactName}
                 editable={editing}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFormState((prev) => ({
                     ...prev,
                     contactName: e.target.value,
@@ -133,7 +133,7 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
               <EditableField
                 value={formState.relationship}
                 editable={editing}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFormState((prev) => ({
                     ...prev,
                     relationship: e.target.value,
@@ -152,7 +152,7 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
                   type="tel"
                   inputMode="tel"
                   aria-invalid={!!fieldErrors.phone}
-                  onChange={(e) => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setFormState((prev) => ({
                       ...prev,
                       phone: e.target.value,
@@ -181,7 +181,7 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
                   type="email"
                   inputMode="email"
                   aria-invalid={!!fieldErrors.email}
-                  onChange={(e) => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setFormState((prev) => ({
                       ...prev,
                       email: e.target.value,

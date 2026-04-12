@@ -245,7 +245,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                     value={formState.treatmentLength}
                     editable={editing}
                     size={20}
-                    onChange={(e) =>
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setFormState((prev) => ({
                         ...prev,
                         treatmentLength: e.target.value,
@@ -259,7 +259,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                     value={formState.diagnosis}
                     editable={editing}
                     size={20}
-                    onChange={(e) =>
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setFormState((prev) => ({
                         ...prev,
                         diagnosis: e.target.value,
@@ -275,7 +275,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                 value={formState.age}
                 editable={editing}
                 size={5}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFormState((prev) => ({
                     ...prev,
                     age: Number(e.target.value),
@@ -306,7 +306,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
               value={formState.blurb}
               editable={editing}
               fieldType={"textarea"}
-              onChange={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 setFormState((prev) => ({
                   ...prev,
                   blurb: e.target.value,
@@ -356,7 +356,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                 value={formState.socialWorkerName}
                 editable={editing}
                 size={15}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFormState((prev) => ({
                     ...prev,
                     socialWorkerName: e.target.value,
@@ -370,7 +370,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                 value={formState.hospitalName}
                 editable={editing}
                 size={20}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFormState((prev) => ({
                     ...prev,
                     hospitalName: e.target.value,

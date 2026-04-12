@@ -16,8 +16,10 @@ type EditableFieldChangeHandler =
   | React.ChangeEventHandler<HTMLTextAreaElement>
   | ((value: string) => void);
 
-interface EditableFieldProps
-  extends Omit<React.ComponentProps<typeof Input>, "onChange"> {
+interface EditableFieldProps extends Omit<
+  React.ComponentProps<typeof Input>,
+  "onChange"
+> {
   editable?: boolean;
   children?: React.ReactNode;
   fieldType?: "input" | "textarea" | "select";
@@ -36,10 +38,12 @@ export function EditableField({
   ...props
 }: EditableFieldProps) {
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-  const inputOnChange =
-    onChange as React.ChangeEventHandler<HTMLInputElement> | undefined;
-  const textareaOnChange =
-    onChange as React.ChangeEventHandler<HTMLTextAreaElement> | undefined;
+  const inputOnChange = onChange as
+    | React.ChangeEventHandler<HTMLInputElement>
+    | undefined;
+  const textareaOnChange = onChange as
+    | React.ChangeEventHandler<HTMLTextAreaElement>
+    | undefined;
   const selectOnChange = onChange as ((value: string) => void) | undefined;
 
   useEffect(() => {
@@ -82,7 +86,7 @@ export function EditableField({
   }
 
   if (fieldType === "textarea") {
-    const text = typeof value === "string" ? value : value?.toString() ?? "";
+    const text = typeof value === "string" ? value : (value?.toString() ?? "");
     const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
 
     return (
