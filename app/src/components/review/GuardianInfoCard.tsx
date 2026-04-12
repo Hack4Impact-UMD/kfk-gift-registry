@@ -121,7 +121,10 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
                 value={formState.contactName}
                 editable={editing}
                 onChange={(e) =>
-                  setFormState((prev) => ({ ...prev, contactName: e.target.value }))
+                  setFormState((prev) => ({
+                    ...prev,
+                    contactName: e.target.value,
+                  }))
                 }
               />
             </div>
@@ -131,7 +134,10 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
                 value={formState.relationship}
                 editable={editing}
                 onChange={(e) =>
-                  setFormState((prev) => ({ ...prev, relationship: e.target.value }))
+                  setFormState((prev) => ({
+                    ...prev,
+                    relationship: e.target.value,
+                  }))
                 }
               />
             </div>
@@ -147,15 +153,22 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
                   inputMode="tel"
                   aria-invalid={!!fieldErrors.phone}
                   onChange={(e) => {
-                    setFormState((prev) => ({ ...prev, phone: e.target.value }));
+                    setFormState((prev) => ({
+                      ...prev,
+                      phone: e.target.value,
+                    }));
                     setFieldErrors((prev) => ({ ...prev, phone: undefined }));
                   }}
                 />
               </div>
               {editing && fieldErrors.phone && (
                 <div>
-                  <p className="text-xs text-destructive">{fieldErrors.phone}</p>
-                  <p className="text-xs text-destructive">Example: 123-456-7890</p>
+                  <p className="text-xs text-destructive">
+                    {fieldErrors.phone}
+                  </p>
+                  <p className="text-xs text-destructive">
+                    Example: 123-456-7890
+                  </p>
                 </div>
               )}
             </div>
@@ -169,15 +182,22 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
                   inputMode="email"
                   aria-invalid={!!fieldErrors.email}
                   onChange={(e) => {
-                    setFormState((prev) => ({ ...prev, email: e.target.value }));
+                    setFormState((prev) => ({
+                      ...prev,
+                      email: e.target.value,
+                    }));
                     setFieldErrors((prev) => ({ ...prev, email: undefined }));
                   }}
                 />
               </div>
               {editing && fieldErrors.email && (
                 <div>
-                  <p className="text-xs text-destructive">{fieldErrors.email}</p>
-                  <p className="text-xs text-destructive">Example: email@example.com</p>
+                  <p className="text-xs text-destructive">
+                    {fieldErrors.email}
+                  </p>
+                  <p className="text-xs text-destructive">
+                    Example: email@example.com
+                  </p>
                 </div>
               )}
             </div>

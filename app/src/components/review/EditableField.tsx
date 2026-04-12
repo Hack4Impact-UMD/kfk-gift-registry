@@ -69,7 +69,7 @@ export function EditableField({
   }
 
   if (fieldType === "textarea") {
-    const text:string = value as string;
+    const text: string = value as string;
     const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
 
     return (
@@ -82,7 +82,11 @@ export function EditableField({
           className={cn("border-foreground", className)}
           {...(props as any)}
         />
-        <p className={`self-end ${wordCount <= 25 ? "text-muted-foreground" : "text-destructive"}`}>{wordCount}/25 words</p>
+        <p
+          className={`self-end ${wordCount <= 25 ? "text-muted-foreground" : "text-destructive"}`}
+        >
+          {wordCount}/25 words
+        </p>
       </>
     );
   }

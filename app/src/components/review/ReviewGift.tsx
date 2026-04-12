@@ -30,11 +30,7 @@ export function ReviewGift({
   const notes = gift.privateNotes ?? "";
 
   return (
-    <div
-      className={cn(
-        "border-b border-slate-200/80 py-3 last:border-b-0",
-      )}
-    >
+    <div className={cn("border-b border-slate-200/80 py-3 last:border-b-0")}>
       <div className="grid grid-cols-[24px_minmax(0,1fr)_auto_auto] items-start gap-x-2 gap-y-2">
         <GiftIcon
           className="col-start-1 row-span-2 size-6 shrink-0 self-start text-foreground"

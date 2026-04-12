@@ -46,9 +46,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
   const updateGift = (giftId: string, patch: Partial<Gift>) => {
     setFormState((prev) => ({
       ...prev,
-      gifts: prev.gifts.map((g) =>
-        g.id === giftId ? { ...g, ...patch } : g,
-      ),
+      gifts: prev.gifts.map((g) => (g.id === giftId ? { ...g, ...patch } : g)),
     }));
   };
 
@@ -171,7 +169,9 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                       : ""
                   }`}
                 >
-                  <AvatarImage src={formState.photoUrl ?? ProfileHeader}></AvatarImage>
+                  <AvatarImage
+                    src={formState.photoUrl ?? ProfileHeader}
+                  ></AvatarImage>
                   <AvatarFallback className="bg-kfk-light-blue text-kfk-blue">
                     <PhotoIcon className="size-6" />
                   </AvatarFallback>

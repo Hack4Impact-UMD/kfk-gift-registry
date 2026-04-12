@@ -110,9 +110,7 @@ const MOCK_CHILD2: ReviewChild = {
   gifts: MOCK_GIFTS_JANE,
 };
 
-const MOCK_CHILDREN: Array<ReviewChild> = [
-  MOCK_CHILD, MOCK_CHILD2
-];
+const MOCK_CHILDREN: Array<ReviewChild> = [MOCK_CHILD, MOCK_CHILD2];
 
 const mockFamily: Family = {
   id: "family123",
@@ -144,7 +142,8 @@ const mockFamily: Family = {
 function RouteComponent() {
   const lastName = mockFamily.contactName.trim().split(/\s+/).pop() ?? "";
   const [familyData, setFamilyData] = React.useState<Family>(mockFamily);
-  const [childrenData, setChildrenData] = React.useState<Array<ReviewChild>>(MOCK_CHILDREN);
+  const [childrenData, setChildrenData] =
+    React.useState<Array<ReviewChild>>(MOCK_CHILDREN);
 
   const handleFamilyUpdate = (updatedFamily: Family) => {
     // update database
@@ -167,7 +166,10 @@ function RouteComponent() {
         >
           <ScrollArea className="h-[calc(100vh-10rem)] min-h-[40rem] w-full rounded-md border p-9 shadow-xl">
             <div className="flex flex-col gap-7 pr-4">
-              <GuardianInfoCard family={familyData} onSave={handleFamilyUpdate} />
+              <GuardianInfoCard
+                family={familyData}
+                onSave={handleFamilyUpdate}
+              />
               {childrenData.map((childData) => (
                 <ChildCard
                   key={childData.id}
