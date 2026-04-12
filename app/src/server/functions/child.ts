@@ -5,6 +5,7 @@ import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 import type { Child, Gift } from "common";
+import type { StorefrontChild } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
 export type FamilyGiftClaim = {
@@ -61,6 +62,10 @@ const tokenGiftThankYouNoteSchema = z.object({
   childId: z.string().min(1),
   giftId: z.string().min(1),
   note: z.string().trim().min(1).max(1000),
+});
+
+const childIdOnlySchema = z.object({
+  childId: z.string().min(1),
 });
 
 export const getAllChildProfilesForDrive = createServerFn({
@@ -508,4 +513,41 @@ export const confirmGiftReceivedWithToken = createServerFn({
       ...gift,
       status: "RECEIVED" as const,
     };
+  });
+
+export const getStorefrontChildById = createServerFn({ method: "GET" })
+  .inputValidator(childIdOnlySchema)
+  .handler(async ({ data }) => {
+    const { childId } = data;
+    const db = getServerDB();
+    const childDoc = await db.children.doc(childId).get();
+
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    const gifts = await db.gifts.where("childId", "==", childId).get();
+    const giftData = gifts.docs.map((doc) => doc.data());
+
+    const storefrontChild: StorefrontChild = {
+      id: child.id,
+      name: child.name,
+      age: child.age,
+      status: child.status,
+      diagnosis: child.diagnosis,
+      category: child.category,
+      photoUrl: child.photoUrl,
+      publicBlurb: child.publicBlurb,
+      published: child.published,
+      gifts: giftData.map((g) => ({
+        id: g.id,
+        title: g.title,
+        productUrl: g.productUrl,
+        listedPrice: g.listedPrice,
+        status: g.status,
+      })),
+    };
+
+    return storefrontChild;
   });
