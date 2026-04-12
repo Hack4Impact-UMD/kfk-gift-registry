@@ -39,6 +39,7 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
     // Add it back for production if you want to filter by published status
     const childrenSnapshot = await db.children
       .where("giftDrive", "==", driveId)
+      .where("published", "==", true)
       .get();
 
     if (childrenSnapshot.empty) {

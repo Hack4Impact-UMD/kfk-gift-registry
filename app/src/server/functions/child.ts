@@ -523,7 +523,15 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
     }
 
     const child = childDoc.data()!;
-    const gifts = await db.gifts.where("childId", "==", childId).get();
+
+    if (!child.published) {
+      throw new Error("Child not found");
+    }
+
+    const gifts = await db.gifts
+      .where("childId", "==", childId)
+      .where("active", "==", true)
+      .get();
     const giftData = gifts.docs.map((doc) => doc.data());
 
     const storefrontChild: StorefrontChild = {
@@ -554,7 +562,21 @@ export const getGiftsForChild = createServerFn({ method: "GET" })
     const { childId } = data;
 
     const db = getServerDB();
-    const gifts = await db.gifts.where("childId", "==", childId).get();
+
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    if (!child.published) {
+      throw new Error("Child not found");
+    }
+
+    const gifts = await db.gifts
+      .where("childId", "==", childId)
+      .where("active", "==", true)
+      .get();
 
     if (gifts.empty) {
       return [];
@@ -581,8 +603,14 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
     }
 
     const child = childDoc.data()!;
+
+    if (!child.published) {
+      throw new Error("Child not found");
+    }
+
     const siblingsQuery = await db.children
       .where("familyId", "==", child.familyId)
+      .where("published", "==", true)
       .get();
     const siblings = siblingsQuery.docs
       .map((doc) => doc.data())
@@ -597,7 +625,10 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
     const allGifts: Array<Gift> = [];
     for (let i = 0; i < siblingIds.length; i += 10) {
       const batch = siblingIds.slice(i, i + 10);
-      const giftsQuery = await db.gifts.where("childId", "in", batch).get();
+      const giftsQuery = await db.gifts
+        .where("childId", "in", batch)
+        .where("active", "==", true)
+        .get();
       allGifts.push(...giftsQuery.docs.map((doc) => doc.data()));
     }
 
