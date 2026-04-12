@@ -572,3 +572,68 @@ export const getGiftsForChild = createServerFn({ method: "GET" })
       status: doc.data().status,
     }));
   });
+
+export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
+  .inputValidator(childIdOnlySchema)
+  .handler(async ({ data }) => {
+    const { childId } = data;
+    const db = getServerDB();
+    const childDoc = await db.children.doc(childId).get();
+
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    const siblingsQuery = await db.children
+      .where("familyId", "==", child.familyId)
+      .get();
+    const siblings = siblingsQuery.docs
+      .map((doc) => doc.data())
+      .filter((sibling) => sibling.id !== childId);
+
+    if (siblings.length === 0) {
+      return [];
+    }
+
+    const siblingIds = siblings.map((s) => s.id);
+
+    const allGifts: Array<Gift> = [];
+    for (let i = 0; i < siblingIds.length; i += 10) {
+      const batch = siblingIds.slice(i, i + 10);
+      const giftsQuery = await db.gifts.where("childId", "in", batch).get();
+      allGifts.push(...giftsQuery.docs.map((doc) => doc.data()));
+    }
+
+    const giftsBySiblingId = new Map<string, Array<Gift>>();
+    for (const gift of allGifts) {
+      if (!giftsBySiblingId.has(gift.childId)) {
+        giftsBySiblingId.set(gift.childId, []);
+      }
+      giftsBySiblingId.get(gift.childId)!.push(gift);
+    }
+
+    const storefrontSiblings: Array<StorefrontChild> = siblings.map((sibling) => {
+      const giftData = giftsBySiblingId.get(sibling.id) || [];
+      return {
+        id: sibling.id,
+        name: sibling.name,
+        age: sibling.age,
+        status: sibling.status,
+        diagnosis: sibling.diagnosis,
+        category: sibling.category,
+        photoUrl: sibling.photoUrl,
+        publicBlurb: sibling.publicBlurb,
+        published: sibling.published,
+        gifts: giftData.map((g) => ({
+          id: g.id,
+          title: g.title,
+          productUrl: g.productUrl,
+          listedPrice: g.listedPrice,
+          status: g.status,
+        })),
+      };
+    });
+
+    return storefrontSiblings;
+  });
