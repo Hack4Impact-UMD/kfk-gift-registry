@@ -26,9 +26,13 @@ function parsePriceInput(raw: string): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
+function computeWordCount(text: string | undefined): number {
+  const trimmed = text?.trim();
+  return trimmed ? trimmed.split(/\s+/).length : 0;
+}
+
 export function ChildCard({ child, onSave }: ChildInfoCardProps) {
   const [editing, setEditing] = useState(false);
-  const [wordCount, setWordCount] = useState(0);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formState, setFormState] = useState({
@@ -113,7 +117,9 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
   };
 
   const handleSave = () => {
-    if (wordCount > 25) {
+    const currentWordCount = computeWordCount(formState.blurb);
+
+    if (currentWordCount > 25) {
       alert("Maximum words exceeded");
       return;
     }
@@ -304,15 +310,11 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
               editable={editing}
               fieldType={"textarea"}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                const nextBlurb = e.target.value;
                 setFormState((prev) => ({
                   ...prev,
-                  blurb: e.target.value,
+                  blurb: nextBlurb,
                 }));
-
-                const formWordCount = formState.blurb.trim()
-                  ? formState.blurb.trim().split(/\s+/).length
-                  : 0;
-                setWordCount(formWordCount);
               }}
             >
               Personal Blurb:
