@@ -35,6 +35,9 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
   const [editing, setEditing] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const photoReadIdRef = useRef(0);
+  const photoReaderRef = useRef<FileReader | null>(null);
+  const isEditingRef = useRef(false);
   const [formState, setFormState] = useState({
     treatmentLength: child.treatmentLength,
     diagnosis: child.diagnosis,
@@ -54,7 +57,15 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
     }));
   };
 
+  const invalidatePhotoRead = () => {
+    photoReadIdRef.current += 1;
+    photoReaderRef.current?.abort();
+    photoReaderRef.current = null;
+  };
+
   const handleCancelClick = () => {
+    invalidatePhotoRead();
+    isEditingRef.current = false;
     setFormState({
       treatmentLength: child.treatmentLength,
       diagnosis: child.diagnosis,
@@ -71,6 +82,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
   };
 
   const handleEditClick = () => {
+    isEditingRef.current = true;
     setPhotoError(null);
     setEditing(true);
   };
@@ -83,6 +95,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    invalidatePhotoRead();
     setPhotoError(null);
 
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
@@ -97,8 +110,14 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
       return;
     }
 
+    const readId = photoReadIdRef.current;
     const reader = new FileReader();
+    photoReaderRef.current = reader;
     reader.onload = (loadEvent) => {
+      if (readId !== photoReadIdRef.current || !isEditingRef.current) {
+        return;
+      }
+
       const result = loadEvent.target?.result;
       if (typeof result !== "string") {
         setPhotoError("Failed to read file.");
@@ -109,9 +128,15 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
         ...prev,
         photoUrl: result,
       }));
+      photoReaderRef.current = null;
     };
     reader.onerror = () => {
+      if (readId !== photoReadIdRef.current || !isEditingRef.current) {
+        return;
+      }
+
       setPhotoError("Failed to read file.");
+      photoReaderRef.current = null;
     };
     reader.readAsDataURL(file);
   };
@@ -140,6 +165,8 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
       onSave(updatedChild);
     }
 
+    invalidatePhotoRead();
+    isEditingRef.current = false;
     setPhotoError(null);
     setEditing(false);
   };
