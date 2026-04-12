@@ -63,8 +63,15 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
     photoReaderRef.current = null;
   };
 
+  const resetPhotoInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleCancelClick = () => {
     invalidatePhotoRead();
+    resetPhotoInput();
     isEditingRef.current = false;
     setFormState({
       treatmentLength: child.treatmentLength,
@@ -88,6 +95,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
   };
 
   const openPhotoPicker = () => {
+    resetPhotoInput();
     fileInputRef.current?.click();
   };
 
@@ -166,6 +174,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
     }
 
     invalidatePhotoRead();
+    resetPhotoInput();
     isEditingRef.current = false;
     setPhotoError(null);
     setEditing(false);
