@@ -147,8 +147,8 @@ const mockFamily: Family = {
 };
 
 function RouteComponent() {
-  const params = Route.useParams();
-  const familyId = params.familyId;
+  // const params = Route.useParams();
+  // const familyId = params.familyId;
 
   const lastName = mockFamily.contactName.trim().split(/\s+/).pop() ?? "";
   const [familyData, setFamilyData] = React.useState<Family>(mockFamily);
