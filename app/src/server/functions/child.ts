@@ -64,10 +64,6 @@ const tokenGiftThankYouNoteSchema = z.object({
   note: z.string().trim().min(1).max(1000),
 });
 
-const childIdOnlySchema = z.object({
-  childId: z.string().min(1),
-});
-
 export const getAllChildProfilesForDrive = createServerFn({
   method: "GET",
 })
@@ -516,7 +512,7 @@ export const confirmGiftReceivedWithToken = createServerFn({
   });
 
 export const getStorefrontChildById = createServerFn({ method: "GET" })
-  .inputValidator(childIdOnlySchema)
+  .inputValidator(childIdSchema)
   .handler(async ({ data }) => {
     const { childId } = data;
     const db = getServerDB();
@@ -553,7 +549,7 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
   });
 
 export const getGiftsForChild = createServerFn({ method: "GET" })
-  .inputValidator(childIdOnlySchema)
+  .inputValidator(childIdSchema)
   .handler(async ({ data }) => {
     const { childId } = data;
 
@@ -574,7 +570,7 @@ export const getGiftsForChild = createServerFn({ method: "GET" })
   });
 
 export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
-  .inputValidator(childIdOnlySchema)
+  .inputValidator(childIdSchema)
   .handler(async ({ data }) => {
     const { childId } = data;
     const db = getServerDB();

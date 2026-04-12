@@ -75,7 +75,7 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
       );
     }
 
-    const sortedChildren = allChildren.sort((a, b) => {
+    const sortedChildren = [...allChildren].sort((a, b) => {
       const aFamilyLevel = familyTreatmentLevels.get(a.familyId) ?? 0;
       const bFamilyLevel = familyTreatmentLevels.get(b.familyId) ?? 0;
 
