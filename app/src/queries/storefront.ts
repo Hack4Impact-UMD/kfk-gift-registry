@@ -1,11 +1,8 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
-import {
-  getProfilesForStorefront,
-  getActiveDrive,
-} from "@/server/functions/storefront";
+import { getProfilesForStorefront } from "@/server/functions/storefront";
 import {
   getStorefrontChildById,
-  getGiftsForChild,
+  getStorefrontGiftsForChild,
   getStorefrontSiblingsForChild,
 } from "@/server/functions/child";
 
@@ -20,14 +17,10 @@ export const storefrontQueries = createQueryKeys("storefront", {
   }),
   giftsForChild: (childId: string) => ({
     queryKey: ["giftsForChild", childId],
-    queryFn: () => getGiftsForChild({ data: { childId } }),
+    queryFn: () => getStorefrontGiftsForChild({ data: { childId } }),
   }),
   siblingsForChild: (childId: string) => ({
     queryKey: ["siblingsForChild", childId],
     queryFn: () => getStorefrontSiblingsForChild({ data: { childId } }),
   }),
-  activeDrive: {
-    queryKey: ["activeDrive"],
-    queryFn: () => getActiveDrive(),
-  },
 });

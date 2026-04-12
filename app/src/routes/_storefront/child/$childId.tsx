@@ -24,12 +24,12 @@ function RouteComponent() {
 
   const {
     data: child,
-    isLoading: childLoading,
+    isPending: childPending,
     isError: childError,
   } = useStorefrontChild(childId);
   const {
     data: siblings,
-    isLoading: siblingsLoading,
+    isPending: siblingsPending,
     isError: siblingsError,
   } = useStorefrontSiblings(childId);
 
@@ -50,7 +50,7 @@ function RouteComponent() {
     );
   }, [siblings]);
 
-  if (childLoading || siblingsLoading) {
+  if (childPending || siblingsPending) {
     return (
       <div className="w-full min-h-screen">
         <div className="w-full px-4 py-8 lg:px-8 lg:py-12">

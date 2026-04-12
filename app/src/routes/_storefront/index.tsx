@@ -37,7 +37,7 @@ function App() {
 
   const {
     data: allChildren,
-    isLoading,
+    isPending,
     isError,
   } = useStorefrontChildProfiles(driveId);
 
@@ -114,7 +114,7 @@ function App() {
     lastChildIndex,
   );
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-lg font-gaegu">Loading children profiles...</p>

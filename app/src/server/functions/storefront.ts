@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { DateTime } from "luxon";
 import { getServerDB } from "@/lib/firebase.server";
 import type { Child, Gift } from "common";
 import z from "zod";
@@ -35,11 +34,9 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
     const { driveId } = data;
     const db = getServerDB();
 
-    let childrenQuery = db.children.where("giftDrive", "==", driveId);
-
-    if (process.env.NODE_ENV === "production") {
-      childrenQuery = childrenQuery.where("published", "==", true);
-    }
+    const childrenQuery = db.children
+      .where("giftDrive", "==", driveId)
+      .where("published", "==", true);
 
     const childrenSnapshot = await childrenQuery.get();
 
@@ -122,24 +119,3 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
 
     return results;
   });
-
-export const getActiveDrive = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const now = DateTime.utc();
-    const db = getServerDB();
-
-    const active = (
-      await db.giftDrives
-        .where("startDate", "<=", now.toISO())
-        .where("endDate", ">=", now.toISO())
-        .limit(1)
-        .get()
-    ).docs[0];
-
-    if (active && active.exists) {
-      return active.data();
-    } else {
-      return undefined;
-    }
-  },
-);

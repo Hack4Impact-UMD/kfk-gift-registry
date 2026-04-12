@@ -544,19 +544,23 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
       photoUrl: child.photoUrl,
       publicBlurb: child.publicBlurb,
       published: child.published,
-      gifts: giftData.map((g) => ({
-        id: g.id,
-        title: g.title,
-        productUrl: g.productUrl,
-        listedPrice: g.listedPrice,
-        status: g.status,
-      })),
+      gifts: giftData.map(
+        (g) =>
+          ({
+            id: g.id,
+            title: g.title,
+            productUrl: g.productUrl,
+            listedPrice: g.listedPrice,
+            status: g.status,
+            familyPublicNotes: g.familyPublicNotes,
+          }) satisfies StorefrontChild["gifts"][number],
+      ),
     };
 
     return storefrontChild;
   });
 
-export const getGiftsForChild = createServerFn({ method: "GET" })
+export const getStorefrontGiftsForChild = createServerFn({ method: "GET" })
   .inputValidator(childIdSchema)
   .handler(async ({ data }) => {
     const { childId } = data;
@@ -582,13 +586,17 @@ export const getGiftsForChild = createServerFn({ method: "GET" })
       return [];
     }
 
-    return gifts.docs.map((doc) => ({
-      id: doc.id,
-      title: doc.data().title,
-      productUrl: doc.data().productUrl,
-      listedPrice: doc.data().listedPrice,
-      status: doc.data().status,
-    }));
+    return gifts.docs.map((doc) => {
+      const giftData = doc.data();
+      return {
+        id: doc.id,
+        title: giftData.title,
+        productUrl: giftData.productUrl,
+        listedPrice: giftData.listedPrice,
+        status: giftData.status,
+        familyPublicNotes: giftData.familyPublicNotes,
+      } satisfies StorefrontChild["gifts"][number];
+    });
   });
 
 export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
@@ -653,13 +661,17 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
           photoUrl: sibling.photoUrl,
           publicBlurb: sibling.publicBlurb,
           published: sibling.published,
-          gifts: giftData.map((g) => ({
-            id: g.id,
-            title: g.title,
-            productUrl: g.productUrl,
-            listedPrice: g.listedPrice,
-            status: g.status,
-          })),
+          gifts: giftData.map(
+            (g) =>
+              ({
+                id: g.id,
+                title: g.title,
+                productUrl: g.productUrl,
+                listedPrice: g.listedPrice,
+                status: g.status,
+                familyPublicNotes: g.familyPublicNotes,
+              }) satisfies StorefrontChild["gifts"][number],
+          ),
         };
       },
     );
