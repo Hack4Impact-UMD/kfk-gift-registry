@@ -22,22 +22,32 @@ export const Route = createFileRoute("/_storefront/child/$childId")({
 function RouteComponent() {
   const { childId } = Route.useParams();
 
-  const { data: child, isLoading: childLoading, isError: childError } = useStorefrontChild(childId);
-  const { data: siblings, isLoading: siblingsLoading, isError: siblingsError } = useStorefrontSiblings(childId);
+  const {
+    data: child,
+    isLoading: childLoading,
+    isError: childError,
+  } = useStorefrontChild(childId);
+  const {
+    data: siblings,
+    isLoading: siblingsLoading,
+    isError: siblingsError,
+  } = useStorefrontSiblings(childId);
 
   const siblingsCarouselData = useMemo(() => {
     if (!siblings) return [];
-    
-    return siblings.map((sibling): CarouselCardSibling => ({
-      id: sibling.id,
-      name: sibling.name,
-      photoUrl: sibling.photoUrl,
-      category: sibling.category,
-      giftsFulfilled: sibling.gifts.filter((g) =>
-        ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
-      ).length,
-      giftsTotal: sibling.gifts.length,
-    }));
+
+    return siblings.map(
+      (sibling): CarouselCardSibling => ({
+        id: sibling.id,
+        name: sibling.name,
+        photoUrl: sibling.photoUrl,
+        category: sibling.category,
+        giftsFulfilled: sibling.gifts.filter((g) =>
+          ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
+        ).length,
+        giftsTotal: sibling.gifts.length,
+      }),
+    );
   }, [siblings]);
 
   if (childLoading || siblingsLoading) {
@@ -45,7 +55,9 @@ function RouteComponent() {
       <div className="w-full min-h-screen">
         <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
           <div className="max-w-7xl mx-auto">
-            <p className="text-center text-lg font-gaegu">Loading child profile...</p>
+            <p className="text-center text-lg font-gaegu">
+              Loading child profile...
+            </p>
           </div>
         </div>
       </div>

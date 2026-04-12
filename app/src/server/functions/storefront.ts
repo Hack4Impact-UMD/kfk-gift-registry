@@ -22,7 +22,7 @@ export type StorefrontChildWithGifts = Pick<
   | "published"
   | "familyId"
 > & {
-  gifts: StorefrontGift[];
+  gifts: Array<StorefrontGift>;
 };
 
 const driveIdSchema = z.object({
@@ -90,31 +90,33 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
       return (a.treatmentLevel ?? 0) - (b.treatmentLevel ?? 0);
     });
 
-    const results: StorefrontChildWithGifts[] = sortedChildren.map((child) => {
-      const childGifts = giftsByChildId.get(child.id) ?? [];
+    const results: Array<StorefrontChildWithGifts> = sortedChildren.map(
+      (child) => {
+        const childGifts = giftsByChildId.get(child.id) ?? [];
 
-      const gifts: StorefrontGift[] = childGifts.map((gift) => ({
-        id: gift.id,
-        title: gift.title,
-        productUrl: gift.productUrl,
-        listedPrice: gift.listedPrice,
-        status: gift.status,
-      }));
+        const gifts: Array<StorefrontGift> = childGifts.map((gift) => ({
+          id: gift.id,
+          title: gift.title,
+          productUrl: gift.productUrl,
+          listedPrice: gift.listedPrice,
+          status: gift.status,
+        }));
 
-      return {
-        id: child.id,
-        name: child.name,
-        status: child.status,
-        photoUrl: child.photoUrl,
-        category: child.category,
-        age: child.age,
-        diagnosis: child.diagnosis,
-        publicBlurb: child.publicBlurb,
-        published: child.published,
-        familyId: child.familyId,
-        gifts,
-      };
-    });
+        return {
+          id: child.id,
+          name: child.name,
+          status: child.status,
+          photoUrl: child.photoUrl,
+          category: child.category,
+          age: child.age,
+          diagnosis: child.diagnosis,
+          publicBlurb: child.publicBlurb,
+          published: child.published,
+          familyId: child.familyId,
+          gifts,
+        };
+      },
+    );
 
     return results;
   });

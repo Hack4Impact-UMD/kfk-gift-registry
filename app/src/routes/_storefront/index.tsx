@@ -34,8 +34,12 @@ const familyColors = ["kfk-red", "kfk-brown", "kfk-green", "kfk-blue"];
 function App() {
   const context = Route.useRouteContext();
   const driveId = context.currentDrive?.id ?? "";
-  
-  const { data: allChildren, isLoading, isError } = useStorefrontChildProfiles(driveId);
+
+  const {
+    data: allChildren,
+    isLoading,
+    isError,
+  } = useStorefrontChildProfiles(driveId);
 
   const [childrenPerPage] = useState<number>(25);
   const navigate = useNavigate();
@@ -56,23 +60,24 @@ function App() {
     });
   }, [navigate]);
 
-  const childrenWithMetrics: Array<ChildCardData & { familyId: string }> = useMemo(() => {
-    if (!allChildren) return [];
-    
-    return allChildren.map((child) => ({
-      id: child.id,
-      name: child.name,
-      photoUrl: child.photoUrl,
-      category: child.category,
-      age: child.age,
-      diagnosis: child.diagnosis,
-      giftsRequested: child.gifts.length,
-      giftsReceived: child.gifts.filter((g) =>
-        ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
-      ).length,
-      familyId: child.familyId,
-    }));
-  }, [allChildren]);
+  const childrenWithMetrics: Array<ChildCardData & { familyId: string }> =
+    useMemo(() => {
+      if (!allChildren) return [];
+
+      return allChildren.map((child) => ({
+        id: child.id,
+        name: child.name,
+        photoUrl: child.photoUrl,
+        category: child.category,
+        age: child.age,
+        diagnosis: child.diagnosis,
+        giftsRequested: child.gifts.length,
+        giftsReceived: child.gifts.filter((g) =>
+          ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
+        ).length,
+        familyId: child.familyId,
+      }));
+    }, [allChildren]);
 
   const uniqueFamilyIds = useMemo(() => {
     if (!allChildren) return [];

@@ -613,27 +613,29 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
       giftsBySiblingId.get(gift.childId)!.push(gift);
     }
 
-    const storefrontSiblings: Array<StorefrontChild> = siblings.map((sibling) => {
-      const giftData = giftsBySiblingId.get(sibling.id) || [];
-      return {
-        id: sibling.id,
-        name: sibling.name,
-        age: sibling.age,
-        status: sibling.status,
-        diagnosis: sibling.diagnosis,
-        category: sibling.category,
-        photoUrl: sibling.photoUrl,
-        publicBlurb: sibling.publicBlurb,
-        published: sibling.published,
-        gifts: giftData.map((g) => ({
-          id: g.id,
-          title: g.title,
-          productUrl: g.productUrl,
-          listedPrice: g.listedPrice,
-          status: g.status,
-        })),
-      };
-    });
+    const storefrontSiblings: Array<StorefrontChild> = siblings.map(
+      (sibling) => {
+        const giftData = giftsBySiblingId.get(sibling.id) || [];
+        return {
+          id: sibling.id,
+          name: sibling.name,
+          age: sibling.age,
+          status: sibling.status,
+          diagnosis: sibling.diagnosis,
+          category: sibling.category,
+          photoUrl: sibling.photoUrl,
+          publicBlurb: sibling.publicBlurb,
+          published: sibling.published,
+          gifts: giftData.map((g) => ({
+            id: g.id,
+            title: g.title,
+            productUrl: g.productUrl,
+            listedPrice: g.listedPrice,
+            status: g.status,
+          })),
+        };
+      },
+    );
 
     return storefrontSiblings;
   });
