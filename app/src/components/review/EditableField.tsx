@@ -11,11 +11,18 @@ import {
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 
-interface EditableFieldProps extends React.ComponentProps<typeof Input> {
+type EditableFieldChangeHandler =
+  | React.ChangeEventHandler<HTMLInputElement>
+  | React.ChangeEventHandler<HTMLTextAreaElement>
+  | ((value: string) => void);
+
+interface EditableFieldProps
+  extends Omit<React.ComponentProps<typeof Input>, "onChange"> {
   editable?: boolean;
   children?: React.ReactNode;
   fieldType?: "input" | "textarea" | "select";
   selectOptions?: Array<string>;
+  onChange?: EditableFieldChangeHandler;
 }
 
 export function EditableField({
@@ -29,6 +36,12 @@ export function EditableField({
   ...props
 }: EditableFieldProps) {
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const inputOnChange =
+    onChange as React.ChangeEventHandler<HTMLInputElement> | undefined;
+  const textareaOnChange =
+    onChange as React.ChangeEventHandler<HTMLTextAreaElement> | undefined;
+  const selectOnChange = onChange as ((value: string) => void) | undefined;
+
   useEffect(() => {
     if (editable) inputRef.current?.focus();
   }, [editable]);
@@ -51,7 +64,7 @@ export function EditableField({
       <Select
         defaultValue={value?.toString()}
         value={value?.toString()}
-        onValueChange={onChange as any}
+        onValueChange={selectOnChange}
       >
         <SelectTrigger className="w-full max-w-48 border-1 border-black">
           <SelectValue placeholder="Select a level" />
@@ -69,7 +82,7 @@ export function EditableField({
   }
 
   if (fieldType === "textarea") {
-    const text: string = value as string;
+    const text = typeof value === "string" ? value : value?.toString() ?? "";
     const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
 
     return (
@@ -78,9 +91,9 @@ export function EditableField({
         <Textarea
           ref={inputRef as React.RefObject<HTMLTextAreaElement>}
           value={value}
-          onChange={onChange}
+          onChange={textareaOnChange}
           className={cn("border-foreground", className)}
-          {...(props as any)}
+          {...(props as React.ComponentProps<typeof Textarea>)}
         />
         <p
           className={`self-end ${wordCount <= 25 ? "text-muted-foreground" : "text-destructive"}`}
@@ -97,7 +110,7 @@ export function EditableField({
       <Input
         ref={inputRef as React.RefObject<HTMLInputElement>}
         value={value}
-        onChange={onChange}
+        onChange={inputOnChange}
         className={cn("border-foreground", className)}
         {...props}
       />

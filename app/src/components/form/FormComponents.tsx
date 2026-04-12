@@ -198,10 +198,10 @@ export const FormSelect = ({
         <SelectContent>
           {values.map((item) => {
             const val = typeof item === "string" ? item : item.value;
-            const label = typeof item === "string" ? item : item.label;
+            const optionLabel = typeof item === "string" ? item : item.label;
             return (
               <SelectItem key={val} value={val}>
-                {label}
+                {optionLabel}
               </SelectItem>
             );
           })}
