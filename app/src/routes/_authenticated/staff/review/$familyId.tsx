@@ -15,6 +15,7 @@ export type ReviewChild = {
   id: string;
   childName: string;
   status: "Warrior" | "Supersib";
+  photoUrl?: string;
   treatmentLength?: string;
   diagnosis?: string;
   age: number;

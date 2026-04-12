@@ -2,12 +2,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { EditableField } from "./EditableField";
 import { ReviewGift } from "./ReviewGift";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ChangeEventHandler } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
 import type { ReviewChild } from "@/routes/_authenticated/staff/review/$familyId";
-import { PencilIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Gift } from "common";
 
 interface ChildInfoCardProps {
@@ -16,6 +16,8 @@ interface ChildInfoCardProps {
 }
 
 const levelOptions: Array<string> = ["A", "B", "C", "D"];
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 function parsePriceInput(raw: string): number | undefined {
   const t = raw.trim();
@@ -27,6 +29,8 @@ function parsePriceInput(raw: string): number | undefined {
 export function ChildCard({ child, onSave }: ChildInfoCardProps) {
   const [editing, setEditing] = useState(false);
   const [wordCount, setWordCount] = useState(0);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formState, setFormState] = useState({
     treatmentLength: child.treatmentLength,
     diagnosis: child.diagnosis,
@@ -35,6 +39,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
     blurb: child.blurb,
     socialWorkerName: child.socialWorkerName,
     hospitalName: child.hospitalName,
+    photoUrl: child.photoUrl,
     gifts: child.gifts,
   });
 
@@ -56,13 +61,57 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
       blurb: child.blurb,
       socialWorkerName: child.socialWorkerName,
       hospitalName: child.hospitalName,
+      photoUrl: child.photoUrl,
       gifts: child.gifts,
     });
+    setPhotoError(null);
     setEditing(false);
   };
 
   const handleEditClick = () => {
+    setPhotoError(null);
     setEditing(true);
+  };
+
+  const openPhotoPicker = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setPhotoError(null);
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setPhotoError("Please upload a JPG, PNG, or WebP image.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setPhotoError("File size must be less than 5MB.");
+      event.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+      const result = loadEvent.target?.result;
+      if (typeof result !== "string") {
+        setPhotoError("Failed to read file.");
+        return;
+      }
+
+      setFormState((prev) => ({
+        ...prev,
+        photoUrl: result,
+      }));
+    };
+    reader.onerror = () => {
+      setPhotoError("Failed to read file.");
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSave = () => {
@@ -79,6 +128,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
       blurb: formState.blurb,
       socialWorkerName: formState.socialWorkerName,
       hospitalName: formState.hospitalName,
+      photoUrl: formState.photoUrl,
       gifts: formState.gifts,
     };
 
@@ -86,6 +136,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
       onSave(updatedChild);
     }
 
+    setPhotoError(null);
     setEditing(false);
   };
 
@@ -95,24 +146,69 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
         <div className="flex justify-between items-center mb-4">
           <div className="flex gap-5">
             <div className="relative">
-              <Avatar className="size-15">
-                <AvatarImage src={ProfileHeader}></AvatarImage>
-                <AvatarFallback>ER</AvatarFallback>
-              </Avatar>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handlePhotoChange}
+              />
+              <button
+                type="button"
+                className={`rounded-full transition-all ${
+                  editing
+                    ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kfk-blue/50 focus-visible:ring-offset-2 hover:scale-105"
+                    : "cursor-default"
+                }`}
+                onClick={editing ? openPhotoPicker : undefined}
+                aria-label={`Upload photo for ${child.childName}`}
+                disabled={!editing}
+              >
+                <Avatar
+                  className={`size-15 ${
+                    editing
+                      ? "ring-2 ring-kfk-blue/30 shadow-md hover:ring-kfk-blue"
+                      : ""
+                  }`}
+                >
+                  <AvatarImage src={formState.photoUrl ?? ProfileHeader}></AvatarImage>
+                  <AvatarFallback className="bg-kfk-light-blue text-kfk-blue">
+                    <PhotoIcon className="size-6" />
+                  </AvatarFallback>
+                </Avatar>
+              </button>
               {editing && (
-                <div className="absolute bg-kfk-blue rounded-full h-fit p-1 top-10 left-10">
+                <button
+                  type="button"
+                  className="absolute bg-kfk-blue rounded-full h-fit p-1 top-10 left-10"
+                  onClick={openPhotoPicker}
+                  aria-label={`Upload photo for ${child.childName}`}
+                >
                   <PencilIcon className="size-4 text-white" />
-                </div>
+                </button>
               )}
             </div>
-            <h2 className="text-xl sm:text-3xl font-bold my-auto">
-              {child.childName}
-            </h2>
-            <span
-              className={`my-auto py-1 px-5 rounded-full border-1 border-gray-200 ${child.status == "Warrior" ? "bg-[#FFF8C2] text-[#733C10]" : "bg-[#D4EAFF] text-[#0036CE]"}`}
-            >
-              {child.status}
-            </span>
+            <div className="flex flex-col gap-1">
+              <div className="flex gap-5">
+                <h2 className="text-xl sm:text-3xl font-bold my-auto">
+                  {child.childName}
+                </h2>
+                <span
+                  className={`my-auto rounded-full border px-5 py-1 ${
+                    child.status == "Warrior"
+                      ? "border-kfk-brown bg-kfk-muted-yellow text-kfk-brown"
+                      : "border-kfk-blue/20 bg-kfk-light-blue text-kfk-blue"
+                  }`}
+                >
+                  {child.status}
+                </span>
+              </div>
+              {editing && photoError && (
+                <p className="w-fit rounded-md border border-kfk-red/20 bg-kfk-muted-red/30 px-2 py-1 text-sm text-kfk-red">
+                  {photoError}
+                </p>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
             <Button
