@@ -3,7 +3,7 @@ import {
   getProfilesForStorefront,
   getActiveDrive,
 } from "@/server/functions/storefront";
-import { getStorefrontChildById } from "@/server/functions/child";
+import { getStorefrontChildById, getGiftsForChild } from "@/server/functions/child";
 
 export const storefrontQueries = createQueryKeys("storefront", {
   profilesForDrive: (driveId: string) => ({
@@ -13,6 +13,10 @@ export const storefrontQueries = createQueryKeys("storefront", {
   childById: (childId: string) => ({
     queryKey: ["childById", childId],
     queryFn: () => getStorefrontChildById({ data: { childId } }),
+  }),
+  giftsForChild: (childId: string) => ({
+    queryKey: ["giftsForChild", childId],
+    queryFn: () => getGiftsForChild({ data: { childId } }),
   }),
   activeDrive: {
     queryKey: ["activeDrive"],

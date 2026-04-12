@@ -551,3 +551,24 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
 
     return storefrontChild;
   });
+
+export const getGiftsForChild = createServerFn({ method: "GET" })
+  .inputValidator(childIdOnlySchema)
+  .handler(async ({ data }) => {
+    const { childId } = data;
+
+    const db = getServerDB();
+    const gifts = await db.gifts.where("childId", "==", childId).get();
+
+    if (gifts.empty) {
+      return [];
+    }
+
+    return gifts.docs.map((doc) => ({
+      id: doc.id,
+      title: doc.data().title,
+      productUrl: doc.data().productUrl,
+      listedPrice: doc.data().listedPrice,
+      status: doc.data().status,
+    }));
+  });
