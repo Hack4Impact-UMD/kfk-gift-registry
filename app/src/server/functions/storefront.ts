@@ -35,12 +35,13 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
     const { driveId } = data;
     const db = getServerDB();
 
-    // NOTE: Removed .where("published", "==", true) for development with seed data
-    // Add it back for production if you want to filter by published status
-    const childrenSnapshot = await db.children
-      .where("giftDrive", "==", driveId)
-      .where("published", "==", true)
-      .get();
+    let childrenQuery = db.children.where("giftDrive", "==", driveId);
+    
+    if (process.env.NODE_ENV === "production") {
+      childrenQuery = childrenQuery.where("published", "==", true);
+    }
+    
+    const childrenSnapshot = await childrenQuery.get();
 
     if (childrenSnapshot.empty) {
       return [];
