@@ -36,11 +36,11 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
     const db = getServerDB();
 
     let childrenQuery = db.children.where("giftDrive", "==", driveId);
-    
+
     if (process.env.NODE_ENV === "production") {
       childrenQuery = childrenQuery.where("published", "==", true);
     }
-    
+
     const childrenSnapshot = await childrenQuery.get();
 
     if (childrenSnapshot.empty) {
