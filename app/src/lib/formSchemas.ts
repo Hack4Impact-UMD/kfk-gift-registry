@@ -111,7 +111,7 @@ export const generalInfoSchema = z
       .trim()
       .min(1, "Phone number is required")
       .regex(/^[\d\s\-()]+$/, "Please enter a valid phone number")
-      .refine((value) => value.replace(/\D/g, "").length >= 10, {
+      .refine((value) => value.replace(/\D/g, "").length === 10, {
         message: "Please enter a valid phone number",
       }),
     phoneNumberConfirm: z
@@ -119,7 +119,7 @@ export const generalInfoSchema = z
       .trim()
       .min(1, "Phone number is required")
       .regex(/^[\d\s\-()]+$/, "Please enter a valid phone number")
-      .refine((value) => value.replace(/\D/g, "").length >= 10, {
+      .refine((value) => value.replace(/\D/g, "").length === 10, {
         message: "Please enter a valid phone number",
       }),
     streetAddress: z
