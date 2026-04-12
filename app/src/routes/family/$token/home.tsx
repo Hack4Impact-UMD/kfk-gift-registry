@@ -4,28 +4,44 @@ import { Route as FamilyTokenRoute } from "../$token";
 import { Button } from "@/components/ui/button";
 import { NotificationCard } from "@/components/family/NotificationCard";
 import RedGift from "@/assets/red-gift.png";
+import type { Child } from "common";
 
 export const Route = createFileRoute("/family/$token/home")({
   component: FamilyHome,
 });
 
 function FamilyHome() {
-  const family = FamilyTokenRoute.useLoaderData();
-
-  const notifications = family.children.flatMap((child) =>
-    child.gifts
-      .filter((gift) => gift.status === "delivered")
-      .map((gift) => ({
-        id: gift.id,
-        child: child,
-        giftTitle: gift.name,
-      })),
-  );
+  const data = FamilyTokenRoute.useLoaderData();
+  const family = data.family;
+  const children = data.children || [];
+  const notifications: Array<{ id: string; child: Child; giftTitle: string }> =
+    [];
 
   // TODO: implement clear functionality (swap out local storage implementation)
   const [visibleIds, setVisibleIds] = useState<Array<string>>(() =>
     notifications.map((n) => n.id),
   );
+
+  if (!family) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-foreground">Family not found</p>
+      </div>
+    );
+  }
+
+  // TODO: Load notifications when gift data is available
+  // const notifications = children?.flatMap((child: any) =>
+  //   child.gifts
+  //     .filter((gift: any) => gift.status === "delivered")
+  //     .map((gift: any) => ({
+  //       id: gift.id,
+  //       child: child,
+  //       giftTitle: gift.name,
+  //     })),
+  // ) ?? [];
+
+  // TODO: implement clear functionality (swap out local storage implementation)
 
   const visibleNotifications = notifications.filter((n) =>
     visibleIds.includes(n.id),
@@ -58,7 +74,7 @@ function FamilyHome() {
 
         <div className="relative z-10 flex flex-col gap-2">
           <h2 className="text-3xl font-semibold font-gaegu">
-            Welcome, {family.familyName} Family!
+            Welcome, {family.contactName}!
           </h2>
           <p>Track your gifts, confirm deliveries, & thank your donors!</p>
         </div>
@@ -66,29 +82,61 @@ function FamilyHome() {
         <img src={RedGift} alt="Gift Box" className="max-w-32 mt-4 z-20" />
       </div>
 
-      <div className="py-4 mt-4 flex justify-between items-center">
-        <h3 className="text-lg font-semibold mx-2">Notifications</h3>
-        <Button
-          variant="outline"
-          className="rounded-full border-ring text-foreground"
-          // TODO: implement clear functionality (swap out local storage implementation)
-          onClick={handleClearAll}
-        >
-          Clear All
-        </Button>
+      <div className="py-4 mt-4">
+        <h3 className="text-lg font-semibold mx-2 mb-4">Your Children</h3>
+        {children && children.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4 mx-2">
+            {children.map((child) => (
+              <div
+                key={child.id}
+                className="bg-white rounded-lg p-4 shadow flex flex-col items-center text-center"
+              >
+                {child.photoUrl && (
+                  <img
+                    src={child.photoUrl}
+                    alt={child.name}
+                    className="w-16 h-16 rounded-full object-cover mb-2"
+                  />
+                )}
+                <p className="font-semibold">{child.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {child.diagnosis}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-muted-foreground mx-2">No children found</p>
+        )}
       </div>
 
-      <div className="flex flex-col gap-3">
-        {visibleNotifications.map((n) => (
-          <NotificationCard
-            key={n.id}
-            child={n.child}
-            giftTitle={n.giftTitle}
-            token={family.token}
-            onDismiss={() => handleDismiss(n.id)}
-          />
-        ))}
-      </div>
+      {visibleNotifications.length > 0 && (
+        <>
+          <div className="py-4 mt-4 flex justify-between items-center">
+            <h3 className="text-lg font-semibold mx-2">Notifications</h3>
+            <Button
+              variant="outline"
+              className="rounded-full border-ring text-foreground"
+              // TODO: implement clear functionality (swap out local storage implementation)
+              onClick={handleClearAll}
+            >
+              Clear All
+            </Button>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {visibleNotifications.map((n) => (
+              <NotificationCard
+                key={n.id}
+                child={n.child}
+                giftTitle={n.giftTitle}
+                token={data.token}
+                onDismiss={() => handleDismiss(n.id)}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

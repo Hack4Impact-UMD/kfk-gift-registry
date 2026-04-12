@@ -3,6 +3,7 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from "@tanstack/react-router";
+import { Toaster } from "@/components/ui/sonner";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 
@@ -13,6 +14,7 @@ import appCss from "../styles.css?url";
 import type { QueryClient } from "@tanstack/react-query";
 import type { AuthContext } from "@/server/functions/auth";
 import { verifySession } from "@/server/functions/auth";
+import { getActiveGiftDrive } from "@/server/functions/giftDrive";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -42,6 +44,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
   beforeLoad: async () => {
     const authUser = await verifySession();
+    const currentDrive = await getActiveGiftDrive().catch(() => undefined);
 
     if (authUser) {
       return {
@@ -49,6 +52,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           isAuthed: true as const,
           authUser,
         },
+        currentDrive,
       };
     } else {
       return {
@@ -56,6 +60,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           isAuthed: false as const,
           authUser: null,
         },
+        currentDrive,
       };
     }
   },
@@ -82,6 +87,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             TanStackQueryDevtools,
           ]}
         />
+        <Toaster />
         <Scripts />
       </body>
     </html>

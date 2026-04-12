@@ -43,16 +43,16 @@ interface PaginationProp {
   childrenPerPage: number;
   setCurrentPage: (page: number) => void;
   currentPage: number;
-  MAX_BUTTONS: number;
-  IMMEDIATE_PAGES: number;
+  maxButtons: number;
+  immediatePages: number;
 }
 export const Pagination = ({
   totalChildren,
   childrenPerPage,
   setCurrentPage,
   currentPage,
-  MAX_BUTTONS,
-  IMMEDIATE_PAGES,
+  maxButtons,
+  immediatePages,
 }: PaginationProp) => {
   const totalPages = Math.ceil(totalChildren / childrenPerPage);
   const boundedCurrentPage = Math.min(
@@ -69,8 +69,8 @@ export const Pagination = ({
     pages,
     currentPage,
     totalPages,
-    MAX_BUTTONS,
-    IMMEDIATE_PAGES,
+    maxButtons,
+    immediatePages,
   );
 
   return (

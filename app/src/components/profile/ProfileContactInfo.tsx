@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/phone-input";
 import { useUpdateUserProfile } from "@/hooks/mutations/useUpdateUserProfile";
 import { useRouter } from "@tanstack/react-router";
+import { toast } from "@/lib/toast";
 import { ReauthAlertDialog } from "../auth/ReauthAlertDialog";
 import { verifyBeforeUpdateEmail } from "firebase/auth";
 import { getClientAuth } from "@/lib/firebase.client";
@@ -21,15 +22,22 @@ export function ContactInfoSection({
   const { mutate: updateProfile } = useUpdateUserProfile();
   const [editingPhone, setEditingPhone] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
-  const [phoneLocal, setPhoneLocal] = useState(() =>
-    e164ToDisplay(authCtx.authUser.phone ?? ""),
-  );
+  const [phoneLocal, setPhoneLocal] = useState(() => {
+    return e164ToDisplay(authCtx.authUser.phone ?? "");
+  });
   const [email, setEmail] = useState(authCtx.authUser.email ?? "");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [showReauth, setShowReauth] = useState(false);
   const [pendingVerification, setPendingVerification] = useState(false);
   const router = useRouter();
 
   const handlePhoneSave = useCallback(() => {
+    const digits = phoneLocal.replace(/\D/g, "");
+    if (digits.length !== 10) {
+      setPhoneError("Please enter a valid 10-digit phone number.");
+      return;
+    }
+    setPhoneError(null);
     updateProfile(
       {
         userId: authCtx.authUser.uid,
@@ -39,13 +47,12 @@ export function ContactInfoSection({
       },
       {
         onError: (err) => {
-          //TODO: replace with toast
           console.error(err);
+          toast.error("Failed to update phone number.");
           setPhoneLocal(e164ToDisplay(authCtx.authUser.phone ?? ""));
         },
         onSuccess: () => {
-          //TODO: replace with toast
-          console.log("worked");
+          toast.success("Phone number updated.");
           router.invalidate();
         },
         onSettled: () => {
@@ -65,8 +72,8 @@ export function ContactInfoSection({
       setPendingVerification(true);
       setShowReauth(false);
     } catch (err) {
-      //TODO: toast
       console.error(err);
+      toast.error("Failed to send verification email.");
     }
   }, [email, authCtx]);
 
@@ -109,13 +116,17 @@ export function ContactInfoSection({
             <label className="text-md font-semibold">Phone Number</label>
             <InlineEditInput
               value={phoneLocal}
-              onChange={(e) =>
-                setPhoneLocal(formatPhoneDisplay(e.target.value))
-              }
+              onChange={(e) => {
+                setPhoneError(null);
+                setPhoneLocal(formatPhoneDisplay(e.target.value));
+              }}
               editing={editingPhone}
               onEditClick={() => setEditingPhone(true)}
               onSaveClick={handlePhoneSave}
             />
+            {phoneError && (
+              <span className="text-xs text-red-600">{phoneError}</span>
+            )}
           </div>
         </div>
       </CardContent>

@@ -1,21 +1,73 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Route as FamilyTokenRoute } from "../../$token";
 import { GiftIcon } from "@/components/icons";
 import { GiftCard } from "@/components/family/GiftCard";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
+import type { FamilyGiftClaim } from "@/server/functions/child";
+import {
+  getChildByIdWithToken,
+  getChildClaimsByChildIdWithToken,
+  getChildGiftsByChildIdWithToken,
+} from "@/server/functions/child";
+import type { Gift } from "common";
+
+const getGiftSummaryStatus = (
+  status: Gift["status"],
+): { label: string; className: string } => {
+  switch (status) {
+    case "RECEIVED":
+      return {
+        label: "Received",
+        className: "bg-kfk-muted-green/30 text-kfk-green",
+      };
+    case "PURCHASED":
+    case "DELIVERED":
+      return {
+        label: "Purchased",
+        className: "bg-kfk-muted-yellow/30 text-kfk-brown",
+      };
+    default:
+      return {
+        label: "Not Received",
+        className: "bg-kfk-muted-red/30 text-kfk-red",
+      };
+  }
+};
 
 export const Route = createFileRoute("/family/$token/child/$childId")({
+  loader: async ({ params }) => {
+    const [child, gifts, claims] = await Promise.all([
+      getChildByIdWithToken({
+        data: { token: params.token, childId: params.childId },
+      }),
+      getChildGiftsByChildIdWithToken({
+        data: { token: params.token, childId: params.childId },
+      }),
+      getChildClaimsByChildIdWithToken({
+        data: { token: params.token, childId: params.childId },
+      }),
+    ]);
+
+    return {
+      child,
+      gifts,
+      claims,
+    };
+  },
   component: ChildPage,
+  errorComponent: ChildError,
 });
 
 function ChildPage() {
-  const { childId } = Route.useParams();
-  const family = FamilyTokenRoute.useLoaderData();
-
-  const child = family.children.find((c) => c.id === childId);
-  const firstName = child?.name.trim().split(/\s+/)[0];
+  const data = Route.useLoaderData();
+  const params = Route.useParams();
+  const child = data.child;
+  const gifts: Array<Gift> = data.gifts || [];
+  const claims: Array<FamilyGiftClaim> = data.claims || [];
 
   if (!child) return <div>Child not found</div>;
+
+  const firstName = child.name.trim().split(/\s+/)[0];
+  const claimsByGiftId = new Map(claims.map((claim) => [claim.giftId, claim]));
 
   return (
     <div>
@@ -46,7 +98,7 @@ function ChildPage() {
           <div className="flex flex-col items-center gap-3 min-w-[140px]">
             <div className="w-28 h-32">
               <img
-                src={child.profileImage ?? ProfilePhoto}
+                src={child.photoUrl ?? ProfilePhoto}
                 alt={child.name}
                 className="w-full h-full object-cover rounded-3xl border-4 border-white"
               />
@@ -59,32 +111,28 @@ function ChildPage() {
             <span
               className={`px-4 py-1 rounded-full border border-foreground text-sm font-gaegu text-foreground
               ${
-                child.label === "Warrior"
+                child.category === "warrior"
                   ? "bg-kfk-muted-yellow" // TODO: ask about styles.css colors (this is #FFF8C2 in wireframe)
                   : "bg-kfk-light-blue"
               }`}
             >
-              {child.label}
+              {child.category === "warrior" ? "Warrior" : "Super Sib"}
             </span>
           </div>
 
           <div className="flex-1 flex flex-col gap-4">
-            {child.gifts.map((gift) => {
-              const received = gift.status === "received";
+            {gifts.map((gift) => {
+              const summaryStatus = getGiftSummaryStatus(gift.status);
 
               return (
                 <div key={gift.id} className="bg-white rounded-2xl p-4 shadow">
                   <div
-                    className={`text-center py-1 rounded-full mb-2 ${
-                      received
-                        ? "bg-kfk-muted-green/30 text-kfk-green"
-                        : "bg-kfk-muted-red/30 text-kfk-red"
-                    }`}
+                    className={`text-center py-1 rounded-full mb-2 ${summaryStatus.className}`}
                   >
-                    {received ? "Received" : "Not Received"}
+                    {summaryStatus.label}
                   </div>
 
-                  <p className="text-center text-sm font-gaegu">{gift.name}</p>
+                  <p className="text-center text-sm font-gaegu">{gift.title}</p>
                 </div>
               );
             })}
@@ -99,9 +147,26 @@ function ChildPage() {
         <h2 className="text-semibold">{firstName}'s Gift Information</h2>
       </div>
 
-      {child.gifts.map((gift) => (
-        <GiftCard key={gift.id} gift={gift} />
+      {gifts.map((gift) => (
+        <GiftCard
+          key={gift.id}
+          gift={gift}
+          claim={claimsByGiftId.get(gift.id)}
+          token={params.token}
+          childId={params.childId}
+        />
       ))}
+    </div>
+  );
+}
+
+function ChildError({ error }: { error: unknown }) {
+  const message = error instanceof Error ? error.message : "Child not found";
+
+  return (
+    <div>
+      <h1>Unable to load child</h1>
+      <p>{message}</p>
     </div>
   );
 }
