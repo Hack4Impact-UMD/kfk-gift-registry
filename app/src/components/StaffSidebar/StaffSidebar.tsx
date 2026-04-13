@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
+import { useDrive } from "@/context/DriveContext";
 
 import {
   Sidebar,
@@ -36,9 +37,11 @@ import {
   ClipboardCheckIcon,
   ClipboardIcon,
   HomeIcon,
-  UserCircleIcon,
   UsersIcon,
 } from "@/components/icons";
+import { useAllGiftDrives } from "@/hooks/queries/useAllGiftDrives";
+import type { GiftDrive } from "common";
+import { UserCircleIcon } from "lucide-react";
 
 // Tooltip wrapper for sidebar menu items to show labels only when collapsed
 function SidebarMenuButtonWithTooltip({
@@ -82,11 +85,12 @@ const SidebarMenuButtonWithHovering = ({
   );
 };
 
-export function StaffSidebar() {
+export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
   const { auth } = useRouteContext({ from: "/_authenticated" });
   const user = auth.authUser;
-  const [year, setYear] = useState("2026");
+  const { activeDriveId, setActiveDriveId } = useDrive();
   const [, setIsDropdownPressed] = useState<boolean>(false);
+  const { data: drives, isPending, error } = useAllGiftDrives();
 
   return (
     <Sidebar collapsible="icon" className="">
@@ -103,7 +107,7 @@ export function StaffSidebar() {
         <img
           src={KFKLogo}
           alt="Kisses For Kyle"
-          className="h-[51px] w-[205px] object-contain opacity-100 group-data-[collapsible=icon]:opacity-0"
+          className="h-12.75 w-51.25 object-contain opacity-100 group-data-[collapsible=icon]:opacity-0"
         />
 
         <div
@@ -122,25 +126,33 @@ export function StaffSidebar() {
               <SidebarMenuButton asChild size="lg">
                 <Select
                   onOpenChange={setIsDropdownPressed}
-                  value={year}
-                  onValueChange={setYear}
+                  value={activeDriveId ?? currentDrive?.id}
+                  onValueChange={setActiveDriveId}
                 >
-                  <SidebarMenuButtonWithTooltip label={year}>
+                  <SidebarMenuButtonWithTooltip label="Drive">
                     <SelectTrigger
                       chevron={false}
-                      className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:min-w-12 min-h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 data-[state=open]:text-[var(--color-kfk-blue)]"
+                      className="w-full group/button flex items-center justify-start gap-2 group-data-[collapsible=icon]:min-w-12 min-h-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
                     >
                       <CalendarIcon className="transition-colors text-black size-6" />
 
-                      <span className="truncate group-data-[collapsible=icon]:hidden group-data-[status=active]/button:text-[var(--color-kfk-blue)]">
-                        <SelectValue />
+                      <span className="truncate group-data-[collapsible=icon]:hidden group-data-[status=active]/button:text-kfk-blue">
+                        {isPending ? (
+                          "Loading..."
+                        ) : error ? (
+                          `Failed to load gift drives: ${error.message}`
+                        ) : (
+                          <SelectValue placeholder="No active drive" />
+                        )}
                       </span>
                     </SelectTrigger>
                   </SidebarMenuButtonWithTooltip>
                   <SelectContent>
-                    <SelectItem value="2024">2024</SelectItem>
-                    <SelectItem value="2025">2025</SelectItem>
-                    <SelectItem value="2026">2026</SelectItem>
+                    {drives?.map((drive) => (
+                      <SelectItem key={drive.id} value={drive.id}>
+                        {drive.cycle}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </SidebarMenuButton>
@@ -232,7 +244,7 @@ export function StaffSidebar() {
           <SidebarMenuButtonWithHovering>
             <Link
               to="/staff/profile"
-              className="group/button flex items-center gap-3 w-full text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 hover:!bg-black hover:text-white active:text-white"
+              className="group/button flex items-center gap-3 w-full text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 hover:bg-black! hover:text-white active:text-white"
               activeProps={{
                 className:
                   "group/button flex items-center gap-3 w-full text-left bg-black text-white group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0",

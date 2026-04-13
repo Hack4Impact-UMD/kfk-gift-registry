@@ -1,26 +1,32 @@
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { HomeIcon } from "@/components/icons";
-import { mockFamily } from "@/mocks/mockFamily";
 import { ChildProfileCircle } from "@/components/family/ChildProfileCircle";
+import { getFamilyDashboardDataByToken } from "@/server/functions/family";
 
 export const Route = createFileRoute("/family/$token")({
-  loader: () => {
-    // TEMP: return mock data
-    return mockFamily;
-    // return await getFamilyByToken({ data: { token: params.token } });
+  loader: async ({ params }) => {
+    const data = await getFamilyDashboardDataByToken({
+      data: { token: params.token },
+    });
+
+    return {
+      token: params.token,
+      family: data.family,
+      children: data.children,
+    };
   },
   component: FamilyRoute,
   errorComponent: FamilyError,
 });
 
 function FamilyRoute() {
-  const family = Route.useLoaderData();
+  const data = Route.useLoaderData();
 
   return (
-    <div className="h-screen bg-background flex flex-col items-center overflow-hidden">
-      <div className="flex h-screen flex-col max-w-2xl w-full">
-        <div className="z-100 bg-white w-full">
+    <div className="h-screen flex flex-col items-center overflow-hidden bg-muted md:p-4">
+      <div className="flex h-screen flex-col max-w-2xl w-full bg-white md:rounded-lg shadow overflow-clip">
+        <div className="z-10 bg-white w-full">
           <div className="flex items-center py-3 px-4">
             <img
               src={KFKLogo}
@@ -31,7 +37,7 @@ function FamilyRoute() {
           <div className="flex gap-6 overflow-x-auto px-4 py-4 items-center">
             <Link
               to="/family/$token/home"
-              params={{ token: family.token }}
+              params={{ token: data.token }}
               className="flex flex-col items-center gap-2 shrink-0"
             >
               <div className="w-16 h-16 rounded-full bg-kfk-yellow border-2 border-background ring-2 ring-kfk-yellow flex items-center justify-center">
@@ -42,12 +48,12 @@ function FamilyRoute() {
 
             <div className="w-[2px] h-16 bg-ring shrink-0 rounded-full"></div>
 
-            {family.children.map((child, index: number) => {
+            {data.children.map((child, index: number) => {
               const ringClasses = [
                 "ring-kfk-red",
                 "ring-kfk-blue",
                 "ring-kfk-green",
-              ];
+              ] as const;
               const ringClass = ringClasses[index % ringClasses.length];
 
               return (
@@ -55,7 +61,7 @@ function FamilyRoute() {
                   key={child.id}
                   child={child}
                   ringClass={ringClass}
-                  token={family.token}
+                  token={data.token}
                 />
               );
             })}

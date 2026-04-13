@@ -1,0 +1,92 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeftIcon } from "@/components/icons/ArrowLeftIcon";
+import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
+import { CheckCircleOutlineIcon } from "@/components/icons/CheckCircleOutlineIcon";
+
+const CHECKLIST_ITEMS = [
+  "No gift cards allowed",
+  "Gifts should be $25 or under",
+  "Gift links must point to Amazon/Macy's only",
+  "Profile pictures must be appropriate",
+  "Personal blurbs must be appropriate",
+] as const;
+
+const ADMIN_COMMENTS_PLACEHOLDER =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+
+export function ReviewActionPanel() {
+  return (
+    <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-80 xl:w-96">
+      <section>
+        <h2 className="mb-3 text-lg font-bold tracking-tight text-foreground">
+          Approval Checklist
+        </h2>
+        <Card className="border bg-white py-4 shadow-md">
+          <CardContent className="flex flex-col gap-3 px-4">
+            {CHECKLIST_ITEMS.map((item) => (
+              <div key={item} className="flex items-start gap-3">
+                <CheckCircleOutlineIcon
+                  className="mt-0.5 size-5 shrink-0 text-foreground"
+                  aria-hidden
+                />
+                <span className="text-sm leading-snug text-foreground">
+                  {item}
+                </span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-bold tracking-tight text-foreground">
+          Admin Comments
+        </h2>
+        <Card className="border bg-white py-4 shadow-md">
+          <CardContent className="px-4">
+            <Textarea
+              defaultValue={ADMIN_COMMENTS_PLACEHOLDER}
+              className="min-h-32 resize-none border-0 bg-white shadow-none text-sm text-foreground focus-visible:border-0 focus-visible:ring-0 md:text-sm"
+            />
+          </CardContent>
+        </Card>
+      </section>
+
+      <div className="flex flex-col gap-3">
+        <Button
+          type="button"
+          className="h-11 w-full rounded-md bg-green-600 text-base font-medium text-white hover:bg-green-700"
+        >
+          Move to Approved
+        </Button>
+        <Button
+          type="button"
+          className="h-11 w-full rounded-md bg-red-600 text-base font-medium text-white hover:bg-red-700"
+        >
+          Move to Holdfile
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Button
+          type="button"
+          variant="default"
+          className="h-10 w-full rounded-md bg-kfk-blue text-white hover:bg-kfk-blue/90"
+        >
+          <ArrowLeftIcon className="size-4" aria-hidden />
+          Previous
+        </Button>
+        <Button
+          type="button"
+          variant="default"
+          className="h-10 w-full rounded-md bg-kfk-blue text-white hover:bg-kfk-blue/90"
+        >
+          Next
+          <ArrowRightIcon className="size-4" aria-hidden />
+        </Button>
+      </div>
+    </aside>
+  );
+}

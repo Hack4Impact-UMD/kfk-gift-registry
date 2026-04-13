@@ -1,39 +1,97 @@
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { Button } from "../ui/button";
 import { ConfirmGiftModal } from "./ConfirmGiftModal";
 import { ThankYouNoteModal } from "./ThankYouNoteModal";
-import type { Gift } from "@/mocks/mockFamily";
+import type { FamilyGiftClaim } from "@/server/functions/child";
+import {
+  confirmGiftReceivedWithToken,
+  saveGiftThankYouNoteWithToken,
+} from "@/server/functions/child";
+import type { Gift } from "common";
 import { ExclamationCircleIcon } from "@/components/icons";
 
 const GIFT_STEPS = [
-  "Unordered",
+  "Available",
   "Claimed",
-  "In Transit",
+  "Purchased",
   "Delivered",
   "Received",
 ];
 const GIFT_STATUS_ORDER = [
-  "unordered",
-  "claimed",
-  "in_transit",
-  "delivered",
-  "received",
+  "AVAILABLE",
+  "CLAIMED",
+  "PURCHASED",
+  "DELIVERED",
+  "RECEIVED",
 ];
 
 type GiftCardProps = {
   gift: Gift;
+  claim?: FamilyGiftClaim;
+  token: string;
+  childId: string;
 };
 
 const TRACK_START = 10;
 const TRACK_WIDTH = 80;
 
-export function GiftCard({ gift }: GiftCardProps) {
+function formatDate(value?: string) {
+  if (!value) return "N/A";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "N/A";
+  }
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
   const formattedStatus = gift.status
+    .toLowerCase()
     .replaceAll("_", " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
+  const [noteDraft, setNoteDraft] = useState("");
+  const router = useRouter();
+
+  const confirmGiftMutation = useMutation({
+    mutationFn: () =>
+      confirmGiftReceivedWithToken({
+        data: {
+          token,
+          childId,
+          giftId: gift.id,
+        },
+      }),
+    onSuccess: async () => {
+      setConfirmOpen(false);
+      await router.invalidate();
+    },
+  });
+  const thankYouNoteMutation = useMutation({
+    mutationFn: (note: string) =>
+      saveGiftThankYouNoteWithToken({
+        data: {
+          token,
+          childId,
+          giftId: gift.id,
+          note,
+        },
+      }),
+    onSuccess: async () => {
+      setNoteOpen(false);
+      await router.invalidate();
+    },
+  });
 
   const currentStep = GIFT_STATUS_ORDER.indexOf(
     gift.status as (typeof GIFT_STATUS_ORDER)[number],
@@ -42,9 +100,9 @@ export function GiftCard({ gift }: GiftCardProps) {
   const fillWidthPercent =
     filledTo > 0 ? TRACK_WIDTH * ((filledTo - 1) / (GIFT_STEPS.length - 1)) : 0;
   const progressColor =
-    gift.status === "received" ? "bg-kfk-green" : "bg-kfk-yellow";
+    gift.status === "RECEIVED" ? "bg-kfk-green" : "bg-kfk-yellow";
   const progressBorderColor =
-    gift.status === "received" ? "border-kfk-green" : "border-kfk-yellow";
+    gift.status === "RECEIVED" ? "border-kfk-green" : "border-kfk-yellow";
 
   return (
     <>
@@ -52,47 +110,59 @@ export function GiftCard({ gift }: GiftCardProps) {
         className="rounded-xl border p-4 mb-4 bg-card space-y-2"
         style={{ boxShadow: "0 0 8px rgba(0,0,0,0.35)" }}
       >
-        {gift.status === "received" && (
+        {gift.status === "RECEIVED" && (
           <div className="-mx-4 mb-4 bg-kfk-green text-white text-center shrink-0">
             <p className="p-2 font-bold">Yay! You received this gift!</p>
           </div>
         )}
 
         <p>
-          <span className="font-bold">Gift Name:</span> {gift.name}
+          <span className="font-bold">Gift Name:</span> {gift.title}
         </p>
 
         <p>
-          <span className="font-bold">Price:</span> ${gift.price.toFixed(2)}
+          <span className="font-bold">Price:</span> $
+          {(gift.listedPrice ?? 0).toFixed(2)}
         </p>
 
-        {gift.status === "delivered" && (
+        {(gift.status === "DELIVERED" || gift.status === "RECEIVED") && (
           <div className="grid grid-cols-2 gap-4 my-6 relative">
-            <div className="relative cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition">
-              <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red/50 blur-sm animate-ping"></span>
-              <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red flex items-center justify-center text-white">
-                <ExclamationCircleIcon className="size-5" />
-              </div>
-              <p className="mb-3">
-                Please confirm if you have received this gift!
-              </p>
+            {gift.status === "DELIVERED" && (
+              <div className="relative cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition">
+                <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red/50 blur-sm animate-ping"></span>
+                <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-kfk-red flex items-center justify-center text-white">
+                  <ExclamationCircleIcon className="size-5" />
+                </div>
+                <p className="mb-3">
+                  Please confirm if you have received this gift!
+                </p>
 
-              <Button
-                onClick={() => setConfirmOpen(true)}
-                className="bg-kfk-blue text-white px-2 py-2 rounded-md font-gaegu"
-              >
-                Yes, I got the gift!
-              </Button>
-            </div>
+                <Button
+                  onClick={() => {
+                    confirmGiftMutation.reset();
+                    setConfirmOpen(true);
+                  }}
+                  className="bg-kfk-blue text-white px-2 py-2 rounded-md font-gaegu"
+                  disabled={confirmGiftMutation.isPending}
+                >
+                  Yes, I got the gift!
+                </Button>
+              </div>
+            )}
 
             <div className="cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition">
               <p className="mb-3">Send a thank you note to your donor</p>
 
               <Button
-                onClick={() => setNoteOpen(true)}
+                onClick={() => {
+                  thankYouNoteMutation.reset();
+                  setNoteDraft(claim?.thankYouNote ?? "");
+                  setNoteOpen(true);
+                }}
                 className="bg-kfk-blue text-white px-2 py-2 rounded-md font-gaegu"
+                disabled={thankYouNoteMutation.isPending}
               >
-                Write your note
+                {claim?.thankYouNote ? "Edit your note" : "Write your note"}
               </Button>
             </div>
           </div>
@@ -147,30 +217,71 @@ export function GiftCard({ gift }: GiftCardProps) {
 
         <p>
           <span className="font-bold">Tracking Number:</span>{" "}
-          {gift.trackingNumber ?? "N/A"}
+          {claim?.purchaseConfirmation?.trackingNumber ?? "N/A"}
+        </p>
+
+        <p>
+          <span className="font-bold">Claimed On:</span>{" "}
+          {formatDate(claim?.claimedAt)}
+        </p>
+
+        <p>
+          <span className="font-bold">Purchase Confirmed:</span>{" "}
+          {formatDate(claim?.purchaseConfirmation?.date)}
+        </p>
+
+        <p>
+          <span className="font-bold">Expected Delivery:</span>{" "}
+          {formatDate(claim?.expectedDeliveryDate)}
         </p>
 
         <p>
           <span className="font-bold">Date Delivered:</span>{" "}
-          {gift.dateDelivered ?? "N/A"}
+          {formatDate(claim?.deliveryConfirmed?.date)}
         </p>
 
-        {gift.status === "received" && (
+        {gift.status === "RECEIVED" && (
           <p>
             <span className="font-bold">Date Received:</span>{" "}
-            {gift.dateReceived ?? "N/A"}
+            {formatDate(claim?.receivedAt)}
           </p>
         )}
       </div>
 
       <ConfirmGiftModal
         open={confirmOpen}
-        onOpenChange={() => setConfirmOpen(false)}
+        onOpenChange={(open) => {
+          if (!open) {
+            confirmGiftMutation.reset();
+          }
+          setConfirmOpen(open);
+        }}
+        onConfirm={() => confirmGiftMutation.mutate()}
+        isPending={confirmGiftMutation.isPending}
+        errorMessage={
+          confirmGiftMutation.error instanceof Error
+            ? confirmGiftMutation.error.message
+            : undefined
+        }
       />
 
       <ThankYouNoteModal
         open={noteOpen}
-        onOpenChange={() => setNoteOpen(false)}
+        onOpenChange={(open) => {
+          if (!open) {
+            thankYouNoteMutation.reset();
+          }
+          setNoteOpen(open);
+        }}
+        note={noteDraft}
+        onNoteChange={setNoteDraft}
+        onSend={(note) => thankYouNoteMutation.mutate(note)}
+        isPending={thankYouNoteMutation.isPending}
+        errorMessage={
+          thankYouNoteMutation.error instanceof Error
+            ? thankYouNoteMutation.error.message
+            : undefined
+        }
       />
     </>
   );

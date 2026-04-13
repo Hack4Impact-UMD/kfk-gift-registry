@@ -56,6 +56,10 @@ export function generateClaim({
     giftStatus === "DELIVERED" || giftStatus === "RECEIVED"
       ? pickDateBetween(expectedDeliveryDate ?? purchaseDate ?? claimedAt, now)
       : undefined;
+  const receivedAt =
+    giftStatus === "RECEIVED"
+      ? pickDateBetween(deliveryDate ?? purchaseDate ?? claimedAt, now)
+      : undefined;
 
   return {
     id,
@@ -81,6 +85,7 @@ export function generateClaim({
           verified: true,
         }
       : undefined,
+    receivedAt: receivedAt?.toISOString(),
     privateNotes: faker.datatype.boolean({ probability: 0.15 })
       ? faker.helpers.arrayElement(claimPrivateNotes)
       : undefined,
