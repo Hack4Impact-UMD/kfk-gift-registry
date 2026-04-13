@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { PendingProfilesTable } from "@/components/tables/PendingProfilesTable/PendingProfilesTable";
+import { StatusSummaryHeader } from "@/components/tables/PendingProfilesTable/StatusSummaryHeader";
 import type { PendingProfileTableRow } from "@/components/tables/PendingProfilesTable/types";
 
 export const Route = createFileRoute("/_authenticated/staff/pending")({
@@ -20,14 +22,19 @@ const MOCK_DATA: Array<PendingProfileTableRow> = [
 ];
 
 function RouteComponent() {
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+
   return (
-    // return <div>Hello "/_authenticated/staff/pending"!</div>;
     <div className="flex flex-col gap-6 p-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Profile Approval</h1>
       </div>
-      {/* TODO: header cards */}
-      <PendingProfilesTable data={MOCK_DATA} />
+      <StatusSummaryHeader
+        data={MOCK_DATA}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+      />
+      <PendingProfilesTable data={MOCK_DATA} statusFilter={activeFilter} />
     </div>
   );
 }
