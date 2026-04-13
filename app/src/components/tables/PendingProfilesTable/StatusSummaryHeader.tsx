@@ -1,7 +1,7 @@
 import { Clock, CheckCircle, XCircle } from "lucide-react";
 import { UsersIcon } from "@/components/icons";
 import { StatusSummaryCard } from "./StatusSummaryCard";
-import type { ApplicationStatus, PendingProfileTableRow } from "./types";
+import type { PendingProfileTableRow } from "./types";
 
 interface StatusSummaryHeaderProps {
   data: Array<PendingProfileTableRow>;

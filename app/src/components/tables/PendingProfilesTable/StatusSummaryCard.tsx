@@ -82,17 +82,27 @@ export function StatusSummaryCard({
           !isActive && style.hoverBg,
         )}
       >
-        <div className={cn("p-2 rounded-full flex items-center justify-center", isActive ? style.activeIconBg : style.iconBg)}>
-          <div className={cn("h-6 w-6 flex items-center justify-center", isActive ? style.activeIconColor : style.iconColor)}>{icon}</div>
+        <div
+          className={cn(
+            "p-2 rounded-full flex items-center justify-center",
+            isActive ? style.activeIconBg : style.iconBg,
+          )}
+        >
+          <div
+            className={cn(
+              "h-6 w-6 flex items-center justify-center",
+              isActive ? style.activeIconColor : style.iconColor,
+            )}
+          >
+            {icon}
+          </div>
         </div>
         <div className="text-left">
           <p className="text-sm font-medium">{label}</p>
           <p className="text-3xl font-bold">{count}</p>
         </div>
       </button>
-      {isActive && (
-        <div className={cn("mt-2 h-1 rounded", style.lineColor)} />
-      )}
+      {isActive && <div className={cn("mt-2 h-1 rounded", style.lineColor)} />}
     </div>
   );
 }
