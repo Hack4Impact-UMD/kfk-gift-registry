@@ -29,6 +29,7 @@ export function PendingProfilesTable({
   const filteredData = statusFilter
     ? data.filter((row) => row.status === statusFilter)
     : data;
+  const tableKey = statusFilter ?? "all";
 
   return (
     <div className={cn("flex flex-col gap-4 pt-6", className)}>
@@ -52,6 +53,7 @@ export function PendingProfilesTable({
       </div>
 
       <DataTable
+        key={tableKey}
         columns={columns}
         data={filteredData}
         globalSearch={globalSearch}

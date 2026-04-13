@@ -76,6 +76,7 @@ export function StatusSummaryCard({
       <button
         type="button"
         onClick={onClick}
+        aria-pressed={isActive}
         className={cn(
           "flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-colors",
           isActive ? style.activeBg : style.bg,
