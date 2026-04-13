@@ -8,7 +8,11 @@ import type { PendingProfileTableRow } from "./types";
 const helper = createColumnHelper<PendingProfileTableRow>();
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
+  const date = new Date(iso);
+  if (isNaN(date.getTime())) {
+    return "—";
+  }
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -22,12 +26,14 @@ export const columns = [
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all rows"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label={`Select row ${row.original.id}`}
       />
     ),
     enableSorting: false,

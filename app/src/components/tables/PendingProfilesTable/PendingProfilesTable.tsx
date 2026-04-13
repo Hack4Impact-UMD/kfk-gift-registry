@@ -36,6 +36,7 @@ export function PendingProfilesTable({
           <Search className="absolute left-2 h-4 w-4 text-gray-500 pointer-events-none" />
           <Input
             placeholder="Search"
+            aria-label="Search pending profiles"
             value={globalSearch}
             onChange={(e) => setGlobalSearch(e.target.value)}
             className="pl-8 border-gray-300 text-gray-700 focus-visible:ring-1"

@@ -74,6 +74,7 @@ export function StatusSummaryCard({
   return (
     <div className="flex flex-col">
       <button
+        type="button"
         onClick={onClick}
         className={cn(
           "flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-colors",
