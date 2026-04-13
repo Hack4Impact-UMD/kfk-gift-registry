@@ -50,14 +50,14 @@ const variantStyles = {
   holdfile: {
     bg: "bg-red-100",
     text: "text-red-800",
-    iconBg: "bg-red-800",
+    iconBg: "bg-kfk-red",
     iconColor: "text-white",
     hoverBg: "hover:bg-red-200",
-    activeBg: "bg-red-800",
+    activeBg: "bg-kfk-red",
     activeText: "text-white",
     activeIconBg: "bg-white",
-    activeIconColor: "text-red-800",
-    lineColor: "bg-red-800",
+    activeIconColor: "text-kfk-red",
+    lineColor: "bg-kfk-red",
   },
 };
 
