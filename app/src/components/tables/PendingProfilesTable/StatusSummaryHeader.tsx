@@ -1,12 +1,12 @@
 import { Clock, CheckCircle, XCircle } from "lucide-react";
 import { UsersIcon } from "@/components/icons";
 import { StatusSummaryCard } from "./StatusSummaryCard";
-import type { PendingProfileTableRow } from "./types";
+import type { ApplicationStatus, PendingProfileTableRow } from "./types";
 
 interface StatusSummaryHeaderProps {
   data: Array<PendingProfileTableRow>;
-  activeFilter: string | null;
-  onFilterChange: (status: string | null) => void;
+  activeFilter: ApplicationStatus | null;
+  onFilterChange: (status: ApplicationStatus | null) => void;
 }
 
 export function StatusSummaryHeader({

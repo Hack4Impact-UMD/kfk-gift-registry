@@ -2,7 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PendingProfilesTable } from "@/components/tables/PendingProfilesTable/PendingProfilesTable";
 import { StatusSummaryHeader } from "@/components/tables/PendingProfilesTable/StatusSummaryHeader";
-import type { PendingProfileTableRow } from "@/components/tables/PendingProfilesTable/types";
+import type {
+  ApplicationStatus,
+  PendingProfileTableRow,
+} from "@/components/tables/PendingProfilesTable/types";
 
 export const Route = createFileRoute("/_authenticated/staff/pending")({
   component: RouteComponent,
@@ -92,7 +95,9 @@ const MOCK_DATA: Array<PendingProfileTableRow> = [
 ];
 
 function RouteComponent() {
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<ApplicationStatus | null>(
+    null,
+  );
 
   return (
     <div className="flex flex-col gap-6 p-6">
