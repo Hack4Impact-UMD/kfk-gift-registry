@@ -7,5 +7,6 @@ export interface GiftTableProps {
 
 export interface GiftTableMeta {
   claimedGifts: Set<string>;
+  isGiftClaimed: (gift: StorefrontGift) => boolean;
   onClaimGift: (giftId: string) => void;
 }

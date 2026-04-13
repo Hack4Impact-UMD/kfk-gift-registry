@@ -20,6 +20,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import type { StorefrontGift } from "@/types/storefront";
+
+function isGiftAlreadyClaimed(gift: StorefrontGift) {
+  return gift.status !== "AVAILABLE";
+}
 
 export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
   const [claimedGifts, setClaimedGifts] = useState<Set<string>>(new Set());
@@ -42,6 +47,8 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
 
   const tableMeta: GiftTableMeta = {
     claimedGifts,
+    isGiftClaimed: (gift) =>
+      claimedGifts.has(gift.id) || isGiftAlreadyClaimed(gift),
     onClaimGift: handleClaimGift,
   };
 
@@ -59,7 +66,8 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
       {/* Mobile: stacked cards */}
       {gifts.length ? (
         gifts.map((gift, index) => {
-          const isClaimed = claimedGifts.has(gift.id);
+          const isClaimed =
+            claimedGifts.has(gift.id) || isGiftAlreadyClaimed(gift);
 
           return (
             <div
@@ -134,7 +142,7 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
             <TableBody>
               {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => {
-                  const isClaimed = claimedGifts.has(row.id);
+                  const isClaimed = tableMeta.isGiftClaimed(row.original);
 
                   return (
                     <TableRow
