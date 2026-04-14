@@ -87,12 +87,12 @@ function App() {
     () =>
       (searchValue
         ? childrenWithMetrics.filter(
-          (child) =>
-            child.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-            child.diagnosis
-              ?.toLowerCase()
-              .includes(searchValue.toLowerCase()),
-        )
+            (child) =>
+              child.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+              child.diagnosis
+                ?.toLowerCase()
+                .includes(searchValue.toLowerCase()),
+          )
         : [...childrenWithMetrics]
       ).sort((a, b) => {
         if (sortValue === "age-asc") return a.age - b.age;
