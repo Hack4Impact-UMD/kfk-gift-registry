@@ -94,7 +94,7 @@ function ChildPage() {
           <ellipse cx="24" cy="109.5" rx="37" ry="35.5" fill="#0A43CE" />
         </svg>
 
-        <div className="relative z-10 flex gap-6 items-center">
+        <div className="relative z-10 flex flex-col md:flex-row gap-6 items-center">
           <div className="flex flex-col items-center gap-3 max-w-[180px] w-full">
             <div className="w-28 h-32">
               <img
@@ -110,11 +110,10 @@ function ChildPage() {
 
             <span
               className={`px-4 py-1 rounded-full border border-foreground text-sm font-gaegu text-foreground
-              ${
-                child.category === "warrior"
+              ${child.category === "warrior"
                   ? "bg-kfk-muted-yellow" // TODO: ask about styles.css colors (this is #FFF8C2 in wireframe)
                   : "bg-kfk-light-blue"
-              }`}
+                }`}
             >
               {child.category === "warrior" ? "Warrior" : "Super Sib"}
             </span>
