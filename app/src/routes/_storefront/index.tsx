@@ -2,15 +2,15 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
 import type { ChildCardData } from "@/components/storefront/ChildCard";
 import { ChildCard } from "@/components/storefront/ChildCard";
-import type { Child, Family } from "../../../../common/src/types";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { Pagination } from "@/components/storefront/Pagination";
 import { StorefrontSearchFilters } from "@/components/storefront/StorefrontSearchFilters";
 import type { StorefrontSortOption } from "@/components/storefront/StorefrontSearchFilters";
+import { queries } from "@/queries";
+import { useStorefrontChildProfiles } from "@/hooks/queries/useStorefrontChildProfiles";
 
 export const Route = createFileRoute("/_storefront/")({
-  // STEP 1: define the search param for TanStack Router
   validateSearch: z.object({
     search: z.string().optional(),
     sort: z
@@ -18,131 +18,30 @@ export const Route = createFileRoute("/_storefront/")({
       .optional(),
     page: z.number().gt(0).default(1),
   }),
+  loader: async ({ context }) => {
+    const driveId = context.currentDrive?.id;
+    if (driveId) {
+      await context.queryClient.ensureQueryData(
+        queries.storefront.profilesForDrive(driveId),
+      );
+    }
+  },
   component: App,
 });
 
 const familyColors = ["kfk-red", "kfk-brown", "kfk-green", "kfk-blue"];
 
-// Mock families
-const mockFamilies: Array<Family> = [
-  {
-    id: "fam1",
-    contactName: "John Smith",
-    email: "smith@example.com",
-    phone: "123-456-7890",
-    address: {
-      street: "123 Main St",
-      city: "DC",
-      state: "MD",
-      zipCode: "20740",
-    },
-    giftDrive: "drive1",
-    createdAt: new Date().toISOString(),
-    reviewStatus: { approved: true, held: false },
-  },
-  {
-    id: "fam2",
-    contactName: "Sarah Johnson",
-    email: "johnson@example.com",
-    phone: "123-456-7891",
-    address: {
-      street: "456 Oak St",
-      city: "DC",
-      state: "MD",
-      zipCode: "20740",
-    },
-    giftDrive: "drive2",
-    createdAt: new Date().toISOString(),
-    reviewStatus: { approved: true, held: false },
-  },
-  {
-    id: "fam3",
-    contactName: "Williams Family",
-    email: "williams@example.com",
-    phone: "123-456-7892",
-    address: {
-      street: "789 Pine St",
-      city: "DC",
-      state: "MD",
-      zipCode: "20740",
-    },
-    giftDrive: "drive3",
-    createdAt: new Date().toISOString(),
-    reviewStatus: { approved: true, held: false },
-  },
-  {
-    id: "fam4",
-    contactName: "Brown Family",
-    email: "brown@example.com",
-    phone: "123-456-7893",
-    address: {
-      street: "101 Maple St",
-      city: "DC",
-      state: "MD",
-      zipCode: "20740",
-    },
-    giftDrive: "drive4",
-    createdAt: new Date().toISOString(),
-    reviewStatus: { approved: true, held: false },
-  },
-  {
-    id: "fam5",
-    contactName: "Jones Family",
-    email: "jones@example.com",
-    phone: "123-456-7894",
-    address: {
-      street: "202 Birch St",
-      city: "DC",
-      state: "MD",
-      zipCode: "20740",
-    },
-    giftDrive: "drive5",
-    createdAt: new Date().toISOString(),
-    reviewStatus: { approved: true, held: false },
-  },
-];
-
-// Mock children per family
-const mockChildrenFull: Array<Child> = mockFamilies.flatMap((family) =>
-  Array.from({ length: 5 }, (_, i) => ({
-    id: "1",
-    name: `Ryan Peirce`,
-    status: "recently_off_treatment",
-    category: i % 5 === 0 ? "warrior" : "super_sib",
-    treatmentLevel: i,
-    familyId: family.id,
-    diagnosis: "Acute Lymphocytic Leukemia",
-    diagnosisLengthYears: "<6m",
-    livesAtHome: true,
-    createdAt: new Date().toISOString(),
-    hospital: "Children’s National Hospital",
-    age: 4 + i,
-    childSocialWorker: "Jane Doe",
-    giftDrive: family.giftDrive,
-    published: true,
-  })),
-);
-
-const mockChildren: Array<ChildCardData & { familyId: string }> =
-  mockChildrenFull
-    .map((child) => ({
-      id: child.id,
-      name: child.name,
-      photoUrl: child.photoUrl,
-      category: child.category,
-      age: child.age,
-      diagnosis: child.diagnosis,
-      giftsRequested: 3,
-      giftsReceived: Math.floor(Math.random() * 3),
-      familyId: child.familyId,
-    }))
-    .sort((a, b) => a.familyId.localeCompare(b.familyId));
-
 function App() {
+  const context = Route.useRouteContext();
+  const {
+    data: allChildren,
+    isPending,
+    isError,
+  } = useStorefrontChildProfiles(context.currentDrive?.id);
+
   const [childrenPerPage] = useState<number>(25);
   const navigate = useNavigate();
 
-  // STEP 2: read search/sort param
   const { search, sort, page } = Route.useSearch();
   const [searchValue, setSearchValue] = useState<string>(search ?? "");
   const [sortValue, setSortValue] = useState<StorefrontSortOption>(
@@ -159,18 +58,42 @@ function App() {
     });
   }, [navigate]);
 
-  // STEP 3: filter children by search term (name or diagnosis) and sorting filters
+  const childrenWithMetrics: Array<ChildCardData & { familyId: string }> =
+    useMemo(() => {
+      if (!allChildren) return [];
+
+      return allChildren.map((child) => ({
+        id: child.id,
+        name: child.name,
+        photoUrl: child.photoUrl,
+        category: child.category,
+        age: child.age,
+        diagnosis: child.diagnosis,
+        giftsRequested: child.gifts.length,
+        giftsReceived: child.gifts.filter((g) =>
+          ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
+        ).length,
+        familyId: child.familyId,
+      }));
+    }, [allChildren]);
+
+  const uniqueFamilyIds = useMemo(() => {
+    if (!allChildren) return [];
+    const familyIds = allChildren.map((c) => c.familyId);
+    return [...new Set(familyIds)];
+  }, [allChildren]);
+
   const filteredChildren = useMemo(
     () =>
       (searchValue
-        ? mockChildren.filter(
+        ? childrenWithMetrics.filter(
             (child) =>
               child.name.toLowerCase().includes(searchValue.toLowerCase()) ||
               child.diagnosis
                 ?.toLowerCase()
                 .includes(searchValue.toLowerCase()),
           )
-        : [...mockChildren]
+        : [...childrenWithMetrics]
       ).sort((a, b) => {
         if (sortValue === "age-asc") return a.age - b.age;
         if (sortValue === "age-desc") return b.age - a.age;
@@ -179,7 +102,7 @@ function App() {
           return b.giftsReceived - a.giftsReceived;
         return 0;
       }),
-    [searchValue, sortValue],
+    [searchValue, sortValue, childrenWithMetrics],
   );
 
   const lastChildIndex = page * childrenPerPage;
@@ -188,6 +111,44 @@ function App() {
     firstChildIndex,
     lastChildIndex,
   );
+
+  if (!context.currentDrive) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg font-gaegu text-red-600">
+          No active gift drive. Please try again later.
+        </p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg font-gaegu text-red-600">
+          Error loading children profiles. Please try again later.
+        </p>
+      </div>
+    );
+  }
+
+  if (isPending) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg font-gaegu">Loading children profiles...</p>
+      </div>
+    );
+  }
+
+  if (!allChildren || allChildren.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg font-gaegu">
+          No children profiles available at this time.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -210,17 +171,12 @@ function App() {
       <div className="py-4 px-2 sm:px-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
           {currentChildrenProfiles.map((child) => {
-            const familyIndex = mockFamilies.findIndex(
-              (f) => f.id === child.familyId,
-            );
-
+            const familyIndex = uniqueFamilyIds.indexOf(child.familyId);
             const color = familyColors[familyIndex % familyColors.length];
 
             return (
               <Link
                 key={child.id}
-                // to={`/`} // TEMP for `/child/${child.id}`
-                // NEED TO UPDATE FOR LATER
                 to="/child/$childId"
                 params={{ childId: child.id }}
                 className="block transition-transform duration-200 ease-out hover:scale-105 hover:z-10"

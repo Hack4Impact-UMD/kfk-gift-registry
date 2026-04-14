@@ -43,8 +43,9 @@ export const columns = [
     header: "Click to Claim",
     cell: ({ row, table }) => {
       const meta = table.options.meta as GiftTableMeta | undefined;
-      const giftId = row.original.id;
-      const isClaimed = meta?.claimedGifts.has(giftId) ?? false;
+      const gift = row.original;
+      const giftId = gift.id;
+      const isClaimed = meta?.isGiftClaimed(gift) ?? false;
 
       return (
         <Button

@@ -110,10 +110,11 @@ function ChildPage() {
 
             <span
               className={`px-4 py-1 rounded-full border border-foreground text-sm font-gaegu text-foreground
-              ${child.category === "warrior"
+              ${
+                child.category === "warrior"
                   ? "bg-kfk-muted-yellow" // TODO: ask about styles.css colors (this is #FFF8C2 in wireframe)
                   : "bg-kfk-light-blue"
-                }`}
+              }`}
             >
               {child.category === "warrior" ? "Warrior" : "Super Sib"}
             </span>
