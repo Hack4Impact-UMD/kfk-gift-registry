@@ -47,10 +47,21 @@ upload_collection() {
     | flame up "${collection}" --idField="id"
 }
 
+FLAME_TARGET="emulator"
+SEED_ARGS=()
+
+for arg in "$@"; do
+  if [[ "${arg}" == "--remote" ]]; then
+    FLAME_TARGET="remote"
+  else
+    SEED_ARGS+=("${arg}")
+  fi
+done
+
 cd "${REPO_ROOT}"
 
-echo "Using flame emulator target..."
-flame use emulator
+echo "Using flame ${FLAME_TARGET} target..."
+flame use "${FLAME_TARGET}"
 
 echo "Cleaning existing generated data..."
 for collection in claims gifts children family-links families invites gift-drives; do
@@ -58,7 +69,7 @@ for collection in claims gifts children family-links families invites gift-drive
 done
 
 echo "Generating seed data..."
-tsx scripts/seed.ts "$@" > "${SEED_FILE}"
+tsx scripts/seed.ts "${SEED_ARGS[@]}" > "${SEED_FILE}"
 
 echo "Uploading generated data..."
 upload_collection "giftDrives" "gift-drives"
