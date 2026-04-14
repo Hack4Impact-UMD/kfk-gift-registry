@@ -2,5 +2,11 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "printWidth": 80,
   "sortPackageJson": false,
-  "ignorePatterns": ["build", "coverage", ".claude", "app/src/routeTree.gen.ts"]
+  "ignorePatterns": [
+    "build",
+    "coverage",
+    ".claude",
+    "app/src/routeTree.gen.ts",
+    ".flame.json"
+  ]
 }
