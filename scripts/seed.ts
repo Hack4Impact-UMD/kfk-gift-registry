@@ -253,12 +253,9 @@ function main() {
       }
 
       for (let giftIndex = 0; giftIndex < gifts; giftIndex += 1) {
-        const backup = faker.datatype.boolean({ probability: 0.2 });
-        const active =
-          child.published &&
-          faker.datatype.boolean({
-            probability: driveHasEnded ? 0.65 : 0.9,
-          });
+        if (faker.datatype.boolean({ probability: 0.2 })) continue;
+        const backup = giftIndex >= 3 && faker.datatype.boolean({ probability: 0.2 });
+        const active = giftIndex < 3
         const status = active
           ? driveHasEnded
             ? pickHistoricalGiftStatus()

@@ -33,13 +33,11 @@ const familyColors = ["kfk-red", "kfk-brown", "kfk-green", "kfk-blue"];
 
 function App() {
   const context = Route.useRouteContext();
-  const driveId = context.currentDrive?.id ?? "";
-
   const {
     data: allChildren,
     isPending,
     isError,
-  } = useStorefrontChildProfiles(driveId);
+  } = useStorefrontChildProfiles(context.currentDrive?.id);
 
   const [childrenPerPage] = useState<number>(25);
   const navigate = useNavigate();
@@ -89,12 +87,12 @@ function App() {
     () =>
       (searchValue
         ? childrenWithMetrics.filter(
-            (child) =>
-              child.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-              child.diagnosis
-                ?.toLowerCase()
-                .includes(searchValue.toLowerCase()),
-          )
+          (child) =>
+            child.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+            child.diagnosis
+              ?.toLowerCase()
+              .includes(searchValue.toLowerCase()),
+        )
         : [...childrenWithMetrics]
       ).sort((a, b) => {
         if (sortValue === "age-asc") return a.age - b.age;
@@ -114,12 +112,14 @@ function App() {
     lastChildIndex,
   );
 
-  if (isPending) {
+  if (!context.currentDrive) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-lg font-gaegu">Loading children profiles...</p>
+        <p className="text-lg font-gaegu text-red-600">
+          No active gift drive. Please try again later.
+        </p>
       </div>
-    );
+    )
   }
 
   if (isError) {
@@ -131,6 +131,15 @@ function App() {
       </div>
     );
   }
+
+  if (isPending) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg font-gaegu">Loading children profiles...</p>
+      </div>
+    );
+  }
+
 
   if (!allChildren || allChildren.length === 0) {
     return (

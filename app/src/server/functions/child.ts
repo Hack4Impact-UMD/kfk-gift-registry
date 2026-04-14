@@ -5,7 +5,7 @@ import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 import type { Child, Gift } from "common";
-import type { StorefrontChild } from "@/types/storefront";
+import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
 export type FamilyGiftClaim = {
@@ -374,14 +374,14 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
           claimedAt: claim.claimedAt,
           purchaseConfirmation: claim.purchaseConfirmation
             ? {
-                date: claim.purchaseConfirmation.date,
-                trackingNumber: claim.purchaseConfirmation.trackingNumber,
-              }
+              date: claim.purchaseConfirmation.date,
+              trackingNumber: claim.purchaseConfirmation.trackingNumber,
+            }
             : undefined,
           deliveryConfirmed: claim.deliveryConfirmed
             ? {
-                date: claim.deliveryConfirmed.date,
-              }
+              date: claim.deliveryConfirmed.date,
+            }
             : undefined,
           expectedDeliveryDate: claim.expectedDeliveryDate,
           receivedAt: claim.receivedAt,
@@ -595,7 +595,7 @@ export const getStorefrontGiftsForChild = createServerFn({ method: "GET" })
         listedPrice: giftData.listedPrice,
         status: giftData.status,
         familyPublicNotes: giftData.familyPublicNotes,
-      } satisfies StorefrontChild["gifts"][number];
+      } satisfies StorefrontGift;
     });
   });
 
@@ -670,7 +670,7 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
                 listedPrice: g.listedPrice,
                 status: g.status,
                 familyPublicNotes: g.familyPublicNotes,
-              }) satisfies StorefrontChild["gifts"][number],
+              }) satisfies StorefrontGift,
           ),
         };
       },
