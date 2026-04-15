@@ -4,7 +4,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
-import type { Child, Gift } from "common";
+import type { Child, Gift, GiftStatus } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
@@ -63,6 +63,44 @@ const tokenGiftThankYouNoteSchema = z.object({
   giftId: z.string().min(1),
   note: z.string().trim().min(1).max(1000),
 });
+
+const updateChildSchema = z.object({
+  childId: z.string().min(1),
+  updates: z.object({
+    // These are all for text fields
+    name: z.string().trim().min(1).max(100),
+    diagnosis: z.string().trim().min(1).max(200),
+    hospital: z.string().trim().min(1).max(200),
+    childSocialWorker: z.string().trim().min(1).max(100),
+    publicBlurb: z.string().trim().min(1).max(1000),
+    staffPrivateNotes: z.string().trim().min(1).max(2000),
+  
+    // Constrained choices requiring dropdowns/radios, etc.
+    age: z.number().min(1),
+    treatmentLevel: z.number().min(0).max(3),
+  }).partial().refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided for update",
+  }),
+});
+
+const updateGiftSchema = z.object({
+  giftId: z.string().min(1),
+  updates: z.object({
+    title: z.string().trim().min(1).max(100),
+    listedPrice: z.number().min(0),
+    status: z.enum([
+      "AVAILABLE",
+      "CLAIMED",
+      "PURCHASED",
+      "DELIVERED",
+      "RECEIVED",
+    ] as const satisfies ReadonlyArray<GiftStatus>),
+  }).partial().refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided for update",
+  }),
+});
+
+
 
 export const getAllChildProfilesForDrive = createServerFn({
   method: "GET",
@@ -678,3 +716,54 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
 
     return storefrontSiblings;
   });
+
+  export const updateChild = createServerFn({ method: "POST" })
+    .middleware([
+      requireRolesMiddleware([
+        UserRole.ADMIN,
+        UserRole.DIRECTOR,
+        UserRole.VOLUNTEER,
+      ]),
+    ])
+    .inputValidator(updateChildSchema)
+    .handler(async ({ data }) => {
+      const { childId, updates } = data;
+      const db = getServerDB();
+      
+      const childDoc = await db.children.doc(childId).get();
+      if (!childDoc.exists) {
+        throw new Error("Child not found");
+      }
+      
+      await db.children.doc(childId).update(updates);
+
+      const updatedChild = await db.children.doc(childId).get();
+
+      return updatedChild.data()!;
+    });
+
+
+    export const updateGift = createServerFn({ method: "POST" })
+      .middleware([
+        requireRolesMiddleware([
+          UserRole.ADMIN,
+          UserRole.DIRECTOR,
+          UserRole.VOLUNTEER,
+        ]),
+      ])
+      .inputValidator(updateGiftSchema)
+      .handler(async ({ data }) => {
+        const { giftId, updates } = data;
+        const db = getServerDB();
+
+        const giftDoc = await db.gifts.doc(giftId).get();
+
+        if (!giftDoc.exists) {
+          throw new Error("Gift not found");
+        }
+
+        await db.gifts.doc(giftId).update(updates);
+
+        const updatedGift = await db.gifts.doc(giftId).get();
+        return updatedGift.data()!;
+      });

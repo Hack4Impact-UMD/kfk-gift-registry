@@ -13,6 +13,23 @@ const familyIdInputSchema = z.object({
   familyId: z.string().min(1),
 });
 
+const updateFamilySchema = z.object({
+  familyId: z.string().min(1),
+  updates: z.object({
+    email: z.email(),
+    phone: z.string().min(1),
+    address: z.object({
+      street: z.string().min(1),
+      addressLine2: z.string().optional(),
+      city: z.string().min(1),
+      state: z.string().min(1),
+      zipCode: z.string().min(1),
+    }).partial()
+  }).partial().refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided for update",
+  }),
+});
+
 export const getFamilyByToken = createServerFn({ method: "GET" })
   .inputValidator(tokenInputSchema)
   .handler(async ({ data }) => {
@@ -115,3 +132,27 @@ export const getFamilyDashboardDataByToken = createServerFn({ method: "GET" })
       children,
     };
   });
+
+  export const updateFamily = createServerFn({ method: "POST" })
+    .middleware([
+      requireRolesMiddleware([
+        UserRole.ADMIN,
+        UserRole.DIRECTOR,
+        UserRole.VOLUNTEER,
+      ]),
+    ])
+    .inputValidator(updateFamilySchema)
+    .handler(async ({ data }) => {
+      const { familyId, updates } = data;
+      const db = getServerDB();
+
+      const familyDoc = await db.families.doc(familyId).get();
+      if (!familyDoc.exists) {
+        throw new Error("Family not found");
+      }
+
+      await db.families.doc(familyId).update(updates);
+
+      const updatedFamily = await db.families.doc(familyId).get();
+      return updatedFamily.data()!;
+    });
