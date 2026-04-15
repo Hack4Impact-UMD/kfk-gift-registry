@@ -66,42 +66,54 @@ const tokenGiftThankYouNoteSchema = z.object({
 
 const updateChildSchema = z.object({
   childId: z.string().min(1),
-  updates: z.object({
-    // These are all for text fields
-    name: z.string().trim().min(1).max(100),
-    diagnosis: z.string().trim().min(1).max(200),
-    hospital: z.string().trim().min(1).max(200),
-    childSocialWorker: z.string().trim().min(1).max(100),
-    publicBlurb: z.string().trim().min(1).max(1000),
-    staffPrivateNotes: z.string().trim().min(1).max(2000),
-    photoUrl: z.url(),
-  
-    // Constrained choices requiring dropdowns/radios, etc.
-    age: z.number().min(1),
-    treatmentLevel: z.number().min(0).max(3),
-    diagnosisLengthYears: z.enum(["<6m", "6m-1y", "1-2y", "3-4y", "5+y"]),
-    offTreatmentDurationYears: z.enum(["<6m", "6m-1y", "1-2y", "3-4y", "5+y"]),
-  }).partial().refine((data) => Object.keys(data).length > 0, {
-    message: "At least one field must be provided for update",
-  }),
+  updates: z
+    .object({
+      // These are all for text fields
+      name: z.string().trim().min(1).max(100),
+      diagnosis: z.string().trim().min(1).max(200),
+      hospital: z.string().trim().min(1).max(200),
+      childSocialWorker: z.string().trim().min(1).max(100),
+      publicBlurb: z.string().trim().min(1).max(1000),
+      staffPrivateNotes: z.string().trim().min(1).max(2000),
+      photoUrl: z.url(),
+
+      // Constrained choices requiring dropdowns/radios, etc.
+      age: z.number().min(1),
+      treatmentLevel: z.number().min(0).max(3),
+      diagnosisLengthYears: z.enum(["<6m", "6m-1y", "1-2y", "3-4y", "5+y"]),
+      offTreatmentDurationYears: z.enum([
+        "<6m",
+        "6m-1y",
+        "1-2y",
+        "3-4y",
+        "5+y",
+      ]),
+    })
+    .partial()
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
 });
 
 const updateGiftSchema = z.object({
   giftId: z.string().min(1),
-  updates: z.object({
-    title: z.string().trim().min(1).max(100),
-    listedPrice: z.number().min(0),
-    status: z.enum([
-      "AVAILABLE",
-      "CLAIMED",
-      "PURCHASED",
-      "DELIVERED",
-      "RECEIVED",
-    ] as const satisfies ReadonlyArray<GiftStatus>),
-    familyPublicNotes: z.string().trim().max(500),
-  }).partial().refine((data) => Object.keys(data).length > 0, {
-    message: "At least one field must be provided for update",
-  }),
+  updates: z
+    .object({
+      title: z.string().trim().min(1).max(100),
+      listedPrice: z.number().min(0),
+      status: z.enum([
+        "AVAILABLE",
+        "CLAIMED",
+        "PURCHASED",
+        "DELIVERED",
+        "RECEIVED",
+      ] as const satisfies ReadonlyArray<GiftStatus>),
+      familyPublicNotes: z.string().trim().max(500),
+    })
+    .partial()
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
 });
 
 
@@ -302,6 +314,73 @@ export const getChildGiftsByChildId = createServerFn({ method: "GET" })
     }
 
     return gifts.docs.map((doc) => doc.data());
+  });
+
+// export const getChildrenForFamily = createServerFn({ method: "GET" })
+//   .inputValidator(familyIdSchema)
+//   .middleware([
+//     requireRolesMiddleware([
+//       UserRole.ADMIN,
+//       UserRole.DIRECTOR,
+//       UserRole.VOLUNTEER,
+//     ]),
+//   ])
+//   .handler(async ({ data }) => {
+//     const children = await getChildProfilesForFamily({
+//       data: { familyId: data.familyId },
+//     });
+
+//     const childrenWithGifts = children.map(async (child) => {
+//       const gifts = await getChildGiftsByChildId({
+//         data: { childId: child.id },
+//       });
+//       return {
+//         ...child,
+//         gifts: gifts,
+//       };
+//     });
+
+//     return childrenWithGifts
+//   });
+
+export const getChildrenForFamily = createServerFn({ method: "GET" })
+  .inputValidator(familyIdSchema)
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .handler(async ({ data }) => {
+    const { familyId } = data;
+    const db = getServerDB();
+
+    // Fetches all children in this family
+    const childrenSnap = await db.children
+      .where("familyId", "==", familyId)
+      .get();
+
+    if (childrenSnap.empty) {
+      return [];
+    }
+
+    // Using Promise.all to fetch gifts for all children in parallel
+    const childrenWithGifts = await Promise.all(
+      childrenSnap.docs.map(async (childDoc) => {
+        const childData = childDoc.data();
+
+        const gifts = await db.gifts.where("childId", "==", childDoc.id).get();
+
+        return {
+          ...childData,
+          id: childDoc.id,
+          gifts: gifts.docs.map((g) => ({ ...g.data(), id: g.id })),
+        };
+      }),
+    );
+
+    return childrenWithGifts;
   });
 
 /**
@@ -721,53 +800,52 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
     return storefrontSiblings;
   });
 
-  export const updateChild = createServerFn({ method: "POST" })
-    .middleware([
-      requireRolesMiddleware([
-        UserRole.ADMIN,
-        UserRole.DIRECTOR,
-        UserRole.VOLUNTEER,
-      ]),
-    ])
-    .inputValidator(updateChildSchema)
-    .handler(async ({ data }) => {
-      const { childId, updates } = data;
-      const db = getServerDB();
-      
-      const childDoc = await db.children.doc(childId).get();
-      if (!childDoc.exists) {
-        throw new Error("Child not found");
-      }
-      
-      await db.children.doc(childId).update(updates);
+export const updateChild = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(updateChildSchema)
+  .handler(async ({ data }) => {
+    const { childId, updates } = data;
+    const db = getServerDB();
 
-      const updatedChild = await db.children.doc(childId).get();
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
 
-      return updatedChild.data()!;
-    });
+    await db.children.doc(childId).update(updates);
 
+    const updatedChild = await db.children.doc(childId).get();
 
-    export const updateGift = createServerFn({ method: "POST" })
-      .middleware([
-        requireRolesMiddleware([
-          UserRole.ADMIN,
-          UserRole.DIRECTOR,
-          UserRole.VOLUNTEER,
-        ]),
-      ])
-      .inputValidator(updateGiftSchema)
-      .handler(async ({ data }) => {
-        const { giftId, updates } = data;
-        const db = getServerDB();
+    return updatedChild.data()!;
+  });
 
-        const giftDoc = await db.gifts.doc(giftId).get();
+export const updateGift = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(updateGiftSchema)
+  .handler(async ({ data }) => {
+    const { giftId, updates } = data;
+    const db = getServerDB();
 
-        if (!giftDoc.exists) {
-          throw new Error("Gift not found");
-        }
+    const giftDoc = await db.gifts.doc(giftId).get();
 
-        await db.gifts.doc(giftId).update(updates);
+    if (!giftDoc.exists) {
+      throw new Error("Gift not found");
+    }
 
-        const updatedGift = await db.gifts.doc(giftId).get();
-        return updatedGift.data()!;
-      });
+    await db.gifts.doc(giftId).update(updates);
+
+    const updatedGift = await db.gifts.doc(giftId).get();
+    return updatedGift.data()!;
+  });
