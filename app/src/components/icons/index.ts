@@ -4,6 +4,7 @@ export { ChevronDoubleRightIcon } from "./ChevronDoubleRightIcon";
 export { ChevronDoubleLeftIcon } from "./ChevronDoubleLeftIcon";
 export { CalendarIcon } from "./CalendarIcon";
 export { CheckCircleIcon } from "./CheckCircleIcon";
+export { EnvelopeIcon } from "./EnvelopeIcon";
 export { ExclamationCircleIcon } from "./ExclamationCircleIcon";
 export { EyeIcon } from "./EyeIcon";
 export { EyeSlashIcon } from "./EyeSlashIcon";

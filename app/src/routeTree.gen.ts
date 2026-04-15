@@ -35,6 +35,7 @@ import { Route as AuthenticatedStaffAdminRouteRouteImport } from './routes/_auth
 import { Route as FamilyDriveDriveIdFormRouteImport } from './routes/family/drive/$driveId/form'
 import { Route as FamilyTokenChildChildIdRouteImport } from './routes/family/$token/child/$childId'
 import { Route as AuthenticatedStaffReviewFamilyIdRouteImport } from './routes/_authenticated/staff/review/$familyId'
+import { Route as AuthenticatedStaffChildChildIdRouteImport } from './routes/_authenticated/staff/child/$childId'
 import { Route as AuthenticatedStaffAdminUsersRouteImport } from './routes/_authenticated/staff/admin/users'
 import { Route as FamilyDriveDriveIdFormThankYouRouteImport } from './routes/family/drive/$driveId/form/thank-you'
 import { Route as FamilyDriveDriveIdFormReviewRouteImport } from './routes/family/drive/$driveId/form/review'
@@ -178,6 +179,12 @@ const AuthenticatedStaffReviewFamilyIdRoute =
     path: '/review/$familyId',
     getParentRoute: () => AuthenticatedStaffRouteRoute,
   } as any)
+const AuthenticatedStaffChildChildIdRoute =
+  AuthenticatedStaffChildChildIdRouteImport.update({
+    id: '/child/$childId',
+    path: '/child/$childId',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
 const AuthenticatedStaffAdminUsersRoute =
   AuthenticatedStaffAdminUsersRouteImport.update({
     id: '/users',
@@ -244,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
+  '/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
   '/staff/review/$familyId': typeof AuthenticatedStaffReviewFamilyIdRoute
   '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
   '/family/drive/$driveId/form': typeof FamilyDriveDriveIdFormRouteWithChildren
@@ -277,6 +285,7 @@ export interface FileRoutesByTo {
   '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
+  '/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
   '/staff/review/$familyId': typeof AuthenticatedStaffReviewFamilyIdRoute
   '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
   '/family/drive/$driveId/form': typeof FamilyDriveDriveIdFormRouteWithChildren
@@ -313,6 +322,7 @@ export interface FileRoutesById {
   '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
   '/_authenticated/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
+  '/_authenticated/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
   '/_authenticated/staff/review/$familyId': typeof AuthenticatedStaffReviewFamilyIdRoute
   '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
   '/family/drive/$driveId/form': typeof FamilyDriveDriveIdFormRouteWithChildren
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/family/drive/$driveId'
     | '/signup/admin/$inviteId'
     | '/staff/admin/users'
+    | '/staff/child/$childId'
     | '/staff/review/$familyId'
     | '/family/$token/child/$childId'
     | '/family/drive/$driveId/form'
@@ -381,6 +392,7 @@ export interface FileRouteTypes {
     | '/family/drive/$driveId'
     | '/signup/admin/$inviteId'
     | '/staff/admin/users'
+    | '/staff/child/$childId'
     | '/staff/review/$familyId'
     | '/family/$token/child/$childId'
     | '/family/drive/$driveId/form'
@@ -416,6 +428,7 @@ export interface FileRouteTypes {
     | '/family/drive/$driveId'
     | '/signup/admin/$inviteId'
     | '/_authenticated/staff/admin/users'
+    | '/_authenticated/staff/child/$childId'
     | '/_authenticated/staff/review/$familyId'
     | '/family/$token/child/$childId'
     | '/family/drive/$driveId/form'
@@ -622,6 +635,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffReviewFamilyIdRouteImport
       parentRoute: typeof AuthenticatedStaffRouteRoute
     }
+    '/_authenticated/staff/child/$childId': {
+      id: '/_authenticated/staff/child/$childId'
+      path: '/child/$childId'
+      fullPath: '/staff/child/$childId'
+      preLoaderRoute: typeof AuthenticatedStaffChildChildIdRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
     '/_authenticated/staff/admin/users': {
       id: '/_authenticated/staff/admin/users'
       path: '/users'
@@ -727,6 +747,7 @@ interface AuthenticatedStaffRouteRouteChildren {
   AuthenticatedStaffHomeRoute: typeof AuthenticatedStaffHomeRoute
   AuthenticatedStaffPendingRoute: typeof AuthenticatedStaffPendingRoute
   AuthenticatedStaffProfileRoute: typeof AuthenticatedStaffProfileRoute
+  AuthenticatedStaffChildChildIdRoute: typeof AuthenticatedStaffChildChildIdRoute
   AuthenticatedStaffReviewFamilyIdRoute: typeof AuthenticatedStaffReviewFamilyIdRoute
 }
 
@@ -740,6 +761,7 @@ const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren
     AuthenticatedStaffHomeRoute: AuthenticatedStaffHomeRoute,
     AuthenticatedStaffPendingRoute: AuthenticatedStaffPendingRoute,
     AuthenticatedStaffProfileRoute: AuthenticatedStaffProfileRoute,
+    AuthenticatedStaffChildChildIdRoute: AuthenticatedStaffChildChildIdRoute,
     AuthenticatedStaffReviewFamilyIdRoute:
       AuthenticatedStaffReviewFamilyIdRoute,
   }
