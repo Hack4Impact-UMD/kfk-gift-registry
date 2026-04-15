@@ -16,6 +16,7 @@ const familyIdInputSchema = z.object({
 const updateFamilySchema = z.object({
   familyId: z.string().min(1),
   updates: z.object({
+    contactName: z.string().trim().min(1).max(100),
     email: z.email(),
     phone: z.string().min(1),
     address: z.object({
@@ -24,7 +25,8 @@ const updateFamilySchema = z.object({
       city: z.string().min(1),
       state: z.string().min(1),
       zipCode: z.string().min(1),
-    }).partial()
+    }).partial(),
+    privateNotes: z.string().trim().max(2000),
   }).partial().refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update",
   }),

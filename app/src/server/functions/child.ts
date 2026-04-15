@@ -74,10 +74,13 @@ const updateChildSchema = z.object({
     childSocialWorker: z.string().trim().min(1).max(100),
     publicBlurb: z.string().trim().min(1).max(1000),
     staffPrivateNotes: z.string().trim().min(1).max(2000),
+    photoUrl: z.url(),
   
     // Constrained choices requiring dropdowns/radios, etc.
     age: z.number().min(1),
     treatmentLevel: z.number().min(0).max(3),
+    diagnosisLengthYears: z.enum(["<6m", "6m-1y", "1-2y", "3-4y", "5+y"]),
+    offTreatmentDurationYears: z.enum(["<6m", "6m-1y", "1-2y", "3-4y", "5+y"]),
   }).partial().refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update",
   }),
@@ -95,6 +98,7 @@ const updateGiftSchema = z.object({
       "DELIVERED",
       "RECEIVED",
     ] as const satisfies ReadonlyArray<GiftStatus>),
+    familyPublicNotes: z.string().trim().max(500),
   }).partial().refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update",
   }),
