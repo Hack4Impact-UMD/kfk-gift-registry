@@ -3,12 +3,9 @@ import { GiftIcon } from "@/components/icons";
 import { GiftCard } from "@/components/family/GiftCard";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
 import type { FamilyGiftClaim } from "@/server/functions/child";
-import {
-  getChildByIdWithToken,
-  getChildClaimsByChildIdWithToken,
-  getChildGiftsByChildIdWithToken,
-} from "@/server/functions/child";
 import type { Gift } from "common";
+import { useFamilyChild } from "@/hooks/queries/useFamilyChild";
+import { queries } from "@/queries";
 
 const getGiftSummaryStatus = (
   status: Gift["status"],
@@ -34,32 +31,21 @@ const getGiftSummaryStatus = (
 };
 
 export const Route = createFileRoute("/family/$token/child/$childId")({
-  loader: async ({ params }) => {
-    const [child, gifts, claims] = await Promise.all([
-      getChildByIdWithToken({
-        data: { token: params.token, childId: params.childId },
-      }),
-      getChildGiftsByChildIdWithToken({
-        data: { token: params.token, childId: params.childId },
-      }),
-      getChildClaimsByChildIdWithToken({
-        data: { token: params.token, childId: params.childId },
-      }),
-    ]);
-
-    return {
-      child,
-      gifts: gifts.filter((g) => !g.backup),
-      claims,
-    };
+  loader: async ({ context, params }) => {
+    return context.queryClient.ensureQueryData(
+      queries.children.familyDetailsByToken(params.token, params.childId),
+    );
   },
   component: ChildPage,
   errorComponent: ChildError,
 });
 
 function ChildPage() {
-  const data = Route.useLoaderData();
-  const params = Route.useParams();
+  const { token, childId } = Route.useParams();
+  const { data } = useFamilyChild(token, childId);
+
+  if (!data) return <div>Loading child...</div>;
+
   const child = data.child;
   const gifts: Array<Gift> = data.gifts || [];
   const claims: Array<FamilyGiftClaim> = data.claims || [];
@@ -152,8 +138,8 @@ function ChildPage() {
           key={gift.id}
           gift={gift}
           claim={claimsByGiftId.get(gift.id)}
-          token={params.token}
-          childId={params.childId}
+          token={token}
+          childId={childId}
         />
       ))}
     </div>

@@ -390,6 +390,70 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
       );
   });
 
+export const getFamilyChildDataByToken = createServerFn({ method: "GET" })
+  .inputValidator(tokenChildSchema)
+  .handler(async ({ data }) => {
+    const { token, childId } = data;
+
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+    const childDoc = await db.children.doc(childId).get();
+
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    const [giftsSnapshot, claimsSnapshot] = await Promise.all([
+      db.gifts.where("childId", "==", childId).get(),
+      db.claims.where("childId", "==", childId).get(),
+    ]);
+
+    const gifts = giftsSnapshot.empty
+      ? []
+      : giftsSnapshot.docs.map((doc) => doc.data()).filter((gift) => !gift.backup);
+
+    const claims = claimsSnapshot.empty
+      ? []
+      : claimsSnapshot.docs
+          .map((doc) => doc.data())
+          .filter((claim) => claim.active)
+          .map(
+            (claim): FamilyGiftClaim => ({
+              giftId: claim.giftId,
+              claimedAt: claim.claimedAt,
+              purchaseConfirmation: claim.purchaseConfirmation
+                ? {
+                    date: claim.purchaseConfirmation.date,
+                    trackingNumber: claim.purchaseConfirmation.trackingNumber,
+                  }
+                : undefined,
+              deliveryConfirmed: claim.deliveryConfirmed
+                ? {
+                    date: claim.deliveryConfirmed.date,
+                  }
+                : undefined,
+              expectedDeliveryDate: claim.expectedDeliveryDate,
+              receivedAt: claim.receivedAt,
+              thankYouNote: claim.thankYouNote,
+            }),
+          );
+
+    return {
+      child,
+      gifts,
+      claims,
+    };
+  });
+
 export const saveGiftThankYouNoteWithToken = createServerFn({
   method: "POST",
 })
