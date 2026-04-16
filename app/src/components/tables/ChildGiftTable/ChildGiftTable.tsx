@@ -30,9 +30,24 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
   const [claimedGifts, setClaimedGifts] = useState<Set<string>>(new Set());
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
-  const handleClaimGift = (giftId: string) => {
-    setClaimedGifts((prev) => new Set(prev).add(giftId));
-    setShowSuccessMessage(true);
+  const isGiftLocallyClaimed = (giftId: string) => claimedGifts.has(giftId);
+
+  const handleToggleClaimGift = (giftId: string) => {
+    const shouldRemoveClaim = isGiftLocallyClaimed(giftId);
+
+    setClaimedGifts((prev) => {
+      const newSet = new Set(prev);
+
+      if (shouldRemoveClaim) {
+        newSet.delete(giftId);
+      } else {
+        newSet.add(giftId);
+      }
+
+      return newSet;
+    });
+
+    setShowSuccessMessage(!shouldRemoveClaim);
   };
 
   useEffect(() => {
@@ -46,10 +61,11 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
   }, [showSuccessMessage]);
 
   const tableMeta: GiftTableMeta = {
-    claimedGifts,
+    isGiftAlreadyClaimed,
     isGiftClaimed: (gift) =>
-      claimedGifts.has(gift.id) || isGiftAlreadyClaimed(gift),
-    onClaimGift: handleClaimGift,
+      isGiftLocallyClaimed(gift.id) || isGiftAlreadyClaimed(gift),
+    isGiftLocallyClaimed,
+    onToggleClaimGift: handleToggleClaimGift,
   };
 
   //TODO: Move this over to the data table component
@@ -66,8 +82,8 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
       {/* Mobile: stacked cards */}
       {gifts.length ? (
         gifts.map((gift, index) => {
-          const isClaimed =
-            claimedGifts.has(gift.id) || isGiftAlreadyClaimed(gift);
+          const isAlreadyClaimed = isGiftAlreadyClaimed(gift);
+          const isLocallyClaimed = isGiftLocallyClaimed(gift.id);
 
           return (
             <div
@@ -91,15 +107,21 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
               </a>
 
               <Button
-                onClick={() => handleClaimGift(gift.id)}
-                disabled={isClaimed}
+                onClick={() => handleToggleClaimGift(gift.id)}
+                disabled={isAlreadyClaimed}
                 className={`rounded-full w-full ${
-                  isClaimed
+                  isAlreadyClaimed
                     ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white h-auto whitespace-nowrap"
-                    : "h-auto whitespace-nowrap"
+                    : isLocallyClaimed
+                      ? "bg-kfk-green text-white hover:bg-kfk-green/90 h-auto whitespace-nowrap"
+                      : "h-auto whitespace-nowrap"
                 }`}
               >
-                {isClaimed ? "Gift Claimed!" : "Claim Gift!"}
+                {isAlreadyClaimed
+                  ? "Gift Claimed!"
+                  : isLocallyClaimed
+                    ? "Remove Claim"
+                    : "Claim Gift!"}
               </Button>
             </div>
           );

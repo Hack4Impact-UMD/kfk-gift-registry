@@ -40,24 +40,31 @@ export const columns = [
   }),
   helper.display({
     id: "action",
-    header: "Click to Claim",
+    header: "Claim Gift",
     cell: ({ row, table }) => {
       const meta = table.options.meta as GiftTableMeta | undefined;
       const gift = row.original;
       const giftId = gift.id;
-      const isClaimed = meta?.isGiftClaimed(gift) ?? false;
+      const isAlreadyClaimed = meta?.isGiftAlreadyClaimed(gift) ?? false;
+      const isLocallyClaimed = meta?.isGiftLocallyClaimed(giftId) ?? false;
 
       return (
         <Button
-          onClick={() => meta?.onClaimGift(giftId)}
-          disabled={isClaimed}
+          onClick={() => meta?.onToggleClaimGift(giftId)}
+          disabled={isAlreadyClaimed}
           className={`rounded-full min-w-[132px] my-4 ${
-            isClaimed
+            isAlreadyClaimed
               ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
-              : "text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
+              : isLocallyClaimed
+                ? "bg-kfk-green text-white hover:bg-kfk-green/90 text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
+                : "text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
           }`}
         >
-          {isClaimed ? "Gift Claimed!" : "Claim Gift!"}
+          {isAlreadyClaimed
+            ? "Gift Claimed!"
+            : isLocallyClaimed
+              ? "Remove Claim"
+              : "Claim Gift!"}
         </Button>
       );
     },
