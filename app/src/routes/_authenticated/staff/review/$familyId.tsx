@@ -7,12 +7,18 @@ import type { Gift } from "common";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
 import { Child } from "common";
+import { getFamilyById } from "@/server/functions/family";
+import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   loader: async ({ params }) => {
     // TODO: handle database fetching here
+    const familyData = await getFamilyById({
+      data: { familyId: params.familyId },
+    }); 
 
     return {
+      family: familyData,
       familyId: params.familyId,
     };
   },
@@ -108,15 +114,21 @@ const mockFamily: Family = {
 function RouteComponent() {
   // const params = Route.useParams();
   // const familyId = params.familyId;
+  const { family, familyId } = Route.useLoaderData();
+  const { mutate, isPending } = useUpdateFamily();
 
-  const lastName = mockFamily.contactName.trim().split(/\s+/).pop() ?? "";
-  const [familyData, setFamilyData] = React.useState<Family>(mockFamily);
+  const lastName = family?.contactName.trim().split(/\s+/).pop() ?? "";
+  const [familyData, setFamilyData] = React.useState<Family>(family!);
   const [childrenData, setChildrenData] =
     React.useState<Array<Child>>([]);
 
   const handleFamilyUpdate = (updatedFamily: Family) => {
     // update database
     setFamilyData(updatedFamily);
+    mutate({
+      familyId: familyId,
+      updates: updatedFamily,
+    });
   };
 
   const handleChildUpdate = (updatedChild: Child) => {
