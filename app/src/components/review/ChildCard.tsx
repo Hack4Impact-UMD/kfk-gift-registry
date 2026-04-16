@@ -2,17 +2,30 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { EditableField } from "./EditableField";
 import { ReviewGift } from "./ReviewGift";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ChangeEventHandler } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
-import type { ReviewChild } from "@/routes/_authenticated/staff/review/$familyId";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
-import type { Gift } from "common";
+import type { Child, Gift, TimePeriod } from "common";
+import { getChildGiftsByChildId } from "@/server/functions/child";
+import { useQuery } from "@tanstack/react-query";
 
 interface ChildInfoCardProps {
-  child: ReviewChild;
-  onSave?: (updatedChild: ReviewChild) => void;
+  child: Child;
+  onSave?: (updatedChild: Child) => void;
+}
+
+export interface ChildFormState {
+  treatmentLength: TimePeriod | undefined;
+  diagnosis: string;
+  age: number;
+  level: number | undefined;
+  blurb: string | undefined;
+  socialWorkerName: string;
+  hospitalName: string;
+  photoUrl: string | undefined;
+  gifts: Gift[]; // This is the crucial part
 }
 
 const levelOptions: Array<string> = ["A", "B", "C", "D"];
@@ -38,17 +51,32 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
   const photoReadIdRef = useRef(0);
   const photoReaderRef = useRef<FileReader | null>(null);
   const isEditingRef = useRef(false);
-  const [formState, setFormState] = useState({
-    treatmentLength: child.treatmentLength,
+  const [formState, setFormState] = useState<ChildFormState>({
+    treatmentLength: child.diagnosisLengthYears,
     diagnosis: child.diagnosis,
     age: child.age,
-    level: child.level,
-    blurb: child.blurb,
-    socialWorkerName: child.socialWorkerName,
-    hospitalName: child.hospitalName,
+    level: child.treatmentLevel,
+    blurb: child.publicBlurb,
+    socialWorkerName: child.childSocialWorker,
+    hospitalName: child.hospital,
     photoUrl: child.photoUrl,
-    gifts: child.gifts,
+    gifts: [],
   });
+
+  // Query to populate the gifts
+  const { data: fetchedGifts, isLoading } = useQuery({
+    queryKey: ['gifts', child.id],
+    queryFn: () => getChildGiftsByChildId({ data: { childId: child.id } }),
+  });
+
+  useEffect(() => {
+    if (fetchedGifts) {
+      setFormState((prev) => ({
+        ...prev,
+        gifts: fetchedGifts,
+      }));
+    }
+  }, [fetchedGifts]);
 
   const updateGift = (giftId: string, patch: Partial<Gift>) => {
     setFormState((prev) => ({
@@ -74,15 +102,15 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
     resetPhotoInput();
     isEditingRef.current = false;
     setFormState({
-      treatmentLength: child.treatmentLength,
+      treatmentLength: child.diagnosisLengthYears,
       diagnosis: child.diagnosis,
       age: child.age,
-      level: child.level,
-      blurb: child.blurb,
-      socialWorkerName: child.socialWorkerName,
-      hospitalName: child.hospitalName,
+      level: child.treatmentLevel,
+      blurb: child.publicBlurb,
+      socialWorkerName: child.childSocialWorker,
+      hospitalName: child.hospital,
       photoUrl: child.photoUrl,
-      gifts: child.gifts,
+      gifts: fetchedGifts!,
     });
     setPhotoError(null);
     setEditing(false);
@@ -156,18 +184,19 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
       alert("Maximum words exceeded");
       return;
     }
-    const updatedChild: ReviewChild = {
+    const updatedChild: Child = {
       ...child,
-      treatmentLength: formState.treatmentLength,
+      diagnosisLengthYears: formState.treatmentLength,
       diagnosis: formState.diagnosis,
       age: formState.age,
-      level: formState.level,
-      blurb: formState.blurb,
-      socialWorkerName: formState.socialWorkerName,
-      hospitalName: formState.hospitalName,
+      treatmentLevel: formState.level,
+      publicBlurb: formState.blurb,
+      childSocialWorker: formState.socialWorkerName,
+      hospital: formState.hospitalName,
       photoUrl: formState.photoUrl,
-      gifts: formState.gifts,
     };
+
+    // TODO: Update Gifts as well.
 
     if (onSave) {
       onSave(updatedChild);
@@ -198,7 +227,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                 variant="ghost"
                 className="h-auto w-auto rounded-full p-0 transition-all hover:bg-transparent focus-visible:ring-kfk-blue/50 focus-visible:ring-offset-2 enabled:hover:scale-105 disabled:opacity-100"
                 onClick={editing ? openPhotoPicker : undefined}
-                aria-label={`Upload photo for ${child.childName}`}
+                aria-label={`Upload photo for ${child.name}`}
                 disabled={!editing}
               >
                 <Avatar
@@ -221,7 +250,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                   type="button"
                   className="absolute bg-kfk-blue rounded-full h-fit p-1 top-10 left-10"
                   onClick={openPhotoPicker}
-                  aria-label={`Upload photo for ${child.childName}`}
+                  aria-label={`Upload photo for ${child.name}`}
                 >
                   <PencilIcon className="size-4 text-white" />
                 </button>
@@ -230,16 +259,16 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
             <div className="flex flex-col gap-1">
               <div className="flex gap-5">
                 <h2 className="text-xl sm:text-3xl font-bold my-auto">
-                  {child.childName}
+                  {child.name}
                 </h2>
                 <span
                   className={`my-auto rounded-full border px-5 py-1 ${
-                    child.status == "Warrior"
+                    child.category == "warrior"
                       ? "border-kfk-brown bg-kfk-muted-yellow text-kfk-brown"
                       : "border-kfk-blue/20 bg-kfk-light-blue text-kfk-blue"
                   }`}
                 >
-                  {child.status}
+                  {child.category == "warrior" ? "Warrior" : "SuperSib"}
                 </span>
               </div>
               {editing && photoError && (
@@ -274,7 +303,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
 
         <div className="flex flex-col bg-card px-4 sm:px-6 py-4 gap-3 -mx-6">
           <div className="flex gap-2">
-            {child.status === "Warrior" && (
+            {child.category === "warrior" && (
               <>
                 <div className="flex items-center gap-2">
                   <p className="font-bold whitespace-nowrap">
@@ -334,7 +363,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                   ((value: string) =>
                     setFormState((prev) => ({
                       ...prev,
-                      level: value,
+                      level: Number(value),
                     }))) as unknown as ChangeEventHandler<HTMLInputElement>
                 }
               />
@@ -383,7 +412,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
           </div>
         )}
 
-        {child.status == "Warrior" && (
+        {child.category == "warrior" && (
           <div className="flex flex-row rounded-b-xl bg-card px-4 sm:px-6 py-4 gap-3 -mx-6">
             <div className="flex items-center gap-2">
               <p className="font-bold whitespace-nowrap">Social Worker Name:</p>
