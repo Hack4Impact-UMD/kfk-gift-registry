@@ -6,6 +6,7 @@ import { ChildCard } from "@/components/review/ChildCard";
 import type { Gift } from "common";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
+import { Child } from "common";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   loader: async ({ params }) => {
@@ -17,21 +18,6 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   },
   component: RouteComponent,
 });
-
-export type ReviewChild = {
-  id: string;
-  childName: string;
-  status: "Warrior" | "Supersib";
-  photoUrl?: string;
-  treatmentLength?: string;
-  diagnosis?: string;
-  age: number;
-  level: string;
-  blurb: string;
-  gifts: Array<Gift>;
-  socialWorkerName?: string;
-  hospitalName?: string;
-};
 
 const MOCK_GIFTS_JOHN: Array<Gift> = [
   {
@@ -91,33 +77,6 @@ const MOCK_GIFTS_JANE: Array<Gift> = [
   },
 ];
 
-const MOCK_CHILD: ReviewChild = {
-  id: "john-smith",
-  childName: "John Smith",
-  status: "Warrior",
-  treatmentLength: "2 weeks",
-  diagnosis: "Leukemia",
-  age: 6,
-  level: "B",
-  blurb:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-  gifts: MOCK_GIFTS_JOHN,
-  socialWorkerName: "Amanada Reese",
-  hospitalName: "Children National Hospital",
-};
-
-const MOCK_CHILD2: ReviewChild = {
-  id: "jane-smith",
-  childName: "Jane Smith",
-  status: "Supersib",
-  age: 5,
-  level: "B",
-  blurb:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-  gifts: MOCK_GIFTS_JANE,
-};
-
-const MOCK_CHILDREN: Array<ReviewChild> = [MOCK_CHILD, MOCK_CHILD2];
 
 const mockFamily: Family = {
   id: "family123",
@@ -153,14 +112,14 @@ function RouteComponent() {
   const lastName = mockFamily.contactName.trim().split(/\s+/).pop() ?? "";
   const [familyData, setFamilyData] = React.useState<Family>(mockFamily);
   const [childrenData, setChildrenData] =
-    React.useState<Array<ReviewChild>>(MOCK_CHILDREN);
+    React.useState<Array<Child>>([]);
 
   const handleFamilyUpdate = (updatedFamily: Family) => {
     // update database
     setFamilyData(updatedFamily);
   };
 
-  const handleChildUpdate = (updatedChild: ReviewChild) => {
+  const handleChildUpdate = (updatedChild: Child) => {
     setChildrenData((prev) =>
       prev.map((c) => (c.id === updatedChild.id ? updatedChild : c)),
     );
