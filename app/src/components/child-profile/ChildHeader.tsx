@@ -1,7 +1,17 @@
+import { useState } from "react";
 import { Child } from "../../../../common/src/types/child";
 import { Button } from "../ui/button";
+import { ConfirmUnpublishModal } from "./ConfirmUnpublishModal";
 
-export function ChildHeader({ child }: { child: Child }) {
+type ChildHeaderProps = {
+  child: Child;
+  isEditing: boolean;
+  setIsEditing: (val: boolean) => void;
+};
+
+export function ChildHeader({ child, isEditing, setIsEditing }: ChildHeaderProps) {
+const [confirmOpen, setConfirmOpen] = useState(false);
+
   return (
     <div className="flex justify-between items-center">
       <div className="flex gap-4 items-center">
@@ -18,9 +28,35 @@ export function ChildHeader({ child }: { child: Child }) {
       </div>
 
       <div className="flex gap-2">
-        <Button>Edit</Button>
-        <Button variant="destructive">Unpublish</Button>
+        <Button 
+          onClick={() => setIsEditing(!isEditing)}
+        >
+          {isEditing ? "Save" : "Edit"}
+        </Button>
+        <Button 
+          variant="destructive"
+          onClick={
+            () => {
+              if (isEditing) {
+                setIsEditing(false); 
+              } else {
+                setConfirmOpen(true);
+              }
+            }
+          }
+        >
+          {isEditing ? "Cancel" : "Unpublish"}
+        </Button>
       </div>
+
+      <ConfirmUnpublishModal
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={() => {
+          // Handle unpublish logic here
+        }}
+      />
+
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { ChildHeader } from "@/components/child-profile/ChildHeader";
 import { ChildInfo } from "@/components/child-profile/ChildInfo";
 import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
 import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
   component: ChildProfilePage,
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
 
 function ChildProfilePage() {
   const { childId } = Route.useParams();
+  const [isEditing, setIsEditing] = useState(false);
 
   const {
     data: child,
@@ -50,11 +52,11 @@ function ChildProfilePage() {
         <div className="flex">
           <ChildSidebar child={child} family={family} />
           <div className="flex flex-col flex-1 ml-8">
-            <ChildHeader child={child} />
+            <ChildHeader child={child} isEditing={isEditing} setIsEditing={setIsEditing}/>
             <div className="w-full h-1 rounded-full my-4 bg-muted"></div>
             <div className="flex gap-12">
-              <ChildInfo child={child} family={family} />
-              <SelectedGifts gifts={gifts} />
+              <ChildInfo child={child} family={family} isEditing={isEditing} />
+              <SelectedGifts gifts={gifts} isEditing={isEditing} />
             </div>
           </div>
         </div>
