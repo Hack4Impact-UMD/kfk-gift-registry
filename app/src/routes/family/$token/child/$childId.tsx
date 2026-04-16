@@ -42,9 +42,17 @@ export const Route = createFileRoute("/family/$token/child/$childId")({
 
 function ChildPage() {
   const { token, childId } = Route.useParams();
-  const { data } = useFamilyChild(token, childId);
+  const { data, isPending, isError, error } = useFamilyChild(token, childId);
 
-  if (!data) return <div>Loading child...</div>;
+  if (isPending) {
+    return <div>Loading child...</div>;
+  }
+
+  if (isError) {
+    return <ChildError error={error} />;
+  }
+
+  if (!data) return <div>Child not found</div>;
 
   const child = data.child;
   const gifts: Array<Gift> = data.gifts || [];
