@@ -419,7 +419,9 @@ export const getFamilyChildDataByToken = createServerFn({ method: "GET" })
 
     const gifts = giftsSnapshot.empty
       ? []
-      : giftsSnapshot.docs.map((doc) => doc.data()).filter((gift) => !gift.backup);
+      : giftsSnapshot.docs
+          .map((doc) => doc.data())
+          .filter((gift) => !gift.backup);
 
     const claims = claimsSnapshot.empty
       ? []
