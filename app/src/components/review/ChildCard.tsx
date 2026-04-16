@@ -28,7 +28,14 @@ export interface ChildFormState {
   gifts: Gift[]; // This is the crucial part
 }
 
-const levelOptions: Array<string> = ["A", "B", "C", "D"];
+const levelOptions: Array<string> = ["1", "2", "3"];
+const timePeriodOptions: Array<string> = [
+  "<6m",
+  "6m-1y",
+  "1-2y",
+  "3-4y",
+  "5+y",
+];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -65,7 +72,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
 
   // Query to populate the gifts
   const { data: fetchedGifts, isLoading } = useQuery({
-    queryKey: ['gifts', child.id],
+    queryKey: ["gifts", child.id],
     queryFn: () => getChildGiftsByChildId({ data: { childId: child.id } }),
   });
 
@@ -313,11 +320,14 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                     value={formState.treatmentLength}
                     editable={editing}
                     size={20}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setFormState((prev) => ({
-                        ...prev,
-                        treatmentLength: e.target.value,
-                      }))
+                    fieldType="select"
+                    selectOptions={timePeriodOptions}
+                    onChange={
+                      ((value: string) =>
+                        setFormState((prev) => ({
+                          ...prev,
+                          treatmentLength: value as TimePeriod,
+                        }))) as unknown as ChangeEventHandler<HTMLInputElement>
                     }
                   />
                 </div>

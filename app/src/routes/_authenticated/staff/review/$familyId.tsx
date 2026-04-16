@@ -10,17 +10,18 @@ import { Child } from "common";
 import { getFamilyById } from "@/server/functions/family";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
 import { getChildProfilesForFamily } from "@/server/functions/child";
+import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   loader: async ({ params }) => {
     // TODO: handle database fetching here
     const familyData = await getFamilyById({
       data: { familyId: params.familyId },
-    }); 
+    });
 
     const chilrenData = await getChildProfilesForFamily({
       data: { familyId: params.familyId },
-    })
+    });
 
     return {
       family: familyData,
@@ -89,7 +90,6 @@ const MOCK_GIFTS_JANE: Array<Gift> = [
   },
 ];
 
-
 const mockFamily: Family = {
   id: "family123",
   contactName: "Anna Smith",
@@ -121,9 +121,10 @@ function RouteComponent() {
   // const params = Route.useParams();
   // const familyId = params.familyId;
   const { family, children, familyId } = Route.useLoaderData();
-  const { mutate, isPending } = useUpdateFamily();
+  const { mutate: updateFamily, isPending: isFamilyPending } =
+    useUpdateFamily();
+  const { mutate: updateChild, isPending: isChildPending } = useUpdateChild();
 
-  
   const lastName = family?.contactName.trim().split(/\s+/).pop() ?? "";
   const [familyData, setFamilyData] = React.useState<Family>(family!);
   const [childrenData, setChildrenData] =
@@ -132,7 +133,7 @@ function RouteComponent() {
   const handleFamilyUpdate = (updatedFamily: Family) => {
     // update database
     setFamilyData(updatedFamily);
-    mutate({
+    updateFamily({
       familyId: familyId,
       updates: updatedFamily,
     });
@@ -142,6 +143,14 @@ function RouteComponent() {
     setChildrenData((prev) =>
       prev.map((c) => (c.id === updatedChild.id ? updatedChild : c)),
     );
+
+    updateChild({
+      childId: updatedChild.id,
+      updates: {
+        ...updatedChild,
+        photoUrl: updatedChild.photoUrl || undefined,
+      },
+    });
   };
 
   return (
