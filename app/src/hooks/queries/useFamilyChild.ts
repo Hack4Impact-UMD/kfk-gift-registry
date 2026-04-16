@@ -10,6 +10,7 @@ export function useFamilyChild(token: string, childId: string) {
       normalizedToken,
       normalizedChildId,
     ),
+    staleTime: 2 * 60 * 1000,
     enabled: normalizedToken.length > 0 && normalizedChildId.length > 0,
   });
 }
