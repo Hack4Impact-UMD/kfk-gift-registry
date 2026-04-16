@@ -9,6 +9,7 @@ import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
 import { Child } from "common";
 import { getFamilyById } from "@/server/functions/family";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
+import { getChildProfilesForFamily } from "@/server/functions/child";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   loader: async ({ params }) => {
@@ -17,8 +18,13 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
       data: { familyId: params.familyId },
     }); 
 
+    const chilrenData = await getChildProfilesForFamily({
+      data: { familyId: params.familyId },
+    })
+
     return {
       family: familyData,
+      children: chilrenData,
       familyId: params.familyId,
     };
   },
@@ -114,13 +120,14 @@ const mockFamily: Family = {
 function RouteComponent() {
   // const params = Route.useParams();
   // const familyId = params.familyId;
-  const { family, familyId } = Route.useLoaderData();
+  const { family, children, familyId } = Route.useLoaderData();
   const { mutate, isPending } = useUpdateFamily();
 
+  
   const lastName = family?.contactName.trim().split(/\s+/).pop() ?? "";
   const [familyData, setFamilyData] = React.useState<Family>(family!);
   const [childrenData, setChildrenData] =
-    React.useState<Array<Child>>([]);
+    React.useState<Array<Child>>(children);
 
   const handleFamilyUpdate = (updatedFamily: Family) => {
     // update database
