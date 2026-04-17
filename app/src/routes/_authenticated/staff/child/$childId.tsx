@@ -6,10 +6,11 @@ import { ChildHeader } from "@/components/child-profile/ChildHeader";
 import { ChildInfo } from "@/components/child-profile/ChildInfo";
 import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
 import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
-import { Child, Family } from "../../../../../../common/src/types";
+import { Child, Family, Gift } from "../../../../../../common/src/types";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
+import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
 
 export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
   component: ChildProfilePage,
@@ -17,11 +18,15 @@ export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
 
 function ChildProfilePage() {
   const { childId } = Route.useParams();
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedChild, setEditedChild] = useState<Partial<Child>>({});
-  const updateChildMutation = useUpdateChild();
   const [editedFamily, setEditedFamily] = useState<Partial<Family>>({});
+  const [editedGifts, setEditedGifts] = useState<Gift[]>([]);
+
+  const updateChildMutation = useUpdateChild();
   const updateFamilyMutation = useUpdateFamily();
+  const updateGiftMutation = useUpdateGift();
 
   const {
     data: child,
@@ -41,6 +46,12 @@ function ChildProfilePage() {
     error: giftsError,
   } = useChildGifts(childId);
 
+  useEffect(() => {
+    if (gifts) {
+      setEditedGifts(gifts.map(g => ({ ...g })));
+    }
+  }, [gifts]);
+
   if (childLoading) return <div>Loading...</div>;
   if (childError) return <div>Something went wrong</div>;
   if (!child) return <div>No child found</div>;
@@ -57,6 +68,7 @@ function ChildProfilePage() {
     setIsEditing(false);
     setEditedChild({});
     setEditedFamily({});
+    setEditedGifts(gifts.map(g => ({ ...g })));
   };
 
   const handleSaveAll = async () => {
@@ -95,10 +107,32 @@ function ChildProfilePage() {
     }
 
     try {
-      await Promise.all(promises);
+      await Promise.all([
+        ...promises,
+        ...editedGifts.map((gift) => {
+          const original = gifts.find((g) => g.id === gift.id);
+          if (!original) return Promise.resolve();
+
+          if (
+            gift.active !== original.active ||
+            gift.backup !== original.backup
+          ) {
+            return updateGiftMutation.mutateAsync({
+              giftId: gift.id,
+              updates: {
+                active: gift.active,
+                backup: gift.backup,
+              },
+            });
+          }
+
+          return Promise.resolve();
+        }),
+      ]);
 
       setEditedChild({});
       setEditedFamily({});
+      setEditedGifts(gifts.map(g => ({ ...g })));
       setIsEditing(false);
     } catch (err) {
       console.error("Save failed", err);
@@ -129,7 +163,7 @@ function ChildProfilePage() {
                 editedFamily={editedFamily}
                 setEditedFamily={setEditedFamily}
               />
-              <SelectedGifts gifts={gifts} isEditing={isEditing} />
+              <SelectedGifts gifts={gifts} isEditing={isEditing} editedGifts={editedGifts} setEditedGifts={setEditedGifts} />
             </div>
           </div>
         </div>

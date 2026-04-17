@@ -2,17 +2,39 @@ import { Gift } from "../../../../common/src/types/gift";
 import { Input } from "../ui/input";
 
 type SelectedGiftsProps = {
-  gifts : Gift[];
+  gifts: Gift[];
   isEditing: boolean;
+  editedGifts: Gift[];
+  setEditedGifts: React.Dispatch<React.SetStateAction<Gift[]>>;
 };
 
-export function SelectedGifts({ gifts, isEditing }: SelectedGiftsProps) {
-  const activeGifts = gifts.filter((g) => g.active);
-  const inactiveGifts = gifts.filter((g) => !g.active);
+export function SelectedGifts({ gifts, isEditing, editedGifts, setEditedGifts }: SelectedGiftsProps) {
+  const activeGifts = editedGifts.filter((g) => g.active);
+  const inactiveGifts = editedGifts.filter((g) => !g.active);
 
   const visibleGifts = isEditing
     ? [...activeGifts, ...inactiveGifts]
     : activeGifts;
+
+  const toggleGift = (giftId: string) => {
+    setEditedGifts((prev) => {
+        const activeCount = prev.filter((g) => g.active).length;
+
+        return prev.map((g) => {
+        if (g.id !== giftId) return g;
+
+        if (!g.active && activeCount >= 3) {
+            return g;
+        }
+
+        return {
+            ...g,
+            active: !g.active,
+            backup: !g.backup,
+        };
+        });
+    });
+    };
 
   return (
     <div className="space-y-4">
@@ -42,8 +64,9 @@ export function SelectedGifts({ gifts, isEditing }: SelectedGiftsProps) {
                   <Input
                     type="checkbox"
                     checked={gift.active}
-                    onChange={() => {}}
-                    className="size-5"
+                    onChange={() => toggleGift(gift.id)}
+                    disabled={!gift.active && activeGifts.length >= 3}
+                    className="size-5 mx-4"
                   />
                 )}
 
@@ -60,17 +83,19 @@ export function SelectedGifts({ gifts, isEditing }: SelectedGiftsProps) {
                 </div>
               </div>
 
-              <span
-                className={
-                  gift.status === "RECEIVED"
-                    ? "px-10 py-1 border rounded-full text-kfk-green bg-kfk-muted-green/40"
-                    : "px-6 py-1 border rounded-full text-kfk-red bg-kfk-muted-red/40"
-                }
-              >
-                {gift.status === "RECEIVED"
-                  ? "Received"
-                  : "Not Received"}
-              </span>
+              {!isEditing && (
+                <span
+                    className={
+                    gift.status === "RECEIVED"
+                        ? "px-10 py-1 border rounded-full text-kfk-green bg-kfk-muted-green/40"
+                        : "px-6 py-1 border rounded-full text-kfk-red bg-kfk-muted-red/40"
+                    }
+                >
+                    {gift.status === "RECEIVED"
+                    ? "Received"
+                    : "Not Received"}
+                </span>
+                )}
             </div>
           );
         })}
