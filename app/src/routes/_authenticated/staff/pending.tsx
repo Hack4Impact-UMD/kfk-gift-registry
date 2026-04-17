@@ -31,11 +31,11 @@ function RouteComponent() {
         <h1 className="text-2xl font-bold text-gray-900">Profile Approval</h1>
       </div>
       <StatusSummaryHeader
-        data={data}
+        data={data ?? []}
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}
       />
-      <PendingProfilesTable data={data} statusFilter={activeFilter} />
+      <PendingProfilesTable data={data ?? []} statusFilter={activeFilter} />
     </div>
   );
 }
