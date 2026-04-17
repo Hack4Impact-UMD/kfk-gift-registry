@@ -7,9 +7,11 @@ type ChildHeaderProps = {
   child: Child;
   isEditing: boolean;
   setIsEditing: (val: boolean) => void;
+  onSave: () => void;
+  onCancel: () => void;
 };
 
-export function ChildHeader({ child, isEditing, setIsEditing }: ChildHeaderProps) {
+export function ChildHeader({ child, isEditing, setIsEditing, onSave, onCancel }: ChildHeaderProps) {
 const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
@@ -29,7 +31,13 @@ const [confirmOpen, setConfirmOpen] = useState(false);
 
       <div className="flex gap-2">
         <Button 
-          onClick={() => setIsEditing(!isEditing)}
+          onClick={() => {
+            if (isEditing) {
+              onSave();
+            } else {
+              setIsEditing(true);
+            }
+          }}
         >
           {isEditing ? "Save" : "Edit"}
         </Button>
@@ -38,7 +46,7 @@ const [confirmOpen, setConfirmOpen] = useState(false);
           onClick={
             () => {
               if (isEditing) {
-                setIsEditing(false); 
+                onCancel();
               } else {
                 setConfirmOpen(true);
               }
