@@ -10,6 +10,7 @@ import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
 import { getChildGiftsByChildId } from "@/server/functions/child";
 import { useQuery } from "@tanstack/react-query";
+import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
 
 interface ChildInfoCardProps {
   child: Child;
@@ -69,6 +70,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
     photoUrl: child.photoUrl,
     gifts: [],
   });
+  const { mutate, isPending } = useUpdateGift();
 
   // Query to populate the gifts
   const { data: fetchedGifts, isLoading } = useQuery({
@@ -90,6 +92,14 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
       ...prev,
       gifts: prev.gifts.map((g) => (g.id === giftId ? { ...g, ...patch } : g)),
     }));
+
+    if ("listedPrice" in patch)
+      mutate({
+        giftId: giftId,
+        updates: {
+          listedPrice: patch.listedPrice,
+        },
+      });
   };
 
   const invalidatePhotoRead = () => {
@@ -207,6 +217,12 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
 
     if (onSave) {
       onSave(updatedChild);
+      formState.gifts.map((gift) => {
+        mutate({
+          giftId: gift.id,
+          updates: gift,
+        });
+      });
     }
 
     invalidatePhotoRead();
@@ -263,7 +279,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                 </button>
               )}
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 my-auto">
               <div className="flex gap-5">
                 <h2 className="text-xl sm:text-3xl font-bold my-auto">
                   {child.name}
@@ -399,7 +415,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
 
         {formState.gifts.length > 0 && (
           <div className="w-full py-4">
-            <div className="rounded-md bg-slate-100 px-3 py-1 sm:px-4">
+            <div className="rounded-md bg-slate-100 py-1">
               {formState.gifts.map((gift) => (
                 <ReviewGift
                   key={gift.id}
@@ -414,7 +430,7 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                     })
                   }
                   onNotesChange={(value) =>
-                    updateGift(gift.id, { privateNotes: value || undefined })
+                    updateGift(gift.id, { familyPublicNotes: value })
                   }
                 />
               ))}
