@@ -2,6 +2,7 @@ import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
+  useRouterState,
 } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
@@ -68,12 +69,28 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { isLoading } = useRouterState();
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
+        {isLoading && (
+          <>
+            <div
+              className="fixed top-0 left-0 right-0 z-9999 h-0.75"
+              style={{
+                background:
+                  "linear-gradient(90deg, #0839b1 20%, #cedcff 50%, #0839b1 80%)",
+                backgroundSize: "200% 100%",
+                animation: "loading-shimmer 1.2s ease-in-out infinite",
+              }}
+            />
+            <div className="fixed inset-0 z-9998" />
+          </>
+        )}
         {children}
         <TanStackDevtools
           config={{
