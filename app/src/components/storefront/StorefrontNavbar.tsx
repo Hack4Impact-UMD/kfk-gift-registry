@@ -61,14 +61,16 @@ export function StorefrontNavbar({ currentDrive }: StorefrontNavbarProps) {
         </div>
 
         <div className="hidden md:flex items-center justify-between gap-4">
-          <Link
-            to="/"
-            className="border border-kfk-red text-kfk-red py-1 max-w-58 text-center w-full rounded-sm font-gaegu"
-          >
-            2026 Gift Drive
-          </Link>
+          {currentDrive && (
+            <Link
+              to="/"
+              className="border border-kfk-red text-kfk-red py-1 max-w-58 text-center w-full rounded-sm font-gaegu"
+            >
+              {currentDrive.cycle} Gift Drive
+            </Link>
+          )}
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 ml-auto">
             <Link to="/login">
               <Button variant="default">Staff/Donor Log-in</Button>
             </Link>
