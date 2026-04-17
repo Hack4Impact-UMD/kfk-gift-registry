@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { DataTable } from "../DataTable";
 import { columns } from "./columns";
 import { PendingProfilesTableActionButton } from "./PendingProfilesTableActionButton";
@@ -24,8 +25,15 @@ export function PendingProfilesTable({
   paginated = true,
 }: PendingProfilesTableProps) {
   const [globalSearch, setGlobalSearch] = useState("");
+  const navigate = useNavigate();
 
-  // Apply filter from header cards (if any)
+  const handleRowClick = (row: PendingProfileTableRow) => {
+    navigate({
+      to: "/staff/review/$familyId",
+      params: { familyId: row.id },
+    });
+  };
+
   const filteredData = statusFilter
     ? data.filter((row) => row.status === statusFilter)
     : data;
@@ -60,6 +68,7 @@ export function PendingProfilesTable({
         onGlobalSearchChange={setGlobalSearch}
         rowsPerPage={rowsPerPage}
         paginated={paginated}
+        onRowClick={handleRowClick}
       />
     </div>
   );

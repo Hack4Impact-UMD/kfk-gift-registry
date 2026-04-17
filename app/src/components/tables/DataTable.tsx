@@ -29,6 +29,7 @@ interface DataTableProps<TData, TValue> {
   paginated?: boolean;
   globalSearch?: string;
   onGlobalSearchChange?: (value: string) => void;
+  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -40,6 +41,7 @@ export function DataTable<TData, TValue>({
   className = "",
   rowsPerPage = 10,
   paginated = true,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -130,7 +132,11 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-gray-50/60 transition-colors"
+                  className={twMerge(
+                    "hover:bg-gray-50/60 transition-colors",
+                    onRowClick && "cursor-pointer"
+                  )}
+                  onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
