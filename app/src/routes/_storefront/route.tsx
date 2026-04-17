@@ -8,11 +8,12 @@ export const Route = createFileRoute("/_storefront")({
 });
 
 function RouteComponent() {
+  const { currentDrive } = Route.useRouteContext();
   return (
     <SidebarProvider defaultOpen={false}>
       <StorefrontMobileSidebar />
       <div className="w-full h-full">
-        <StorefrontNavbar />
+        <StorefrontNavbar currentDrive={currentDrive} />
         <Outlet />
       </div>
     </SidebarProvider>

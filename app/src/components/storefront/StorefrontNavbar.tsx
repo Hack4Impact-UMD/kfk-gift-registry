@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button";
 import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
+import type { GiftDrive } from "common";
 
-export function StorefrontNavbar() {
+type StorefrontNavbarProps = {
+  currentDrive?: GiftDrive;
+};
+export function StorefrontNavbar({ currentDrive }: StorefrontNavbarProps) {
   const { pathname } = useLocation();
   const showMobileSidebarTrigger = pathname !== "/";
 
@@ -17,12 +21,14 @@ export function StorefrontNavbar() {
           <img src={KFKLogo} alt="Kisses for Kyle" className="max-w-62.5" />
         </Link>
 
-        <Link
-          to="/"
-          className="border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center"
-        >
-          2026 Gift Drive
-        </Link>
+        {currentDrive && (
+          <Link
+            to="/"
+            className="border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center"
+          >
+            {currentDrive?.cycle} Gift Drive
+          </Link>
+        )}
 
         {showMobileSidebarTrigger && (
           <SidebarTrigger
