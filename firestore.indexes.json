@@ -1,11 +1,17 @@
 {
   "indexes": [
     {
-      "collectionGroup": "giftDrives",
+      "collectionGroup": "gift-drives",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "startDate", "order": "ASCENDING" },
-        { "fieldPath": "endDate", "order": "ASCENDING" }
+        {
+          "fieldPath": "startDate",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "endDate",
+          "order": "ASCENDING"
+        }
       ]
     }
   ],
