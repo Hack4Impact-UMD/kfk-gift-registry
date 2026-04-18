@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ForgotPasswordRouteImport } from './routes/forgotPassword'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as StorefrontRouteRouteImport } from './routes/_storefront/route'
 import { Route as StorefrontIndexRouteImport } from './routes/_storefront/index'
@@ -51,6 +52,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgotPassword',
+  path: '/forgotPassword',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -223,6 +229,7 @@ const FamilyDriveDriveIdFormChildrenRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof StorefrontIndexRoute
+  '/forgotPassword': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/donor': typeof AuthenticatedDonorRouteRouteWithChildren
@@ -256,6 +263,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof StorefrontIndexRoute
+  '/forgotPassword': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/donor': typeof AuthenticatedDonorRouteRouteWithChildren
@@ -291,6 +299,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_storefront': typeof StorefrontRouteRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/forgotPassword': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authenticated/donor': typeof AuthenticatedDonorRouteRouteWithChildren
@@ -327,6 +336,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/forgotPassword'
     | '/login'
     | '/register'
     | '/donor'
@@ -360,6 +370,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/forgotPassword'
     | '/login'
     | '/register'
     | '/donor'
@@ -394,6 +405,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_storefront'
     | '/_authenticated'
+    | '/forgotPassword'
     | '/login'
     | '/register'
     | '/_authenticated/donor'
@@ -430,6 +442,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   StorefrontRouteRoute: typeof StorefrontRouteRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   FamilyTokenRoute: typeof FamilyTokenRouteWithChildren
@@ -452,6 +465,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgotPassword': {
+      id: '/forgotPassword'
+      path: '/forgotPassword'
+      fullPath: '/forgotPassword'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -819,6 +839,7 @@ const FamilyDriveDriveIdRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   StorefrontRouteRoute: StorefrontRouteRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   FamilyTokenRoute: FamilyTokenRouteWithChildren,

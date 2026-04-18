@@ -2,17 +2,14 @@ import { useState } from "react";
 import {
   createFileRoute,
   redirect,
-  useNavigate,
-  useRouter,
+  Link,
 } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import z from "zod";
-import { AuthErrorCodes } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { UserRole } from "common";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLoginMutation } from "@/hooks/mutations/loginMutation";
 import adminVolunteerLoginBg from "@/assets/admin-volunteer-login-bg.png";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
 
@@ -32,7 +29,7 @@ const forgotPasswordSchema = z.object({
     .email("Email must be a valid email"),
 });
 
-export const Route = createFileRoute("/forgot-password")({
+export const Route = createFileRoute("/forgotPassword")({
   beforeLoad: ({ context }) => {
     if (context.auth.isAuthed) {
       throw redirect({
@@ -77,37 +74,33 @@ function issueToMessage(issue: unknown): string {
 }
 
 function RouteComponent() {
-  const navigate = useNavigate();
-  const router = useRouter();
-  const { redirect: redirectPath } = Route.useSearch();
-
-  const loginMutation = useLoginMutation();
-  const [rememberMe, setRememberMe] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isEmailSent, setIsEmailSent] = useState(false);
 
   const form = useForm({
     defaultValues: {
       email: "",
-      password: "",
     },
     validators: {
-      onSubmit: loginSchema,
+      onSubmit: forgotPasswordSchema,
     },
-    onSubmit: async ({ value }) => {
-      const authUser = await loginMutation.mutateAsync({
-        email: value.email,
-        password: value.password,
-      });
-      await router.invalidate();
-
-      await navigate({
-        to:
-          redirectPath ??
-          (authUser.role === UserRole.DONOR ? "/donor" : "/staff/home"),
-      });
+    onSubmit: async () => {
+      try {
+        setError(null);
+        setIsSubmitting(true);
+        
+        // TODO: Call sendPasswordResetEmail from auth service
+        // await sendPasswordResetEmail(value.email);
+        
+        setIsEmailSent(true);
+      } catch (err) {
+        setError(getForgotPasswordErrorMessage(err));
+      } finally {
+        setIsSubmitting(false);
+      }
     },
   });
-
-  const isSubmitting = form.state.isSubmitting || loginMutation.isPending;
 
   return (
     <div className="h-full flex items-center justify-center bg-muted/30 p-4 sm:p-6">
@@ -121,113 +114,117 @@ function RouteComponent() {
           role="img"
           aria-label="Decorative background"
         />
+        
         <div className="w-full lg:flex-1 rounded-2xl overflow-hidden bg-white shadow-xl flex flex-col lg:-ml-8 z-10 pb-8 sm:pb-10">
           <div
             className="w-full h-8 shrink-0 rounded-t-2xl bg-kfk-blue"
             aria-hidden
           />
           <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-14">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                form.handleSubmit();
-              }}
-              className="w-full max-w-sm lg:max-w-xs flex flex-col gap-5"
-            >
-              <div className="flex flex-col gap-0">
-                <h1 className="text-lg font-semibold text-foreground text-center">
-                  Welcome Back!
-                </h1>
-                {/* Logo from assets */}
-                <div className="flex justify-center">
+            {!isEmailSent ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  form.handleSubmit();
+                }}
+                className="w-full max-w-sm lg:max-w-xs flex flex-col gap-5"
+              >
+                <div className="flex justify-center -mt-8 mb-4">
                   <img
                     src={kfkFoundationLogo}
                     alt="Kisses for Kyle Foundation"
                     className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
                   />
                 </div>
-                <p className="mt-5 text-center text-base text-kfk-blue">
-                  User Log-in
-                </p>
-              </div>
 
-              <form.Field name="email">
-                {(field) => (
-                  <div className="flex flex-col gap-1">
-                    <Input
-                      type="email"
-                      placeholder="Enter your email"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                      className="w-full h-10 rounded-lg border-input"
-                    />
-                    {field.state.meta.isTouched &&
-                      field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-kfk-red">
-                          {issueToMessage(field.state.meta.errors[0])}
-                        </p>
-                      )}
-                  </div>
-                )}
-              </form.Field>
-
-              <form.Field name="password">
-                {(field) => (
-                  <div className="flex flex-col gap-1">
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                      className="w-full h-10 rounded-lg border-input"
-                    />
-                    {field.state.meta.isTouched &&
-                      field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-kfk-red">
-                          {issueToMessage(field.state.meta.errors[0])}
-                        </p>
-                      )}
-                  </div>
-                )}
-              </form.Field>
-
-              <div className="flex items-center justify-between gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="rounded-full border-input size-4 text-kfk-blue focus:ring-kfk-blue"
-                  />
-                  <span className="text-sm text-foreground">Remember me</span>
-                </label>
-                <a
-                  href="#"
-                  className="text-sm underline hover:opacity-80 text-kfk-blue"
-                >
-                  Forgot Password?
-                </a>
-              </div>
-
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full h-11 rounded-full text-white disabled:opacity-50 flex items-center justify-center bg-kfk-blue hover:bg-kfk-blue/90"
-              >
-                {isSubmitting ? "Logging in…" : "Login"}
-              </Button>
-
-              <div className="min-h-5">
-                {loginMutation.isError && (
-                  <p className="text-sm text-kfk-red text-center">
-                    {getLoginErrorMessage(loginMutation.error)}
+                <div className="flex flex-col gap-4 items-center text-center">
+                  <h1 className="text-lg font-semibold text-foreground">
+                    Forgot Password?
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    No worries! We will send you reset instructions.
                   </p>
-                )}
+                </div>
+
+                <form.Field name="email">
+                  {(field) => (
+                    <div className="flex flex-col gap-1">
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          ✉️
+                        </span>
+                        <Input
+                          type="email"
+                          placeholder="e.g. christy@gmail.com"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          className="w-full h-10 rounded-lg border-input pl-10"
+                        />
+                      </div>
+                      {field.state.meta.isTouched &&
+                        field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-kfk-red">
+                            {issueToMessage(field.state.meta.errors[0])}
+                          </p>
+                        )}
+                    </div>
+                  )}
+                </form.Field>
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full h-11 rounded-full text-white disabled:opacity-50 flex items-center justify-center bg-kfk-blue hover:bg-kfk-blue/90"
+                >
+                  {isSubmitting ? "Sending…" : "Submit"}
+                </Button>
+
+                <Link
+                  to="/login"
+                  className="text-center text-sm text-kfk-blue hover:opacity-80 underline"
+                >
+                  Return to Login
+                </Link>
+
+                <div className="min-h-5">
+                  {error && (
+                    <p className="text-sm text-kfk-red text-center">
+                      {error}
+                    </p>
+                  )}
+                </div>
+              </form>
+            ) : (
+              <div className="w-full max-w-sm lg:max-w-xs flex flex-col gap-5 items-center text-center">
+                <div className="flex flex-col gap-4">
+                  <h1 className="text-2xl font-semibold text-foreground">
+                    Email Sent!
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    Please click on the link in your email to reset your
+                    password.
+                  </p>
+                </div>
+
+                {/* Logo from assets */}
+                <div className="flex justify-center w-full">
+                  <img
+                    src={kfkFoundationLogo}
+                    alt="Kisses for Kyle Foundation"
+                    className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
+                  />
+                </div>
+
+                <Link
+                  to="/login"
+                  className="text-center text-sm text-kfk-blue hover:opacity-80 underline"
+                >
+                  Return to Login
+                </Link>
               </div>
-            </form>
+            )}
           </div>
         </div>
       </div>
