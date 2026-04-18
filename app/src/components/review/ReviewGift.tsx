@@ -18,8 +18,6 @@ function formatPrice(value: number | undefined): string {
   return String(value);
 }
 
-const fieldBoxClass =
-  "h-9 w-full min-w-0 rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground shadow-xs";
 
 export function ReviewGift({
   gift,

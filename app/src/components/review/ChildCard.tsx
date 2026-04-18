@@ -72,7 +72,6 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
   });
   const { mutate, isPending } = useUpdateGift();
 
-  // Query to populate the gifts
   const { data: fetchedGifts, isLoading } = useQuery({
     queryKey: ["gifts", child.id],
     queryFn: () => getChildGiftsByChildId({ data: { childId: child.id } }),
@@ -212,8 +211,6 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
       hospital: formState.hospitalName,
       photoUrl: formState.photoUrl,
     };
-
-    // TODO: Update Gifts as well.
 
     if (onSave) {
       onSave(updatedChild);

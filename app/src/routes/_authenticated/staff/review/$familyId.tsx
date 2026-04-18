@@ -3,7 +3,6 @@ import type { Family } from "../../../../../../common/src/types/family";
 import { GuardianInfoCard } from "@/components/review/GuardianInfoCard";
 import * as React from "react";
 import { ChildCard } from "@/components/review/ChildCard";
-import type { Gift } from "common";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
 import { Child } from "common";
@@ -14,7 +13,6 @@ import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   loader: async ({ params }) => {
-    // TODO: handle database fetching here
     const familyData = await getFamilyById({
       data: { familyId: params.familyId },
     });
