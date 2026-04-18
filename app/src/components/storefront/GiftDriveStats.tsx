@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
 import type { GiftDrive } from "common";
+import { Spinner } from "@/components/ui/spinner";
 
 interface StatProps {
   children?: ReactNode;
@@ -46,7 +47,8 @@ interface GiftDriveStatsProps {
   giftsClaimed: number;
   totalGifts: number;
   childrenWithGifts: number;
-  totalDonated: number;
+  totalDonated: number | undefined;
+  totalDonatedPending: boolean;
 }
 
 export function GiftDriveStats({
@@ -55,6 +57,7 @@ export function GiftDriveStats({
   totalGifts,
   childrenWithGifts,
   totalDonated,
+  totalDonatedPending,
 }: GiftDriveStatsProps) {
   const remaining = useTimeRemaining(drive.endDate);
   const isExpired = remaining.toMillis() <= 0;
@@ -109,8 +112,16 @@ export function GiftDriveStats({
             Children Received Gifts
           </StatLabel>
           <StatLabel startIcon={<UserIcon className="h-5 w-5" />}>
-            <span className="text-kfk-yellow">{totalDonated}</span> People
-            Donated
+            <span className="text-kfk-yellow">
+              {totalDonatedPending ? (
+                <Spinner className="inline" />
+              ) : totalDonated !== undefined ? (
+                totalDonated
+              ) : (
+                "—"
+              )}
+            </span>{" "}
+            People Donated
           </StatLabel>
         </div>
       </div>

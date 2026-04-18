@@ -41,9 +41,11 @@ function App() {
     isError,
   } = useStorefrontChildProfiles(context.currentDrive?.id);
 
-  const { data: uniqueDonors } = useStorefrontUniqueDonors(
-    context.currentDrive?.id,
-  );
+  const {
+    data: uniqueDonors,
+    isPending: isUniqueDonorsPending,
+    isError: isUniqueDonorsError,
+  } = useStorefrontUniqueDonors(context.currentDrive?.id);
 
   const [childrenPerPage] = useState<number>(25);
   const navigate = useNavigate();
@@ -186,7 +188,8 @@ function App() {
           giftsClaimed={claimedGifts}
           totalGifts={totalGifts}
           childrenWithGifts={childrenWithGifts}
-          totalDonated={uniqueDonors ?? 0}
+          totalDonated={isUniqueDonorsError ? undefined : uniqueDonors}
+          totalDonatedPending={isUniqueDonorsPending}
         />
       </div>
 

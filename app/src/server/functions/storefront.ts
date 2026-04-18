@@ -127,7 +127,10 @@ export const getUniqueStorefrontDonorsForDrive = createServerFn({
   .handler(async ({ data }) => {
     const db = getServerDB();
     const gifts = (
-      await db.gifts.where("giftDrive", "==", data.driveId).get()
+      await db.gifts
+        .where("giftDrive", "==", data.driveId)
+        .where("active", "==", true)
+        .get()
     ).docs.map((d) => d.data());
 
     const donorIDs = new Set<string>();
