@@ -18,7 +18,7 @@ const ADMIN_COMMENTS_PLACEHOLDER =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 
 export function ReviewActionPanel({ familyId }: { familyId: string }) {
-  const { mutate: updateFamilyReviewStatus, isPending: isStatusPending } =
+  const { mutate: updateFamilyReviewStatus } =
     useUpdateFamilyReviewStatus();
   return (
     <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-80 xl:w-96">

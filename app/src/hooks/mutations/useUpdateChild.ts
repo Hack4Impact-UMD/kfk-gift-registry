@@ -8,42 +8,40 @@ export function useUpdateChild() {
 
   return useMutation({
     mutationFn: (params: {
-        childId: string;
-        updates: {
-            name?: string;
-            diagnosis?: string;
-            hospital?: string;
-            childSocialWorker?: string;
-            publicBlurb?: string;
-            staffPrivateNotes?: string;
-            photoUrl?: string;
-            age?: number;
-            treatmentLevel?: number;
-            diagnosisLengthYears?: "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
-            offTreatmentDurationYears?: "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
-        };
+      childId: string;
+      updates: {
+        name?: string;
+        diagnosis?: string;
+        hospital?: string;
+        childSocialWorker?: string;
+        publicBlurb?: string;
+        staffPrivateNotes?: string;
+        photoUrl?: string;
+        age?: number;
+        treatmentLevel?: number;
+        diagnosisLengthYears?: "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
+        offTreatmentDurationYears?: "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
+      };
     }) => updateChild({ data: params }),
 
-
     onSuccess: (_data, variables) => {
-    
-        queryClient.invalidateQueries({
-            queryKey: queries.children.byId(variables.childId).queryKey,
-        });
+      queryClient.invalidateQueries({
+        queryKey: queries.children.byId(variables.childId).queryKey,
+      });
 
-        queryClient.invalidateQueries({
-            queryKey: queries.children.gifts(variables.childId).queryKey,
-        });
+      queryClient.invalidateQueries({
+        queryKey: queries.children.gifts(variables.childId).queryKey,
+      });
 
-        queryClient.invalidateQueries({
-            queryKey: ["approvedProfileTableRows"],
-        });
+      queryClient.invalidateQueries({
+        queryKey: ["approvedProfileTableRows"],
+      });
 
-        toast.success("Child profile updated successfully");
+      toast.success("Child profile updated successfully");
     },
 
     onError: (error) => {
-        toast.error(`Failed to update child: ${error.message}`);
+      toast.error(`Failed to update child: ${error.message}`);
     },
   });
 }

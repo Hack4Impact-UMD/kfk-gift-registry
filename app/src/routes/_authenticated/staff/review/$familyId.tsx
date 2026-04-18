@@ -8,8 +8,9 @@ import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
 import { Child } from "common";
 import { getFamilyById } from "@/server/functions/family";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
-import { getChildProfilesForFamily } from "@/server/functions/child";
+import { getChildGiftsByChildId, getChildProfilesForFamily } from "@/server/functions/child";
 import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   loader: async ({ params }) => {
@@ -34,9 +35,9 @@ function RouteComponent() {
   // const params = Route.useParams();
   // const familyId = params.familyId;
   const { family, children, familyId } = Route.useLoaderData();
-  const { mutate: updateFamily, isPending: isFamilyPending } =
+  const { mutate: updateFamily } =
     useUpdateFamily();
-  const { mutate: updateChild, isPending: isChildPending } = useUpdateChild();
+  const { mutate: updateChild } = useUpdateChild();
 
   const lastName = family?.contactName.trim().split(/\s+/).pop() ?? "";
   const [familyData, setFamilyData] = React.useState<Family>(family!);
@@ -80,13 +81,19 @@ function RouteComponent() {
                 family={familyData}
                 onSave={handleFamilyUpdate}
               />
-              {childrenData.map((childData) => (
+              {childrenData.map((childData) => { 
+                const { data: fetchedGifts, isPending: isLoadingGifts } = useQuery({
+    queryKey: ["gifts", childData.id],
+    queryFn: () => getChildGiftsByChildId({ data: { childId: childData.id } }),
+  });
+                return isLoadingGifts ? (<div>Loading Child...</div>) : (
                 <ChildCard
                   key={childData.id}
                   child={childData}
+                  fetchedGifts={fetchedGifts}
                   onSave={handleChildUpdate}
                 />
-              ))}
+              )})}
             </div>
           </ScrollArea>
         </section>

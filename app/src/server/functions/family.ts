@@ -284,5 +284,5 @@ export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
     await db.families.doc(familyId).update(reviewUpdates);
 
     const updatedFamily = await db.families.doc(familyId).get();
-    return updatedFamily.data()!;
+    return updatedFamily.data();
   });

@@ -134,7 +134,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                   className={twMerge(
                     "hover:bg-gray-50/60 transition-colors",
-                    onRowClick && "cursor-pointer"
+                    onRowClick && "cursor-pointer",
                   )}
                   onClick={() => onRowClick?.(row.original)}
                 >

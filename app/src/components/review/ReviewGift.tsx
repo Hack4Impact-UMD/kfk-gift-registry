@@ -18,7 +18,6 @@ function formatPrice(value: number | undefined): string {
   return String(value);
 }
 
-
 export function ReviewGift({
   gift,
   editable,
@@ -29,13 +28,11 @@ export function ReviewGift({
   return (
     <div className={cn("border-b border-slate-200/80 py-3 last:border-b-0")}>
       <div className="grid grid-cols-[0px_minmax(0,1fr)_auto_auto] items-start gap-x-2 gap-y-2">
-        
-
         <div className="flex gap-2 col-start-2 row-start-1 min-w-0">
           <GiftIcon
-          className="size-6 shrink-0 my-auto text-foreground"
-          aria-hidden
-        />
+            className="size-6 shrink-0 my-auto text-foreground"
+            aria-hidden
+          />
           <EditableField
             value={gift.title}
             editable={editable}

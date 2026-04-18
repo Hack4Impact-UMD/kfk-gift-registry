@@ -2,18 +2,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { EditableField } from "./EditableField";
 import { ReviewGift } from "./ReviewGift";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { ChangeEventHandler } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
-import { getChildGiftsByChildId } from "@/server/functions/child";
-import { useQuery } from "@tanstack/react-query";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
 
 interface ChildInfoCardProps {
   child: Child;
+  fetchedGifts: Gift[] | undefined;
   onSave?: (updatedChild: Child) => void;
 }
 
@@ -52,7 +51,7 @@ function computeWordCount(text: string | undefined): number {
   return trimmed ? trimmed.split(/\s+/).length : 0;
 }
 
-export function ChildCard({ child, onSave }: ChildInfoCardProps) {
+export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   const [editing, setEditing] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -68,23 +67,9 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
     socialWorkerName: child.childSocialWorker,
     hospitalName: child.hospital,
     photoUrl: child.photoUrl,
-    gifts: [],
+    gifts: fetchedGifts || [],
   });
-  const { mutate, isPending } = useUpdateGift();
-
-  const { data: fetchedGifts, isLoading } = useQuery({
-    queryKey: ["gifts", child.id],
-    queryFn: () => getChildGiftsByChildId({ data: { childId: child.id } }),
-  });
-
-  useEffect(() => {
-    if (fetchedGifts) {
-      setFormState((prev) => ({
-        ...prev,
-        gifts: fetchedGifts,
-      }));
-    }
-  }, [fetchedGifts]);
+  const { mutate } = useUpdateGift();
 
   const updateGift = (giftId: string, patch: Partial<Gift>) => {
     setFormState((prev) => ({
