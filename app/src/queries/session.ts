@@ -5,10 +5,6 @@ export const sessionQueries = createQueryKeys("session", {
   verify: {
     queryKey: ["verify"],
     queryFn: () =>
-      verifySession({
-        data: {
-          checkRevocation: true,
-        },
-      }),
+      verifySession(),
   },
 });
