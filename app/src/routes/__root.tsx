@@ -13,14 +13,21 @@ import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import type { AuthContext } from "@/server/functions/auth";
-import { verifySession } from "@/server/functions/auth";
 import { getActiveGiftDrive } from "@/server/functions/giftDrive";
+import { queries } from "@/queries";
 
 interface MyRouterContext {
   queryClient: QueryClient;
   auth: AuthContext;
 }
+
+const sessionQuery = queryOptions({
+  ...queries.session.verify,
+  staleTime: 1000 * 60 * 10,
+  gcTime: 1000 * 60 * 60 * 24,
+});
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
@@ -43,8 +50,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
   }),
-  beforeLoad: async () => {
-    const authUser = await verifySession();
+  beforeLoad: async ({ context }) => {
+    const authUser = await context.queryClient.fetchQuery(sessionQuery);
     const currentDrive = await getActiveGiftDrive().catch(() => undefined);
 
     if (authUser) {

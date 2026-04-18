@@ -5,6 +5,7 @@ import { childQueries } from "./child";
 import { familyQueries } from "./family";
 import { giftDriveQueries } from "./giftDrive";
 import { storefrontQueries } from "./storefront";
+import { sessionQueries } from "./session";
 
 export const queries = mergeQueryKeys(
   userProfileQueries,
@@ -13,4 +14,5 @@ export const queries = mergeQueryKeys(
   familyQueries,
   giftDriveQueries,
   storefrontQueries,
+  sessionQueries,
 );

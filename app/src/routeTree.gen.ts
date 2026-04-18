@@ -17,7 +17,6 @@ import { Route as StorefrontIndexRouteImport } from './routes/_storefront/index'
 import { Route as SignupSuccessRouteImport } from './routes/signup/success'
 import { Route as FamilyTokenRouteImport } from './routes/family/$token'
 import { Route as StorefrontCheckoutRouteImport } from './routes/_storefront/checkout'
-import { Route as AuthenticatedHelloRouteImport } from './routes/_authenticated/hello'
 import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
 import { Route as AuthenticatedDonorRouteRouteImport } from './routes/_authenticated/donor/route'
 import { Route as FamilyTokenIndexRouteImport } from './routes/family/$token/index'
@@ -81,11 +80,6 @@ const StorefrontCheckoutRoute = StorefrontCheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
   getParentRoute: () => StorefrontRouteRoute,
-} as any)
-const AuthenticatedHelloRoute = AuthenticatedHelloRouteImport.update({
-  id: '/hello',
-  path: '/hello',
-  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedStaffRouteRoute = AuthenticatedStaffRouteRouteImport.update({
   id: '/staff',
@@ -233,7 +227,6 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/donor': typeof AuthenticatedDonorRouteRouteWithChildren
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
-  '/hello': typeof AuthenticatedHelloRoute
   '/checkout': typeof StorefrontCheckoutRoute
   '/family/$token': typeof FamilyTokenRouteWithChildren
   '/signup/success': typeof SignupSuccessRoute
@@ -267,7 +260,6 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/donor': typeof AuthenticatedDonorRouteRouteWithChildren
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
-  '/hello': typeof AuthenticatedHelloRoute
   '/checkout': typeof StorefrontCheckoutRoute
   '/signup/success': typeof SignupSuccessRoute
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
@@ -302,7 +294,6 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/_authenticated/donor': typeof AuthenticatedDonorRouteRouteWithChildren
   '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
-  '/_authenticated/hello': typeof AuthenticatedHelloRoute
   '/_storefront/checkout': typeof StorefrontCheckoutRoute
   '/family/$token': typeof FamilyTokenRouteWithChildren
   '/signup/success': typeof SignupSuccessRoute
@@ -339,7 +330,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/donor'
     | '/staff'
-    | '/hello'
     | '/checkout'
     | '/family/$token'
     | '/signup/success'
@@ -373,7 +363,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/donor'
     | '/staff'
-    | '/hello'
     | '/checkout'
     | '/signup/success'
     | '/staff/admin'
@@ -407,7 +396,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/_authenticated/donor'
     | '/_authenticated/staff'
-    | '/_authenticated/hello'
     | '/_storefront/checkout'
     | '/family/$token'
     | '/signup/success'
@@ -505,13 +493,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/checkout'
       preLoaderRoute: typeof StorefrontCheckoutRouteImport
       parentRoute: typeof StorefrontRouteRoute
-    }
-    '/_authenticated/hello': {
-      id: '/_authenticated/hello'
-      path: '/hello'
-      fullPath: '/hello'
-      preLoaderRoute: typeof AuthenticatedHelloRouteImport
-      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/staff': {
       id: '/_authenticated/staff'
@@ -769,13 +750,11 @@ const AuthenticatedStaffRouteRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedDonorRouteRoute: typeof AuthenticatedDonorRouteRouteWithChildren
   AuthenticatedStaffRouteRoute: typeof AuthenticatedStaffRouteRouteWithChildren
-  AuthenticatedHelloRoute: typeof AuthenticatedHelloRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDonorRouteRoute: AuthenticatedDonorRouteRouteWithChildren,
   AuthenticatedStaffRouteRoute: AuthenticatedStaffRouteRouteWithChildren,
-  AuthenticatedHelloRoute: AuthenticatedHelloRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
