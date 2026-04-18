@@ -185,7 +185,7 @@ function App() {
           drive={context.currentDrive}
           giftsClaimed={claimedGifts}
           totalGifts={totalGifts}
-          giftsReceived={childrenWithGifts}
+          childrenWithGifts={childrenWithGifts}
           totalDonated={uniqueDonors ?? 0}
         />
       </div>

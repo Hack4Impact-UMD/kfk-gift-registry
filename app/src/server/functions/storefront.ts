@@ -120,7 +120,9 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
     return results;
   });
 
-export const getUniqueStorefrontDonorsForDrive = createServerFn()
+export const getUniqueStorefrontDonorsForDrive = createServerFn({
+  method: "GET",
+})
   .inputValidator(driveIdSchema)
   .handler(async ({ data }) => {
     const db = getServerDB();

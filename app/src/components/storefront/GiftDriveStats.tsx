@@ -27,7 +27,14 @@ function useTimeRemaining(endDate: string) {
   const [remaining, setRemaining] = useState(getRemaining);
 
   useEffect(() => {
-    const id = setInterval(() => setRemaining(getRemaining()), 1000);
+    const compute = () =>
+      DateTime.fromISO(endDate).diffNow([
+        "days",
+        "hours",
+        "minutes",
+        "seconds",
+      ]);
+    const id = setInterval(() => setRemaining(compute()), 1000);
     return () => clearInterval(id);
   }, [endDate]);
 
@@ -38,7 +45,7 @@ interface GiftDriveStatsProps {
   drive: GiftDrive;
   giftsClaimed: number;
   totalGifts: number;
-  giftsReceived: number;
+  childrenWithGifts: number;
   totalDonated: number;
 }
 
@@ -46,20 +53,28 @@ export function GiftDriveStats({
   drive,
   giftsClaimed,
   totalGifts,
-  giftsReceived,
+  childrenWithGifts,
   totalDonated,
 }: GiftDriveStatsProps) {
   const remaining = useTimeRemaining(drive.endDate);
-  const days = Math.floor(remaining.days);
-  const hours = String(Math.floor(remaining.hours)).padStart(2, "0");
-  const minutes = String(Math.floor(remaining.minutes)).padStart(2, "0");
+  const isExpired = remaining.toMillis() <= 0;
+  const days = Math.max(0, Math.floor(remaining.days));
+  const hours = String(Math.max(0, Math.floor(remaining.hours))).padStart(
+    2,
+    "0",
+  );
+  const minutes = String(Math.max(0, Math.floor(remaining.minutes))).padStart(
+    2,
+    "0",
+  );
   const seconds = String(Math.max(0, Math.floor(remaining.seconds))).padStart(
     2,
     "0",
   );
 
-  const timeLabel =
-    days >= 1
+  const timeLabel = isExpired
+    ? "Drive has ended"
+    : days >= 1
       ? `${days} ${days === 1 ? "Day" : "Days"} Left to Donate!`
       : `${hours}:${minutes}:${seconds} Left to Donate!`;
 
@@ -90,8 +105,8 @@ export function GiftDriveStats({
             {totalGifts} Gifts Purchased
           </StatLabel>
           <StatLabel startIcon={<UserGroupIcon className="h-5 w-5" />}>
-            <span className="text-kfk-yellow">{giftsReceived}</span> Children
-            Received Gifts
+            <span className="text-kfk-yellow">{childrenWithGifts}</span>{" "}
+            Children Received Gifts
           </StatLabel>
           <StatLabel startIcon={<UserIcon className="h-5 w-5" />}>
             <span className="text-kfk-yellow">{totalDonated}</span> People
