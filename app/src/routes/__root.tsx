@@ -25,7 +25,7 @@ interface MyRouterContext {
 
 const sessionQuery = queryOptions({
   ...queries.session.verify,
-  staleTime: 1000 * 60 * 60,
+  staleTime: 1000 * 60 * 10,
   gcTime: 1000 * 60 * 60 * 24,
 });
 

@@ -18,9 +18,12 @@ export function useLogin() {
     mutationFn: async ({ email, password }: LoginInput) => {
       return await login(email, password);
     },
+    onSuccess: async (data) => {
+      await queryClient.setQueryData(queries.session.verify.queryKey, data);
+    },
     onSettled: async () => {
       await queryClient.invalidateQueries(queries.session.verify);
-      router.invalidate();
+      await router.invalidate();
     },
   });
 }
