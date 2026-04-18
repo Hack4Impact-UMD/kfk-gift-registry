@@ -8,12 +8,12 @@ export const Route = createFileRoute("/_storefront")({
 });
 
 function RouteComponent() {
-  const { currentDrive } = Route.useRouteContext();
+  const { currentDrive, auth } = Route.useRouteContext();
   return (
     <SidebarProvider defaultOpen={false}>
-      <StorefrontMobileSidebar />
+      <StorefrontMobileSidebar auth={auth} />
       <div className="w-full h-full">
-        <StorefrontNavbar currentDrive={currentDrive} />
+        <StorefrontNavbar currentDrive={currentDrive} auth={auth} />
         <Outlet />
       </div>
     </SidebarProvider>

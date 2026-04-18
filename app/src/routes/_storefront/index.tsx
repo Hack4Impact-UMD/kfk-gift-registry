@@ -9,6 +9,8 @@ import { StorefrontSearchFilters } from "@/components/storefront/StorefrontSearc
 import type { StorefrontSortOption } from "@/components/storefront/StorefrontSearchFilters";
 import { queries } from "@/queries";
 import { useStorefrontChildProfiles } from "@/hooks/queries/useStorefrontChildProfiles";
+import { useStorefrontUniqueDonors } from "@/hooks/queries/useStorefrontUniqueDonors";
+import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/_storefront/")({
   validateSearch: z.object({
@@ -38,6 +40,12 @@ function App() {
     isPending,
     isError,
   } = useStorefrontChildProfiles(context.currentDrive?.id);
+
+  const {
+    data: uniqueDonors,
+    isPending: isUniqueDonorsPending,
+    isError: isUniqueDonorsError,
+  } = useStorefrontUniqueDonors(context.currentDrive?.id);
 
   const [childrenPerPage] = useState<number>(25);
   const navigate = useNavigate();
@@ -70,12 +78,29 @@ function App() {
         age: child.age,
         diagnosis: child.diagnosis,
         giftsRequested: child.gifts.length,
-        giftsReceived: child.gifts.filter((g) =>
+        giftsClaimed: child.gifts.filter((g) =>
           ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
         ).length,
         familyId: child.familyId,
       }));
     }, [allChildren]);
+
+  const { totalGifts, claimedGifts, childrenWithGifts } = useMemo(() => {
+    let totalGiftsCount = 0;
+    let claimedGiftsCount = 0;
+    let childrenWithGiftsCount = 0;
+    for (const child of childrenWithMetrics) {
+      totalGiftsCount += child.giftsRequested;
+      claimedGiftsCount += child.giftsClaimed;
+      if (child.giftsClaimed > 0) childrenWithGiftsCount++;
+    }
+
+    return {
+      totalGifts: totalGiftsCount,
+      claimedGifts: claimedGiftsCount,
+      childrenWithGifts: childrenWithGiftsCount,
+    };
+  }, [childrenWithMetrics]);
 
   const uniqueFamilyIds = useMemo(() => {
     if (!allChildren) return [];
@@ -97,9 +122,8 @@ function App() {
       ).sort((a, b) => {
         if (sortValue === "age-asc") return a.age - b.age;
         if (sortValue === "age-desc") return b.age - a.age;
-        if (sortValue === "gifts-asc") return a.giftsReceived - b.giftsReceived;
-        if (sortValue === "gifts-desc")
-          return b.giftsReceived - a.giftsReceived;
+        if (sortValue === "gifts-asc") return a.giftsClaimed - b.giftsClaimed;
+        if (sortValue === "gifts-desc") return b.giftsClaimed - a.giftsClaimed;
         return 0;
       }),
     [searchValue, sortValue, childrenWithMetrics],
@@ -135,7 +159,7 @@ function App() {
   if (isPending) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-lg font-gaegu">Loading children profiles...</p>
+        <Spinner />
       </div>
     );
   }
@@ -160,11 +184,12 @@ function App() {
           onSortChange={setSortValue}
         />
         <GiftDriveStats
-          days={22}
-          giftsPurchased={876}
-          totalGiftsPurchased={1212}
-          giftsReceived={165}
-          totalDonated={87}
+          drive={context.currentDrive}
+          giftsClaimed={claimedGifts}
+          totalGifts={totalGifts}
+          childrenWithGifts={childrenWithGifts}
+          totalDonated={isUniqueDonorsError ? undefined : uniqueDonors}
+          totalDonatedPending={isUniqueDonorsPending}
         />
       </div>
 

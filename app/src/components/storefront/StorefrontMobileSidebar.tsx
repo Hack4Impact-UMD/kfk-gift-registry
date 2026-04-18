@@ -20,12 +20,21 @@ import {
   ChevronDoubleLeftIcon,
 } from "@/components/icons";
 import { CircleDollarSign } from "lucide-react";
+import type { AuthContext } from "@/server/functions/auth";
+import { useLogout } from "@/hooks/mutations/logoutMutation";
 
-export function StorefrontMobileSidebar() {
+type StorefrontMobileSidebarProps = {
+  auth: AuthContext;
+};
+
+export function StorefrontMobileSidebar({
+  auth,
+}: StorefrontMobileSidebarProps) {
   const { pathname } = useLocation();
   // Add more page checks as needed
   const isHomePage = pathname === "/" || pathname.startsWith("/child/");
   const isCheckoutPage = pathname === "/checkout";
+  const { mutate: logout, isPending } = useLogout();
 
   return (
     <Sidebar collapsible="offcanvas" side="left" className="sm:hidden">
@@ -46,12 +55,16 @@ export function StorefrontMobileSidebar() {
           </div>
         </div>
 
-        <div className="border-t border-b border-gray-300 px-4 py-4">
-          <div className="flex items-center gap-3">
-            <UserCircleIcon className="size-8 text-gray-700" />
-            <span className="text-base font-medium">Charlie Hemsworth</span>
+        {auth.isAuthed && (
+          <div className="border-t border-b border-gray-300 px-4 py-4">
+            <div className="flex items-center gap-3">
+              <UserCircleIcon className="size-8 text-gray-700" />
+              <span className="text-base font-medium">
+                {auth.authUser.displayName}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
       </SidebarHeader>
 
       <SidebarContent>
@@ -109,12 +122,31 @@ export function StorefrontMobileSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="px-4 py-4">
-        <Button
-          variant="default"
-          className="w-full bg-kfk-blue hover:bg-kfk-blue/90"
-        >
-          Logout
-        </Button>
+        {auth.isAuthed ? (
+          <Button
+            variant="default"
+            className="w-full bg-kfk-blue hover:bg-kfk-blue/90"
+            onClick={() => logout()}
+            disabled={isPending}
+          >
+            Logout
+          </Button>
+        ) : (
+          <Button
+            asChild
+            variant="default"
+            className="w-full bg-kfk-blue hover:bg-kfk-blue/90"
+          >
+            <Link
+              to="/login"
+              search={{
+                redirect: "/",
+              }}
+            >
+              Login
+            </Link>
+          </Button>
+        )}
       </SidebarFooter>
     </Sidebar>
   );

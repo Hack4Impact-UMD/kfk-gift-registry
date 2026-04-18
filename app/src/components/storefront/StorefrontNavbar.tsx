@@ -5,11 +5,17 @@ import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 import type { GiftDrive } from "common";
+import { UserRole } from "common";
+import type { AuthContext } from "@/server/functions/auth";
 
 type StorefrontNavbarProps = {
   currentDrive?: GiftDrive;
+  auth: AuthContext;
 };
-export function StorefrontNavbar({ currentDrive }: StorefrontNavbarProps) {
+export function StorefrontNavbar({
+  currentDrive,
+  auth,
+}: StorefrontNavbarProps) {
   const { pathname } = useLocation();
   const showMobileSidebarTrigger = pathname !== "/";
 
@@ -71,9 +77,19 @@ export function StorefrontNavbar({ currentDrive }: StorefrontNavbarProps) {
           )}
 
           <div className="flex items-center gap-3 ml-auto">
-            <Link to="/login">
-              <Button variant="default">Staff/Donor Log-in</Button>
-            </Link>
+            {!auth.isAuthed ? (
+              <Link to="/login">
+                <Button variant="default">Log-in</Button>
+              </Link>
+            ) : auth.authUser.role === UserRole.DONOR ? (
+              <Link to="/donor/home">
+                <Button variant="default">Go to Donor Home</Button>
+              </Link>
+            ) : (
+              <Link to="/staff/home">
+                <Button variant="default">Go to Staff Home</Button>
+              </Link>
+            )}
 
             <Link to="/">
               <Button variant="default">Family Recovery Link</Button>
