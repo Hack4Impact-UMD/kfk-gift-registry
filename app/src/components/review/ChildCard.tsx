@@ -28,14 +28,8 @@ export interface ChildFormState {
   gifts: Gift[]; // This is the crucial part
 }
 
-const levelOptions: Array<string> = ["1", "2", "3"];
-const timePeriodOptions: Array<string> = [
-  "<6m",
-  "6m-1y",
-  "1-2y",
-  "3-4y",
-  "5+y",
-];
+const levelOptions: ("1" | "2" | "3")[] = ["1", "2", "3"];
+const timePeriodOptions: TimePeriod[] = ["<6m", "6m-1y", "1-2y", "3-4y", "5+y"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 

@@ -262,9 +262,6 @@ export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
     const db = getServerDB();
 
     const staffId = context.authUser.uid;
-    if (!staffId) {
-      throw new Error("Unauthorized Action: User isn't Staff");
-    }
 
     const familyDoc = await db.families.doc(familyId).get();
     if (!familyDoc.exists) {

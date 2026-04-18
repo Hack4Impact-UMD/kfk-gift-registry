@@ -8,7 +8,10 @@ import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
 import { Child } from "common";
 import { getFamilyById } from "@/server/functions/family";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
-import { getChildGiftsByChildId, getChildProfilesForFamily } from "@/server/functions/child";
+import {
+  getChildGiftsByChildId,
+  getChildProfilesForFamily,
+} from "@/server/functions/child";
 import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
 import { useQuery } from "@tanstack/react-query";
 
@@ -32,11 +35,8 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
 });
 
 function RouteComponent() {
-  // const params = Route.useParams();
-  // const familyId = params.familyId;
   const { family, children, familyId } = Route.useLoaderData();
-  const { mutate: updateFamily } =
-    useUpdateFamily();
+  const { mutate: updateFamily } = useUpdateFamily();
   const { mutate: updateChild } = useUpdateChild();
 
   const lastName = family?.contactName.trim().split(/\s+/).pop() ?? "";
@@ -45,26 +45,34 @@ function RouteComponent() {
     React.useState<Array<Child>>(children);
 
   const handleFamilyUpdate = (updatedFamily: Family) => {
-    // update database
-    setFamilyData(updatedFamily);
-    updateFamily({
-      familyId: familyId,
-      updates: updatedFamily,
-    });
+    updateFamily(
+      {
+        familyId: familyId,
+        updates: updatedFamily,
+      },
+      {
+        onSuccess: () => setFamilyData(updatedFamily),
+      },
+    );
   };
 
   const handleChildUpdate = (updatedChild: Child) => {
-    setChildrenData((prev) =>
-      prev.map((c) => (c.id === updatedChild.id ? updatedChild : c)),
-    );
-
-    updateChild({
-      childId: updatedChild.id,
-      updates: {
-        ...updatedChild,
-        photoUrl: updatedChild.photoUrl || undefined,
+    updateChild(
+      {
+        childId: updatedChild.id,
+        updates: {
+          ...updatedChild,
+          photoUrl: updatedChild.photoUrl || undefined,
+        },
       },
-    });
+      {
+        onSuccess: () => {
+          setChildrenData((prev) =>
+            prev.map((c) => (c.id === updatedChild.id ? updatedChild : c)),
+          );
+        },
+      },
+    );
   };
 
   return (
@@ -81,19 +89,26 @@ function RouteComponent() {
                 family={familyData}
                 onSave={handleFamilyUpdate}
               />
-              {childrenData.map((childData) => { 
-                const { data: fetchedGifts, isPending: isLoadingGifts } = useQuery({
-    queryKey: ["gifts", childData.id],
-    queryFn: () => getChildGiftsByChildId({ data: { childId: childData.id } }),
-  });
-                return isLoadingGifts ? (<div>Loading Child...</div>) : (
-                <ChildCard
-                  key={childData.id}
-                  child={childData}
-                  fetchedGifts={fetchedGifts}
-                  onSave={handleChildUpdate}
-                />
-              )})}
+              {childrenData.map((childData) => {
+                const { data: fetchedGifts, isPending: isLoadingGifts } =
+                  useQuery({
+                    queryKey: ["gifts", childData.id],
+                    queryFn: () =>
+                      getChildGiftsByChildId({
+                        data: { childId: childData.id },
+                      }),
+                  });
+                return isLoadingGifts ? (
+                  <div>Loading Child...</div>
+                ) : (
+                  <ChildCard
+                    key={childData.id}
+                    child={childData}
+                    fetchedGifts={fetchedGifts}
+                    onSave={handleChildUpdate}
+                  />
+                );
+              })}
             </div>
           </ScrollArea>
         </section>
