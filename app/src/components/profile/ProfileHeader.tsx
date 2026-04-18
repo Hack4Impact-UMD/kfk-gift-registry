@@ -49,6 +49,7 @@ export function ProfileHeader({ authCtx, avatarUrl }: ProfileHeaderProps) {
         onError: (err) => {
           console.error(err);
           toast.error("Failed to update name.");
+          setName(user.displayName);
         },
         onSettled: () => {
           router.invalidate();
@@ -79,7 +80,7 @@ export function ProfileHeader({ authCtx, avatarUrl }: ProfileHeaderProps) {
           ) : (
             <>
               <h2 className="text-3xl font-semibold text-foreground">
-                {user.displayName || "User Name"}
+                {name || "User Name"}
               </h2>
               <Button
                 type="button"
