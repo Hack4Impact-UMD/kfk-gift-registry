@@ -15,7 +15,6 @@ import appCss from "../styles.css?url";
 import type { QueryClient } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import type { AuthContext } from "@/server/functions/auth";
-import { getActiveGiftDrive } from "@/server/functions/giftDrive";
 import { queries } from "@/queries";
 
 interface MyRouterContext {
@@ -27,6 +26,11 @@ const sessionQuery = queryOptions({
   ...queries.session.verify,
   staleTime: 1000 * 60 * 10,
   gcTime: 1000 * 60 * 60 * 24,
+});
+
+const currentDriveQuery = queryOptions({
+  ...queries.drives.active,
+  staleTime: 1000 * 60 * 30,
 });
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -52,7 +56,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
   beforeLoad: async ({ context }) => {
     const authUser = await context.queryClient.fetchQuery(sessionQuery);
-    const currentDrive = await getActiveGiftDrive().catch(() => undefined);
+    const currentDrive =
+      await context.queryClient.fetchQuery(currentDriveQuery);
 
     if (authUser) {
       return {
