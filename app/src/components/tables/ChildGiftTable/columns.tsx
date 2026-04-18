@@ -50,7 +50,9 @@ export const columns = [
 
       return (
         <Button
-          onClick={() => meta?.onToggleClaimGift(giftId)}
+          onClick={() =>
+            meta?.onToggleClaimGift(giftId, gift.familyId, gift.childId)
+          }
           disabled={isAlreadyClaimed}
           className={`rounded-full min-w-[132px] my-4 ${
             isAlreadyClaimed

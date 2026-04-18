@@ -1,14 +1,16 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { X, ExternalLink } from "lucide-react";
-import type { CartGift } from "./cartMockData";
+import type { CartFamilyGroup } from "@/server/functions/cart";
 import { Button } from "@/components/ui/button";
 
-const columnHelper = createColumnHelper<CartGift>();
+type CartColumnGift = CartFamilyGroup["gifts"][number];
+
+const columnHelper = createColumnHelper<CartColumnGift>();
 
 export const createCartColumns = (
   onRemoveGift: (giftId: string) => void,
-): Array<ColumnDef<CartGift>> => [
+): Array<ColumnDef<CartColumnGift>> => [
   columnHelper.accessor("title", {
     header: "Gift",
     cell: (info) => (
@@ -22,11 +24,7 @@ export const createCartColumns = (
         <ExternalLink className="h-4 w-4 text-black" />
       </a>
     ),
-  }) as ColumnDef<CartGift>,
-  columnHelper.accessor("childName", {
-    header: "Child Name",
-    cell: (info) => <span className="font-gaegu">{info.getValue()}</span>,
-  }) as ColumnDef<CartGift>,
+  }) as ColumnDef<CartColumnGift>,
   columnHelper.accessor("listedPrice", {
     header: "Price",
     cell: (info) => {
@@ -38,7 +36,7 @@ export const createCartColumns = (
         </span>
       );
     },
-  }) as ColumnDef<CartGift>,
+  }) as ColumnDef<CartColumnGift>,
   columnHelper.display({
     id: "actions",
     header: "",
@@ -54,5 +52,5 @@ export const createCartColumns = (
         <X className="h-4 w-4 text-black" />
       </Button>
     ),
-  }) as ColumnDef<CartGift>,
+  }) as ColumnDef<CartColumnGift>,
 ];

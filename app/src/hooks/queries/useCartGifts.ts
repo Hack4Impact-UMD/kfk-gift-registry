@@ -1,12 +1,13 @@
+import type { CartItem } from "@/local/cartCollection";
+import { cartCollection } from "@/local/cartCollection";
+import { queries } from "@/queries";
+import { useLiveQuery } from "@tanstack/react-db";
 import { useQuery } from "@tanstack/react-query";
-import { mockCartData } from "@/components/storefront/cartMockData";
 
-export const cartQueryKey = ["cart", "gifts"] as const;
+export function useLocalCartData() {
+  return useLiveQuery((q) => q.from({ pref: cartCollection }));
+}
 
-// created this to check if data exists in the cache
-export function useCartGifts() {
-  return useQuery({
-    queryKey: cartQueryKey,
-    queryFn: async () => mockCartData,
-  });
+export function useGroupedCartGifts(gifts: Array<CartItem>) {
+  return useQuery(queries.gifts.cart(gifts));
 }

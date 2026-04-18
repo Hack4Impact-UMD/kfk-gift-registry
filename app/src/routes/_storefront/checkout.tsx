@@ -1,36 +1,51 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CartContainer, ConfirmationPanel } from "@/components/storefront";
-import { useCartGifts } from "@/hooks/queries/useCartGifts";
-import { useRemoveGiftFromCart } from "@/hooks/mutations/useRemoveGiftFromCart";
+import {
+  useGroupedCartGifts,
+  useLocalCartData,
+} from "@/hooks/queries/useCartGifts";
 import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup.tsx";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Spinner } from "@/components/ui/spinner";
+import { cartCollection } from "@/local/cartCollection";
 
 export const Route = createFileRoute("/_storefront/checkout")({
   component: CheckoutComponent,
 });
 
 function CheckoutComponent() {
-  const { data: cartData, isLoading, isError } = useCartGifts();
-  const removeGiftMutation = useRemoveGiftFromCart();
+  const { data: localCart } = useLocalCartData();
+  const {
+    data: cartData,
+    isLoading,
+    isError,
+  } = useGroupedCartGifts(localCart ?? []);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleRemoveGift = (giftId: string) => {
-    removeGiftMutation.mutate(giftId);
+    cartCollection.delete(giftId);
   };
 
-  // Calculate totals from current cart data
-  const totalGifts = cartData?.reduce(
-    (sum, family) => sum + family.gifts.length,
-    0,
+  const familyGroups = useMemo(
+    () => (cartData ? Object.values(cartData) : []),
+    [cartData],
   );
-  const totalPrice = cartData?.reduce(
-    (sum, family) =>
-      sum +
-      family.gifts.reduce(
-        (familySum, gift) => familySum + (gift.listedPrice ?? 0),
+  const totalGifts = useMemo(
+    () => familyGroups.reduce((sum, family) => sum + family.gifts.length, 0),
+    [familyGroups],
+  );
+  const totalPrice = useMemo(
+    () =>
+      familyGroups.reduce(
+        (sum, family) =>
+          sum +
+          family.gifts.reduce(
+            (familySum, gift) => familySum + (gift.listedPrice ?? 0),
+            0,
+          ),
         0,
       ),
-    0,
+    [familyGroups],
   );
 
   const handleConfirmGifts = () => {
@@ -40,7 +55,7 @@ function CheckoutComponent() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-kfk-blue py-8 flex items-center justify-center">
-        <p className="text-white text-lg">Loading cart...</p>
+        <Spinner />
       </div>
     );
   }
@@ -56,13 +71,13 @@ function CheckoutComponent() {
 
   return (
     <div className="w-full flex justify-center px-4 py-8 md:py-4">
-      <div className="max-w-7xl w-full rounded-lg bg-kfk-blue p-4 md:p-8">
+      <div className="max-w-7xl w-full min-h-150 rounded-lg bg-kfk-blue p-4 md:p-8">
         <div className="flex flex-col md:flex-row gap-8 max-w-full">
           {/* Left side - Cart */}
           <div className="md:w-[68%]">
             <div className="bg-white rounded-lg shadow-lg p-4 md:p-8">
               <CartContainer
-                cartData={cartData}
+                cartData={familyGroups}
                 onRemoveGift={handleRemoveGift}
                 showWrapper={false}
               />
@@ -72,8 +87,8 @@ function CheckoutComponent() {
           {/* Right side - Confirmation Panel */}
           <div className="flex-1">
             <ConfirmationPanel
-              totalGifts={totalGifts ?? 0}
-              totalPrice={totalPrice ?? 0}
+              totalGifts={totalGifts}
+              totalPrice={totalPrice}
               onConfirm={handleConfirmGifts}
             />
           </div>

@@ -21,32 +21,37 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import type { StorefrontGift } from "@/types/storefront";
+import { cartCollection } from "@/local/cartCollection";
+import { useLiveQuery } from "@tanstack/react-db";
 
 function isGiftAlreadyClaimed(gift: StorefrontGift) {
   return gift.status !== "AVAILABLE";
 }
 
 export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
-  const [claimedGifts, setClaimedGifts] = useState<Set<string>>(new Set());
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const { data: cartGifts } = useLiveQuery((q) =>
+    q.from({ perf: cartCollection }),
+  );
 
-  const isGiftLocallyClaimed = (giftId: string) => claimedGifts.has(giftId);
-
-  const handleToggleClaimGift = (giftId: string) => {
+  const isGiftLocallyClaimed = (giftId: string) =>
+    cartGifts.some((g) => g.id === giftId);
+  const handleToggleClaimGift = (
+    giftId: string,
+    childId: string,
+    familyId: string,
+  ) => {
     const shouldRemoveClaim = isGiftLocallyClaimed(giftId);
 
-    setClaimedGifts((prev) => {
-      const newSet = new Set(prev);
-
-      if (shouldRemoveClaim) {
-        newSet.delete(giftId);
-      } else {
-        newSet.add(giftId);
-      }
-
-      return newSet;
-    });
-
+    if (shouldRemoveClaim) {
+      cartCollection.delete(giftId);
+    } else {
+      cartCollection.insert({
+        id: giftId,
+        childId,
+        familyId,
+      });
+    }
     setShowSuccessMessage(!shouldRemoveClaim);
   };
 
@@ -107,7 +112,9 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
               </a>
 
               <Button
-                onClick={() => handleToggleClaimGift(gift.id)}
+                onClick={() =>
+                  handleToggleClaimGift(gift.id, gift.familyId, gift.childId)
+                }
                 disabled={isAlreadyClaimed}
                 className={`rounded-full w-full ${
                   isAlreadyClaimed
