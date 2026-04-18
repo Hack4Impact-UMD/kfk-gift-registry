@@ -32,91 +32,6 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   component: RouteComponent,
 });
 
-const MOCK_GIFTS_JOHN: Array<Gift> = [
-  {
-    id: "gift-john-1",
-    childId: "john-smith",
-    familyId: "family123",
-    giftDrive: "gd_seed_fall_2025_2",
-    title: "Taco Cat Goat Cheese Pizza Card Game",
-    productUrl: "https://example.com/taco-cat",
-    listedPrice: 19.87,
-    status: "AVAILABLE",
-    createdAt: "2025-09-13T05:00:27.182Z",
-    backup: false,
-    active: true,
-  },
-  {
-    id: "gift-john-2",
-    childId: "john-smith",
-    familyId: "family123",
-    giftDrive: "gd_seed_fall_2025_2",
-    title: "HUES and CUES - Color Guessing Board Game",
-    productUrl: "https://example.com/hues",
-    listedPrice: 19.87,
-    status: "AVAILABLE",
-    createdAt: "2025-09-13T05:00:27.182Z",
-    backup: false,
-    active: true,
-  },
-];
-
-const MOCK_GIFTS_JANE: Array<Gift> = [
-  {
-    id: "gift-jane-1",
-    childId: "jane-smith",
-    familyId: "family123",
-    giftDrive: "gd_seed_fall_2025_2",
-    title: "Art Supply Kit - 64 Piece",
-    productUrl: "https://example.com/art-kit",
-    listedPrice: 24.99,
-    status: "AVAILABLE",
-    createdAt: "2025-09-13T05:00:27.182Z",
-    backup: false,
-    active: true,
-  },
-  {
-    id: "gift-jane-2",
-    childId: "jane-smith",
-    familyId: "family123",
-    giftDrive: "gd_seed_fall_2025_2",
-    title: "Kids' Headphones (Wired)",
-    productUrl: "https://example.com/headphones",
-    listedPrice: 16.5,
-    status: "AVAILABLE",
-    createdAt: "2025-09-13T05:00:27.182Z",
-    backup: false,
-    active: true,
-  },
-];
-
-const mockFamily: Family = {
-  id: "family123",
-  contactName: "Anna Smith",
-  email: "AnnaSmith@gmail.com",
-  phone: "123-456-7890",
-  giftDrive: "gd_seed_fall_2025_2",
-  createdAt: "2025-09-13T05:00:27.182Z",
-
-  address: {
-    street: "629 N Walnut Street",
-    city: "Dellbury",
-    state: "PA",
-    zipCode: "10087",
-  },
-
-  reviewStatus: {
-    approved: true,
-    held: false,
-    lastReviewedAt: "2025-10-19T19:53:02.455Z",
-    reviewedBy: "director_1",
-    reviewNotes: "Family information verified by staff intake.",
-  },
-
-  privateNotes:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis",
-};
-
 function RouteComponent() {
   // const params = Route.useParams();
   // const familyId = params.familyId;
@@ -177,7 +92,7 @@ function RouteComponent() {
             </div>
           </ScrollArea>
         </section>
-        <ReviewActionPanel />
+        <ReviewActionPanel familyId={familyId} />
       </div>
     </div>
   );

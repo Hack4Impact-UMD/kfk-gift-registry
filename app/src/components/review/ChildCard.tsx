@@ -285,10 +285,10 @@ export function ChildCard({ child, onSave }: ChildInfoCardProps) {
                   {child.name}
                 </h2>
                 <span
-                  className={`my-auto rounded-full border px-5 py-1 ${
+                  className={`my-auto rounded-full border border-gray-200 px-5 py-1 ${
                     child.category == "warrior"
-                      ? "border-kfk-brown bg-kfk-muted-yellow text-kfk-brown"
-                      : "border-kfk-blue/20 bg-kfk-light-blue text-kfk-blue"
+                      ? "bg-[#FFF8C2] text-kfk-brown"
+                      : "bg-kfk-light-blue text-kfk-blue"
                   }`}
                 >
                   {child.category == "warrior" ? "Warrior" : "SuperSib"}

@@ -4,7 +4,10 @@ import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
-import type { PendingProfileTableRow, ApplicationStatus } from "@/components/tables/PendingProfilesTable/types";
+import type {
+  PendingProfileTableRow,
+  ApplicationStatus,
+} from "@/components/tables/PendingProfilesTable/types";
 
 const tokenInputSchema = z.object({
   token: z.string().min(1),
@@ -20,20 +23,38 @@ const driveIdInputSchema = z.object({
 
 const updateFamilySchema = z.object({
   familyId: z.string().min(1),
+  updates: z
+    .object({
+      contactName: z.string().trim().min(1).max(100),
+      email: z.email(),
+      phone: z.string().min(1),
+      address: z
+        .object({
+          street: z.string().min(1),
+          addressLine2: z.string().optional(),
+          city: z.string().min(1),
+          state: z.string().min(1),
+          zipCode: z.string().min(1),
+        })
+        .partial(),
+      privateNotes: z.string().trim().max(2000),
+    })
+    .partial()
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
+});
+
+export const updateFamilyReviewStatusSchema = z.object({
+  familyId: z.string().min(1),
   updates: z.object({
-    contactName: z.string().trim().min(1).max(100),
-    email: z.email(),
-    phone: z.string().min(1),
-    address: z.object({
-      street: z.string().min(1),
-      addressLine2: z.string().optional(),
-      city: z.string().min(1),
-      state: z.string().min(1),
-      zipCode: z.string().min(1),
-    }).partial(),
-    privateNotes: z.string().trim().max(2000),
-  }).partial().refine((data) => Object.keys(data).length > 0, {
-    message: "At least one field must be provided for update",
+    reviewStatus: z.object({
+      approved: z.boolean(),
+      held: z.boolean(),
+      reviewNotes: z.string().optional(),
+      holdNotes: z.string().optional(),
+    }),
+    privateNotes: z.string().optional(),
   }),
 });
 
@@ -201,7 +222,7 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
         const child = childDoc.data();
         childCountMap.set(
           child.familyId,
-          (childCountMap.get(child.familyId) || 0) + 1
+          (childCountMap.get(child.familyId) || 0) + 1,
         );
       }
     }
@@ -231,4 +252,37 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
     }
 
     return rows;
+  });
+
+export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.ADMIN, UserRole.DIRECTOR])])
+  .inputValidator(updateFamilyReviewStatusSchema)
+  .handler(async ({ data, context }) => {
+    const { familyId, updates } = data;
+    const db = getServerDB();
+
+    const staffId = context.authUser.uid;
+    if (!staffId) {
+      throw new Error("Unauthorized Action: User isn't Staff");
+    }
+
+    const familyDoc = await db.families.doc(familyId).get();
+    if (!familyDoc.exists) {
+      throw new Error("Family not found");
+    }
+
+    const reviewUpdates = {
+      "reviewStatus.approved": updates.reviewStatus.approved,
+      "reviewStatus.held": updates.reviewStatus.held,
+      "reviewStatus.reviewNotes": updates.reviewStatus.reviewNotes ?? "",
+      "reviewStatus.holdNotes": updates.reviewStatus.holdNotes ?? "",
+      "reviewStatus.reviewedBy": staffId ?? "",
+      "reviewStatus.lastReviewedAt": new Date().toISOString(),
+      ...(updates.privateNotes && { privateNotes: updates.privateNotes }),
+    };
+
+    await db.families.doc(familyId).update(reviewUpdates);
+
+    const updatedFamily = await db.families.doc(familyId).get();
+    return updatedFamily.data()!;
   });

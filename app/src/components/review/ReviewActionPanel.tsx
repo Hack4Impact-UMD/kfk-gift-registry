@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeftIcon } from "@/components/icons/ArrowLeftIcon";
 import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { CheckCircleOutlineIcon } from "@/components/icons/CheckCircleOutlineIcon";
+import { useUpdateFamilyReviewStatus } from "@/hooks/mutations/useUpdateFamilyReviewStatus";
 
 const CHECKLIST_ITEMS = [
   "No gift cards allowed",
@@ -16,7 +17,9 @@ const CHECKLIST_ITEMS = [
 const ADMIN_COMMENTS_PLACEHOLDER =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 
-export function ReviewActionPanel() {
+export function ReviewActionPanel({ familyId }: { familyId: string }) {
+  const { mutate: updateFamilyReviewStatus, isPending: isStatusPending } =
+    useUpdateFamilyReviewStatus();
   return (
     <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-80 xl:w-96">
       <section>
@@ -57,12 +60,34 @@ export function ReviewActionPanel() {
       <div className="flex flex-col gap-3">
         <Button
           type="button"
+          onClick={() => {
+            updateFamilyReviewStatus({
+              familyId: familyId,
+              updates: {
+                reviewStatus: {
+                  approved: true,
+                  held: false,
+                },
+              },
+            });
+          }}
           className="h-11 w-full rounded-md bg-green-600 text-base font-medium text-white hover:bg-green-700"
         >
           Move to Approved
         </Button>
         <Button
           type="button"
+          onClick={() => {
+            updateFamilyReviewStatus({
+              familyId: familyId,
+              updates: {
+                reviewStatus: {
+                  approved: false,
+                  held: true,
+                },
+              },
+            });
+          }}
           className="h-11 w-full rounded-md bg-red-600 text-base font-medium text-white hover:bg-red-700"
         >
           Move to Holdfile
