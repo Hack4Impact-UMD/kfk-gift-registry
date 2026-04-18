@@ -2,6 +2,9 @@ import Ladybug from "@/assets/ladybug-storefront.svg";
 import { StoreFrontProgress } from "@/components/ui/progress";
 import { GiftIcon, UserGroupIcon, UserIcon } from "@/components/icons";
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
+import { DateTime } from "luxon";
+import type { GiftDrive } from "common";
 
 interface StatProps {
   children?: ReactNode;
@@ -17,33 +20,57 @@ function StatLabel({ children, startIcon }: StatProps) {
   );
 }
 
+function useTimeRemaining(endDate: string) {
+  const getRemaining = () =>
+    DateTime.fromISO(endDate).diffNow(["days", "hours", "minutes", "seconds"]);
+
+  const [remaining, setRemaining] = useState(getRemaining);
+
+  useEffect(() => {
+    const id = setInterval(() => setRemaining(getRemaining()), 1000);
+    return () => clearInterval(id);
+  }, [endDate]);
+
+  return remaining;
+}
+
 interface GiftDriveStatsProps {
-  days: number;
-  giftsPurchased: number;
-  totalGiftsPurchased: number;
+  drive: GiftDrive;
+  giftsClaimed: number;
+  totalGifts: number;
   giftsReceived: number;
   totalDonated: number;
 }
 
 export function GiftDriveStats({
-  days,
-  giftsPurchased,
-  totalGiftsPurchased,
+  drive,
+  giftsClaimed,
+  totalGifts,
   giftsReceived,
   totalDonated,
 }: GiftDriveStatsProps) {
+  const remaining = useTimeRemaining(drive.endDate);
+  const days = Math.floor(remaining.days);
+  const hours = String(Math.floor(remaining.hours)).padStart(2, "0");
+  const minutes = String(Math.floor(remaining.minutes)).padStart(2, "0");
+  const seconds = String(Math.max(0, Math.floor(remaining.seconds))).padStart(
+    2,
+    "0",
+  );
+
+  const timeLabel =
+    days >= 1
+      ? `${days} ${days === 1 ? "Day" : "Days"} Left to Donate!`
+      : `${hours}:${minutes}:${seconds} Left to Donate!`;
+
   const progressPercentage =
-    totalGiftsPurchased > 0
-      ? Math.floor((giftsPurchased / totalGiftsPurchased) * 100)
-      : 0;
+    totalGifts > 0 ? Math.floor((giftsClaimed / totalGifts) * 100) : 0;
   const ladybugClampedPosition = Math.min(Math.max(progressPercentage, 2), 98);
 
   return (
     <div className="bg-kfk-blue text-white font-gaegu py-7">
       <div className="flex flex-col gap-5 w-full max-w-6xl mx-auto px-4">
-        <h2 className="text-center text-2xl font-bold">
-          {days} Days Left to Donate!
-        </h2>
+        <h2 className="text-center text-2xl font-bold">{timeLabel}</h2>
         <div className="relative w-full p-2 bg-[#FFF8C2] rounded-full">
           <StoreFrontProgress
             value={progressPercentage}
@@ -59,8 +86,8 @@ export function GiftDriveStats({
 
         <div className="flex justify-around text-xl gap-2">
           <StatLabel startIcon={<GiftIcon className="h-5 w-5" />}>
-            <span className="text-kfk-yellow">{giftsPurchased}</span> out of{" "}
-            {totalGiftsPurchased} Gifts Purchased
+            <span className="text-kfk-yellow">{giftsClaimed}</span> out of{" "}
+            {totalGifts} Gifts Purchased
           </StatLabel>
           <StatLabel startIcon={<UserGroupIcon className="h-5 w-5" />}>
             <span className="text-kfk-yellow">{giftsReceived}</span> Children

@@ -1,5 +1,8 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
-import { getProfilesForStorefront } from "@/server/functions/storefront";
+import {
+  getProfilesForStorefront,
+  getUniqueStorefrontDonorsForDrive,
+} from "@/server/functions/storefront";
 import {
   getStorefrontChildById,
   getStorefrontGiftsForChild,
@@ -22,5 +25,9 @@ export const storefrontQueries = createQueryKeys("storefront", {
   siblingsForChild: (childId: string) => ({
     queryKey: ["siblingsForChild", childId],
     queryFn: () => getStorefrontSiblingsForChild({ data: { childId } }),
+  }),
+  uniqueDonorsForDrive: (driveId: string) => ({
+    queryKey: ["uniqueDonorsForDrive", driveId],
+    queryFn: () => getUniqueStorefrontDonorsForDrive({ data: { driveId } }),
   }),
 });

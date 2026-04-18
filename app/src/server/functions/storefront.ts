@@ -119,3 +119,19 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
 
     return results;
   });
+
+export const getUniqueStorefrontDonorsForDrive = createServerFn()
+  .inputValidator(driveIdSchema)
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const gifts = (
+      await db.gifts.where("giftDrive", "==", data.driveId).get()
+    ).docs.map((d) => d.data());
+
+    const donorIDs = new Set<string>();
+    gifts.forEach((gift) => {
+      if (gift.claimedByDonorId) donorIDs.add(gift.claimedByDonorId);
+    });
+
+    return donorIDs.size;
+  });
