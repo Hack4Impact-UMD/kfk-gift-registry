@@ -7,6 +7,8 @@ import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { CheckCircleOutlineIcon } from "@/components/icons/CheckCircleOutlineIcon";
 import { useUpdateFamilyReviewStatus } from "@/hooks/mutations/useUpdateFamilyReviewStatus";
 import type { Family } from "common";
+import { StatusBadge } from "@/components/tables/PendingProfilesTable/StatusBadge";
+import type { ApplicationStatus } from "@/components/tables/PendingProfilesTable/types";
 
 const CHECKLIST_ITEMS = [
   "No gift cards allowed",
@@ -44,6 +46,11 @@ export function ReviewActionPanel({
     setAdminComments(savedAdminComments);
   }, [savedAdminComments]);
 
+  const familyStatus: ApplicationStatus = family.reviewStatus.approved
+    ? "approved"
+    : family.reviewStatus.held
+      ? "holdfile"
+      : "pending";
   const normalizedAdminComments = adminComments.trim() ? adminComments : "";
   const hasUnsavedComments = adminComments !== savedAdminComments;
 
@@ -97,6 +104,15 @@ export function ReviewActionPanel({
 
   return (
     <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-80 xl:w-96">
+      <section>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="text-lg font-bold tracking-tight text-foreground">
+            Family Status
+          </h2>
+          <StatusBadge status={familyStatus} className="text-sm" />
+        </div>
+      </section>
+
       <section>
         <h2 className="mb-3 text-lg font-bold tracking-tight text-foreground">
           Approval Checklist
