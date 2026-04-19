@@ -44,6 +44,13 @@ export const getStorefrontGift = createServerFn({ method: "GET" })
       throw new Error("Gift not found");
     }
 
+    const childDoc = await db.children.doc(gift.childId).get();
+    const child = childDoc.exists ? childDoc.data() : undefined;
+
+    if (!child?.published) {
+      throw new Error("Gift not found");
+    }
+
     return {
       id: gift.id,
       title: gift.title,
@@ -52,6 +59,7 @@ export const getStorefrontGift = createServerFn({ method: "GET" })
       status: gift.status,
       familyId: gift.familyId,
       childId: gift.childId,
+      familyPublicNotes: gift.familyPublicNotes,
     } satisfies StorefrontGift;
   });
 

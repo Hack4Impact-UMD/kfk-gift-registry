@@ -106,17 +106,21 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
                 href={gift.productUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-gaegu text-base hover:underline flex items-center gap-2 mb-3"
+                className="font-gaegu text-base hover:underline flex items-center gap-2"
               >
                 {gift.title}
               </a>
 
+              <span className="text-sm text-muted-foreground">
+                {gift.familyPublicNotes}
+              </span>
+
               <Button
                 onClick={() =>
-                  handleToggleClaimGift(gift.id, gift.familyId, gift.childId)
+                  handleToggleClaimGift(gift.id, gift.childId, gift.familyId)
                 }
                 disabled={isAlreadyClaimed}
-                className={`rounded-full w-full ${
+                className={`rounded-full mt-3 w-full ${
                   isAlreadyClaimed
                     ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white h-auto whitespace-nowrap"
                     : isLocallyClaimed

@@ -11,13 +11,14 @@ import { cartCollection } from "@/local/cartCollection";
 
 export const Route = createFileRoute("/_storefront/checkout")({
   component: CheckoutComponent,
+  ssr: false,
 });
 
 function CheckoutComponent() {
   const { data: localCart } = useLocalCartData();
   const {
     data: cartData,
-    isLoading,
+    isPending,
     isError,
   } = useGroupedCartGifts(localCart ?? []);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,7 +53,7 @@ function CheckoutComponent() {
     setIsModalOpen(true);
   };
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="min-h-screen bg-kfk-blue py-8 flex items-center justify-center">
         <Spinner />

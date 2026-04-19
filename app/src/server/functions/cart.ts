@@ -44,7 +44,8 @@ export const getCartGiftsGroupedByFamily = createServerFn({ method: "GET" })
           status: gift.status,
           childId: gift.childId,
           familyId: gift.familyId,
-        },
+          familyPublicNotes: gift.familyPublicNotes,
+        } satisfies StorefrontGift,
       ];
     });
 
