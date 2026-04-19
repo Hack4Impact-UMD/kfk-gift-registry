@@ -51,7 +51,7 @@ export function ReviewActionPanel({
     : family.reviewStatus.held
       ? "holdfile"
       : "pending";
-  const normalizedAdminComments = adminComments.trim() ? adminComments : "";
+  const normalizedAdminComments = adminComments.trim();
   const hasUnsavedComments = adminComments !== savedAdminComments;
 
   const persistReviewUpdate = (
