@@ -19,5 +19,12 @@ export type StorefrontChild = Omit<
 
 export type StorefrontGift = Pick<
   Gift,
-  "id" | "title" | "productUrl" | "listedPrice" | "status" | "familyPublicNotes"
+  | "id"
+  | "title"
+  | "productUrl"
+  | "listedPrice"
+  | "status"
+  | "familyPublicNotes"
+  | "familyId"
+  | "childId"
 >;

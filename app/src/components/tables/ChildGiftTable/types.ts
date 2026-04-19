@@ -9,5 +9,9 @@ export interface GiftTableMeta {
   isGiftAlreadyClaimed: (gift: StorefrontGift) => boolean;
   isGiftClaimed: (gift: StorefrontGift) => boolean;
   isGiftLocallyClaimed: (giftId: string) => boolean;
-  onToggleClaimGift: (giftId: string) => void;
+  onToggleClaimGift: (
+    giftId: string,
+    childId: string,
+    familyId: string,
+  ) => void;
 }

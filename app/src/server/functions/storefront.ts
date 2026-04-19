@@ -2,11 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getServerDB } from "@/lib/firebase.server";
 import type { Child, Gift } from "common";
 import z from "zod";
-
-type StorefrontGift = Pick<
-  Gift,
-  "id" | "title" | "productUrl" | "listedPrice" | "status"
->;
+import type { StorefrontGift } from "@/types/storefront";
 
 export type StorefrontChildWithGifts = Pick<
   Child,
@@ -27,6 +23,45 @@ export type StorefrontChildWithGifts = Pick<
 const driveIdSchema = z.object({
   driveId: z.string().min(1),
 });
+
+const giftIdSchema = z.object({
+  giftId: z.string().min(1),
+});
+
+export const getStorefrontGift = createServerFn({ method: "GET" })
+  .inputValidator(giftIdSchema)
+  .handler(async ({ data }): Promise<StorefrontGift> => {
+    const db = getServerDB();
+    const giftDoc = await db.gifts.doc(data.giftId).get();
+
+    if (!giftDoc.exists) {
+      throw new Error("Gift not found");
+    }
+
+    const gift = giftDoc.data()!;
+
+    if (!gift.active) {
+      throw new Error("Gift not found");
+    }
+
+    const childDoc = await db.children.doc(gift.childId).get();
+    const child = childDoc.exists ? childDoc.data() : undefined;
+
+    if (!child?.published) {
+      throw new Error("Gift not found");
+    }
+
+    return {
+      id: gift.id,
+      title: gift.title,
+      productUrl: gift.productUrl,
+      listedPrice: gift.listedPrice,
+      status: gift.status,
+      familyId: gift.familyId,
+      childId: gift.childId,
+      familyPublicNotes: gift.familyPublicNotes,
+    } satisfies StorefrontGift;
+  });
 
 export const getProfilesForStorefront = createServerFn({ method: "GET" })
   .inputValidator(driveIdSchema)
@@ -99,6 +134,8 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
           productUrl: gift.productUrl,
           listedPrice: gift.listedPrice,
           status: gift.status,
+          childId: gift.childId,
+          familyId: gift.familyId,
         }));
 
         return {

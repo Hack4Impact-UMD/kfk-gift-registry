@@ -15,15 +15,20 @@ export const columns = [
       const url = row.original.productUrl;
 
       return (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 sm:gap-2 text-foreground hover:underline font-gaegu text-sm sm:text-base lg:text-lg whitespace-pre-wrap"
-        >
-          <span className="grow">{title}</span>
-          <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-        </a>
+        <div>
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 sm:gap-2 text-foreground hover:underline font-gaegu text-sm sm:text-base lg:text-lg whitespace-pre-wrap"
+          >
+            <span className="grow">{title}</span>
+            <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+          </a>
+          <span className="text-sm text-muted-foreground">
+            {row.original.familyPublicNotes}
+          </span>
+        </div>
       );
     },
   }),
@@ -50,7 +55,9 @@ export const columns = [
 
       return (
         <Button
-          onClick={() => meta?.onToggleClaimGift(giftId)}
+          onClick={() =>
+            meta?.onToggleClaimGift(giftId, gift.childId, gift.familyId)
+          }
           disabled={isAlreadyClaimed}
           className={`rounded-full min-w-[132px] my-4 ${
             isAlreadyClaimed

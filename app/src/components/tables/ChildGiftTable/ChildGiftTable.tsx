@@ -21,32 +21,37 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import type { StorefrontGift } from "@/types/storefront";
+import { cartCollection } from "@/local/cartCollection";
+import { useLiveQuery } from "@tanstack/react-db";
 
 function isGiftAlreadyClaimed(gift: StorefrontGift) {
   return gift.status !== "AVAILABLE";
 }
 
 export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
-  const [claimedGifts, setClaimedGifts] = useState<Set<string>>(new Set());
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const { data: cartGifts } = useLiveQuery((q) =>
+    q.from({ perf: cartCollection }),
+  );
 
-  const isGiftLocallyClaimed = (giftId: string) => claimedGifts.has(giftId);
-
-  const handleToggleClaimGift = (giftId: string) => {
+  const isGiftLocallyClaimed = (giftId: string) =>
+    cartGifts.some((g) => g.id === giftId);
+  const handleToggleClaimGift = (
+    giftId: string,
+    childId: string,
+    familyId: string,
+  ) => {
     const shouldRemoveClaim = isGiftLocallyClaimed(giftId);
 
-    setClaimedGifts((prev) => {
-      const newSet = new Set(prev);
-
-      if (shouldRemoveClaim) {
-        newSet.delete(giftId);
-      } else {
-        newSet.add(giftId);
-      }
-
-      return newSet;
-    });
-
+    if (shouldRemoveClaim) {
+      cartCollection.delete(giftId);
+    } else {
+      cartCollection.insert({
+        id: giftId,
+        childId,
+        familyId,
+      });
+    }
     setShowSuccessMessage(!shouldRemoveClaim);
   };
 
@@ -101,15 +106,21 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
                 href={gift.productUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-gaegu text-base hover:underline flex items-center gap-2 mb-3"
+                className="font-gaegu text-base hover:underline flex items-center gap-2"
               >
                 {gift.title}
               </a>
 
+              <span className="text-sm text-muted-foreground">
+                {gift.familyPublicNotes}
+              </span>
+
               <Button
-                onClick={() => handleToggleClaimGift(gift.id)}
+                onClick={() =>
+                  handleToggleClaimGift(gift.id, gift.childId, gift.familyId)
+                }
                 disabled={isAlreadyClaimed}
-                className={`rounded-full w-full ${
+                className={`rounded-full mt-3 w-full ${
                   isAlreadyClaimed
                     ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white h-auto whitespace-nowrap"
                     : isLocallyClaimed
