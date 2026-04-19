@@ -22,13 +22,13 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
       data: { familyId: params.familyId },
     });
 
-    const chilrenData = await getChildProfilesForFamily({
+    const childrenData = await getChildProfilesForFamily({
       data: { familyId: params.familyId },
     });
 
     return {
       family: familyData,
-      children: chilrenData,
+      children: childrenData,
       familyId: params.familyId,
     };
   },
@@ -38,6 +38,14 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
 interface ChildCardWithGiftsProps {
   child: Child;
   onSave: (updatedChild: Child) => void;
+}
+
+function omitUndefined<T extends Record<string, unknown>>(
+  value: T,
+): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined),
+  ) as Partial<T>;
 }
 
 function ChildCardWithGifts({ child, onSave }: ChildCardWithGiftsProps) {
@@ -117,13 +125,23 @@ function RouteComponent() {
   };
 
   const handleChildUpdate = (updatedChild: Child) => {
+    const childUpdates = omitUndefined({
+      diagnosisLengthYears: updatedChild.diagnosisLengthYears,
+      diagnosis: updatedChild.diagnosis,
+      age: updatedChild.age,
+      treatmentLevel: updatedChild.treatmentLevel,
+      publicBlurb: updatedChild.publicBlurb,
+      childSocialWorker: updatedChild.childSocialWorker,
+      hospital: updatedChild.hospital,
+      photoUrl: updatedChild.photoUrl,
+      staffPrivateNotes: updatedChild.staffPrivateNotes,
+      offTreatmentDurationYears: updatedChild.offTreatmentDurationYears,
+    });
+
     updateChild(
       {
         childId: updatedChild.id,
-        updates: {
-          ...updatedChild,
-          photoUrl: updatedChild.photoUrl || undefined,
-        },
+        updates: childUpdates,
       },
       {
         onSuccess: () => {
