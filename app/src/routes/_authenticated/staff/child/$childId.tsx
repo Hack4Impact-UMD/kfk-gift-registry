@@ -153,13 +153,13 @@ function ChildProfilePage() {
   };
 
   return (
-    <div className="mx-8">
+    <div className="px-8">
       <h1 className="font-bold text-4xl my-4">Child Profile</h1>
 
-      <div className="flex">
+      <div className="flex gap-6">
         <ChildSidebar child={child} family={family} />
 
-        <div className="flex flex-col flex-1 ml-8 w-full">
+        <div className="flex flex-col flex-1 w-full">
           <ChildHeader
             child={child}
             isEditing={isEditing}

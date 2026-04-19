@@ -26,7 +26,7 @@ export function GiftInfoSection({
   const backupGifts = gifts.filter((g) => !g.active);
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_420px] gap-12 mt-6 items-start w-full">
+    <div className="grid grid-cols-[minmax(0,900px)_420px] gap-12 mt-6 items-start justify-start">
       <div className="flex flex-col gap-6 min-w-0">
         <div className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-4">
           <h2 className="text-4xl font-bold flex items-center justify-center gap-3 pt-3 -mb-3">
