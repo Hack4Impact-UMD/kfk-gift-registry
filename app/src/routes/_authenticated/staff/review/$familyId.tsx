@@ -41,12 +41,22 @@ interface ChildCardWithGiftsProps {
 }
 
 function ChildCardWithGifts({ child, onSave }: ChildCardWithGiftsProps) {
-  const { data: fetchedGifts, isPending: isLoadingGifts } = useQuery(
-    childQueries.gifts(child.id),
-  );
+  const {
+    data: fetchedGifts,
+    isPending: isLoadingGifts,
+    isError,
+  } = useQuery(childQueries.gifts(child.id));
 
   if (isLoadingGifts) {
     return <div>Loading Child...</div>;
+  }
+
+  if (isError) {
+    return (
+      <div role="alert" className="text-kfk-red">
+        Unable to load gifts for {child.name}.
+      </div>
+    );
   }
 
   return (
@@ -92,7 +102,13 @@ function RouteComponent() {
     updateFamily(
       {
         familyId: familyId,
-        updates: updatedFamily,
+        updates: {
+          contactName: updatedFamily.contactName,
+          guardianRelationship: updatedFamily.guardianRelationship ?? "",
+          email: updatedFamily.email,
+          phone: updatedFamily.phone,
+          privateNotes: updatedFamily.privateNotes ?? "",
+        },
       },
       {
         onSuccess: () => setFamilyData(updatedFamily),

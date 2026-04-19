@@ -11,6 +11,7 @@ export function useUpdateFamily() {
       familyId: string;
       updates: {
         contactName?: string;
+        guardianRelationship?: string;
         email?: string;
         phone?: string;
         address?: {

@@ -25,7 +25,7 @@ function createGuardianFormState(family: Family) {
     contactName: family.contactName,
     phone: family.phone,
     email: family.email,
-    relationship: "Mother", // hardcoded for now
+    relationship: family.guardianRelationship ?? "",
     privateNotes: family.privateNotes || "",
   };
 }
@@ -68,6 +68,7 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
     const updatedFamily: Family = {
       ...family,
       contactName: formState.contactName,
+      guardianRelationship: formState.relationship.trim(),
       phone: validationResult.data.phone,
       email: validationResult.data.email,
       privateNotes: formState.privateNotes,
@@ -77,6 +78,7 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
 
     setFormState((prev) => ({
       ...prev,
+      relationship: formState.relationship.trim(),
       phone: validationResult.data.phone,
       email: validationResult.data.email,
     }));

@@ -46,7 +46,6 @@ export function DataTable<TData, TValue>({
   onOrderedRowsChange,
   onRowClick,
 }: DataTableProps<TData, TValue>) {
-
   const table = useReactTable({
     data,
     columns,

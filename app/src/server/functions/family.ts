@@ -34,6 +34,7 @@ const updateFamilySchema = z.object({
   updates: z
     .object({
       contactName: z.string().trim().min(1).max(100),
+      guardianRelationship: z.string().trim().max(50),
       email: z.email(),
       phone: z.string().min(1),
       address: z
