@@ -5,6 +5,7 @@ import { DataTable } from "../DataTable";
 import { columns } from "./columns";
 import { PendingProfilesTableActionButton } from "./PendingProfilesTableActionButton";
 import { Input } from "@/components/ui/input";
+import { useReviewOrder } from "@/context/ReviewOrderContext";
 import { cn } from "@/lib/utils";
 import type { ApplicationStatus, PendingProfileTableRow } from "./types";
 
@@ -26,6 +27,7 @@ export function PendingProfilesTable({
 }: PendingProfilesTableProps) {
   const [globalSearch, setGlobalSearch] = useState("");
   const navigate = useNavigate();
+  const { setReviewOrder } = useReviewOrder();
 
   const handleRowClick = (row: PendingProfileTableRow) => {
     navigate({
@@ -68,6 +70,9 @@ export function PendingProfilesTable({
         onGlobalSearchChange={setGlobalSearch}
         rowsPerPage={rowsPerPage}
         paginated={paginated}
+        onOrderedRowsChange={(orderedRows) =>
+          setReviewOrder(orderedRows.map((orderedRow) => orderedRow.id))
+        }
         onRowClick={handleRowClick}
       />
     </div>

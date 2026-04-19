@@ -11,6 +11,7 @@ import { UserRole } from "common";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { StaffSidebar } from "@/components/StaffSidebar/StaffSidebar";
 import { DriveProvider } from "@/context/DriveContext";
+import { ReviewOrderProvider } from "@/context/ReviewOrderContext";
 import { queries } from "@/queries";
 import { useAllGiftDrives } from "@/hooks/queries/useAllGiftDrives";
 import z from "zod";
@@ -53,21 +54,26 @@ function RouteComponent() {
         });
       }}
     >
-      <div>
-        <SidebarProvider className="h-svh" open={open} onOpenChange={setOpen}>
-          <div className="flex h-full w-full flex-row">
-            <StaffSidebar currentDrive={currentDrive} />
-            <main className="flex min-w-0 flex-1 flex-col">
-              <div className="w-full bg-accent border-b block md:hidden">
-                <SidebarTrigger openIcon={<XIcon />} closeIcon={<MenuIcon />} />
-              </div>
-              <div className="flex min-h-0 flex-1 flex-col p-4">
-                <Outlet />
-              </div>
-            </main>
-          </div>
-        </SidebarProvider>
-      </div>
+      <ReviewOrderProvider>
+        <div>
+          <SidebarProvider className="h-svh" open={open} onOpenChange={setOpen}>
+            <div className="flex h-full w-full flex-row">
+              <StaffSidebar currentDrive={currentDrive} />
+              <main className="flex min-w-0 flex-1 flex-col">
+                <div className="w-full bg-accent border-b block md:hidden">
+                  <SidebarTrigger
+                    openIcon={<XIcon />}
+                    closeIcon={<MenuIcon />}
+                  />
+                </div>
+                <div className="flex min-h-0 flex-1 flex-col p-4">
+                  <Outlet />
+                </div>
+              </main>
+            </div>
+          </SidebarProvider>
+        </div>
+      </ReviewOrderProvider>
     </DriveProvider>
   );
 }

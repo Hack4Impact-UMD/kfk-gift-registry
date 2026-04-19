@@ -1,3 +1,4 @@
+import * as React from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -29,6 +30,7 @@ interface DataTableProps<TData, TValue> {
   paginated?: boolean;
   globalSearch?: string;
   onGlobalSearchChange?: (value: string) => void;
+  onOrderedRowsChange?: (orderedRows: Array<TData>) => void;
   onRowClick?: (row: TData) => void;
 }
 
@@ -41,6 +43,7 @@ export function DataTable<TData, TValue>({
   className = "",
   rowsPerPage = 10,
   paginated = true,
+  onOrderedRowsChange,
   onRowClick,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
@@ -77,6 +80,13 @@ export function DataTable<TData, TValue>({
 
   const pageCount = table.getPageCount();
   const currentPage = pageIndex + 1;
+  const orderedRows = (
+    paginated ? table.getPrePaginationRowModel().rows : table.getRowModel().rows
+  ).map((row) => row.original);
+
+  React.useEffect(() => {
+    onOrderedRowsChange?.(orderedRows);
+  }, [onOrderedRowsChange, orderedRows]);
 
   const getPageNumbers = (): Array<number | "..."> => {
     if (pageCount <= 5) {

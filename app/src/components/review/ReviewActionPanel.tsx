@@ -22,11 +22,15 @@ const ADMIN_COMMENTS_PLACEHOLDER =
 interface ReviewActionPanelProps {
   family: Family;
   onFamilyReviewUpdated: (updatedFamily: Family) => void;
+  onPreviousFamily?: () => void;
+  onNextFamily?: () => void;
 }
 
 export function ReviewActionPanel({
   family,
   onFamilyReviewUpdated,
+  onPreviousFamily,
+  onNextFamily,
 }: ReviewActionPanelProps) {
   const { mutate: updateFamilyReviewStatus, isPending: isStatusPending } =
     useUpdateFamilyReviewStatus();
@@ -43,7 +47,12 @@ export function ReviewActionPanel({
   const normalizedAdminComments = adminComments.trim() ? adminComments : "";
   const hasUnsavedComments = adminComments !== savedAdminComments;
 
-  const persistReviewUpdate = (reviewStatus: Family["reviewStatus"]) => {
+  const persistReviewUpdate = (
+    reviewStatus: Family["reviewStatus"],
+    options?: {
+      onSuccess?: (updatedFamily: Family) => void;
+    },
+  ) => {
     updateFamilyReviewStatus(
       {
         familyId: family.id,
@@ -63,9 +72,27 @@ export function ReviewActionPanel({
       {
         onSuccess: (updatedFamily) => {
           onFamilyReviewUpdated(updatedFamily);
+          options?.onSuccess?.(updatedFamily);
         },
       },
     );
+  };
+
+  const handleFamilyNavigation = (navigateToFamily?: () => void) => {
+    if (!navigateToFamily || isStatusPending) {
+      return;
+    }
+
+    if (hasUnsavedComments) {
+      persistReviewUpdate(family.reviewStatus, {
+        onSuccess: () => {
+          navigateToFamily();
+        },
+      });
+      return;
+    }
+
+    navigateToFamily();
   };
 
   return (
@@ -154,6 +181,10 @@ export function ReviewActionPanel({
         <Button
           type="button"
           variant="default"
+          disabled={isStatusPending || !onPreviousFamily}
+          onClick={() => {
+            handleFamilyNavigation(onPreviousFamily);
+          }}
           className="h-10 w-full rounded-md bg-kfk-blue text-white hover:bg-kfk-blue/90"
         >
           <ArrowLeftIcon className="size-4" aria-hidden />
@@ -162,6 +193,10 @@ export function ReviewActionPanel({
         <Button
           type="button"
           variant="default"
+          disabled={isStatusPending || !onNextFamily}
+          onClick={() => {
+            handleFamilyNavigation(onNextFamily);
+          }}
           className="h-10 w-full rounded-md bg-kfk-blue text-white hover:bg-kfk-blue/90"
         >
           Next
