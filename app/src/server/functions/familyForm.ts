@@ -160,6 +160,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
     const family: Family = {
       id: familyId,
       contactName: data.generalInfo.parentName,
+      guardianRelationship: "",
       email: data.generalInfo.email,
       phone: data.generalInfo.phoneNumber,
       address: data.generalInfo.address,

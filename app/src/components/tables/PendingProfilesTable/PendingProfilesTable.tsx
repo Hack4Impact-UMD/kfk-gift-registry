@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { DataTable } from "../DataTable";
 import { columns } from "./columns";
 import { PendingProfilesTableActionButton } from "./PendingProfilesTableActionButton";
 import { Input } from "@/components/ui/input";
+import { useReviewOrder } from "@/context/ReviewOrderContext";
 import { cn } from "@/lib/utils";
 import type { ApplicationStatus, PendingProfileTableRow } from "./types";
 
@@ -24,8 +26,20 @@ export function PendingProfilesTable({
   paginated = true,
 }: PendingProfilesTableProps) {
   const [globalSearch, setGlobalSearch] = useState("");
+  const navigate = useNavigate();
+  const { setReviewOrder } = useReviewOrder();
 
-  // Apply filter from header cards (if any)
+  const handleRowClick = (
+    row: PendingProfileTableRow,
+    orderedRows: Array<PendingProfileTableRow>,
+  ) => {
+    setReviewOrder(orderedRows.map((orderedRow) => orderedRow.id));
+    navigate({
+      to: "/staff/review/$familyId",
+      params: { familyId: row.id },
+    });
+  };
+
   const filteredData = statusFilter
     ? data.filter((row) => row.status === statusFilter)
     : data;
@@ -60,6 +74,10 @@ export function PendingProfilesTable({
         onGlobalSearchChange={setGlobalSearch}
         rowsPerPage={rowsPerPage}
         paginated={paginated}
+        onOrderedRowsChange={(orderedRows) =>
+          setReviewOrder(orderedRows.map((orderedRow) => orderedRow.id))
+        }
+        onRowClick={handleRowClick}
       />
     </div>
   );
