@@ -19,7 +19,7 @@ export function CartContainer({
     <>
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-2 font-gaegu">
-          Your Gift Registry Cart
+          Your Gift Drive Cart
         </h1>
       </div>
 
