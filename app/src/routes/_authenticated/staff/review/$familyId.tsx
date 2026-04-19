@@ -56,11 +56,11 @@ function RouteComponent() {
   const { mutate: updateFamily } = useUpdateFamily();
   const { mutate: updateChild } = useUpdateChild();
 
-  const lastName = family?.contactName.trim().split(/\s+/).pop() ?? "";
   const [familyData, setFamilyData] = React.useState<Family>(family!);
   const [childrenData, setChildrenData] =
     React.useState<Array<Child>>(children);
 
+  const lastName = familyData.contactName.trim().split(/\s+/).pop() ?? "";
   const handleFamilyUpdate = (updatedFamily: Family) => {
     updateFamily(
       {
@@ -94,7 +94,7 @@ function RouteComponent() {
 
   return (
     <div className="flex h-full flex-col pb-10 pl-6 pr-6 pt-6 lg:pl-16 lg:pr-10">
-      <h1 className="text-4xl font-bold">{lastName} Family</h1>
+      <h1 className="text-4xl font-bold">{lastName}'s Family</h1>
       <div className="mt-6 flex min-h-0 w-full flex-1 flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
         <section
           className="w-full max-w-3xl min-w-0 lg:self-stretch"

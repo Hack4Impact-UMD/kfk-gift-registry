@@ -46,6 +46,12 @@ function parsePriceInput(raw: string): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
+function hasValidListedPrice(
+  listedPrice: number | undefined,
+): listedPrice is number {
+  return listedPrice !== undefined && Number.isFinite(listedPrice);
+}
+
 function computeWordCount(text: string | undefined): number {
   const trimmed = text?.trim();
   return trimmed ? trimmed.split(/\s+/).length : 0;
@@ -77,7 +83,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
       gifts: prev.gifts.map((g) => (g.id === giftId ? { ...g, ...patch } : g)),
     }));
 
-    if ("listedPrice" in patch)
+    if (hasValidListedPrice(patch.listedPrice))
       mutate({
         giftId: giftId,
         updates: {
@@ -111,7 +117,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
       socialWorkerName: child.childSocialWorker,
       hospitalName: child.hospital,
       photoUrl: child.photoUrl,
-      gifts: fetchedGifts!,
+      gifts: fetchedGifts ?? [],
     });
     setPhotoError(null);
     setEditing(false);
@@ -200,9 +206,18 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
     if (onSave) {
       onSave(updatedChild);
       formState.gifts.map((gift) => {
+        const updates = {
+          title: gift.title,
+          status: gift.status,
+          familyPublicNotes: gift.familyPublicNotes,
+          ...(hasValidListedPrice(gift.listedPrice)
+            ? { listedPrice: gift.listedPrice }
+            : {}),
+        };
+
         mutate({
           giftId: gift.id,
-          updates: gift,
+          updates,
         });
       });
     }

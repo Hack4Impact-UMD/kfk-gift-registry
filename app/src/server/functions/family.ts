@@ -56,13 +56,17 @@ const updateFamilySchema = z.object({
 export const updateFamilyReviewStatusSchema = z.object({
   familyId: z.string().min(1),
   updates: z.object({
-    reviewStatus: z.object({
-      approved: z.boolean(),
-      held: z.boolean(),
-      reviewNotes: z.string().optional(),
-      holdNotes: z.string().optional(),
-    }),
-    privateNotes: z.string().optional(),
+    reviewStatus: z
+      .object({
+        approved: z.boolean(),
+        held: z.boolean(),
+        reviewNotes: z.string().trim().max(2000).optional(),
+        holdNotes: z.string().trim().max(2000).optional(),
+      })
+      .refine((status) => !(status.approved && status.held), {
+        message: "A family cannot be both approved and held",
+      }),
+    privateNotes: z.string().trim().max(2000).optional(),
   }),
 });
 

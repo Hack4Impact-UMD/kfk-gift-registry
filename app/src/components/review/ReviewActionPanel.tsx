@@ -31,8 +31,9 @@ export function ReviewActionPanel({
   const { mutate: updateFamilyReviewStatus, isPending: isStatusPending } =
     useUpdateFamilyReviewStatus();
 
-  const savedAdminComments =
-    family.reviewStatus.reviewNotes || family.reviewStatus.holdNotes || "";
+  const savedAdminComments = family.reviewStatus.held
+    ? (family.reviewStatus.holdNotes ?? "")
+    : (family.reviewStatus.reviewNotes ?? "");
   const [adminComments, setAdminComments] = React.useState(savedAdminComments);
 
   React.useEffect(() => {
@@ -50,8 +51,12 @@ export function ReviewActionPanel({
           reviewStatus: {
             approved: reviewStatus.approved,
             held: reviewStatus.held,
-            reviewNotes: normalizedAdminComments,
-            holdNotes: normalizedAdminComments,
+            reviewNotes: reviewStatus.held
+              ? (family.reviewStatus.reviewNotes ?? "")
+              : normalizedAdminComments,
+            holdNotes: reviewStatus.held
+              ? normalizedAdminComments
+              : (family.reviewStatus.holdNotes ?? ""),
           },
         },
       },
