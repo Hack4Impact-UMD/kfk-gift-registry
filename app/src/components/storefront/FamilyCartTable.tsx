@@ -4,6 +4,8 @@ import { DataTable } from "@/components/tables/DataTable";
 import { createCartColumns } from "./cartColumns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface FamilyCartTableProps {
   family: CartFamilyGroup;
@@ -51,6 +53,20 @@ export function FamilyCartTable({
             >
               {gift.title}
             </a>
+
+            {gift.status !== "AVAILABLE" && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <span className="bg-red-100 text-red-600 rounded-full border-red-600 border-2 text-sm px-3 py-1 flex gap-2 items-center">
+                    <AlertCircle className="size-4" /> Gift Not Available!
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  This gift is not available. Remove it to proceed with the
+                  checkout process.
+                </TooltipContent>
+              </Tooltip>
+            )}
 
             <Button
               onClick={() => onRemoveGift(gift.id)}

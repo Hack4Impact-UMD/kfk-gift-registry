@@ -1,8 +1,9 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { X, ExternalLink } from "lucide-react";
+import { X, ExternalLink, AlertCircleIcon } from "lucide-react";
 import type { CartFamilyGroup } from "@/server/functions/cart";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 type CartColumnGift = CartFamilyGroup["gifts"][number];
 
@@ -13,16 +14,31 @@ export const createCartColumns = (
 ): Array<ColumnDef<CartColumnGift>> => [
   columnHelper.accessor("title", {
     header: "Gift",
-    cell: (info) => (
-      <a
-        href={info.row.original.productUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="font-medium text-black hover:underline cursor-pointer font-gaegu flex items-center gap-2"
-      >
-        {info.getValue()}
-        <ExternalLink className="h-4 w-4 text-black" />
-      </a>
+    cell: ({ getValue, row }) => (
+      <div className="flex items-center gap-2">
+        <a
+          href={row.original.productUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-black hover:underline cursor-pointer font-gaegu flex items-center gap-2"
+        >
+          {getValue()}
+          <ExternalLink className="h-4 w-4 text-black" />
+        </a>
+        {row.original.status !== "AVAILABLE" && (
+          <Tooltip>
+            <TooltipTrigger>
+              <span className="bg-red-100 text-red-600 rounded-full border-red-600 border-2 text-sm px-3 py-1 flex gap-2 items-center">
+                <AlertCircleIcon className="size-4" /> Gift Not Available!
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              This is not available. Remove it to proceed with the checkout
+              process.
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
     ),
   }) as ColumnDef<CartColumnGift>,
   columnHelper.accessor("listedPrice", {

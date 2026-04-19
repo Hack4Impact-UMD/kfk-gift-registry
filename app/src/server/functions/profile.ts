@@ -290,6 +290,66 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
     }
   });
 
+const donorRegistrationSchema = z.object({
+  name: z.string().trim().min(1),
+  email: z.email(),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+  phone: z
+    .string()
+    .regex(/^\+[1-9]\d{1,14}$/, {
+      message: "Phone must be in E.164 format (e.g. +12223334444)",
+    })
+    .optional(),
+});
+
+export const registerDonor = createServerFn({ method: "POST" })
+  .inputValidator(donorRegistrationSchema)
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const auth = getServerAuth();
+
+    const cleaned = donorRegistrationSchema.parse(data);
+
+    let authUser: { uid: string } | null = null;
+
+    try {
+      authUser = await auth.createUser({
+        displayName: cleaned.name,
+        email: cleaned.email,
+        password: cleaned.password,
+        phoneNumber: cleaned.phone,
+      });
+
+      await auth.setCustomUserClaims(authUser.uid, {
+        role: UserRole.DONOR,
+      });
+
+      const userDoc = {
+        id: authUser.uid,
+        email: cleaned.email,
+        name: cleaned.name,
+        role: UserRole.DONOR,
+        phone: cleaned.phone,
+        createdAt: DateTime.now().toISO(),
+        enabled: true,
+      };
+
+      await db.users.doc(authUser.uid).set(userDoc);
+
+      return userDoc;
+    } catch (err) {
+      if (authUser) {
+        try {
+          await auth.deleteUser(authUser.uid);
+        } catch (e) {
+          console.error("Failed to delete Auth user during rollback", e);
+        }
+      }
+
+      throw err instanceof Error ? err : new Error("Registration failed");
+    }
+  });
+
 export const getCurrentUserProfile = createServerFn({
   method: "GET",
 })

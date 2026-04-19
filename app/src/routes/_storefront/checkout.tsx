@@ -55,7 +55,7 @@ function CheckoutComponent() {
 
   if (isPending) {
     return (
-      <div className="min-h-screen bg-kfk-blue py-8 flex items-center justify-center">
+      <div className="min-h-screen py-8 flex items-center justify-center">
         <Spinner />
       </div>
     );
@@ -88,6 +88,7 @@ function CheckoutComponent() {
           {/* Right side - Confirmation Panel */}
           <div className="flex-1">
             <ConfirmationPanel
+              gifts={Object.values(cartData).flatMap((g) => g.gifts)}
               totalGifts={totalGifts}
               totalPrice={totalPrice}
               onConfirm={handleConfirmGifts}

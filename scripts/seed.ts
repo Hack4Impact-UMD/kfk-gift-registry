@@ -299,6 +299,7 @@ function main() {
               giftId: gift.id,
               childId: child.id,
               donorId,
+              driveId: giftDrive.id,
               giftStatus: status,
               createdAfter: new Date(gift.createdAt),
               createdBefore: claimUpperBound,
