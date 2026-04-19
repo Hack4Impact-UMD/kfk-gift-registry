@@ -21,6 +21,14 @@ const driveIdInputSchema = z.object({
   driveId: z.string(),
 });
 
+function getRequiredData<T>(data: T | undefined, errorMessage: string): T {
+  if (!data) {
+    throw new Error(errorMessage);
+  }
+
+  return data;
+}
+
 const updateFamilySchema = z.object({
   familyId: z.string().min(1),
   updates: z
@@ -141,7 +149,10 @@ export const getFamilyDashboardDataByToken = createServerFn({ method: "GET" })
       throw new Error("Family not found");
     }
 
-    const familyData = familyDoc.data()!;
+    const familyData = getRequiredData(
+      familyDoc.data(),
+      "Family data unavailable",
+    );
 
     // Load children for this family
     const childProfiles = await db.children
@@ -182,7 +193,10 @@ export const updateFamily = createServerFn({ method: "POST" })
     await db.families.doc(familyId).update(updates);
 
     const updatedFamily = await db.families.doc(familyId).get();
-    return updatedFamily.data()!;
+    return getRequiredData(
+      updatedFamily.data(),
+      "Family data unavailable after update",
+    );
   });
 
 export const getProfileTableRows = createServerFn({ method: "GET" })
@@ -281,5 +295,8 @@ export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
     await db.families.doc(familyId).update(reviewUpdates);
 
     const updatedFamily = await db.families.doc(familyId).get();
-    return updatedFamily.data();
+    return getRequiredData(
+      updatedFamily.data(),
+      "Family data unavailable after review update",
+    );
   });

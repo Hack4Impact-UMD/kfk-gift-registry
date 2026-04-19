@@ -12,7 +12,7 @@ import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
 
 interface ChildInfoCardProps {
   child: Child;
-  fetchedGifts: Gift[] | undefined;
+  fetchedGifts: Array<Gift> | undefined;
   onSave?: (updatedChild: Child) => void;
 }
 
@@ -25,11 +25,17 @@ export interface ChildFormState {
   socialWorkerName: string;
   hospitalName: string;
   photoUrl: string | undefined;
-  gifts: Gift[]; // This is the crucial part
+  gifts: Array<Gift>; // This is the crucial part
 }
 
-const levelOptions: ("1" | "2" | "3")[] = ["1", "2", "3"];
-const timePeriodOptions: TimePeriod[] = ["<6m", "6m-1y", "1-2y", "3-4y", "5+y"];
+const levelOptions: Array<"1" | "2" | "3"> = ["1", "2", "3"];
+const timePeriodOptions: Array<TimePeriod> = [
+  "<6m",
+  "6m-1y",
+  "1-2y",
+  "3-4y",
+  "5+y",
+];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 

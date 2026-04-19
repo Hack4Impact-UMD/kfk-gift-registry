@@ -38,8 +38,9 @@ export function useUpdateFamilyReviewStatus() {
       toast.success("Family review status updated");
     },
 
-    onError: (error: any) => {
-      toast.error(`Failed to update family review status: ${error.message}`);
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Failed to update family review status: ${message}`);
     },
   });
 }
