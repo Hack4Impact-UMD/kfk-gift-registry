@@ -33,8 +33,8 @@ export const createCartColumns = (
               </span>
             </TooltipTrigger>
             <TooltipContent>
-              This gift has been claimed by another donor. Remove it to proceed
-              with the checkout process.
+              This is not available. Remove it to proceed with the checkout
+              process.
             </TooltipContent>
           </Tooltip>
         )}

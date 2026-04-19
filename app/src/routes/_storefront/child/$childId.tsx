@@ -22,12 +22,14 @@ export const Route = createFileRoute("/_storefront/child/$childId")({
   beforeLoad: async ({ params, context }) => {
     const childId = params.childId;
 
-    await context.queryClient.ensureQueryData(
-      queries.storefront.childById(childId),
-    );
-    await context.queryClient.ensureQueryData(
-      queries.storefront.siblingsForChild(childId),
-    );
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        queries.storefront.childById(childId),
+      ),
+      context.queryClient.ensureQueryData(
+        queries.storefront.siblingsForChild(childId),
+      ),
+    ]);
   },
 });
 

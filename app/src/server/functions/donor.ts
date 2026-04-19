@@ -13,6 +13,30 @@ const giftIdsSchema = z.object({
   giftIds: z.array(z.string().min(1)).min(1),
 });
 
+async function loadGifts(
+  tx: FirebaseFirestore.Transaction,
+  db: ReturnType<typeof getServerDB>,
+  giftIds: Array<string>,
+): Promise<{ gifts: Array<Gift>; driveId: string }> {
+  const giftRefs = giftIds.map((id) => db.gifts.doc(id));
+  const giftSnaps = await tx.getAll(...giftRefs);
+
+  const gifts: Array<Gift> = [];
+  for (const snap of giftSnaps) {
+    if (!snap.exists) {
+      throw new Error(`Gift ${snap.id} not found`);
+    }
+    gifts.push(snap.data() as Gift);
+  }
+
+  const driveId = gifts[0].giftDrive;
+  if (!gifts.every((g) => g.giftDrive === driveId)) {
+    throw new Error("All gifts must belong to the same gift drive");
+  }
+
+  return { gifts, driveId };
+}
+
 export const claimGifts = createServerFn({ method: "POST" })
   .middleware([requireRolesMiddleware([UserRole.DONOR])])
   .inputValidator(giftIdsSchema)
@@ -22,27 +46,15 @@ export const claimGifts = createServerFn({ method: "POST" })
     const db = getServerDB();
 
     return await db._instance.runTransaction(async (tx) => {
-      const giftRefs = giftIds.map((id) => db.gifts.doc(id));
-      const giftSnaps = await tx.getAll(...giftRefs);
-
-      const gifts: Array<Gift> = [];
-      for (const snap of giftSnaps) {
-        if (!snap.exists) {
-          throw new Error(`Gift ${snap.id} not found`);
-        }
-        gifts.push(snap.data()!);
-      }
-
-      const driveId = gifts[0].giftDrive;
-      if (!gifts.every((g) => g.giftDrive === driveId)) {
-        throw new Error("All gifts must belong to the same gift drive");
-      }
+      const { gifts, driveId } = await loadGifts(tx, db, giftIds);
 
       await assertGiftDriveActive(tx, driveId);
 
       for (const gift of gifts) {
-        if (gift.claimedByDonorId) {
-          throw new Error(`Gift ${gift.id} is already claimed`);
+        if (gift.status !== "AVAILABLE") {
+          throw new Error(
+            `Gift ${gift.id} is not available (status: ${gift.status})`,
+          );
         }
       }
 
@@ -80,21 +92,7 @@ export const unclaimGifts = createServerFn({ method: "POST" })
     const db = getServerDB();
 
     await db._instance.runTransaction(async (tx) => {
-      const giftRefs = giftIds.map((id) => db.gifts.doc(id));
-      const giftSnaps = await tx.getAll(...giftRefs);
-
-      const gifts: Array<Gift> = [];
-      for (const snap of giftSnaps) {
-        if (!snap.exists) {
-          throw new Error(`Gift ${snap.id} not found`);
-        }
-        gifts.push(snap.data()!);
-      }
-
-      const driveId = gifts[0].giftDrive;
-      if (!gifts.every((g) => g.giftDrive === driveId)) {
-        throw new Error("All gifts must belong to the same gift drive");
-      }
+      const { gifts, driveId } = await loadGifts(tx, db, giftIds);
 
       await assertGiftDriveActive(tx, driveId);
 

@@ -62,8 +62,8 @@ export function FamilyCartTable({
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>
-                  This gift has been claimed by another donor. Remove it to
-                  proceed with the checkout process.
+                  This gift is not available. Remove it to proceed with the
+                  checkout process.
                 </TooltipContent>
               </Tooltip>
             )}
