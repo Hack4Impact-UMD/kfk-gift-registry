@@ -248,9 +248,11 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
 
     for (const family of families) {
       let status: ApplicationStatus;
-      if (family.reviewStatus.approved) {
+      const reviewStatus = family.reviewStatus;
+
+      if (reviewStatus?.approved) {
         status = "approved";
-      } else if (family.reviewStatus.held) {
+      } else if (reviewStatus?.held) {
         status = "holdfile";
       } else {
         status = "pending";
@@ -263,8 +265,8 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
         status,
         submissionDate: family.createdAt,
         adminComments:
-          family.reviewStatus.reviewNotes ||
-          family.reviewStatus.holdNotes ||
+          reviewStatus?.reviewNotes ||
+          reviewStatus?.holdNotes ||
           "",
       };
       rows.push(row);
