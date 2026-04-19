@@ -265,9 +265,7 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
         status,
         submissionDate: family.createdAt,
         adminComments:
-          reviewStatus?.reviewNotes ||
-          reviewStatus?.holdNotes ||
-          "",
+          reviewStatus?.reviewNotes || reviewStatus?.holdNotes || "",
       };
       rows.push(row);
     }
