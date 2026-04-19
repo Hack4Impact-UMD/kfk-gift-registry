@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  createFileRoute,
-  redirect,
-  useNavigate,
-  useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import z from "zod";
 import { AuthErrorCodes } from "firebase/auth";
@@ -12,7 +7,7 @@ import { FirebaseError } from "firebase/app";
 import { UserRole } from "common";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLoginMutation } from "@/hooks/mutations/loginMutation";
+import { useLogin } from "@/hooks/mutations/loginMutation";
 import adminVolunteerLoginBg from "@/assets/admin-volunteer-login-bg.png";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
 
@@ -87,10 +82,9 @@ function issueToMessage(issue: unknown): string {
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const router = useRouter();
   const { redirect: redirectPath } = Route.useSearch();
 
-  const loginMutation = useLoginMutation();
+  const loginMutation = useLogin();
   const [rememberMe, setRememberMe] = useState(false);
 
   const form = useForm({
@@ -102,17 +96,21 @@ function RouteComponent() {
       onSubmit: loginSchema,
     },
     onSubmit: async ({ value }) => {
-      const authUser = await loginMutation.mutateAsync({
-        email: value.email,
-        password: value.password,
-      });
-      await router.invalidate();
-
-      await navigate({
-        to:
-          redirectPath ??
-          (authUser.role === UserRole.DONOR ? "/donor" : "/staff/home"),
-      });
+      loginMutation.mutate(
+        {
+          email: value.email,
+          password: value.password,
+        },
+        {
+          onSuccess: async (result) => {
+            await navigate({
+              to:
+                redirectPath ??
+                (result.role === UserRole.DONOR ? "/donor" : "/staff/home"),
+            });
+          },
+        },
+      );
     },
   });
 

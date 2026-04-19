@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { StorefrontGift } from "@/types/storefront";
+import { useMemo } from "react";
 
 interface ConfirmationPanelProps {
+  gifts: Array<StorefrontGift>;
   totalGifts: number;
   totalPrice: number;
   onConfirm?: () => void;
@@ -9,11 +12,16 @@ interface ConfirmationPanelProps {
 }
 
 export function ConfirmationPanel({
+  gifts,
   totalGifts,
   totalPrice,
   onConfirm,
   className = "",
 }: ConfirmationPanelProps) {
+  const giftNotAvailable = useMemo(
+    () => gifts.some((g) => g.status !== "AVAILABLE"),
+    [gifts],
+  );
   return (
     <div className={cn("", className)}>
       {/* Header */}
@@ -54,18 +62,25 @@ export function ConfirmationPanel({
         </div>
 
         {/* Info Text */}
-        <p className="text-xs text-gray-500 mb-4">
+        <p className="text-sm text-gray-500 mb-4">
           Prices are estimates and may change depending on the online store.
           Please double check links before confirming gifts.
         </p>
 
+        {giftNotAvailable && (
+          <p className="text-sm text-red-600 mb-4">
+            At least one gift in your cart is not available. Remove it to
+            proceed with the checkout process.
+          </p>
+        )}
+
         {/* Confirm Button */}
         <Button
           onClick={onConfirm}
-          disabled={!onConfirm || totalGifts === 0}
+          disabled={!onConfirm || totalGifts === 0 || giftNotAvailable}
           className="w-full rounded-full text-white font-normal py-2"
         >
-          Commit to Gifts
+          Claim Gifts
         </Button>
       </div>
     </div>

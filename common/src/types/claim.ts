@@ -3,6 +3,7 @@ export interface Claim {
   giftId: string;
   childId: string;
   donorId: string;
+  driveId: string;
   organizationName?: string;
   claimedAt: string;
   purchaseConfirmation?: ClaimPurchaseConfirmation;

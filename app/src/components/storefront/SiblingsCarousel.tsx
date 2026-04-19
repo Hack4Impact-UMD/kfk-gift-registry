@@ -100,11 +100,11 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
         <ChevronLeft {...chevronIconProps} />
       </Button>
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-64 flex-1">
         <Carousel
           setApi={setCarouselApi}
           opts={{ align: "start", loop: false }}
-          className="w-full"
+          className="w-full p-2"
         >
           <CarouselContent>
             {siblings.map((sibling) => (

@@ -14,6 +14,7 @@ type GenerateClaimOptions = {
   giftId: string;
   childId: string;
   donorId: string;
+  driveId: string;
   giftStatus: ClaimableGiftStatus;
   createdAfter?: Date;
   createdBefore?: Date;
@@ -29,6 +30,7 @@ export function generateClaim({
   giftId,
   childId,
   donorId,
+  driveId,
   giftStatus,
   createdAfter,
   createdBefore,
@@ -66,6 +68,7 @@ export function generateClaim({
     giftId,
     childId,
     donorId,
+    driveId,
     organizationName: faker.datatype.boolean({ probability: 0.2 })
       ? faker.company.name()
       : undefined,

@@ -1,12 +1,14 @@
 import { useMemo } from "react";
-import type { CartFamily } from "./cartMockData";
+import type { CartFamilyGroup } from "@/server/functions/cart";
 import { DataTable } from "@/components/tables/DataTable";
 import { createCartColumns } from "./cartColumns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface FamilyCartTableProps {
-  family: CartFamily;
+  family: CartFamilyGroup;
   onRemoveGift: (giftId: string) => void;
   containerClassName?: string;
 }
@@ -23,65 +25,55 @@ export function FamilyCartTable({
 
   return (
     <div className={cn("mb-8", containerClassName)}>
-      {/* Family Header */}
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900 font-gaegu">
-          {family.parentLastName} Family
+          {family.family.contactName} Family
         </h3>
       </div>
 
       {/* Mobile View */}
-      <div className="flex flex-col gap-6 md:hidden">
-        {Object.values(
-          family.gifts.reduce(
-            (acc, gift) => {
-              if (!acc[gift.childId]) {
-                acc[gift.childId] = {
-                  childName: gift.childName,
-                  gifts: [],
-                };
-              }
-              acc[gift.childId].gifts.push(gift);
-              return acc;
-            },
-            {} as Record<
-              string,
-              { childName: string; gifts: typeof family.gifts }
-            >,
-          ),
-        ).map((childGroup) => (
-          <div key={childGroup.childName} className="flex flex-col gap-2">
-            <h4 className="text-md font-semibold font-gaegu text-foreground">
-              {childGroup.childName}
-            </h4>
+      <div className="flex flex-col gap-2 md:hidden">
+        {family.gifts.map((gift, index) => (
+          <div key={gift.id} className="p-2 bg-card flex flex-col gap-2">
+            <span className="text-sm text-muted-foreground">
+              Gift #{index + 1}
+            </span>
 
-            {childGroup.gifts.map((gift, index) => (
-              <div key={gift.id} className="p-2 bg-card flex flex-col gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Gift #{index + 1}
-                </span>
+            <span className="text-kfk-red font-medium font-gaegu">
+              {gift.listedPrice !== undefined
+                ? `$${gift.listedPrice.toFixed(2)}`
+                : "N/A"}
+            </span>
 
-                <span className="text-kfk-red font-medium font-gaegu">
-                  ${gift.listedPrice?.toFixed(2)}
-                </span>
+            <a
+              href={gift.productUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground font-medium font-gaegu"
+            >
+              {gift.title}
+            </a>
 
-                <a
-                  href={gift.productUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-foreground font-medium font-gaegu"
-                >
-                  {gift.title}
-                </a>
+            {gift.status !== "AVAILABLE" && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <span className="bg-red-100 text-red-600 rounded-full border-red-600 border-2 text-sm px-3 py-1 flex gap-2 items-center">
+                    <AlertCircle className="size-4" /> Gift Not Available!
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  This gift is not available. Remove it to proceed with the
+                  checkout process.
+                </TooltipContent>
+              </Tooltip>
+            )}
 
-                <Button
-                  onClick={() => onRemoveGift(gift.id)}
-                  className="rounded-full"
-                >
-                  Remove from Cart
-                </Button>
-              </div>
-            ))}
+            <Button
+              onClick={() => onRemoveGift(gift.id)}
+              className="rounded-full"
+            >
+              Remove from Cart
+            </Button>
           </div>
         ))}
       </div>

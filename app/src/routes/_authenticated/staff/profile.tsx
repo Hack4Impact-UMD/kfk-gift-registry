@@ -1,10 +1,10 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ContactInfoSection } from "@/components/profile/ProfileContactInfo";
 import { AccountDetailsSection } from "@/components/profile/ProfileAccountDetails";
 import { Button } from "@/components/ui/button";
-import { logout } from "@/services/authService.client";
+import { useLogout } from "@/hooks/mutations/logoutMutation";
 
 export const Route = createFileRoute("/_authenticated/staff/profile")({
   component: RouteComponent,
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/staff/profile")({
 
 function RouteComponent() {
   const { auth } = Route.useRouteContext();
-  const router = useRouter();
+  const { mutate: logout } = useLogout();
   return (
     <div className="flex flex-col items-center md:py-6">
       <div className="space-y-3 max-w-6xl w-full">
@@ -24,13 +24,7 @@ function RouteComponent() {
         <div className="flex justify-end">
           <Button
             onClick={async () => {
-              try {
-                await logout();
-              } catch (error) {
-                console.error("Logout failed", error);
-              } finally {
-                await router.invalidate();
-              }
+              logout();
             }}
             variant={"destructive"}
             className="bg-kfk-blue"
