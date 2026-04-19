@@ -5,15 +5,13 @@ import * as React from "react";
 import { ChildCard } from "@/components/review/ChildCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
-import { Child } from "common";
+import type { Child } from "common";
 import { getFamilyById } from "@/server/functions/family";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
-import {
-  getChildGiftsByChildId,
-  getChildProfilesForFamily,
-} from "@/server/functions/child";
+import { getChildProfilesForFamily } from "@/server/functions/child";
 import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
 import { useQuery } from "@tanstack/react-query";
+import { childQueries } from "@/queries/child";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   loader: async ({ params }) => {
@@ -33,6 +31,25 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   },
   component: RouteComponent,
 });
+
+interface ChildCardWithGiftsProps {
+  child: Child;
+  onSave: (updatedChild: Child) => void;
+}
+
+function ChildCardWithGifts({ child, onSave }: ChildCardWithGiftsProps) {
+  const { data: fetchedGifts, isPending: isLoadingGifts } = useQuery(
+    childQueries.gifts(child.id),
+  );
+
+  if (isLoadingGifts) {
+    return <div>Loading Child...</div>;
+  }
+
+  return (
+    <ChildCard child={child} fetchedGifts={fetchedGifts} onSave={onSave} />
+  );
+}
 
 function RouteComponent() {
   const { family, children, familyId } = Route.useLoaderData();
@@ -89,26 +106,13 @@ function RouteComponent() {
                 family={familyData}
                 onSave={handleFamilyUpdate}
               />
-              {childrenData.map((childData) => {
-                const { data: fetchedGifts, isPending: isLoadingGifts } =
-                  useQuery({
-                    queryKey: ["gifts", childData.id],
-                    queryFn: () =>
-                      getChildGiftsByChildId({
-                        data: { childId: childData.id },
-                      }),
-                  });
-                return isLoadingGifts ? (
-                  <div>Loading Child...</div>
-                ) : (
-                  <ChildCard
-                    key={childData.id}
-                    child={childData}
-                    fetchedGifts={fetchedGifts}
-                    onSave={handleChildUpdate}
-                  />
-                );
-              })}
+              {childrenData.map((childData) => (
+                <ChildCardWithGifts
+                  key={childData.id}
+                  child={childData}
+                  onSave={handleChildUpdate}
+                />
+              ))}
             </div>
           </ScrollArea>
         </section>
