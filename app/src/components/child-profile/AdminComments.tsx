@@ -39,22 +39,23 @@ export function AdminComments({
   }, []);
 
   return (
-    <Card className="border border-gray-200 shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-base font-bold">Admin Comments</CardTitle>
+    <div className="flex flex-col gap-2 w-full">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Admin Comments</h3>
         <span className="text-xs text-gray-400">
           {saveStatus === "saving" && "Saving…"}
           {saveStatus === "saved" && "Saved ✓"}
         </span>
-      </CardHeader>
-      <CardContent>
+      </div>
+
+      <div className="w-full rounded-xl border bg-white shadow-sm p-4">
         <Textarea
           value={value}
           onChange={handleChange}
           placeholder="Add internal admin notes here…"
-          className="min-h-[120px] resize-none text-sm"
+          className="min-h-[130px] resize-none text-sm border-gray-300"
         />
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

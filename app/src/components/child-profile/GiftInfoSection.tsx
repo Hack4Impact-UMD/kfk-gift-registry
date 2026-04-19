@@ -26,12 +26,12 @@ export function GiftInfoSection({
   const backupGifts = gifts.filter((g) => !g.active);
 
   return (
-    <div className="grid grid-cols-[1fr_320px] gap-8 mt-4 items-start">
-      <div className="flex-1 flex flex-col gap-6 min-w-0">
+    <div className="grid grid-cols-[minmax(0,1fr)_420px] gap-12 mt-6 items-start w-full">
+      <div className="flex flex-col gap-6 min-w-0">
         <div className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-4">
-          <h2 className="text-2xl font-bold flex items-center gap-2 mb-2">
-            <GiftIcon className="h-6 w-6" />
-            Main Gift Information
+          <h2 className="text-4xl font-bold flex items-center justify-center gap-3 pt-3 -mb-3">
+            <GiftIcon className="h-10 w-10 shrink-0" />
+            <span className="leading-none">Main Gift Information</span>
           </h2>
           {activeGifts.length === 0 ? (
             <p className="text-sm text-gray-400 italic">No active gifts.</p>
@@ -50,9 +50,9 @@ export function GiftInfoSection({
         {/* Backup gifts */}
         {backupGifts.length > 0 && (
           <div className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2 mb-2">
-              <GiftIcon className="h-6 w-6" />
-              Backup Gift Information
+            <h2 className="text-4xl font-bold flex items-center justify-center gap-3 pt-3 -mb-3">
+              <GiftIcon className="h-10 w-10 shrink-0" />
+              <span className="leading-none">Backup Gift Information</span>
             </h2>
             {backupGifts.map((gift) => (
               <GiftInfoCard
@@ -66,13 +66,19 @@ export function GiftInfoSection({
       </div>
 
       {/* Right column: comments + family link */}
-      <div className="flex flex-col gap-4 sticky top-4">
-        <ParentComments comments={parentComments} />
-        <AdminComments
-          initialComments={adminComments ?? ""}
-          onSave={onSaveAdminComments ?? (() => {})}
-        />
-        <FamilyAccountLink familyToken={familyToken} />
+      <div className="flex flex-col gap-6 sticky top-4 w-full max-w-[420px]">
+        <div className="bg-transparent flex flex-col gap-6">
+          <ParentComments comments={parentComments} />
+
+          <AdminComments
+            initialComments={adminComments ?? ""}
+            onSave={onSaveAdminComments ?? (() => {})}
+          />
+
+          <div className="pt-2">
+            <FamilyAccountLink familyToken={familyToken} />
+          </div>
+        </div>
       </div>
     </div>
   );

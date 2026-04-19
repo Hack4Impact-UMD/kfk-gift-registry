@@ -133,7 +133,6 @@ function ChildProfilePage() {
     }
   };
 
-  // Handler for inline gift card edits (individual save per card)
   const handleUpdateGift = async (giftId: string, updates: Partial<Gift>) => {
     try {
       await updateGiftMutation.mutateAsync({ giftId, updates });
@@ -142,7 +141,6 @@ function ChildProfilePage() {
     }
   };
 
-  // Handler for admin comments auto-save
   const handleSaveAdminComments = async (comments: string) => {
     try {
       await updateChildMutation.mutateAsync({
@@ -161,7 +159,7 @@ function ChildProfilePage() {
       <div className="flex">
         <ChildSidebar child={child} family={family} />
 
-        <div className="flex flex-col flex-1 ml-8">
+        <div className="flex flex-col flex-1 ml-8 w-full">
           <ChildHeader
             child={child}
             isEditing={isEditing}
@@ -172,7 +170,7 @@ function ChildProfilePage() {
 
           <div className="w-full h-1 rounded-full my-4 bg-muted"></div>
 
-          <div className="flex gap-12">
+          <div className="grid grid-cols-[1fr_420px] gap-12">
             <ChildInfo
               child={child}
               family={family}

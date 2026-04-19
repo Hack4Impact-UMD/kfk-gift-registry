@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
+import { EditableField } from "@/components/review/EditableField";
 import {
   Dialog,
   DialogContent,
@@ -8,8 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Gift, GiftStatus } from "common";
-
-/* ─── Progress Bar ───────────────────────────────────────────── */
 
 const GIFT_STEPS = ["Unordered", "Claimed", "In Transit", "Delivered", "Received"];
 const GIFT_STATUS_ORDER: GiftStatus[] = [
@@ -36,7 +35,7 @@ function GiftProgressBar({ status }: { status: GiftStatus }) {
     status === "RECEIVED" ? "border-kfk-green" : "border-kfk-yellow";
 
   return (
-    <div className="mt-5 mb-3 w-full">
+    <div className="mt-5 mb-3 w-full font-bold font-gaegu">
       <div className="relative h-8 flex items-center w-full">
         <div
           className={`absolute h-[10px] rounded-full border-2 ${progressBorderColor}`}
@@ -77,8 +76,6 @@ function GiftProgressBar({ status }: { status: GiftStatus }) {
     </div>
   );
 }
-
-/* ─── Main Component ─────────────────────────────────────────── */
 
 interface GiftInfoCardProps {
   gift: Gift;
@@ -156,138 +153,121 @@ export function GiftInfoCard({
 
   const hasProof = !!proofOfPurchaseUrl;
 
+  const displayLocal = (val?: string) =>
+    isEditing ? val ?? "" : val?.trim() ? val : "N/A";
+
   return (
-    <>
-      <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
-        <div className="p-4 space-y-3 text-sm">
-          <div className="flex justify-between">
-            <div>
-              <span className="font-bold">Gift Name: </span>
-              {isEditing ? (
-                <Input
-                  value={(getValue("title") as string) ?? ""}
-                  onChange={(e) => handleChange("title", e.target.value)}
-                  className="inline-block w-64 ml-1"
-                />
-              ) : (
-                gift.title
-              )}
-            </div>
-
-            {isEditing ? (
-              <div className="flex gap-2">
-                <Button size="sm" onClick={handleSave}>
-                  Save
-                </Button>
-                <Button size="sm" variant="outline" onClick={handleCancel}>
-                  Cancel
-                </Button>
-              </div>
-            ) : (
-              <Button size="sm" onClick={() => setIsEditing(true)}>
-                Edit
-              </Button>
-            )}
-          </div>
-
-          <p>
-            <span className="font-bold">Price: </span>
-            {isEditing ? (
-              <Input
-                type="number"
-                value={(getValue("listedPrice") as number) ?? ""}
-                onChange={(e) =>
-                  handleChange("listedPrice", parseFloat(e.target.value))
-                }
-                className="inline-block w-28 ml-1"
-              />
-            ) : gift.listedPrice != null ? (
-              `$${gift.listedPrice.toFixed(2)}`
-            ) : (
-              "N/A"
-            )}
-          </p>
-
-          {isEditing && (
-            <select
-              value={getValue("status") as string}
-              onChange={(e) => handleChange("status", e.target.value)}
-              className="border rounded px-2 py-1"
+    <div className="px-6 py-5 space-y-4 text-sm">
+      <div className="rounded-xl border bg-white shadow-sm overflow-hidden w-full">
+        <div className="bg-[#EEF4FA] px-5 py-4 flex justify-between items-start">
+          <div className="space-y-1">
+            <EditableField
+              value={getValue("title") ?? ""}
+              editable={isEditing}
+              onChange={(e) => handleChange("title", e.target.value)}
+              className="text-lg font-medium"
             >
-              <option value="AVAILABLE">Unordered</option>
-              <option value="CLAIMED">Claimed</option>
-              <option value="PURCHASED">In Transit</option>
-              <option value="DELIVERED">Delivered</option>
-              <option value="RECEIVED">Received</option>
-            </select>
-          )}
+              Gift Name:
+            </EditableField>
 
-          <GiftProgressBar status={gift.status} />
+            <EditableField
+              value={
+                isEditing
+                  ? getValue("listedPrice") ?? ""
+                  : gift.listedPrice != null
+                  ? `$${gift.listedPrice.toFixed(2)}`
+                  : "N/A"
+              }
+              editable={isEditing}
+              onChange={(e) =>
+                handleChange("listedPrice", parseFloat(e.target.value))
+              }
+            >
+              Price:
+            </EditableField>
 
-          <div className="flex justify-between">
-            <p>
-              <span className="font-bold">Donor: </span>
-              {isEditing ? (
-                <Input
-                  value={localFields.donorName}
-                  onChange={(e) =>
-                    handleLocalChange("donorName", e.target.value)
-                  }
-                  className="inline-block w-40 ml-1"
-                />
-              ) : (
-                donorName ?? "N/A"
-              )}
-            </p>
-
-            <p>
-              <span className="font-bold">Donor Email: </span>
-              {isEditing ? (
-                <Input
-                  value={localFields.donorEmail}
-                  onChange={(e) =>
-                    handleLocalChange("donorEmail", e.target.value)
-                  }
-                  className="inline-block w-48 ml-1"
-                />
-              ) : (
-                donorEmail ?? "N/A"
-              )}
-            </p>
+            {isEditing && (
+              <EditableField
+                value={getValue("status")}
+                editable
+                fieldType="select"
+                selectOptions={[
+                  "AVAILABLE",
+                  "CLAIMED",
+                  "PURCHASED",
+                  "DELIVERED",
+                  "RECEIVED",
+                ]}
+                onChange={(val) => handleChange("status", val)}
+              >
+                Status:
+              </EditableField>
+            )}
           </div>
 
-          <p>
-            <span className="font-bold">Tracking ID: </span>
-            {isEditing ? (
-              <Input
-                value={localFields.trackingId}
-                onChange={(e) =>
-                  handleLocalChange("trackingId", e.target.value)
-                }
-                className="inline-block w-48 ml-1"
-              />
-            ) : (
-              trackingId ?? "N/A"
-            )}
-          </p>
-          <p>
-            <span className="font-bold">Date Ordered: </span>
-            {isEditing ? (
-              <Input
-                type="date"
-                value={localFields.dateOrdered}
-                onChange={(e) =>
-                  handleLocalChange("dateOrdered", e.target.value)
-                }
-                className="inline-block ml-1"
-              />
-            ) : (
-              localFields.dateOrdered || "N/A"
-            )}
-          </p>
+          {!isEditing ? (
+            <Button
+              size="sm"
+              onClick={() => setIsEditing(true)}
+              className="bg-kfk-blue text-white"
+            >
+              Edit
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleSave}>Save</Button>
+              <Button size="sm" variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white px-6 py-6">
+          {!isEditing && <GiftProgressBar status={gift.status} />}
+        </div>
+
+        <div className="px-6 py-5 space-y-4 bg-[#F6F9FC]">
+          <div className="flex justify-between gap-6">
+            <EditableField
+              className="max-w-[45%]"
+              value={displayLocal(localFields.donorName)}
+              editable={isEditing}
+              onChange={(e) => handleLocalChange("donorName", e.target.value)}
+            >
+              Donor:
+            </EditableField>
+
+            <EditableField
+              className="max-w-[45%]"
+              value={displayLocal(localFields.donorEmail)}
+              editable={isEditing}
+              onChange={(e) => handleLocalChange("donorEmail", e.target.value)}
+            >
+              Donor Email:
+            </EditableField>
+          </div>
+
+          <EditableField
+            value={displayLocal(localFields.trackingId)}
+            editable={isEditing}
+            onChange={(e) => handleLocalChange("trackingId", e.target.value)}
+          >
+            Tracking ID:
+          </EditableField>
+        </div>
+
+        <div className="bg-white px-6 py-5 space-y-3">
+          <EditableField
+            value={displayLocal(localFields.dateOrdered)}
+            editable={isEditing}
+            onChange={(e) => handleLocalChange("dateOrdered", e.target.value)}
+          >
+            Date Ordered (Confirmed by Donor):
+          </EditableField>
 
           <Button
-            className={`w-full font-gaegu font-bold ${
+            className={`w-full h-11 font-gaegu font-bold ${
               hasProof
                 ? "bg-kfk-blue text-white hover:bg-kfk-blue/80"
                 : "bg-gray-300 text-gray-500 cursor-default"
@@ -297,38 +277,24 @@ export function GiftInfoCard({
           >
             Donor Proof of Purchase
           </Button>
+        </div>
 
-          <p>
-            <span className="font-bold">Date Delivered: </span>
-            {isEditing ? (
-              <Input
-                type="date"
-                value={localFields.dateDelivered}
-                onChange={(e) =>
-                  handleLocalChange("dateDelivered", e.target.value)
-                }
-                className="inline-block ml-1"
-              />
-            ) : (
-              localFields.dateDelivered || "N/A"
-            )}
-          </p>
+        <div className="px-6 py-5 space-y-3 bg-[#F6F9FC]">
+          <EditableField
+            value={displayLocal(localFields.dateDelivered)}
+            editable={isEditing}
+            onChange={(e) => handleLocalChange("dateDelivered", e.target.value)}
+          >
+            Date Delivered (Confirmed by Donor):
+          </EditableField>
 
-          <p>
-            <span className="font-bold">Date Received: </span>
-            {isEditing ? (
-              <Input
-                type="date"
-                value={localFields.dateReceived}
-                onChange={(e) =>
-                  handleLocalChange("dateReceived", e.target.value)
-                }
-                className="inline-block ml-1"
-              />
-            ) : (
-              localFields.dateReceived || "N/A"
-            )}
-          </p>
+          <EditableField
+            value={displayLocal(localFields.dateReceived)}
+            editable={isEditing}
+            onChange={(e) => handleLocalChange("dateReceived", e.target.value)}
+          >
+            Date Received (Confirmed by Family):
+          </EditableField>
         </div>
       </div>
 
@@ -347,6 +313,6 @@ export function GiftInfoCard({
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
