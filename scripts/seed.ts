@@ -29,8 +29,8 @@ type Args = {
 type NonEmptyArray<T> = [T, ...Array<T>];
 
 const defaults: Args = {
-  families: 5,
-  children: 2,
+  families: 100,
+  children: 4,
   gifts: 4,
   seed: 42,
 };

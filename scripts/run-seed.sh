@@ -69,7 +69,12 @@ for collection in claims gifts children family-links families invites gift-drive
 done
 
 echo "Generating seed data..."
-tsx scripts/seed.ts "${SEED_ARGS[@]}" > "${SEED_FILE}"
+
+seed_command=(pnpm exec tsx scripts/seed.ts)
+if ((${#SEED_ARGS[@]})); then
+  seed_command+=("${SEED_ARGS[@]}")
+fi
+"${seed_command[@]}" > "${SEED_FILE}"
 
 echo "Uploading generated data..."
 upload_collection "giftDrives" "gift-drives"
