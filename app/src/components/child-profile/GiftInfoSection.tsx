@@ -27,9 +27,7 @@ export function GiftInfoSection({
 
   return (
     <div className="grid grid-cols-[1fr_320px] gap-8 mt-4 items-start">
-      {/* Left column: gift cards */}
       <div className="flex-1 flex flex-col gap-6 min-w-0">
-        {/* Active gifts */}
         <div className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-4">
           <h2 className="text-2xl font-bold flex items-center gap-2 mb-2">
             <GiftIcon className="h-6 w-6" />
