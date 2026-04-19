@@ -31,7 +31,7 @@ interface DataTableProps<TData, TValue> {
   globalSearch?: string;
   onGlobalSearchChange?: (value: string) => void;
   onOrderedRowsChange?: (orderedRows: Array<TData>) => void;
-  onRowClick?: (row: TData) => void;
+  onRowClick?: (row: TData, orderedRows: Array<TData>) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -46,6 +46,7 @@ export function DataTable<TData, TValue>({
   onOrderedRowsChange,
   onRowClick,
 }: DataTableProps<TData, TValue>) {
+
   const table = useReactTable({
     data,
     columns,
@@ -146,7 +147,7 @@ export function DataTable<TData, TValue>({
                     "hover:bg-gray-50/60 transition-colors",
                     onRowClick && "cursor-pointer",
                   )}
-                  onClick={() => onRowClick?.(row.original)}
+                  onClick={() => onRowClick?.(row.original, orderedRows)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

@@ -20,16 +20,28 @@ interface ChildInfoCardProps {
   onSave?: (updatedFamily: Family) => void;
 }
 
-export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
-  const [editing, setEditing] = React.useState(false);
-  const [formState, setFormState] = React.useState({
+function createGuardianFormState(family: Family) {
+  return {
     contactName: family.contactName,
     phone: family.phone,
     email: family.email,
     relationship: "Mother", // hardcoded for now
     privateNotes: family.privateNotes || "",
-  });
+  };
+}
+
+export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
+  const [editing, setEditing] = React.useState(false);
+  const [formState, setFormState] = React.useState(() =>
+    createGuardianFormState(family),
+  );
   const [fieldErrors, setFieldErrors] = React.useState<GuardianFieldErrors>({});
+
+  React.useEffect(() => {
+    setFormState(createGuardianFormState(family));
+    setFieldErrors({});
+    setEditing(false);
+  }, [family]);
 
   const handleEditClick = () => {
     setFieldErrors({});
@@ -72,13 +84,7 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
   };
 
   const handleCancelClick = () => {
-    setFormState({
-      contactName: family.contactName,
-      phone: family.phone,
-      email: family.email,
-      relationship: "Mother",
-      privateNotes: family.privateNotes || "",
-    });
+    setFormState(createGuardianFormState(family));
     setFieldErrors({});
     setEditing(false);
   };

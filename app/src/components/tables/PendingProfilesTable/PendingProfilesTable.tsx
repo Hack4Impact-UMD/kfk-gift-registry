@@ -29,7 +29,11 @@ export function PendingProfilesTable({
   const navigate = useNavigate();
   const { setReviewOrder } = useReviewOrder();
 
-  const handleRowClick = (row: PendingProfileTableRow) => {
+  const handleRowClick = (
+    row: PendingProfileTableRow,
+    orderedRows: Array<PendingProfileTableRow>,
+  ) => {
+    setReviewOrder(orderedRows.map((orderedRow) => orderedRow.id));
     navigate({
       to: "/staff/review/$familyId",
       params: { familyId: row.id },

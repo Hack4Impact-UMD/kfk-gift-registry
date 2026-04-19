@@ -138,7 +138,6 @@ function RouteComponent() {
           <ScrollArea className="h-full min-h-[40rem] w-full rounded-md border p-9 shadow-xl">
             <div className="flex flex-col gap-7 pr-4">
               <GuardianInfoCard
-                key={familyId}
                 family={familyData}
                 onSave={handleFamilyUpdate}
               />
