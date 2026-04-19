@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -5,6 +6,7 @@ import { ArrowLeftIcon } from "@/components/icons/ArrowLeftIcon";
 import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { CheckCircleOutlineIcon } from "@/components/icons/CheckCircleOutlineIcon";
 import { useUpdateFamilyReviewStatus } from "@/hooks/mutations/useUpdateFamilyReviewStatus";
+import type { Family } from "common";
 
 const CHECKLIST_ITEMS = [
   "No gift cards allowed",
@@ -15,11 +17,52 @@ const CHECKLIST_ITEMS = [
 ] as const;
 
 const ADMIN_COMMENTS_PLACEHOLDER =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+  "Add comments for staff reviewing this family.";
 
-export function ReviewActionPanel({ familyId }: { familyId: string }) {
+interface ReviewActionPanelProps {
+  family: Family;
+  onFamilyReviewUpdated: (updatedFamily: Family) => void;
+}
+
+export function ReviewActionPanel({
+  family,
+  onFamilyReviewUpdated,
+}: ReviewActionPanelProps) {
   const { mutate: updateFamilyReviewStatus, isPending: isStatusPending } =
     useUpdateFamilyReviewStatus();
+
+  const savedAdminComments =
+    family.reviewStatus.reviewNotes || family.reviewStatus.holdNotes || "";
+  const [adminComments, setAdminComments] = React.useState(savedAdminComments);
+
+  React.useEffect(() => {
+    setAdminComments(savedAdminComments);
+  }, [savedAdminComments]);
+
+  const normalizedAdminComments = adminComments.trim() ? adminComments : "";
+  const hasUnsavedComments = adminComments !== savedAdminComments;
+
+  const persistReviewUpdate = (reviewStatus: Family["reviewStatus"]) => {
+    updateFamilyReviewStatus(
+      {
+        familyId: family.id,
+        updates: {
+          reviewStatus: {
+            approved: reviewStatus.approved,
+            held: reviewStatus.held,
+            reviewNotes: normalizedAdminComments,
+            holdNotes: normalizedAdminComments,
+          },
+        },
+      },
+      {
+        onSuccess: (updatedFamily) => {
+          onFamilyReviewUpdated(updatedFamily);
+        },
+      },
+    );
+  };
+
   return (
     <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-80 xl:w-96">
       <section>
@@ -50,9 +93,23 @@ export function ReviewActionPanel({ familyId }: { familyId: string }) {
         <Card className="border bg-white py-4 shadow-md">
           <CardContent className="px-4">
             <Textarea
-              defaultValue={ADMIN_COMMENTS_PLACEHOLDER}
+              value={adminComments}
+              onChange={(event) => setAdminComments(event.target.value)}
+              placeholder={ADMIN_COMMENTS_PLACEHOLDER}
               className="min-h-32 resize-none border-0 bg-white shadow-none text-sm text-foreground focus-visible:border-0 focus-visible:ring-0 md:text-sm"
             />
+            <div className="mt-3 flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isStatusPending || !hasUnsavedComments}
+                onClick={() => {
+                  persistReviewUpdate(family.reviewStatus);
+                }}
+              >
+                Save Comments
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -62,14 +119,10 @@ export function ReviewActionPanel({ familyId }: { familyId: string }) {
           type="button"
           disabled={isStatusPending}
           onClick={() => {
-            updateFamilyReviewStatus({
-              familyId: familyId,
-              updates: {
-                reviewStatus: {
-                  approved: true,
-                  held: false,
-                },
-              },
+            persistReviewUpdate({
+              ...family.reviewStatus,
+              approved: true,
+              held: false,
             });
           }}
           className="h-11 w-full rounded-md bg-green-600 text-base font-medium text-white hover:bg-green-700"
@@ -80,14 +133,10 @@ export function ReviewActionPanel({ familyId }: { familyId: string }) {
           type="button"
           disabled={isStatusPending}
           onClick={() => {
-            updateFamilyReviewStatus({
-              familyId: familyId,
-              updates: {
-                reviewStatus: {
-                  approved: false,
-                  held: true,
-                },
-              },
+            persistReviewUpdate({
+              ...family.reviewStatus,
+              approved: false,
+              held: true,
             });
           }}
           className="h-11 w-full rounded-md bg-red-600 text-base font-medium text-white hover:bg-red-700"

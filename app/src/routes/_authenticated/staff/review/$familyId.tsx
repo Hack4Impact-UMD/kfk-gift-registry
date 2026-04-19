@@ -116,7 +116,10 @@ function RouteComponent() {
             </div>
           </ScrollArea>
         </section>
-        <ReviewActionPanel familyId={familyId} />
+        <ReviewActionPanel
+          family={familyData}
+          onFamilyReviewUpdated={setFamilyData}
+        />
       </div>
     </div>
   );
