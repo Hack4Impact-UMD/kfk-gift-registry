@@ -124,8 +124,6 @@ function RouteComponent() {
         setIsSubmitting(true);
 
         await confirmPasswordReset(oobCode, value.password);
-
-        // Redirect to success page on successful reset
         navigate({ to: "/resetSuccess" });
       } catch (err) {
         setError(getResetPasswordErrorMessage(err));
@@ -233,7 +231,6 @@ function RouteComponent() {
                 )}
               </form.Field>
 
-              {/* Password requirements checklist */}
               <div className="p-3 bg-muted/50 rounded-lg">
                 <p className="text-xs font-medium text-foreground mb-3">
                   Password requirements:
@@ -284,7 +281,6 @@ function RouteComponent() {
         </div>
       </div>
 
-      {/* Dev link for testing */}
       <div className="fixed bottom-4 right-4 text-xs">
         <Link
           to="/forgotPassword"

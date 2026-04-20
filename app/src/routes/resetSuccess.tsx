@@ -26,7 +26,6 @@ function RouteComponent() {
   return (
     <div className="h-full flex items-center justify-center bg-muted/30 p-4 sm:p-6">
       <div className="flex w-full max-w-5xl max-h-164 h-full flex-col items-stretch lg:flex-row">
-        {/* Image section: hidden on small screens */}
         <div
           className="hidden lg:block lg:flex-1 lg:rounded-2xl bg-cover bg-center bg-kfk-blue/10"
           style={{
@@ -43,7 +42,6 @@ function RouteComponent() {
           />
           <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-14">
             <div className="w-full h-full flex flex-col gap-5 items-center text-center justify-between">
-              {/* Logo at top */}
               <div className="flex justify-center -mt-8">
                 <img
                   src={kfkFoundationLogo}
@@ -52,7 +50,6 @@ function RouteComponent() {
                 />
               </div>
 
-              {/* Content in middle */}
               <div className="flex flex-col gap-4 flex-1 justify-center items-center max-w-sm lg:max-w-xs">
                 <h1 className="text-2xl font-semibold text-foreground">
                   Password Reset Successful!
@@ -63,7 +60,6 @@ function RouteComponent() {
                 </p>
               </div>
 
-              {/* Return to Login and Ladybug in bottom half */}
               <div className="w-full flex-1 flex flex-col items-center justify-start">
                 <Link
                   to="/login"
@@ -72,7 +68,6 @@ function RouteComponent() {
                   Return to Login
                 </Link>
 
-                {/* Ladybug at bottom - full width */}
                 <div className="flex justify-center w-full flex-1 -mx-6 sm:-mx-14">
                   <img
                     src={ladybugSuccess}
@@ -86,7 +81,6 @@ function RouteComponent() {
         </div>
       </div>
 
-      {/* Dev link for testing */}
       <div className="fixed bottom-4 right-4 text-xs">
         <Link
           to="/forgotPassword"
