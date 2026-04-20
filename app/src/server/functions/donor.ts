@@ -63,6 +63,7 @@ export const claimGifts = createServerFn({ method: "POST" })
         id: uuidv7(),
         giftId: gift.id,
         childId: gift.childId,
+        claimType: "donor",
         donorId,
         driveId,
         claimedAt,
