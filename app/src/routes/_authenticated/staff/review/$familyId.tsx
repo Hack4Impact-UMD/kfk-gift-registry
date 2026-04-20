@@ -1,174 +1,169 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import type { Family } from "../../../../../../common/src/types/family";
 import { GuardianInfoCard } from "@/components/review/GuardianInfoCard";
 import * as React from "react";
 import { ChildCard } from "@/components/review/ChildCard";
-import type { Gift } from "common";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
+import type { Child } from "common";
+import { useDrive } from "@/context/DriveContext";
+import { useReviewOrder } from "@/context/ReviewOrderContext";
+import { usePendingProfileTableRows } from "@/hooks/queries/usePendingProfileTableRows";
+import { getFamilyById } from "@/server/functions/family";
+import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
+import { getChildProfilesForFamily } from "@/server/functions/child";
+import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
+import { useQuery } from "@tanstack/react-query";
+import { childQueries } from "@/queries/child";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   loader: async ({ params }) => {
-    // TODO: handle database fetching here
+    const familyData = await getFamilyById({
+      data: { familyId: params.familyId },
+    });
+
+    const childrenData = await getChildProfilesForFamily({
+      data: { familyId: params.familyId },
+    });
 
     return {
+      family: familyData,
+      children: childrenData,
       familyId: params.familyId,
     };
   },
   component: RouteComponent,
 });
 
-export type ReviewChild = {
-  id: string;
-  childName: string;
-  status: "Warrior" | "Supersib";
-  photoUrl?: string;
-  treatmentLength?: string;
-  diagnosis?: string;
-  age: number;
-  level: string;
-  blurb: string;
-  gifts: Array<Gift>;
-  socialWorkerName?: string;
-  hospitalName?: string;
-};
+interface ChildCardWithGiftsProps {
+  child: Child;
+  onSave: (updatedChild: Child) => void;
+}
 
-const MOCK_GIFTS_JOHN: Array<Gift> = [
-  {
-    id: "gift-john-1",
-    childId: "john-smith",
-    familyId: "family123",
-    giftDrive: "gd_seed_fall_2025_2",
-    title: "Taco Cat Goat Cheese Pizza Card Game",
-    productUrl: "https://example.com/taco-cat",
-    listedPrice: 19.87,
-    status: "AVAILABLE",
-    createdAt: "2025-09-13T05:00:27.182Z",
-    backup: false,
-    active: true,
-  },
-  {
-    id: "gift-john-2",
-    childId: "john-smith",
-    familyId: "family123",
-    giftDrive: "gd_seed_fall_2025_2",
-    title: "HUES and CUES - Color Guessing Board Game",
-    productUrl: "https://example.com/hues",
-    listedPrice: 19.87,
-    status: "AVAILABLE",
-    createdAt: "2025-09-13T05:00:27.182Z",
-    backup: false,
-    active: true,
-  },
-];
+function omitUndefined<T extends Record<string, unknown>>(
+  value: T,
+): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined),
+  ) as Partial<T>;
+}
 
-const MOCK_GIFTS_JANE: Array<Gift> = [
-  {
-    id: "gift-jane-1",
-    childId: "jane-smith",
-    familyId: "family123",
-    giftDrive: "gd_seed_fall_2025_2",
-    title: "Art Supply Kit - 64 Piece",
-    productUrl: "https://example.com/art-kit",
-    listedPrice: 24.99,
-    status: "AVAILABLE",
-    createdAt: "2025-09-13T05:00:27.182Z",
-    backup: false,
-    active: true,
-  },
-  {
-    id: "gift-jane-2",
-    childId: "jane-smith",
-    familyId: "family123",
-    giftDrive: "gd_seed_fall_2025_2",
-    title: "Kids' Headphones (Wired)",
-    productUrl: "https://example.com/headphones",
-    listedPrice: 16.5,
-    status: "AVAILABLE",
-    createdAt: "2025-09-13T05:00:27.182Z",
-    backup: false,
-    active: true,
-  },
-];
+function ChildCardWithGifts({ child, onSave }: ChildCardWithGiftsProps) {
+  const {
+    data: fetchedGifts,
+    isPending: isLoadingGifts,
+    isError,
+  } = useQuery(childQueries.gifts(child.id));
 
-const MOCK_CHILD: ReviewChild = {
-  id: "john-smith",
-  childName: "John Smith",
-  status: "Warrior",
-  treatmentLength: "2 weeks",
-  diagnosis: "Leukemia",
-  age: 6,
-  level: "B",
-  blurb:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-  gifts: MOCK_GIFTS_JOHN,
-  socialWorkerName: "Amanada Reese",
-  hospitalName: "Children National Hospital",
-};
+  if (isLoadingGifts) {
+    return <div>Loading Child...</div>;
+  }
 
-const MOCK_CHILD2: ReviewChild = {
-  id: "jane-smith",
-  childName: "Jane Smith",
-  status: "Supersib",
-  age: 5,
-  level: "B",
-  blurb:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-  gifts: MOCK_GIFTS_JANE,
-};
+  if (isError) {
+    return (
+      <div role="alert" className="text-kfk-red">
+        Unable to load gifts for {child.name}.
+      </div>
+    );
+  }
 
-const MOCK_CHILDREN: Array<ReviewChild> = [MOCK_CHILD, MOCK_CHILD2];
-
-const mockFamily: Family = {
-  id: "family123",
-  contactName: "Anna Smith",
-  email: "AnnaSmith@gmail.com",
-  phone: "123-456-7890",
-  giftDrive: "gd_seed_fall_2025_2",
-  createdAt: "2025-09-13T05:00:27.182Z",
-
-  address: {
-    street: "629 N Walnut Street",
-    city: "Dellbury",
-    state: "PA",
-    zipCode: "10087",
-  },
-
-  reviewStatus: {
-    approved: true,
-    held: false,
-    lastReviewedAt: "2025-10-19T19:53:02.455Z",
-    reviewedBy: "director_1",
-    reviewNotes: "Family information verified by staff intake.",
-  },
-
-  privateNotes:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis",
-};
+  return (
+    <ChildCard child={child} fetchedGifts={fetchedGifts} onSave={onSave} />
+  );
+}
 
 function RouteComponent() {
-  // const params = Route.useParams();
-  // const familyId = params.familyId;
+  const { family, children, familyId } = Route.useLoaderData();
+  const navigate = useNavigate();
+  const { activeDriveId } = useDrive();
+  const { reviewOrder } = useReviewOrder();
+  const { data: familyRows } = usePendingProfileTableRows(activeDriveId);
+  const { mutate: updateFamily } = useUpdateFamily();
+  const { mutate: updateChild } = useUpdateChild();
 
-  const lastName = mockFamily.contactName.trim().split(/\s+/).pop() ?? "";
-  const [familyData, setFamilyData] = React.useState<Family>(mockFamily);
+  if (!family) {
+    throw new Error("Family not found");
+  }
+
+  const [familyData, setFamilyData] = React.useState<Family>(family);
   const [childrenData, setChildrenData] =
-    React.useState<Array<ReviewChild>>(MOCK_CHILDREN);
+    React.useState<Array<Child>>(children);
 
+  React.useEffect(() => {
+    setFamilyData(family);
+    setChildrenData(children);
+  }, [family, children, familyId]);
+
+  const familyOrder = reviewOrder.includes(familyId)
+    ? reviewOrder
+    : (familyRows?.map((row) => row.id) ?? []);
+  const currentFamilyIndex = familyOrder.findIndex((id) => id === familyId);
+  const previousFamilyId =
+    currentFamilyIndex > 0 ? familyOrder[currentFamilyIndex - 1] : undefined;
+  const nextFamilyId =
+    currentFamilyIndex >= 0 && currentFamilyIndex < familyOrder.length - 1
+      ? familyOrder[currentFamilyIndex + 1]
+      : undefined;
+
+  const lastName = familyData.contactName.trim().split(/\s+/).pop() ?? "";
   const handleFamilyUpdate = (updatedFamily: Family) => {
-    // update database
-    setFamilyData(updatedFamily);
+    updateFamily(
+      {
+        familyId: familyId,
+        updates: {
+          contactName: updatedFamily.contactName,
+          guardianRelationship: updatedFamily.guardianRelationship ?? "",
+          email: updatedFamily.email,
+          phone: updatedFamily.phone,
+          privateNotes: updatedFamily.privateNotes ?? "",
+        },
+      },
+      {
+        onSuccess: () => setFamilyData(updatedFamily),
+      },
+    );
   };
 
-  const handleChildUpdate = (updatedChild: ReviewChild) => {
-    setChildrenData((prev) =>
-      prev.map((c) => (c.id === updatedChild.id ? updatedChild : c)),
+  const handleChildUpdate = (updatedChild: Child) => {
+    const childUpdates = omitUndefined({
+      diagnosisLengthYears: updatedChild.diagnosisLengthYears,
+      diagnosis: updatedChild.diagnosis,
+      age: updatedChild.age,
+      treatmentLevel: updatedChild.treatmentLevel,
+      publicBlurb: updatedChild.publicBlurb,
+      childSocialWorker: updatedChild.childSocialWorker,
+      hospital: updatedChild.hospital,
+      photoUrl: updatedChild.photoUrl,
+      staffPrivateNotes: updatedChild.staffPrivateNotes,
+      offTreatmentDurationYears: updatedChild.offTreatmentDurationYears,
+    });
+
+    updateChild(
+      {
+        childId: updatedChild.id,
+        updates: childUpdates,
+      },
+      {
+        onSuccess: () => {
+          setChildrenData((prev) =>
+            prev.map((c) => (c.id === updatedChild.id ? updatedChild : c)),
+          );
+        },
+      },
     );
+  };
+
+  const handleFamilyNavigation = (targetFamilyId: string) => {
+    navigate({
+      to: "/staff/review/$familyId",
+      params: { familyId: targetFamilyId },
+      search: (prev) => prev,
+    });
   };
 
   return (
     <div className="flex h-full flex-col pb-10 pl-6 pr-6 pt-6 lg:pl-16 lg:pr-10">
-      <h1 className="text-4xl font-bold">{lastName} Family</h1>
+      <h1 className="text-4xl font-bold">{lastName}'s Family</h1>
       <div className="mt-6 flex min-h-0 w-full flex-1 flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
         <section
           className="w-full max-w-3xl min-w-0 lg:self-stretch"
@@ -181,7 +176,7 @@ function RouteComponent() {
                 onSave={handleFamilyUpdate}
               />
               {childrenData.map((childData) => (
-                <ChildCard
+                <ChildCardWithGifts
                   key={childData.id}
                   child={childData}
                   onSave={handleChildUpdate}
@@ -190,7 +185,20 @@ function RouteComponent() {
             </div>
           </ScrollArea>
         </section>
-        <ReviewActionPanel />
+        <ReviewActionPanel
+          family={familyData}
+          onFamilyReviewUpdated={setFamilyData}
+          onPreviousFamily={
+            previousFamilyId
+              ? () => handleFamilyNavigation(previousFamilyId)
+              : undefined
+          }
+          onNextFamily={
+            nextFamilyId
+              ? () => handleFamilyNavigation(nextFamilyId)
+              : undefined
+          }
+        />
       </div>
     </div>
   );

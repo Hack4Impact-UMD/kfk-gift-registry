@@ -117,7 +117,7 @@ export function StorefrontSearchFilters({
 
   return (
     <>
-      <div className="hidden justify-center p-4 md:px-8 sm:flex">
+      <div className="hidden justify-center p-3 md:flex">
         <div className="flex w-full max-w-7xl items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -147,7 +147,7 @@ export function StorefrontSearchFilters({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 px-4 py-3 sm:hidden">
+      <div className="flex items-center gap-2 px-4 py-3 md:hidden">
         <SidebarTrigger
           className="h-10 w-10 shrink-0 rounded-lg bg-kfk-blue text-white hover:bg-kfk-blue/90"
           openIcon={<Menu size={24} />}

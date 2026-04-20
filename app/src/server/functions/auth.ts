@@ -51,11 +51,14 @@ export const verifySession = createServerFn({
         sessionCookie,
         data?.checkRevocation ?? false,
       );
-      const phone = (await auth.getUser(result.uid)).phoneNumber;
+
+      const authUser = await auth.getUser(result.uid);
+      const phone = authUser.phoneNumber;
+      const displayName = authUser.displayName;
 
       return {
         uid: result.uid,
-        displayName: result.name,
+        displayName: displayName,
         phone,
         email: result.email,
         emailVerified: result.email_verified ?? false,

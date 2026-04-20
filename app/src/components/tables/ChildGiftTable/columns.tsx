@@ -15,15 +15,20 @@ export const columns = [
       const url = row.original.productUrl;
 
       return (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 sm:gap-2 text-foreground hover:underline font-gaegu text-sm sm:text-base lg:text-lg whitespace-pre-wrap"
-        >
-          <span className="grow">{title}</span>
-          <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-        </a>
+        <div>
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 sm:gap-2 text-foreground hover:underline font-gaegu text-sm sm:text-base lg:text-lg whitespace-pre-wrap"
+          >
+            <span className="grow">{title}</span>
+            <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+          </a>
+          <span className="text-sm text-muted-foreground">
+            {row.original.familyPublicNotes}
+          </span>
+        </div>
       );
     },
   }),
@@ -40,23 +45,33 @@ export const columns = [
   }),
   helper.display({
     id: "action",
-    header: "Click to Claim",
+    header: "Claim Gift",
     cell: ({ row, table }) => {
       const meta = table.options.meta as GiftTableMeta | undefined;
-      const giftId = row.original.id;
-      const isClaimed = meta?.claimedGifts.has(giftId) ?? false;
+      const gift = row.original;
+      const giftId = gift.id;
+      const isAlreadyClaimed = meta?.isGiftAlreadyClaimed(gift) ?? false;
+      const isLocallyClaimed = meta?.isGiftLocallyClaimed(giftId) ?? false;
 
       return (
         <Button
-          onClick={() => meta?.onClaimGift(giftId)}
-          disabled={isClaimed}
+          onClick={() =>
+            meta?.onToggleClaimGift(giftId, gift.childId, gift.familyId)
+          }
+          disabled={isAlreadyClaimed}
           className={`rounded-full min-w-[132px] my-4 ${
-            isClaimed
+            isAlreadyClaimed
               ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
-              : "text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
+              : isLocallyClaimed
+                ? "bg-kfk-green text-white hover:bg-kfk-green/90 text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
+                : "text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"
           }`}
         >
-          {isClaimed ? "Gift Claimed!" : "Claim Gift!"}
+          {isAlreadyClaimed
+            ? "Gift Claimed!"
+            : isLocallyClaimed
+              ? "Remove Claim"
+              : "Claim Gift!"}
         </Button>
       );
     },

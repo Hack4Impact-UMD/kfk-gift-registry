@@ -3,12 +3,9 @@ import { GiftIcon } from "@/components/icons";
 import { GiftCard } from "@/components/family/GiftCard";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
 import type { FamilyGiftClaim } from "@/server/functions/child";
-import {
-  getChildByIdWithToken,
-  getChildClaimsByChildIdWithToken,
-  getChildGiftsByChildIdWithToken,
-} from "@/server/functions/child";
 import type { Gift } from "common";
+import { useFamilyChild } from "@/hooks/queries/useFamilyChild";
+import { queries } from "@/queries";
 
 const getGiftSummaryStatus = (
   status: Gift["status"],
@@ -34,32 +31,29 @@ const getGiftSummaryStatus = (
 };
 
 export const Route = createFileRoute("/family/$token/child/$childId")({
-  loader: async ({ params }) => {
-    const [child, gifts, claims] = await Promise.all([
-      getChildByIdWithToken({
-        data: { token: params.token, childId: params.childId },
-      }),
-      getChildGiftsByChildIdWithToken({
-        data: { token: params.token, childId: params.childId },
-      }),
-      getChildClaimsByChildIdWithToken({
-        data: { token: params.token, childId: params.childId },
-      }),
-    ]);
-
-    return {
-      child,
-      gifts: gifts.filter((g) => !g.backup),
-      claims,
-    };
+  loader: async ({ context, params }) => {
+    return context.queryClient.ensureQueryData(
+      queries.children.familyDetailsByToken(params.token, params.childId),
+    );
   },
   component: ChildPage,
   errorComponent: ChildError,
 });
 
 function ChildPage() {
-  const data = Route.useLoaderData();
-  const params = Route.useParams();
+  const { token, childId } = Route.useParams();
+  const { data, isPending, isError, error } = useFamilyChild(token, childId);
+
+  if (isPending) {
+    return <div>Loading child...</div>;
+  }
+
+  if (isError) {
+    return <ChildError error={error} />;
+  }
+
+  if (!data) return <div>Child not found</div>;
+
   const child = data.child;
   const gifts: Array<Gift> = data.gifts || [];
   const claims: Array<FamilyGiftClaim> = data.claims || [];
@@ -94,7 +88,7 @@ function ChildPage() {
           <ellipse cx="24" cy="109.5" rx="37" ry="35.5" fill="#0A43CE" />
         </svg>
 
-        <div className="relative z-10 flex gap-6 items-center">
+        <div className="relative z-10 flex flex-col md:flex-row gap-6 items-center">
           <div className="flex flex-col items-center gap-3 max-w-[180px] w-full">
             <div className="w-28 h-32">
               <img
@@ -152,8 +146,8 @@ function ChildPage() {
           key={gift.id}
           gift={gift}
           claim={claimsByGiftId.get(gift.id)}
-          token={params.token}
-          childId={params.childId}
+          token={token}
+          childId={childId}
         />
       ))}
     </div>

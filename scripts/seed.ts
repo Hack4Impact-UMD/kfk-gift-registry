@@ -29,8 +29,8 @@ type Args = {
 type NonEmptyArray<T> = [T, ...Array<T>];
 
 const defaults: Args = {
-  families: 5,
-  children: 2,
+  families: 100,
+  children: 4,
   gifts: 4,
   seed: 42,
 };
@@ -253,12 +253,9 @@ function main() {
       }
 
       for (let giftIndex = 0; giftIndex < gifts; giftIndex += 1) {
-        const backup = faker.datatype.boolean({ probability: 0.2 });
-        const active =
-          child.published &&
-          faker.datatype.boolean({
-            probability: driveHasEnded ? 0.65 : 0.9,
-          });
+        if (faker.datatype.boolean({ probability: 0.2 })) continue;
+        const backup = giftIndex >= 3;
+        const active = giftIndex < 3;
         const status = active
           ? driveHasEnded
             ? pickHistoricalGiftStatus()
@@ -302,6 +299,7 @@ function main() {
               giftId: gift.id,
               childId: child.id,
               donorId,
+              driveId: giftDrive.id,
               giftStatus: status,
               createdAfter: new Date(gift.createdAt),
               createdBefore: claimUpperBound,

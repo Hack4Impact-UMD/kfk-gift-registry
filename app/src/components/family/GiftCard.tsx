@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "../ui/button";
 import { ConfirmGiftModal } from "./ConfirmGiftModal";
 import { ThankYouNoteModal } from "./ThankYouNoteModal";
@@ -11,6 +10,7 @@ import {
 } from "@/server/functions/child";
 import type { Gift } from "common";
 import { ExclamationCircleIcon } from "@/components/icons";
+import { queries } from "@/queries";
 
 const GIFT_STEPS = [
   "Available",
@@ -61,7 +61,11 @@ export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteDraft, setNoteDraft] = useState("");
-  const router = useRouter();
+  const queryClient = useQueryClient();
+  const familyChildQueryKey = queries.children.familyDetailsByToken(
+    token,
+    childId,
+  ).queryKey;
 
   const confirmGiftMutation = useMutation({
     mutationFn: () =>
@@ -74,7 +78,7 @@ export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
       }),
     onSuccess: async () => {
       setConfirmOpen(false);
-      await router.invalidate();
+      await queryClient.invalidateQueries({ queryKey: familyChildQueryKey });
     },
   });
   const thankYouNoteMutation = useMutation({
@@ -89,7 +93,7 @@ export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
       }),
     onSuccess: async () => {
       setNoteOpen(false);
-      await router.invalidate();
+      await queryClient.invalidateQueries({ queryKey: familyChildQueryKey });
     },
   });
 

@@ -27,13 +27,13 @@ function FamilyRoute() {
     <div className="h-screen flex flex-col items-center overflow-hidden bg-muted md:p-4">
       <div className="flex h-screen flex-col max-w-2xl w-full bg-white md:rounded-lg shadow overflow-clip">
         <div className="z-10 bg-white w-full">
-          <div className="flex items-center py-3 px-4">
+          <Link to="/" className="flex items-center py-3 px-4">
             <img
               src={KFKLogo}
               alt="Kisses For Kyle Logo"
               className="h-[60px] w-[198px] object-contain"
             />
-          </div>
+          </Link>
           <div className="flex gap-6 overflow-x-auto px-4 py-4 items-center">
             <Link
               to="/family/$token/home"

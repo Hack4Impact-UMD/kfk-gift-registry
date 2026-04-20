@@ -23,7 +23,7 @@ export type ChildStatus =
   | "bereaved_sibling"
   | "bereaved_sibling_5yr+";
 
-type TimePeriod = "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
+export type TimePeriod = "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
 
 export interface Child {
   id: string;
