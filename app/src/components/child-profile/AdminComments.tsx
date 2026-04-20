@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 interface AdminCommentsProps {
   initialComments?: string;
-  onSave: (comments: string) => void;
+  onSave: (comments: string) => void | Promise<void>;
   debounceMs?: number;
 }
 
@@ -26,11 +26,15 @@ export function AdminComments({
     setValue(newValue);
     setSaveStatus("idle");
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
+    debounceRef.current = setTimeout(async () => {
       setSaveStatus("saving");
-      onSave(newValue);
-      setTimeout(() => setSaveStatus("saved"), 400);
-      setTimeout(() => setSaveStatus("idle"), 2000);
+      try {
+        await onSave(newValue);
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 1600);
+      } catch {
+        setSaveStatus("idle");
+      }
     }, debounceMs);
   };
 
