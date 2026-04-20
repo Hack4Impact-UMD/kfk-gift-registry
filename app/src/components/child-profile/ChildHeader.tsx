@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Child } from "../../../../common/src/types/child";
 import { Button } from "../ui/button";
 import { ConfirmUnpublishModal } from "./ConfirmUnpublishModal";
-import { EditableField } from "../review/EditableField";
 
 type ChildHeaderProps = {
   child: Child;

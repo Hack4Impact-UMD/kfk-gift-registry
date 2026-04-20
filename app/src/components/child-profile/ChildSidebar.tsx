@@ -54,6 +54,7 @@ export function ChildSidebar({
         <EditableField
           value={currentBlurb}
           editable={isEditing}
+          className="min-h-[50px]"
           fieldType="textarea"
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
             setEditedChild((prev) => ({ ...prev, publicBlurb: e.target.value }))
