@@ -208,7 +208,7 @@ function ChildProfilePage() {
       <GiftInfoSection
         gifts={gifts}
         parentComments={family.privateNotes}
-        adminComments={(child as any).adminComments ?? ""}
+        adminComments={child.staffPrivateNotes ?? ""}
         familyToken={(family as any).token ?? family.id}
         giftDetailsByGiftId={giftDetailsByGiftId}
         onUpdateGiftDetails={(giftId, details) => {
