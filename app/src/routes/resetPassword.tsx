@@ -3,6 +3,7 @@ import {
   createFileRoute,
   redirect,
   Link,
+  useNavigate,
 } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import z from "zod";
@@ -103,9 +104,9 @@ const passwordRequirements: PasswordRequirement[] = [
 
 function RouteComponent() {
   const { oobCode } = Route.useSearch();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isResetSuccess, setIsResetSuccess] = useState(false);
   const [passwordValue, setPasswordValue] = useState("");
 
   const form = useForm({
@@ -124,7 +125,8 @@ function RouteComponent() {
         // TODO: Call confirmPasswordReset from auth service with oobCode
         // await confirmPasswordReset(oobCode, value.password);
 
-        setIsResetSuccess(true);
+        // Redirect to success page on successful reset
+        navigate({ to: "/resetSuccess" });
       } catch (err) {
         setError(getResetPasswordErrorMessage(err));
       } finally {
@@ -157,158 +159,127 @@ function RouteComponent() {
             aria-hidden
           />
           <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-14">
-            {!isResetSuccess ? (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  form.handleSubmit();
-                }}
-                className="w-full max-w-sm lg:max-w-xs flex flex-col gap-5"
-              >
-                <div className="flex justify-center -mt-8 mb-4">
-                  <img
-                    src={kfkFoundationLogo}
-                    alt="Kisses for Kyle Foundation"
-                    className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-4 items-center text-center">
-                  <h1 className="text-lg font-semibold text-foreground">
-                    Reset Password
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Create a strong password to secure your account.
-                  </p>
-                </div>
-
-                <form.Field name="password">
-                  {(field) => (
-                    <div className="flex flex-col gap-2">
-                      <div className="relative">
-                        <Input
-                          type="password"
-                          placeholder="Enter new password"
-                          value={field.state.value}
-                          onChange={(e) => {
-                            field.handleChange(e.target.value);
-                            setPasswordValue(e.target.value);
-                          }}
-                          onBlur={field.handleBlur}
-                          className="w-full h-10 rounded-lg border-input"
-                        />
-                      </div>
-                      {field.state.meta.isTouched &&
-                        field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-kfk-red">
-                            {issueToMessage(field.state.meta.errors[0])}
-                          </p>
-                        )}
-                    </div>
-                  )}
-                </form.Field>
-
-                <form.Field name="confirmPassword">
-                  {(field) => (
-                    <div className="flex flex-col gap-1">
-                      <div className="relative">
-                        <Input
-                          type="password"
-                          placeholder="Confirm password"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          className="w-full h-10 rounded-lg border-input"
-                        />
-                      </div>
-                      {field.state.meta.isTouched &&
-                        field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-kfk-red">
-                            {issueToMessage(field.state.meta.errors[0])}
-                          </p>
-                        )}
-                    </div>
-                  )}
-                </form.Field>
-
-                {/* Password requirements checklist */}
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-xs font-medium text-foreground mb-3">
-                    Password requirements:
-                  </p>
-                  <ul className="space-y-2">
-                    {metPassword.map((req, idx) => (
-                      <li
-                        key={idx}
-                        className={`text-xs flex items-center gap-2 transition-colors ${
-                          req.isMet
-                            ? "text-green-600"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        <span className="text-lg leading-none">
-                          {req.isMet ? "✔️" : "✕"}
-                        </span>
-                        {req.label}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || !allRequirementsMet}
-                  className="w-full h-11 rounded-full text-white disabled:opacity-50 flex items-center justify-center bg-kfk-blue hover:bg-kfk-blue/90"
-                >
-                  {isSubmitting ? "Resetting…" : "Reset Password"}
-                </Button>
-
-                <Link
-                  to="/login"
-                  className="text-center text-sm text-kfk-blue hover:opacity-80 underline"
-                >
-                  Return to Login
-                </Link>
-
-                <div className="min-h-5">
-                  {error && (
-                    <p className="text-sm text-kfk-red text-center">
-                      {error}
-                    </p>
-                  )}
-                </div>
-              </form>
-            ) : (
-              <div className="w-full max-w-sm lg:max-w-xs flex flex-col gap-5 items-center text-center">
-                <div className="flex flex-col gap-4">
-                  <h1 className="text-2xl font-semibold text-foreground">
-                    Password Reset!
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Your password has been successfully reset. You can now log
-                    in with your new password.
-                  </p>
-                </div>
-
-                <div className="flex justify-center w-full">
-                  <img
-                    src={kfkFoundationLogo}
-                    alt="Kisses for Kyle Foundation"
-                    className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
-                  />
-                </div>
-
-                <Link
-                  to="/login"
-                  className="w-full"
-                >
-                  <Button className="w-full h-11 rounded-full text-white flex items-center justify-center bg-kfk-blue hover:bg-kfk-blue/90">
-                    Return to Login
-                  </Button>
-                </Link>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                form.handleSubmit();
+              }}
+              className="w-full max-w-sm lg:max-w-xs flex flex-col gap-5"
+            >
+              <div className="flex justify-center -mt-8 mb-4">
+                <img
+                  src={kfkFoundationLogo}
+                  alt="Kisses for Kyle Foundation"
+                  className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
+                />
               </div>
-            )}
+
+              <div className="flex flex-col gap-4 items-center text-center">
+                <h1 className="text-lg font-semibold text-foreground">
+                  Reset Password
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Create a strong password to secure your account.
+                </p>
+              </div>
+
+              <form.Field name="password">
+                {(field) => (
+                  <div className="flex flex-col gap-2">
+                    <div className="relative">
+                      <Input
+                        type="password"
+                        placeholder="Enter new password"
+                        value={field.state.value}
+                        onChange={(e) => {
+                          field.handleChange(e.target.value);
+                          setPasswordValue(e.target.value);
+                        }}
+                        onBlur={field.handleBlur}
+                        className="w-full h-10 rounded-lg border-input"
+                      />
+                    </div>
+                    {field.state.meta.isTouched &&
+                      field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-kfk-red">
+                          {issueToMessage(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                  </div>
+                )}
+              </form.Field>
+
+              <form.Field name="confirmPassword">
+                {(field) => (
+                  <div className="flex flex-col gap-1">
+                    <div className="relative">
+                      <Input
+                        type="password"
+                        placeholder="Confirm password"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        className="w-full h-10 rounded-lg border-input"
+                      />
+                    </div>
+                    {field.state.meta.isTouched &&
+                      field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-kfk-red">
+                          {issueToMessage(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                  </div>
+                )}
+              </form.Field>
+
+              {/* Password requirements checklist */}
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs font-medium text-foreground mb-3">
+                  Password requirements:
+                </p>
+                <ul className="space-y-2">
+                  {metPassword.map((req, idx) => (
+                    <li
+                      key={idx}
+                      className={`text-xs flex items-center gap-2 transition-colors ${
+                        req.isMet
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      <span className="text-lg leading-none">
+                        {req.isMet ? "✔️" : "✕"}
+                      </span>
+                      {req.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isSubmitting || !allRequirementsMet}
+                className="w-full h-11 rounded-full text-white disabled:opacity-50 flex items-center justify-center bg-kfk-blue hover:bg-kfk-blue/90"
+              >
+                {isSubmitting ? "Resetting…" : "Reset Password"}
+              </Button>
+
+              <Link
+                to="/login"
+                className="text-center text-sm text-kfk-blue hover:opacity-80 underline"
+              >
+                Return to Login
+              </Link>
+
+              <div className="min-h-5">
+                {error && (
+                  <p className="text-sm text-kfk-red text-center">
+                    {error}
+                  </p>
+                )}
+              </div>
+            </form>
           </div>
         </div>
       </div>
