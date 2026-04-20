@@ -12,9 +12,9 @@ import type { Gift, GiftStatus } from "common";
 
 const GIFT_STEPS = ["Unordered", "Claimed", "In Transit", "Delivered", "Received"];
 const GIFT_STATUS_ORDER: GiftStatus[] = [
-  "AVAILABLE",
+  "UNORDERED",
   "CLAIMED",
-  "PURCHASED",
+  "IN TRANSIT",
   "DELIVERED",
   "RECEIVED",
 ];
@@ -177,7 +177,7 @@ export function GiftInfoCard({
   return (
     <div className="px-6 py-5 space-y-4 text-sm">
       <div className="rounded-xl border bg-white shadow-sm overflow-hidden w-full">
-        <div className="bg-[#EEF4FA] px-5 py-4 flex justify-between items-start">
+        <div className="bg-[#F6F9FC] px-5 py-4 flex justify-between items-start">
           <div className="space-y-1">
             <EditableField
               value={getValue("title") ?? ""}
@@ -203,6 +203,25 @@ export function GiftInfoCard({
             >
               Price:
             </EditableField>
+          </div>
+
+          <div className="flex flex-col items-end gap-2">
+            {!isEditing ? (
+              <Button
+                size="sm"
+                onClick={() => setIsEditing(true)}
+                className="bg-kfk-blue text-white"
+              >
+                Edit
+              </Button>
+            ) : (
+              <div className="flex gap-2">
+                <Button size="sm" onClick={handleSave}>Save</Button>
+                <Button size="sm" variant="destructive" onClick={handleCancel}>
+                  Cancel
+                </Button>
+              </div>
+            )}
 
             {isEditing && (
               <EditableField
@@ -210,9 +229,9 @@ export function GiftInfoCard({
                 editable
                 fieldType="select"
                 selectOptions={[
-                  "AVAILABLE",
+                  "UNORDERED",
                   "CLAIMED",
-                  "PURCHASED",
+                  "IN TRANSIT",
                   "DELIVERED",
                   "RECEIVED",
                 ]}
@@ -222,23 +241,6 @@ export function GiftInfoCard({
               </EditableField>
             )}
           </div>
-
-          {!isEditing ? (
-            <Button
-              size="sm"
-              onClick={() => setIsEditing(true)}
-              className="bg-kfk-blue text-white"
-            >
-              Edit
-            </Button>
-          ) : (
-            <div className="flex gap-2">
-              <Button size="sm" onClick={handleSave}>Save</Button>
-              <Button size="sm" variant="outline" onClick={handleCancel}>
-                Cancel
-              </Button>
-            </div>
-          )}
         </div>
 
         <div className="bg-white px-6 py-6">

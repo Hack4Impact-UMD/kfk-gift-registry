@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Link2 } from "lucide-react";
+import { Link2, Check } from "lucide-react";
 
 interface FamilyAccountLinkProps {
   familyToken: string;
@@ -34,7 +34,7 @@ export function FamilyAccountLink({ familyToken }: FamilyAccountLinkProps) {
       <Button
         asChild
         variant="outline"
-        className="w-full h-10 rounded-lg font-gaegu font-bold"
+        className="w-full h-11 rounded-lg font-semibold text-base"
       >
         <a href={familyUrl} target="_blank" rel="noreferrer">
           Open Family Account Link
@@ -43,10 +43,23 @@ export function FamilyAccountLink({ familyToken }: FamilyAccountLinkProps) {
 
       <Button
         onClick={handleCopy}
-        className="w-full bg-kfk-blue text-white hover:bg-kfk-blue/90 font-gaegu font-bold flex items-center justify-center gap-2 h-10 rounded-lg shadow"
+        className="
+          w-full 
+          bg-kfk-blue text-white 
+          border border-white
+          hover:bg-white hover:text-kfk-blue
+          hover:border-kfk-blue
+          font-semibold text-base 
+          flex items-center justify-center gap-2 
+          h-11 rounded-lg shadow
+        "
       >
-        <Link2 className="h-4 w-4" />
-        {copied ? "Copied!" : "Copy Link"}
+        {copied ? (
+          <Check className="h-5 w-5" />
+        ) : (
+          <Link2 className="h-5 w-5" />
+        )}
+        {copied ? "Link copied!" : "Copy Link"}
       </Button>
     </div>
   );
