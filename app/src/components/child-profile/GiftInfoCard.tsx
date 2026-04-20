@@ -87,6 +87,18 @@ interface GiftInfoCardProps {
   dateReceived?: string;
   proofOfPurchaseUrl?: string;
   onUpdate?: (giftId: string, updates: Partial<Gift>) => void;
+  onUpdateDetails?: (
+    giftId: string,
+    details: {
+      donorName: string;
+      donorEmail: string;
+      trackingId: string;
+      dateOrdered: string;
+      dateDelivered: string;
+      dateReceived: string;
+      proofOfPurchaseUrl?: string;
+    },
+  ) => void;
 }
 
 export function GiftInfoCard({
@@ -99,6 +111,7 @@ export function GiftInfoCard({
   dateReceived,
   proofOfPurchaseUrl,
   onUpdate,
+  onUpdateDetails,
 }: GiftInfoCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [proofOpen, setProofOpen] = useState(false);
@@ -132,7 +145,12 @@ export function GiftInfoCard({
       });
     }
 
-    console.log("Local fields (not persisted yet):", localFields);
+    if (onUpdateDetails) {
+      onUpdateDetails(gift.id, {
+        ...localFields,
+        proofOfPurchaseUrl,
+      });
+    }
 
     setEditedGift({});
     setIsEditing(false);
@@ -270,7 +288,7 @@ export function GiftInfoCard({
             className={`w-full h-11 font-gaegu font-bold ${
               hasProof
                 ? "bg-kfk-blue text-white hover:bg-kfk-blue/80"
-                : "bg-gray-300 text-gray-500 cursor-default"
+                : "bg-gray-300 text-gray-600 hover:bg-gray-300"
             }`}
             disabled={!hasProof}
             onClick={() => hasProof && setProofOpen(true)}

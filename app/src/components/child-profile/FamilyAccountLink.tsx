@@ -32,6 +32,16 @@ export function FamilyAccountLink({ familyToken }: FamilyAccountLinkProps) {
       </p>
 
       <Button
+        asChild
+        variant="outline"
+        className="w-full h-10 rounded-lg font-gaegu font-bold"
+      >
+        <a href={familyUrl} target="_blank" rel="noreferrer">
+          Open Family Account Link
+        </a>
+      </Button>
+
+      <Button
         onClick={handleCopy}
         className="w-full bg-kfk-blue text-white hover:bg-kfk-blue/90 font-gaegu font-bold flex items-center justify-center gap-2 h-10 rounded-lg shadow"
       >

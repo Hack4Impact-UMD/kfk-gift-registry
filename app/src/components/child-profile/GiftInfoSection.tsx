@@ -5,11 +5,23 @@ import { AdminComments } from "./AdminComments";
 import { FamilyAccountLink } from "./FamilyAccountLink";
 import type { Gift } from "common";
 
+export type GiftDetails = {
+  donorName: string;
+  donorEmail: string;
+  trackingId: string;
+  dateOrdered: string;
+  dateDelivered: string;
+  dateReceived: string;
+  proofOfPurchaseUrl?: string;
+};
+
 interface GiftInfoSectionProps {
   gifts: Gift[];
   parentComments?: string;
   adminComments?: string;
   familyToken: string;
+  giftDetailsByGiftId?: Record<string, GiftDetails>;
+  onUpdateGiftDetails?: (giftId: string, details: GiftDetails) => void;
   onUpdateGift?: (giftId: string, updates: Partial<Gift>) => void;
   onSaveAdminComments?: (comments: string) => void;
 }
@@ -19,6 +31,8 @@ export function GiftInfoSection({
   parentComments,
   adminComments,
   familyToken,
+  giftDetailsByGiftId = {},
+  onUpdateGiftDetails,
   onUpdateGift,
   onSaveAdminComments,
 }: GiftInfoSectionProps) {
@@ -40,8 +54,16 @@ export function GiftInfoSection({
               <GiftInfoCard
                 key={gift.id}
                 gift={gift}
-                // TODO: wire donor/tracking/date fields from backend claims data
+                isBackupGift={false}
+                donorName={giftDetailsByGiftId[gift.id]?.donorName}
+                donorEmail={giftDetailsByGiftId[gift.id]?.donorEmail}
+                trackingId={giftDetailsByGiftId[gift.id]?.trackingId}
+                dateOrdered={giftDetailsByGiftId[gift.id]?.dateOrdered}
+                dateDelivered={giftDetailsByGiftId[gift.id]?.dateDelivered}
+                dateReceived={giftDetailsByGiftId[gift.id]?.dateReceived}
+                proofOfPurchaseUrl={giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl}
                 onUpdate={onUpdateGift}
+                onUpdateDetails={onUpdateGiftDetails}
               />
             ))
           )}
@@ -58,7 +80,16 @@ export function GiftInfoSection({
               <GiftInfoCard
                 key={gift.id}
                 gift={gift}
+                isBackupGift
+                donorName={giftDetailsByGiftId[gift.id]?.donorName}
+                donorEmail={giftDetailsByGiftId[gift.id]?.donorEmail}
+                trackingId={giftDetailsByGiftId[gift.id]?.trackingId}
+                dateOrdered={giftDetailsByGiftId[gift.id]?.dateOrdered}
+                dateDelivered={giftDetailsByGiftId[gift.id]?.dateDelivered}
+                dateReceived={giftDetailsByGiftId[gift.id]?.dateReceived}
+                proofOfPurchaseUrl={giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl}
                 onUpdate={onUpdateGift}
+                onUpdateDetails={onUpdateGiftDetails}
               />
             ))}
           </div>

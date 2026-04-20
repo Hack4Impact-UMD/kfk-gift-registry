@@ -7,6 +7,7 @@ import { ChildInfo } from "@/components/child-profile/ChildInfo";
 import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
 import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
 import { GiftInfoSection } from "@/components/child-profile/GiftInfoSection";
+import type { GiftDetails } from "@/components/child-profile/GiftInfoSection";
 // import { ParentComments } from "@/components/child-profile/ParentComments";
 // import { AdminComments } from "@/components/child-profile/AdminComments";
 // import { FamilyAccountLink } from "@/components/child-profile/FamilyAccountLink";
@@ -27,6 +28,7 @@ function ChildProfilePage() {
   const [editedChild, setEditedChild] = useState<Partial<Child>>({});
   const [editedFamily, setEditedFamily] = useState<Partial<Family>>({});
   const [editedGifts, setEditedGifts] = useState<Gift[]>([]);
+  const [giftDetailsByGiftId, setGiftDetailsByGiftId] = useState<Record<string, GiftDetails>>({});
 
   const updateChildMutation = useUpdateChild();
   const updateFamilyMutation = useUpdateFamily();
@@ -145,7 +147,7 @@ function ChildProfilePage() {
     try {
       await updateChildMutation.mutateAsync({
         childId: child.id,
-        updates: { adminComments: comments },
+        updates: { adminComments: comments } as any,
       });
     } catch (err) {
       console.error("Admin comments save failed", err);
@@ -157,11 +159,19 @@ function ChildProfilePage() {
       <h1 className="font-bold text-4xl my-4">Child Profile</h1>
 
       <div className="flex gap-6">
-        <ChildSidebar child={child} family={family} />
+        <ChildSidebar
+          child={child}
+          family={family}
+          isEditing={isEditing}
+          editedChild={editedChild}
+          setEditedChild={setEditedChild}
+        />
 
         <div className="flex flex-col flex-1 w-full">
           <ChildHeader
             child={child}
+            editedChild={editedChild}
+            setEditedChild={setEditedChild}
             isEditing={isEditing}
             setIsEditing={setIsEditing}
             onSave={handleSaveAll}
@@ -194,7 +204,11 @@ function ChildProfilePage() {
             gifts={gifts}
             parentComments={family.privateNotes}
             adminComments={(child as any).adminComments ?? ""}
-            familyToken={family.token ?? family.id}
+            familyToken={(family as any).token ?? family.id}
+            giftDetailsByGiftId={giftDetailsByGiftId}
+            onUpdateGiftDetails={(giftId, details) => {
+              setGiftDetailsByGiftId((prev) => ({ ...prev, [giftId]: details }));
+            }}
             onUpdateGift={handleUpdateGift}
             onSaveAdminComments={handleSaveAdminComments}
           />

@@ -2,35 +2,73 @@ import { useState } from "react";
 import { Child } from "../../../../common/src/types/child";
 import { Button } from "../ui/button";
 import { ConfirmUnpublishModal } from "./ConfirmUnpublishModal";
+import { EditableField } from "../review/EditableField";
 
 type ChildHeaderProps = {
   child: Child;
+  editedChild: Partial<Child>;
+  setEditedChild: React.Dispatch<React.SetStateAction<Partial<Child>>>;
   isEditing: boolean;
   setIsEditing: (val: boolean) => void;
   onSave: () => void;
   onCancel: () => void;
 };
 
-export function ChildHeader({ child, isEditing, setIsEditing, onSave, onCancel }: ChildHeaderProps) {
-const [confirmOpen, setConfirmOpen] = useState(false);
+export function ChildHeader({
+  child,
+  editedChild,
+  setEditedChild,
+  isEditing,
+  setIsEditing,
+  onSave,
+  onCancel,
+}: ChildHeaderProps) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const currentName = editedChild.name ?? child.name;
+  const currentCategory = editedChild.category ?? child.category;
 
   return (
     <div className="flex justify-between items-center">
       <div className="flex gap-4 items-center">
-        <h1 className="text-3xl">{child.name}</h1>
-        <p 
+        <EditableField
+          value={currentName}
+          editable={isEditing}
+          className="text-3xl font-medium"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setEditedChild((prev) => ({ ...prev, name: e.target.value }))
+          }
+        />
+        <p
           className={
-            child.category === "warrior"
+            currentCategory === "warrior"
               ? "text-center text-kfk-brown bg-kfk-yellow/30 rounded-full border border-kfk-brown px-4"
               : "text-center text-kfk-blue bg-kfk-light-blue/30 rounded-full border border-kfk-blue px-4"
           }
         >
-          {child.category == "warrior" ? "Warrior" : "Super Sib"}
+          {isEditing ? (
+            <EditableField
+              value={currentCategory}
+              editable
+              fieldType="select"
+              selectOptions={["warrior", "super_sib"]}
+              className="bg-transparent border-0 p-0 text-center text-inherit"
+              onChange={(value) =>
+                setEditedChild((prev) => ({
+                  ...prev,
+                  category: value as Child["category"],
+                }))
+              }
+            />
+          ) : currentCategory == "warrior" ? (
+            "Warrior"
+          ) : (
+            "Super Sib"
+          )}
         </p>
       </div>
 
       <div className="flex gap-2">
-        <Button 
+        <Button
           onClick={() => {
             if (isEditing) {
               onSave();
@@ -41,17 +79,15 @@ const [confirmOpen, setConfirmOpen] = useState(false);
         >
           {isEditing ? "Save" : "Edit"}
         </Button>
-        <Button 
+        <Button
           variant="destructive"
-          onClick={
-            () => {
-              if (isEditing) {
-                onCancel();
-              } else {
-                setConfirmOpen(true);
-              }
+          onClick={() => {
+            if (isEditing) {
+              onCancel();
+            } else {
+              setConfirmOpen(true);
             }
-          }
+          }}
         >
           {isEditing ? "Cancel" : "Unpublish"}
         </Button>

@@ -53,7 +53,7 @@ export function AdminComments({
           value={value}
           onChange={handleChange}
           placeholder="Add internal admin notes here…"
-          className="min-h-[130px] resize-none text-sm border-gray-300"
+          className="min-h-[130px] resize-none text-sm border-0 shadow-none focus-visible:border-0 focus-visible:ring-0"
         />
       </div>
     </div>
