@@ -10,6 +10,7 @@ import { FirebaseError } from "firebase/app";
 import { UserRole } from "common";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { sendPasswordResetEmail } from "@/services/authService.client";
 import adminVolunteerLoginBg from "@/assets/admin-volunteer-login-bg.png";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
 import ladybugSuccess from "@/assets/ladybug-success.png";
@@ -91,8 +92,7 @@ function RouteComponent() {
         setError(null);
         setIsSubmitting(true);
         
-        // TODO: Call sendPasswordResetEmail from auth service
-        // await sendPasswordResetEmail(value.email);
+        await sendPasswordResetEmail(form.state.values.email);
         
         setIsEmailSent(true);
       } catch (err) {

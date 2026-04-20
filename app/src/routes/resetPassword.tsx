@@ -11,6 +11,7 @@ import { FirebaseError } from "firebase/app";
 import { UserRole } from "common";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { confirmPasswordReset } from "@/services/authService.client";
 import adminVolunteerLoginBg from "@/assets/admin-volunteer-login-bg.png";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
 
@@ -122,8 +123,7 @@ function RouteComponent() {
         setError(null);
         setIsSubmitting(true);
 
-        // TODO: Call confirmPasswordReset from auth service with oobCode
-        // await confirmPasswordReset(oobCode, value.password);
+        await confirmPasswordReset(oobCode, value.password);
 
         // Redirect to success page on successful reset
         navigate({ to: "/resetSuccess" });
