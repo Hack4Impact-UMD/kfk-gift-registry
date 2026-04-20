@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import type { Gift, GiftStatus } from "common";
 
-const GIFT_STEPS = ["Unordered", "Claimed", "In Transit", "Delivered", "Received"];
+const GIFT_STEPS = ["Available", "Claimed", "Purchased", "Delivered", "Received"];
 const GIFT_STATUS_ORDER: GiftStatus[] = [
   "AVAILABLE",
   "CLAIMED",
@@ -230,13 +230,7 @@ export function GiftInfoCard({
                 value={getValue("status") || "UNORDERED"}
                 editable
                 fieldType="select"
-                selectOptions={[
-                  "UNORDERED",
-                  "CLAIMED",
-                  "IN TRANSIT",
-                  "DELIVERED",
-                  "RECEIVED",
-                ]}
+                selectOptions={GIFT_STATUS_ORDER}
                 onChange={(val) => handleChange("status", val)}
               >
                 Status:

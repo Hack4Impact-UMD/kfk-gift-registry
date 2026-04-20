@@ -19,8 +19,9 @@ export function SiblingPopover({ sibling }: { sibling: Child }) {
     error,
   } = useChildGifts(sibling.id);
 
-  const totalGifts = gifts.filter((g) => g.active).length;
-  const receivedGifts = gifts.filter((g) => g.status === "RECEIVED").length;
+  const activeGifts = gifts.filter((g) => g.active);
+  const totalGifts = activeGifts.length;
+  const receivedGifts = activeGifts.filter((g) => g.status === "RECEIVED").length;
 
   const isComplete = totalGifts > 0 && receivedGifts === totalGifts;
 

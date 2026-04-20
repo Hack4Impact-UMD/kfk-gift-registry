@@ -147,10 +147,11 @@ function ChildProfilePage() {
     try {
       await updateChildMutation.mutateAsync({
         childId: child.id,
-        updates: { adminComments: comments } as any,
+        updates: { staffPrivateNotes: comments },
       });
     } catch (err) {
       console.error("Admin comments save failed", err);
+      throw err;
     }
   };
 
