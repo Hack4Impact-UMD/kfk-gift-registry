@@ -30,41 +30,18 @@ export function ChildHeader({
   return (
     <div className="flex justify-between items-center">
       <div className="flex gap-4 items-center">
-        <EditableField
-          value={currentName}
-          editable={isEditing}
-          className="text-3xl font-medium"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setEditedChild((prev) => ({ ...prev, name: e.target.value }))
-          }
-        />
-        <p
+        <h1 className="text-3xl font-medium">
+          {currentName}
+        </h1>
+        <div
           className={
             currentCategory === "warrior"
               ? "text-center text-kfk-brown bg-kfk-yellow/30 rounded-full border border-kfk-brown px-4"
               : "text-center text-kfk-blue bg-kfk-light-blue/30 rounded-full border border-kfk-blue px-4"
           }
         >
-          {isEditing ? (
-            <EditableField
-              value={currentCategory}
-              editable
-              fieldType="select"
-              selectOptions={["warrior", "super_sib"]}
-              className="bg-transparent border-0 p-0 text-center text-inherit"
-              onChange={(value) =>
-                setEditedChild((prev) => ({
-                  ...prev,
-                  category: value as Child["category"],
-                }))
-              }
-            />
-          ) : currentCategory == "warrior" ? (
-            "Warrior"
-          ) : (
-            "Super Sib"
-          )}
-        </p>
+          {currentCategory === "warrior" ? "Warrior" : "Super Sib"}
+        </div>
       </div>
 
       <div className="flex gap-2">

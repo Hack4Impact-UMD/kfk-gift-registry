@@ -45,7 +45,6 @@ export function EditableField({
     | React.ChangeEventHandler<HTMLTextAreaElement>
     | undefined;
   const selectOnChange = onChange as ((value: string) => void) | undefined;
-  const normalizedValue = value && value !== "" ? String(value) : undefined;
 
   useEffect(() => {
     if (editable) inputRef.current?.focus();
@@ -67,29 +66,19 @@ export function EditableField({
   if (fieldType === "select") {
     return (
       <Select
-        key={normalizedValue ?? "empty"}
-        value={normalizedValue}
+        defaultValue={value?.toString()}
+        value={value?.toString()}
         onValueChange={selectOnChange}
       >
-        <SelectTrigger className="h-9 px-3 text-sm bg-kfk-blue text-white border border-black rounded-md hover:bg-kfk-blue/90 [&_svg]:text-white [&_svg]:stroke-white [&_svg]:opacity-100 [&_svg]:[stroke-width:2.5]">
-          <span>Gift Status</span>
+        <SelectTrigger className="w-full max-w-48 border-1 border-black">
+          <SelectValue placeholder="Select a level" />
         </SelectTrigger>
-
-        <SelectContent
-          position="popper"
-          align="start"
-          className="w-[var(--radix-select-trigger-width)] mt-[-7px] p-0 bg-transparent border-none shadow-none"
-        >
-          <SelectGroup className="w-full">
-            {selectOptions?.map((val) => (
-              <SelectItem
-                key={val}
-                value={val}
-                className="w-full px-4 py-2 text-sm bg-white border border-black cursor-pointer data-[highlighted]:bg-gray-200 -mt-px"
-              >
-                {val}
-              </SelectItem>
-            ))}
+        <SelectContent>
+          <SelectGroup>
+            {selectOptions &&
+              selectOptions.map((val) => (
+                <SelectItem value={val}>{val}</SelectItem>
+              ))}
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -111,7 +100,9 @@ export function EditableField({
           {...(props as React.ComponentProps<typeof Textarea>)}
         />
         <p
-          className={`self-end ${wordCount <= 25 ? "text-muted-foreground" : "text-destructive"}`}
+          className={`self-end ${
+            wordCount <= 25 ? "text-muted-foreground" : "text-destructive"
+          }`}
         >
           {wordCount}/25 words
         </p>

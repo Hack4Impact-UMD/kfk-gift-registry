@@ -12,9 +12,9 @@ import type { Gift, GiftStatus } from "common";
 
 const GIFT_STEPS = ["Unordered", "Claimed", "In Transit", "Delivered", "Received"];
 const GIFT_STATUS_ORDER: GiftStatus[] = [
-  "UNORDERED",
+  "AVAILABLE",
   "CLAIMED",
-  "IN TRANSIT",
+  "PURCHASED",
   "DELIVERED",
   "RECEIVED",
 ];
@@ -171,6 +171,8 @@ export function GiftInfoCard({
 
   const hasProof = !!proofOfPurchaseUrl;
 
+  const safeStatus = gift.status || "UNORDERED";
+
   const displayLocal = (val?: string) =>
     isEditing ? val ?? "" : val?.trim() ? val : "N/A";
 
@@ -225,7 +227,7 @@ export function GiftInfoCard({
 
             {isEditing && (
               <EditableField
-                value={getValue("status")}
+                value={getValue("status") || "UNORDERED"}
                 editable
                 fieldType="select"
                 selectOptions={[
