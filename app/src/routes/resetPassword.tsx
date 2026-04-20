@@ -106,6 +106,7 @@ function RouteComponent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isResetSuccess, setIsResetSuccess] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("");
 
   const form = useForm({
     defaultValues: {
@@ -115,7 +116,7 @@ function RouteComponent() {
     validators: {
       onSubmit: resetPasswordSchema,
     },
-    onSubmit: async () => {
+    onSubmit: async ({ value }) => {
       try {
         setError(null);
         setIsSubmitting(true);
@@ -131,8 +132,6 @@ function RouteComponent() {
       }
     },
   });
-
-  const passwordValue = form.state.values.password;
 
   const metPassword = passwordRequirements.map((req) => ({
     ...req,
@@ -188,16 +187,16 @@ function RouteComponent() {
                   {(field) => (
                     <div className="flex flex-col gap-2">
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                          🔒
-                        </span>
                         <Input
                           type="password"
                           placeholder="Enter new password"
                           value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
+                          onChange={(e) => {
+                            field.handleChange(e.target.value);
+                            setPasswordValue(e.target.value);
+                          }}
                           onBlur={field.handleBlur}
-                          className="w-full h-10 rounded-lg border-input pl-10"
+                          className="w-full h-10 rounded-lg border-input"
                         />
                       </div>
                       {field.state.meta.isTouched &&
@@ -206,28 +205,6 @@ function RouteComponent() {
                             {issueToMessage(field.state.meta.errors[0])}
                           </p>
                         )}
-
-                      {/* Password requirements checklist */}
-                      <div className="mt-2 p-3 bg-muted/50 rounded-lg">
-                        <p className="text-xs font-medium text-foreground mb-2">
-                          Password requirements:
-                        </p>
-                        <ul className="space-y-1">
-                          {metPassword.map((req, idx) => (
-                            <li
-                              key={idx}
-                              className={`text-xs flex items-center gap-2 ${
-                                req.isMet
-                                  ? "text-green-600"
-                                  : "text-muted-foreground"
-                              }`}
-                            >
-                              <span>{req.isMet ? "✓" : "○"}</span>
-                              {req.label}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
                     </div>
                   )}
                 </form.Field>
@@ -236,15 +213,13 @@ function RouteComponent() {
                   {(field) => (
                     <div className="flex flex-col gap-1">
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                        </span>
                         <Input
                           type="password"
                           placeholder="Confirm password"
                           value={field.state.value}
                           onChange={(e) => field.handleChange(e.target.value)}
                           onBlur={field.handleBlur}
-                          className="w-full h-10 rounded-lg border-input pl-10"
+                          className="w-full h-10 rounded-lg border-input"
                         />
                       </div>
                       {field.state.meta.isTouched &&
@@ -256,6 +231,30 @@ function RouteComponent() {
                     </div>
                   )}
                 </form.Field>
+
+                {/* Password requirements checklist */}
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <p className="text-xs font-medium text-foreground mb-3">
+                    Password requirements:
+                  </p>
+                  <ul className="space-y-2">
+                    {metPassword.map((req, idx) => (
+                      <li
+                        key={idx}
+                        className={`text-xs flex items-center gap-2 transition-colors ${
+                          req.isMet
+                            ? "text-green-600"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        <span className="text-lg leading-none">
+                          {req.isMet ? "✔️" : "✕"}
+                        </span>
+                        {req.label}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
                 <Button
                   type="submit"
