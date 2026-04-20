@@ -180,16 +180,18 @@ function ChildProfilePage() {
 
           <div className="w-full h-1 rounded-full my-4 bg-muted"></div>
 
-          <div className="grid grid-cols-[1fr_420px] gap-12">
-            <ChildInfo
-              child={child}
-              family={family}
-              isEditing={isEditing}
-              editedChild={editedChild}
-              setEditedChild={setEditedChild}
-              editedFamily={editedFamily}
-              setEditedFamily={setEditedFamily}
-            />
+          <div className="grid grid-cols-[minmax(0,600px)_1fr] gap-12 w-full">
+            <div className="max-w-[600px]">
+              <ChildInfo
+                child={child}
+                family={family}
+                isEditing={isEditing}
+                editedChild={editedChild}
+                setEditedChild={setEditedChild}
+                editedFamily={editedFamily}
+                setEditedFamily={setEditedFamily}
+              />
+            </div>
             <SelectedGifts
               gifts={gifts}
               isEditing={isEditing}
@@ -197,23 +199,23 @@ function ChildProfilePage() {
               setEditedGifts={setEditedGifts}
             />
           </div>
-
-          {/* ── Gift Information Section ── */}
-          <div className="w-full h-1 rounded-full my-6 bg-muted"></div>
-          <GiftInfoSection
-            gifts={gifts}
-            parentComments={family.privateNotes}
-            adminComments={(child as any).adminComments ?? ""}
-            familyToken={(family as any).token ?? family.id}
-            giftDetailsByGiftId={giftDetailsByGiftId}
-            onUpdateGiftDetails={(giftId, details) => {
-              setGiftDetailsByGiftId((prev) => ({ ...prev, [giftId]: details }));
-            }}
-            onUpdateGift={handleUpdateGift}
-            onSaveAdminComments={handleSaveAdminComments}
-          />
         </div>
       </div>
+      
+      {/* ── Gift Information Section ── */}
+      <div className="w-full h-1 rounded-full my-6 bg-muted"></div>
+      <GiftInfoSection
+        gifts={gifts}
+        parentComments={family.privateNotes}
+        adminComments={(child as any).adminComments ?? ""}
+        familyToken={(family as any).token ?? family.id}
+        giftDetailsByGiftId={giftDetailsByGiftId}
+        onUpdateGiftDetails={(giftId, details) => {
+          setGiftDetailsByGiftId((prev) => ({ ...prev, [giftId]: details }));
+        }}
+        onUpdateGift={handleUpdateGift}
+        onSaveAdminComments={handleSaveAdminComments}
+      />
     </div>
   );
 }
