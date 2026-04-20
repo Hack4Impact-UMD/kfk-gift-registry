@@ -26,7 +26,7 @@ export function PublishedGiftsTable({
 }: PublishedGiftsTableProps) {
   const [globalSearch, setGlobalSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<GiftPurchaseStatus | null>(
-    sponsorTypeFilter
+    sponsorTypeFilter,
   );
 
   // Apply filter from header cards (if any)
@@ -36,7 +36,7 @@ export function PublishedGiftsTable({
           (row) =>
             row.sponsorType === "purchased" ||
             row.sponsorType === "purchased_kfk" ||
-            row.sponsorType === "purchased_donor"
+            row.sponsorType === "purchased_donor",
         )
       : activeFilter
         ? data.filter((row) => row.sponsorType === activeFilter)

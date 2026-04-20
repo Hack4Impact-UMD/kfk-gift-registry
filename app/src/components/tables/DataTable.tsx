@@ -111,7 +111,9 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       style={{
-                        width: header.getSize() ? `${header.getSize()}px` : undefined,
+                        width: header.getSize()
+                          ? `${header.getSize()}px`
+                          : undefined,
                       }}
                       className="font-normal text-muted-foreground text-sm overflow-hidden"
                     >
@@ -136,10 +138,12 @@ export function DataTable<TData, TValue>({
                   className="hover:bg-gray-50/60 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell 
+                    <TableCell
                       key={cell.id}
                       style={{
-                        width: cell.column.columnDef.size ? `${cell.column.columnDef.size}px` : undefined,
+                        width: cell.column.columnDef.size
+                          ? `${cell.column.columnDef.size}px`
+                          : undefined,
                       }}
                       className="overflow-hidden"
                     >

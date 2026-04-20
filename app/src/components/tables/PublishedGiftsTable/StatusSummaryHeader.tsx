@@ -14,19 +14,19 @@ export function StatusSummaryHeader({
 }: StatusSummaryHeaderProps) {
   const totalCount = data.length;
   const unpurchasedCount = data.filter(
-    (row) => row.sponsorType === "unpurchased"
+    (row) => row.sponsorType === "unpurchased",
   ).length;
   const purchasedCount = data.filter(
     (row) =>
       row.sponsorType === "purchased" ||
       row.sponsorType === "purchased_kfk" ||
-      row.sponsorType === "purchased_donor"
+      row.sponsorType === "purchased_donor",
   ).length;
   const purchasedKfkCount = data.filter(
-    (row) => row.sponsorType === "purchased_kfk"
+    (row) => row.sponsorType === "purchased_kfk",
   ).length;
   const purchasedDonorCount = data.filter(
-    (row) => row.sponsorType === "purchased_donor"
+    (row) => row.sponsorType === "purchased_donor",
   ).length;
 
   return (

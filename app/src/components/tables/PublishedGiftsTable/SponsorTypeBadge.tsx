@@ -30,13 +30,16 @@ const sponsorTypeConfig: Record<
   },
 };
 
-export function SponsorTypeBadge({ sponsorType, className }: SponsorTypeBadgeProps) {
+export function SponsorTypeBadge({
+  sponsorType,
+  className,
+}: SponsorTypeBadgeProps) {
   const config = sponsorTypeConfig[sponsorType];
-  
+
   if (!config.label) {
     return null;
   }
-  
+
   return (
     <span
       className={cn(

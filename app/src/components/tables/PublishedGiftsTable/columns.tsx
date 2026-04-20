@@ -69,7 +69,9 @@ export const columns = [
       const productUrl = row.original.productUrl;
       return (
         <div className="flex items-center gap-2 group">
-          <span className="text-sm text-gray-600 font-sans truncate">{name}</span>
+          <span className="text-sm text-gray-600 font-sans truncate">
+            {name}
+          </span>
           {productUrl && (
             <a
               href={productUrl}
@@ -126,7 +128,9 @@ export const columns = [
       const email = getValue();
       return (
         <div className="flex items-center gap-2 group">
-          <span className="text-sm text-gray-600 font-sans truncate">{email}</span>
+          <span className="text-sm text-gray-600 font-sans truncate">
+            {email}
+          </span>
           {email && (
             <button
               onClick={() => handleCopyEmail(email)}

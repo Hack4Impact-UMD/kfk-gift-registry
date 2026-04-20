@@ -5,10 +5,7 @@ interface GiftStatusBadgeProps {
   className?: string;
 }
 
-const statusConfig: Record<
-  string,
-  { label: string; color: string }
-> = {
+const statusConfig: Record<string, { label: string; color: string }> = {
   unclaimed: {
     label: "Unclaimed",
     color: "bg-red-300",

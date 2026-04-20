@@ -1,10 +1,14 @@
 import { cn } from "@/lib/utils";
-import type { ReactNode } from "react";
 
 interface StatusSummaryCardProps {
   label: string;
   count: number;
-  variant: "all" | "unpurchased" | "purchased" | "purchased_kfk" | "purchased_donor";
+  variant:
+    | "all"
+    | "unpurchased"
+    | "purchased"
+    | "purchased_kfk"
+    | "purchased_donor";
   onClick?: () => void;
   isActive?: boolean;
 }
