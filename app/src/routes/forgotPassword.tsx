@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import adminVolunteerLoginBg from "@/assets/admin-volunteer-login-bg.png";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
+import ladybugSuccess from "@/assets/ladybug-success.png";
 
 const searchSchema = z.object({
   redirect: z
@@ -197,8 +198,18 @@ function RouteComponent() {
                 </div>
               </form>
             ) : (
-              <div className="w-full max-w-sm lg:max-w-xs flex flex-col gap-5 items-center text-center">
-                <div className="flex flex-col gap-4">
+              <div className="w-full h-full flex flex-col gap-5 items-center text-center justify-between">
+                {/* Logo at top */}
+                <div className="flex justify-center -mt-8">
+                  <img
+                    src={kfkFoundationLogo}
+                    alt="Kisses for Kyle Foundation"
+                    className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
+                  />
+                </div>
+
+                {/* Content in middle */}
+                <div className="flex flex-col gap-4 flex-1 justify-center items-center max-w-sm lg:max-w-xs">
                   <h1 className="text-2xl font-semibold text-foreground">
                     Email Sent!
                   </h1>
@@ -208,21 +219,24 @@ function RouteComponent() {
                   </p>
                 </div>
 
-                {/* Logo from assets */}
-                <div className="flex justify-center w-full">
-                  <img
-                    src={kfkFoundationLogo}
-                    alt="Kisses for Kyle Foundation"
-                    className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
-                  />
-                </div>
+                {/* Return to Login and Ladybug in bottom half */}
+                <div className="w-full flex-1 flex flex-col items-center justify-start">
+                  <Link
+                    to="/login"
+                    className="text-center text-sm text-kfk-blue hover:opacity-80 underline mb-4"
+                  >
+                    Return to Login
+                  </Link>
 
-                <Link
-                  to="/login"
-                  className="text-center text-sm text-kfk-blue hover:opacity-80 underline"
-                >
-                  Return to Login
-                </Link>
+                  {/* Ladybug at bottom - full width */}
+                  <div className="flex justify-center w-full flex-1 -mx-6 sm:-mx-14">
+                    <img
+                      src={ladybugSuccess}
+                      alt="Success ladybug"
+                      className="w-screen h-full object-cover"
+                    />
+                  </div>
+                </div>
               </div>
             )}
           </div>
