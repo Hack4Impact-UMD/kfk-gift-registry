@@ -129,7 +129,8 @@ function RouteComponent() {
         setIsSubmitting(true);
 
         await confirmPasswordReset(oobCode, value.password);
-        navigate({ to: "/resetSuccess" });
+        await navigate({ to: "/resetSuccess" });
+        return;
       } catch (err) {
         setError(getResetPasswordErrorMessage(err));
       } finally {

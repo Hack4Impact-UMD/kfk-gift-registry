@@ -51,8 +51,8 @@ function RouteComponent() {
                   Password Reset Successful!
                 </h1>
                 <p className="text-sm text-muted-foreground max-w-sm">
-                  Your have successfully reset your password. Please use your
-                  new password when logging in.
+                  You have successfully reset your password. Please use your new
+                  password when logging in.
                 </p>
               </div>
 
@@ -75,15 +75,6 @@ function RouteComponent() {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="fixed bottom-4 right-4 text-xs">
-        <Link
-          to="/forgotPassword"
-          className="text-muted-foreground hover:text-foreground underline"
-        >
-          [Dev] Forgot Password
-        </Link>
       </div>
     </div>
   );
