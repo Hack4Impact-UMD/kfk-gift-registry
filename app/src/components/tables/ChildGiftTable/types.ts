@@ -6,6 +6,12 @@ export interface GiftTableProps {
 }
 
 export interface GiftTableMeta {
-  claimedGifts: Set<string>;
-  onClaimGift: (giftId: string) => void;
+  isGiftAlreadyClaimed: (gift: StorefrontGift) => boolean;
+  isGiftClaimed: (gift: StorefrontGift) => boolean;
+  isGiftLocallyClaimed: (giftId: string) => boolean;
+  onToggleClaimGift: (
+    giftId: string,
+    childId: string,
+    familyId: string,
+  ) => void;
 }

@@ -1,6 +1,7 @@
 export interface Family {
   id: string;
   contactName: string;
+  guardianRelationship?: string;
   email: string;
   phone: string;
   address: Address;

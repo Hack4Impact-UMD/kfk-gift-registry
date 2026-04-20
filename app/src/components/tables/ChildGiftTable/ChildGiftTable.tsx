@@ -20,14 +20,39 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import type { StorefrontGift } from "@/types/storefront";
+import { cartCollection } from "@/local/cartCollection";
+import { useLiveQuery } from "@tanstack/react-db";
+
+function isGiftAlreadyClaimed(gift: StorefrontGift) {
+  return gift.status !== "AVAILABLE";
+}
 
 export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
-  const [claimedGifts, setClaimedGifts] = useState<Set<string>>(new Set());
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const { data: cartGifts } = useLiveQuery((q) =>
+    q.from({ perf: cartCollection }),
+  );
 
-  const handleClaimGift = (giftId: string) => {
-    setClaimedGifts((prev) => new Set(prev).add(giftId));
-    setShowSuccessMessage(true);
+  const isGiftLocallyClaimed = (giftId: string) =>
+    cartGifts.some((g) => g.id === giftId);
+  const handleToggleClaimGift = (
+    giftId: string,
+    childId: string,
+    familyId: string,
+  ) => {
+    const shouldRemoveClaim = isGiftLocallyClaimed(giftId);
+
+    if (shouldRemoveClaim) {
+      cartCollection.delete(giftId);
+    } else {
+      cartCollection.insert({
+        id: giftId,
+        childId,
+        familyId,
+      });
+    }
+    setShowSuccessMessage(!shouldRemoveClaim);
   };
 
   useEffect(() => {
@@ -41,8 +66,11 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
   }, [showSuccessMessage]);
 
   const tableMeta: GiftTableMeta = {
-    claimedGifts,
-    onClaimGift: handleClaimGift,
+    isGiftAlreadyClaimed,
+    isGiftClaimed: (gift) =>
+      isGiftLocallyClaimed(gift.id) || isGiftAlreadyClaimed(gift),
+    isGiftLocallyClaimed,
+    onToggleClaimGift: handleToggleClaimGift,
   };
 
   //TODO: Move this over to the data table component
@@ -59,7 +87,8 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
       {/* Mobile: stacked cards */}
       {gifts.length ? (
         gifts.map((gift, index) => {
-          const isClaimed = claimedGifts.has(gift.id);
+          const isAlreadyClaimed = isGiftAlreadyClaimed(gift);
+          const isLocallyClaimed = isGiftLocallyClaimed(gift.id);
 
           return (
             <div
@@ -77,21 +106,33 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
                 href={gift.productUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-gaegu text-base hover:underline flex items-center gap-2 mb-3"
+                className="font-gaegu text-base hover:underline flex items-center gap-2"
               >
                 {gift.title}
               </a>
 
+              <span className="text-sm text-muted-foreground">
+                {gift.familyPublicNotes}
+              </span>
+
               <Button
-                onClick={() => handleClaimGift(gift.id)}
-                disabled={isClaimed}
-                className={`rounded-full w-full ${
-                  isClaimed
+                onClick={() =>
+                  handleToggleClaimGift(gift.id, gift.childId, gift.familyId)
+                }
+                disabled={isAlreadyClaimed}
+                className={`rounded-full mt-3 w-full ${
+                  isAlreadyClaimed
                     ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white h-auto whitespace-nowrap"
-                    : "h-auto whitespace-nowrap"
+                    : isLocallyClaimed
+                      ? "bg-kfk-green text-white hover:bg-kfk-green/90 h-auto whitespace-nowrap"
+                      : "h-auto whitespace-nowrap"
                 }`}
               >
-                {isClaimed ? "Gift Claimed!" : "Claim Gift!"}
+                {isAlreadyClaimed
+                  ? "Gift Claimed!"
+                  : isLocallyClaimed
+                    ? "Remove Claim"
+                    : "Claim Gift!"}
               </Button>
             </div>
           );
@@ -134,7 +175,7 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
             <TableBody>
               {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => {
-                  const isClaimed = claimedGifts.has(row.id);
+                  const isClaimed = tableMeta.isGiftClaimed(row.original);
 
                   return (
                     <TableRow

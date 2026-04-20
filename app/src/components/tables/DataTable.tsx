@@ -1,3 +1,4 @@
+import * as React from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -29,6 +30,8 @@ interface DataTableProps<TData, TValue> {
   paginated?: boolean;
   globalSearch?: string;
   onGlobalSearchChange?: (value: string) => void;
+  onOrderedRowsChange?: (orderedRows: Array<TData>) => void;
+  onRowClick?: (row: TData, orderedRows: Array<TData>) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -40,6 +43,8 @@ export function DataTable<TData, TValue>({
   className = "",
   rowsPerPage = 10,
   paginated = true,
+  onOrderedRowsChange,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -75,6 +80,13 @@ export function DataTable<TData, TValue>({
 
   const pageCount = table.getPageCount();
   const currentPage = pageIndex + 1;
+  const orderedRows = (
+    paginated ? table.getPrePaginationRowModel().rows : table.getRowModel().rows
+  ).map((row) => row.original);
+
+  React.useEffect(() => {
+    onOrderedRowsChange?.(orderedRows);
+  }, [onOrderedRowsChange, orderedRows]);
 
   const getPageNumbers = (): Array<number | "..."> => {
     if (pageCount <= 5) {
@@ -135,7 +147,11 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-gray-50/60 transition-colors"
+                  className={twMerge(
+                    "hover:bg-gray-50/60 transition-colors",
+                    onRowClick && "cursor-pointer",
+                  )}
+                  onClick={() => onRowClick?.(row.original, orderedRows)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell

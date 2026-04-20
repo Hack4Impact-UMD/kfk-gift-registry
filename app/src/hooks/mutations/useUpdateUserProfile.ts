@@ -10,13 +10,10 @@ export function useUpdateUserProfile() {
       userId: string;
       updates: { name?: string; phone?: string };
     }) => updateUserProfile({ data: params }),
-    onSuccess: (_data, variables) => {
+    onSuccess: async (_data) => {
       // Invalidate the specific user profile and all users list
-      queryClient.invalidateQueries({
-        queryKey: queries.users.id(variables.userId).queryKey,
-      });
-      queryClient.invalidateQueries({ queryKey: queries.users.all.queryKey });
-      queryClient.invalidateQueries({ queryKey: queries.users.me.queryKey });
+      await queryClient.invalidateQueries({ queryKey: queries.users._def });
+      await queryClient.invalidateQueries(queries.session.verify);
     },
   });
 }

@@ -9,7 +9,7 @@ export type ChildCardData = Pick<
   "id" | "name" | "photoUrl" | "category" | "age" | "diagnosis"
 > & {
   giftsRequested: number;
-  giftsReceived: number;
+  giftsClaimed: number;
 };
 
 interface Props {
@@ -100,7 +100,7 @@ export function ChildCard({ child, color, className = "" }: Props) {
     age,
     diagnosis,
     giftsRequested,
-    giftsReceived,
+    giftsClaimed,
   } = child;
 
   const isWarrior = category === "warrior";
@@ -159,7 +159,7 @@ export function ChildCard({ child, color, className = "" }: Props) {
             className={`h-3 w-3 sm:h-4 sm:w-4 text-card ${styles.fill}`}
           />
           <span className="text-center">
-            {giftsReceived} / {giftsRequested} Gifts Fulfilled
+            {giftsClaimed} / {giftsRequested} Gifts Fulfilled
           </span>
         </div>
       </div>

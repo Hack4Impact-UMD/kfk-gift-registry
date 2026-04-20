@@ -4,7 +4,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
-import type { Child, Gift } from "common";
+import type { Child, Gift, GiftStatus } from "common";
+import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
 export type FamilyGiftClaim = {
@@ -61,6 +62,58 @@ const tokenGiftThankYouNoteSchema = z.object({
   childId: z.string().min(1),
   giftId: z.string().min(1),
   note: z.string().trim().min(1).max(1000),
+});
+
+const updateChildSchema = z.object({
+  childId: z.string().min(1),
+  updates: z
+    .object({
+      // These are all for text fields
+      name: z.string().trim().min(1).max(100),
+      diagnosis: z.string().trim().min(1).max(200),
+      hospital: z.string().trim().min(1).max(200),
+      childSocialWorker: z.string().trim().min(1).max(100),
+      publicBlurb: z.string().trim().min(1).max(1000),
+      staffPrivateNotes: z.string().trim().min(1).max(2000),
+      photoUrl: z.url(),
+
+      // Constrained choices requiring dropdowns/radios, etc.
+      age: z.number().min(1),
+      treatmentLevel: z.number().min(0).max(3),
+      diagnosisLengthYears: z.enum(["<6m", "6m-1y", "1-2y", "3-4y", "5+y"]),
+      offTreatmentDurationYears: z.enum([
+        "<6m",
+        "6m-1y",
+        "1-2y",
+        "3-4y",
+        "5+y",
+      ]),
+    })
+    .partial()
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
+});
+
+const updateGiftSchema = z.object({
+  giftId: z.string().min(1),
+  updates: z
+    .object({
+      title: z.string().trim().min(1).max(100),
+      listedPrice: z.number().min(0),
+      status: z.enum([
+        "AVAILABLE",
+        "CLAIMED",
+        "PURCHASED",
+        "DELIVERED",
+        "RECEIVED",
+      ] as const satisfies ReadonlyArray<GiftStatus>),
+      familyPublicNotes: z.string().trim().max(500),
+    })
+    .partial()
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
 });
 
 export const getAllChildProfilesForDrive = createServerFn({
@@ -261,6 +314,73 @@ export const getChildGiftsByChildId = createServerFn({ method: "GET" })
     return gifts.docs.map((doc) => doc.data());
   });
 
+// export const getChildrenForFamily = createServerFn({ method: "GET" })
+//   .inputValidator(familyIdSchema)
+//   .middleware([
+//     requireRolesMiddleware([
+//       UserRole.ADMIN,
+//       UserRole.DIRECTOR,
+//       UserRole.VOLUNTEER,
+//     ]),
+//   ])
+//   .handler(async ({ data }) => {
+//     const children = await getChildProfilesForFamily({
+//       data: { familyId: data.familyId },
+//     });
+
+//     const childrenWithGifts = children.map(async (child) => {
+//       const gifts = await getChildGiftsByChildId({
+//         data: { childId: child.id },
+//       });
+//       return {
+//         ...child,
+//         gifts: gifts,
+//       };
+//     });
+
+//     return childrenWithGifts
+//   });
+
+export const getChildrenForFamily = createServerFn({ method: "GET" })
+  .inputValidator(familyIdSchema)
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .handler(async ({ data }) => {
+    const { familyId } = data;
+    const db = getServerDB();
+
+    // Fetches all children in this family
+    const childrenSnap = await db.children
+      .where("familyId", "==", familyId)
+      .get();
+
+    if (childrenSnap.empty) {
+      return [];
+    }
+
+    // Using Promise.all to fetch gifts for all children in parallel
+    const childrenWithGifts = await Promise.all(
+      childrenSnap.docs.map(async (childDoc) => {
+        const childData = childDoc.data();
+
+        const gifts = await db.gifts.where("childId", "==", childDoc.id).get();
+
+        return {
+          ...childData,
+          id: childDoc.id,
+          gifts: gifts.docs.map((g) => ({ ...g.data(), id: g.id })),
+        };
+      }),
+    );
+
+    return childrenWithGifts;
+  });
+
 /**
  * Token-authenticated child retrieval.
  * Validates that the token has access to the requested child before returning data.
@@ -389,6 +509,72 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
       );
   });
 
+export const getFamilyChildDataByToken = createServerFn({ method: "GET" })
+  .inputValidator(tokenChildSchema)
+  .handler(async ({ data }) => {
+    const { token, childId } = data;
+
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+    const childDoc = await db.children.doc(childId).get();
+
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    const [giftsSnapshot, claimsSnapshot] = await Promise.all([
+      db.gifts.where("childId", "==", childId).get(),
+      db.claims.where("childId", "==", childId).get(),
+    ]);
+
+    const gifts = giftsSnapshot.empty
+      ? []
+      : giftsSnapshot.docs
+          .map((doc) => doc.data())
+          .filter((gift) => !gift.backup);
+
+    const claims = claimsSnapshot.empty
+      ? []
+      : claimsSnapshot.docs
+          .map((doc) => doc.data())
+          .filter((claim) => claim.active)
+          .map(
+            (claim): FamilyGiftClaim => ({
+              giftId: claim.giftId,
+              claimedAt: claim.claimedAt,
+              purchaseConfirmation: claim.purchaseConfirmation
+                ? {
+                    date: claim.purchaseConfirmation.date,
+                    trackingNumber: claim.purchaseConfirmation.trackingNumber,
+                  }
+                : undefined,
+              deliveryConfirmed: claim.deliveryConfirmed
+                ? {
+                    date: claim.deliveryConfirmed.date,
+                  }
+                : undefined,
+              expectedDeliveryDate: claim.expectedDeliveryDate,
+              receivedAt: claim.receivedAt,
+              thankYouNote: claim.thankYouNote,
+            }),
+          );
+
+    return {
+      child,
+      gifts,
+      claims,
+    };
+  });
+
 export const saveGiftThankYouNoteWithToken = createServerFn({
   method: "POST",
 })
@@ -508,4 +694,228 @@ export const confirmGiftReceivedWithToken = createServerFn({
       ...gift,
       status: "RECEIVED" as const,
     };
+  });
+
+export const getStorefrontChildById = createServerFn({ method: "GET" })
+  .inputValidator(childIdSchema)
+  .handler(async ({ data }) => {
+    const { childId } = data;
+    const db = getServerDB();
+    const childDoc = await db.children.doc(childId).get();
+
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+
+    if (!child.published) {
+      throw new Error("Child not found");
+    }
+
+    const gifts = await db.gifts
+      .where("childId", "==", childId)
+      .where("active", "==", true)
+      .get();
+    const giftData = gifts.docs.map((doc) => doc.data());
+
+    const storefrontChild: StorefrontChild = {
+      id: child.id,
+      name: child.name,
+      age: child.age,
+      status: child.status,
+      diagnosis: child.diagnosis,
+      category: child.category,
+      photoUrl: child.photoUrl,
+      publicBlurb: child.publicBlurb,
+      published: child.published,
+      gifts: giftData.map(
+        (g) =>
+          ({
+            id: g.id,
+            title: g.title,
+            productUrl: g.productUrl,
+            listedPrice: g.listedPrice,
+            status: g.status,
+            familyPublicNotes: g.familyPublicNotes,
+            childId: g.childId,
+            familyId: g.familyId,
+          }) satisfies StorefrontChild["gifts"][number],
+      ),
+    };
+
+    return storefrontChild;
+  });
+
+export const getStorefrontGiftsForChild = createServerFn({ method: "GET" })
+  .inputValidator(childIdSchema)
+  .handler(async ({ data }) => {
+    const { childId } = data;
+
+    const db = getServerDB();
+
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    if (!child.published) {
+      throw new Error("Child not found");
+    }
+
+    const gifts = await db.gifts
+      .where("childId", "==", childId)
+      .where("active", "==", true)
+      .get();
+
+    if (gifts.empty) {
+      return [];
+    }
+
+    return gifts.docs.map((doc) => {
+      const giftData = doc.data();
+      return {
+        id: doc.id,
+        title: giftData.title,
+        productUrl: giftData.productUrl,
+        listedPrice: giftData.listedPrice,
+        status: giftData.status,
+        familyPublicNotes: giftData.familyPublicNotes,
+        childId: giftData.childId,
+        familyId: giftData.familyId,
+      } satisfies StorefrontGift;
+    });
+  });
+
+export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
+  .inputValidator(childIdSchema)
+  .handler(async ({ data }) => {
+    const { childId } = data;
+    const db = getServerDB();
+    const childDoc = await db.children.doc(childId).get();
+
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+
+    if (!child.published) {
+      throw new Error("Child not found");
+    }
+
+    const siblingsQuery = await db.children
+      .where("familyId", "==", child.familyId)
+      .where("published", "==", true)
+      .get();
+    const siblings = siblingsQuery.docs
+      .map((doc) => doc.data())
+      .filter((sibling) => sibling.id !== childId);
+
+    if (siblings.length === 0) {
+      return [];
+    }
+
+    const siblingIds = siblings.map((s) => s.id);
+
+    const allGifts: Array<Gift> = [];
+    for (let i = 0; i < siblingIds.length; i += 10) {
+      const batch = siblingIds.slice(i, i + 10);
+      const giftsQuery = await db.gifts
+        .where("childId", "in", batch)
+        .where("active", "==", true)
+        .get();
+      allGifts.push(...giftsQuery.docs.map((doc) => doc.data()));
+    }
+
+    const giftsBySiblingId = new Map<string, Array<Gift>>();
+    for (const gift of allGifts) {
+      if (!giftsBySiblingId.has(gift.childId)) {
+        giftsBySiblingId.set(gift.childId, []);
+      }
+      giftsBySiblingId.get(gift.childId)!.push(gift);
+    }
+
+    const storefrontSiblings: Array<StorefrontChild> = siblings.map(
+      (sibling) => {
+        const giftData = giftsBySiblingId.get(sibling.id) || [];
+        return {
+          id: sibling.id,
+          name: sibling.name,
+          age: sibling.age,
+          status: sibling.status,
+          diagnosis: sibling.diagnosis,
+          category: sibling.category,
+          photoUrl: sibling.photoUrl,
+          publicBlurb: sibling.publicBlurb,
+          published: sibling.published,
+          gifts: giftData.map(
+            (g) =>
+              ({
+                id: g.id,
+                title: g.title,
+                productUrl: g.productUrl,
+                listedPrice: g.listedPrice,
+                status: g.status,
+                familyPublicNotes: g.familyPublicNotes,
+                childId: g.childId,
+                familyId: g.familyId,
+              }) satisfies StorefrontGift,
+          ),
+        };
+      },
+    );
+
+    return storefrontSiblings;
+  });
+
+export const updateChild = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(updateChildSchema)
+  .handler(async ({ data }) => {
+    const { childId, updates } = data;
+    const db = getServerDB();
+
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    await db.children.doc(childId).update(updates);
+
+    const updatedChild = await db.children.doc(childId).get();
+
+    return updatedChild.data()!;
+  });
+
+export const updateGift = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(updateGiftSchema)
+  .handler(async ({ data }) => {
+    const { giftId, updates } = data;
+    const db = getServerDB();
+
+    const giftDoc = await db.gifts.doc(giftId).get();
+
+    if (!giftDoc.exists) {
+      throw new Error("Gift not found");
+    }
+
+    await db.gifts.doc(giftId).update(updates);
+
+    const updatedGift = await db.gifts.doc(giftId).get();
+    return updatedGift.data()!;
   });
