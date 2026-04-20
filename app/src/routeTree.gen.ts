@@ -27,6 +27,7 @@ import { Route as StorefrontChildChildIdRouteImport } from './routes/_storefront
 import { Route as AuthenticatedStaffProfileRouteImport } from './routes/_authenticated/staff/profile'
 import { Route as AuthenticatedStaffPendingRouteImport } from './routes/_authenticated/staff/pending'
 import { Route as AuthenticatedStaffHomeRouteImport } from './routes/_authenticated/staff/home'
+import { Route as AuthenticatedStaffGiftsRouteImport } from './routes/_authenticated/staff/gifts'
 import { Route as AuthenticatedStaffApprovedRouteImport } from './routes/_authenticated/staff/approved'
 import { Route as AuthenticatedDonorNotificationsRouteImport } from './routes/_authenticated/donor/notifications'
 import { Route as AuthenticatedDonorHomeRouteImport } from './routes/_authenticated/donor/home'
@@ -133,6 +134,11 @@ const AuthenticatedStaffHomeRoute = AuthenticatedStaffHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthenticatedStaffRouteRoute,
 } as any)
+const AuthenticatedStaffGiftsRoute = AuthenticatedStaffGiftsRouteImport.update({
+  id: '/gifts',
+  path: '/gifts',
+  getParentRoute: () => AuthenticatedStaffRouteRoute,
+} as any)
 const AuthenticatedStaffApprovedRoute =
   AuthenticatedStaffApprovedRouteImport.update({
     id: '/approved',
@@ -236,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/donor/home': typeof AuthenticatedDonorHomeRoute
   '/donor/notifications': typeof AuthenticatedDonorNotificationsRoute
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
+  '/staff/gifts': typeof AuthenticatedStaffGiftsRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
   '/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/staff/profile': typeof AuthenticatedStaffProfileRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/donor/home': typeof AuthenticatedDonorHomeRoute
   '/donor/notifications': typeof AuthenticatedDonorNotificationsRoute
   '/staff/approved': typeof AuthenticatedStaffApprovedRoute
+  '/staff/gifts': typeof AuthenticatedStaffGiftsRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
   '/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/staff/profile': typeof AuthenticatedStaffProfileRoute
@@ -305,6 +313,7 @@ export interface FileRoutesById {
   '/_authenticated/donor/home': typeof AuthenticatedDonorHomeRoute
   '/_authenticated/donor/notifications': typeof AuthenticatedDonorNotificationsRoute
   '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
+  '/_authenticated/staff/gifts': typeof AuthenticatedStaffGiftsRoute
   '/_authenticated/staff/home': typeof AuthenticatedStaffHomeRoute
   '/_authenticated/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/_authenticated/staff/profile': typeof AuthenticatedStaffProfileRoute
@@ -340,6 +349,7 @@ export interface FileRouteTypes {
     | '/donor/home'
     | '/donor/notifications'
     | '/staff/approved'
+    | '/staff/gifts'
     | '/staff/home'
     | '/staff/pending'
     | '/staff/profile'
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/donor/home'
     | '/donor/notifications'
     | '/staff/approved'
+    | '/staff/gifts'
     | '/staff/home'
     | '/staff/pending'
     | '/staff/profile'
@@ -408,6 +419,7 @@ export interface FileRouteTypes {
     | '/_authenticated/donor/home'
     | '/_authenticated/donor/notifications'
     | '/_authenticated/staff/approved'
+    | '/_authenticated/staff/gifts'
     | '/_authenticated/staff/home'
     | '/_authenticated/staff/pending'
     | '/_authenticated/staff/profile'
@@ -564,6 +576,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/staff/home'
       preLoaderRoute: typeof AuthenticatedStaffHomeRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/staff/gifts': {
+      id: '/_authenticated/staff/gifts'
+      path: '/gifts'
+      fullPath: '/staff/gifts'
+      preLoaderRoute: typeof AuthenticatedStaffGiftsRouteImport
       parentRoute: typeof AuthenticatedStaffRouteRoute
     }
     '/_authenticated/staff/approved': {
@@ -724,6 +743,7 @@ interface AuthenticatedStaffRouteRouteChildren {
   AuthenticatedStaffAdminRouteRoute: typeof AuthenticatedStaffAdminRouteRouteWithChildren
   AuthenticatedStaffVolunteerRouteRoute: typeof AuthenticatedStaffVolunteerRouteRoute
   AuthenticatedStaffApprovedRoute: typeof AuthenticatedStaffApprovedRoute
+  AuthenticatedStaffGiftsRoute: typeof AuthenticatedStaffGiftsRoute
   AuthenticatedStaffHomeRoute: typeof AuthenticatedStaffHomeRoute
   AuthenticatedStaffPendingRoute: typeof AuthenticatedStaffPendingRoute
   AuthenticatedStaffProfileRoute: typeof AuthenticatedStaffProfileRoute
@@ -737,6 +757,7 @@ const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren
     AuthenticatedStaffVolunteerRouteRoute:
       AuthenticatedStaffVolunteerRouteRoute,
     AuthenticatedStaffApprovedRoute: AuthenticatedStaffApprovedRoute,
+    AuthenticatedStaffGiftsRoute: AuthenticatedStaffGiftsRoute,
     AuthenticatedStaffHomeRoute: AuthenticatedStaffHomeRoute,
     AuthenticatedStaffPendingRoute: AuthenticatedStaffPendingRoute,
     AuthenticatedStaffProfileRoute: AuthenticatedStaffProfileRoute,

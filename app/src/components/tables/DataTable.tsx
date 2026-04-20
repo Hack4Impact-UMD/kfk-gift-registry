@@ -102,7 +102,7 @@ export function DataTable<TData, TValue>({
   return (
     <div className={twMerge("flex flex-col gap-3", className)}>
       <div className="rounded-md border bg-card overflow-x-auto">
-        <Table>
+        <Table className="table-fixed border-collapse">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="bg-card">
@@ -110,7 +110,10 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      className="font-normal text-muted-foreground text-sm"
+                      style={{
+                        width: header.getSize() ? `${header.getSize()}px` : undefined,
+                      }}
+                      className="font-normal text-muted-foreground text-sm overflow-hidden"
                     >
                       {header.isPlaceholder
                         ? null
@@ -133,7 +136,13 @@ export function DataTable<TData, TValue>({
                   className="hover:bg-gray-50/60 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell 
+                      key={cell.id}
+                      style={{
+                        width: cell.column.columnDef.size ? `${cell.column.columnDef.size}px` : undefined,
+                      }}
+                      className="overflow-hidden"
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),
