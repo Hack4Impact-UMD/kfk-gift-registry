@@ -30,7 +30,7 @@ export async function sendPasswordResetEmail(email: string) {
 
 export async function confirmPasswordReset(
   oobCode: string,
-  newPassword: string
+  newPassword: string,
 ) {
   const auth = await getClientAuth();
   await firebaseConfirmPasswordReset(auth, oobCode, newPassword);

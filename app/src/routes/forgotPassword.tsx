@@ -1,9 +1,5 @@
 import { useState } from "react";
-import {
-  createFileRoute,
-  redirect,
-  Link,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import z from "zod";
 import { FirebaseError } from "firebase/app";
@@ -91,9 +87,9 @@ function RouteComponent() {
       try {
         setError(null);
         setIsSubmitting(true);
-        
+
         await sendPasswordResetEmail(form.state.values.email);
-        
+
         setIsEmailSent(true);
       } catch (err) {
         setError(getForgotPasswordErrorMessage(err));
@@ -114,7 +110,7 @@ function RouteComponent() {
           role="img"
           aria-label="Decorative background"
         />
-        
+
         <div className="w-full lg:flex-1 rounded-2xl overflow-hidden bg-white shadow-xl flex flex-col lg:-ml-8 z-10 pb-8 sm:pb-10">
           <div
             className="w-full h-8 shrink-0 rounded-t-2xl bg-kfk-blue"
@@ -187,9 +183,7 @@ function RouteComponent() {
 
                 <div className="min-h-5">
                   {error && (
-                    <p className="text-sm text-kfk-red text-center">
-                      {error}
-                    </p>
+                    <p className="text-sm text-kfk-red text-center">{error}</p>
                   )}
                 </div>
               </form>

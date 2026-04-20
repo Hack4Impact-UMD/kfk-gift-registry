@@ -1,8 +1,4 @@
-import {
-  createFileRoute,
-  redirect,
-  Link,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { UserRole } from "common";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
 import ladybugSuccess from "@/assets/ladybug-success.png";
@@ -34,7 +30,7 @@ function RouteComponent() {
           role="img"
           aria-label="Decorative background"
         />
-        
+
         <div className="w-full lg:flex-1 rounded-2xl overflow-hidden bg-white shadow-xl flex flex-col lg:-ml-8 z-10 pb-8 sm:pb-10">
           <div
             className="w-full h-8 shrink-0 rounded-t-2xl bg-kfk-blue"
@@ -55,8 +51,8 @@ function RouteComponent() {
                   Password Reset Successful!
                 </h1>
                 <p className="text-sm text-muted-foreground max-w-sm">
-                  Your have successfully reset your password. 
-                  Please use your new password when logging in.
+                  Your have successfully reset your password. Please use your
+                  new password when logging in.
                 </p>
               </div>
 

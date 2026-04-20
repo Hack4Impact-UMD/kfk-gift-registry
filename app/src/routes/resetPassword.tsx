@@ -16,27 +16,29 @@ import adminVolunteerLoginBg from "@/assets/admin-volunteer-login-bg.png";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
 
 const searchSchema = z.object({
-  oobCode: z
-    .string()
-    .min(1, "Reset code is required"),
-  continueUrl: z
-    .string()
-    .optional(),
+  oobCode: z.string().min(1, "Reset code is required"),
+  continueUrl: z.string().optional(),
 });
 
-const resetPasswordSchema = z.object({ // standard password reset schema
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Password must contain at least one special character"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+const resetPasswordSchema = z
+  .object({
+    // standard password reset schema
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number")
+      .regex(
+        /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/,
+        "Password must contain at least one special character",
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export const Route = createFileRoute("/resetPassword")({
   beforeLoad: ({ context }) => {
@@ -95,12 +97,15 @@ interface PasswordRequirement {
   regex: RegExp;
 }
 
-const passwordRequirements: PasswordRequirement[] = [
+const passwordRequirements: Array<PasswordRequirement> = [
   { label: "At least 8 characters", regex: /.{8,}/ },
   { label: "At least one uppercase letter", regex: /[A-Z]/ },
   { label: "At least one lowercase letter", regex: /[a-z]/ },
   { label: "At least one number", regex: /[0-9]/ },
-  { label: "At least one special character", regex: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/ },
+  {
+    label: "At least one special character",
+    regex: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/,
+  },
 ];
 
 function RouteComponent() {
@@ -240,9 +245,7 @@ function RouteComponent() {
                     <li
                       key={idx}
                       className={`text-xs flex items-center gap-2 transition-colors ${
-                        req.isMet
-                          ? "text-green-600"
-                          : "text-muted-foreground"
+                        req.isMet ? "text-green-600" : "text-muted-foreground"
                       }`}
                     >
                       <span className="text-lg leading-none">
@@ -271,9 +274,7 @@ function RouteComponent() {
 
               <div className="min-h-5">
                 {error && (
-                  <p className="text-sm text-kfk-red text-center">
-                    {error}
-                  </p>
+                  <p className="text-sm text-kfk-red text-center">{error}</p>
                 )}
               </div>
             </form>
