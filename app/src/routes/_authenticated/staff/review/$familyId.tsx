@@ -141,12 +141,12 @@ function RouteComponent() {
 
   return (
     <div className="flex h-full flex-col p-4 ">
-      <h1 className="text-4xl font-bold">{lastName}'s Family</h1>
-      <div className="mt-6 flex min-h-0 w-full flex-1 flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
+      <div className=" flex min-h-0 w-full flex-1 flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
         <section
           className="w-full max-w-3xl min-w-0 lg:self-stretch"
           aria-label="Family information"
         >
+          <h1 className="text-4xl font-bold mb-2">{lastName}'s Family</h1>
           <ScrollArea className="h-full min-h-[40rem] w-full rounded-md border p-4 shadow-xl">
             <div className="flex flex-col gap-7 pr-4">
               <GuardianInfoCard family={family} onSave={handleFamilyUpdate} />

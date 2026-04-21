@@ -10,6 +10,7 @@ import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
 import { useDebouncer } from "@tanstack/react-pacer";
+import { toast } from "sonner";
 
 interface ChildInfoCardProps {
   child: Child;
@@ -90,13 +91,16 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
       ),
     }));
 
-    if (hasValidListedPrice(price))
+    if (hasValidListedPrice(price)) {
       debouncedUpdateGift.maybeExecute({
         giftId: giftId,
         updates: {
           listedPrice: price,
         },
       });
+    } else {
+      toast.warning("Invalid price!");
+    }
   };
 
   const updateLocalGift = (giftId: string, patch: Partial<Gift>) => {
@@ -119,6 +123,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   };
 
   const handleCancelClick = () => {
+    debouncedUpdateGift.cancel();
     invalidatePhotoRead();
     resetPhotoInput();
     isEditingRef.current = false;
@@ -199,6 +204,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   };
 
   const handleSave = () => {
+    debouncedUpdateGift.cancel();
     const currentWordCount = computeWordCount(formState.blurb);
 
     if (currentWordCount > 25) {

@@ -30,6 +30,9 @@ export function useUpdateFamilyReviewStatus() {
       if (previousFamily) {
         queryClient.setQueryData<Family>(familyKey, {
           ...previousFamily,
+          ...(updates.privateNotes !== undefined
+            ? { privateNotes: updates.privateNotes }
+            : {}),
           reviewStatus: {
             ...previousFamily.reviewStatus,
             ...updates.reviewStatus,
@@ -41,10 +44,12 @@ export function useUpdateFamilyReviewStatus() {
     },
 
     onError: (error: unknown, { familyId }, onMutateResult) => {
-      queryClient.setQueryData(
-        queries.families.byId(familyId).queryKey,
-        onMutateResult?.previousFamily,
-      );
+      if (onMutateResult?.previousFamily) {
+        queryClient.setQueryData(
+          queries.families.byId(familyId).queryKey,
+          onMutateResult.previousFamily,
+        );
+      }
       const message = error instanceof Error ? error.message : "Unknown error";
       toast.error(`Failed to update family review status: ${message}`);
     },
