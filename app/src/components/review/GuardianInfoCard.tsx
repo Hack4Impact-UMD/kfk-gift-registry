@@ -157,6 +157,7 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
                 <EditableField
                   value={formState.phone}
                   editable={editing}
+                  fieldType="phone"
                   type="tel"
                   inputMode="tel"
                   aria-invalid={!!fieldErrors.phone}

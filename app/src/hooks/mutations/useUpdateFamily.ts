@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateFamily } from "@/server/functions/family";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
+import type { Family } from "common";
 
 export function useUpdateFamily() {
   const queryClient = useQueryClient();
@@ -25,24 +26,50 @@ export function useUpdateFamily() {
       };
     }) => updateFamily({ data: params }),
 
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queries.families.byId(variables.familyId).queryKey,
-      });
+    onMutate: async ({ familyId, updates }) => {
+      const familyQueryKey = queries.families.byId(familyId).queryKey;
+      await queryClient.cancelQueries({ queryKey: familyQueryKey });
 
-      queryClient.invalidateQueries({
-        queryKey: queries.children.byFamilyId(variables.familyId).queryKey,
-      });
+      const previousFamily = queryClient.getQueryData<Family>(familyQueryKey);
 
-      queryClient.invalidateQueries({
-        queryKey: ["approvedProfileTableRows"],
-      });
+      if (previousFamily) {
+        const { address: addressUpdates, ...otherUpdates } = updates;
+        queryClient.setQueryData<Family>(familyQueryKey, {
+          ...previousFamily,
+          ...otherUpdates,
+          address: addressUpdates
+            ? { ...previousFamily.address, ...addressUpdates }
+            : previousFamily.address,
+        });
+      }
 
+      return { previousFamily };
+    },
+
+    onError: (error, { familyId }, onMutateResult) => {
+      queryClient.setQueryData(
+        queries.families.byId(familyId).queryKey,
+        onMutateResult?.previousFamily,
+      );
+      toast.error(`Failed to update family: ${error.message}`);
+    },
+
+    onSuccess: () => {
       toast.success("Family information updated successfully");
     },
 
-    onError: (error) => {
-      toast.error(`Failed to update family: ${error.message}`);
+    onSettled: (_data, _error, { familyId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queries.families.byId(familyId).queryKey,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: queries.children.byFamilyId(familyId).queryKey,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: queries.children.approvedProfileTableRows._def,
+      });
     },
   });
 }
