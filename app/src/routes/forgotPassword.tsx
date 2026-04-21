@@ -44,10 +44,6 @@ export const Route = createFileRoute("/forgotPassword")({
 
 function getForgotPasswordErrorMessage(error: unknown): string {
   if (error instanceof FirebaseError) {
-    if (error.code === "auth/user-not-found") {
-      return "No account found with this email address";
-    }
-
     return "Failed to send reset email";
   }
 
@@ -92,7 +88,15 @@ function RouteComponent() {
 
         setIsEmailSent(true);
       } catch (err) {
-        setError(getForgotPasswordErrorMessage(err));
+        if (
+          err instanceof FirebaseError &&
+          (err.code === "auth/user-not-found" ||
+            err.code === "auth/invalid-credential")
+        ) {
+          setIsEmailSent(true);
+        } else {
+          setError(getForgotPasswordErrorMessage(err));
+        }
       } finally {
         setIsSubmitting(false);
       }
