@@ -65,7 +65,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           isAuthed: true as const,
           authUser,
         },
-        currentDrive,
+        currentDrive: currentDrive || undefined,
       };
     } else {
       return {
@@ -73,7 +73,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
           isAuthed: false as const,
           authUser: null,
         },
-        currentDrive,
+        currentDrive: currentDrive || undefined,
       };
     }
   },
