@@ -3,7 +3,7 @@ import { GiftIcon } from "@/components/icons/GiftIcon";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { EditableField } from "./EditableField";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ExternalLinkIcon } from "lucide-react";
 
 export interface ReviewGiftProps {
@@ -31,6 +31,10 @@ export function ReviewGift({
   onNotesChange,
 }: ReviewGiftProps) {
   const [priceStr, setPriceStr] = useState(formatPrice(gift.listedPrice));
+  useEffect(() => {
+    //oxlint-disable
+    setPriceStr(formatPrice(gift.listedPrice));
+  }, [gift.listedPrice]);
   return (
     <div className={cn("border-b border-slate-200/80 py-3 last:border-b-0")}>
       <div className="grid grid-cols-[0px_minmax(0,1fr)_auto_auto] items-start gap-x-2 gap-y-2">
@@ -48,14 +52,16 @@ export function ReviewGift({
           ></EditableField>
         </div>
 
-        <a
-          href={gift.productUrl}
-          target="_blank"
-          rel="noreferrer noopener"
-          className="col-start-3 row-start-1 size-7 shrink-0 self-center text-muted-foreground"
-        >
-          <ExternalLinkIcon aria-hidden />
-        </a>
+        {gift.productUrl && (
+          <a
+            href={gift.productUrl}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="col-start-3 row-start-1 size-7 shrink-0 self-center text-muted-foreground"
+          >
+            <ExternalLinkIcon aria-hidden />
+          </a>
+        )}
 
         <div className="col-start-4 row-start-1 flex shrink-0 items-center gap-1 self-center">
           <span className="text-foreground tabular-nums">$</span>
@@ -82,7 +88,7 @@ export function ReviewGift({
             ></EditableField>
           ) : (
             <span className="text-muted-fg text-sm">
-              Family Notes: {gift.familyPublicNotes}
+              {gift.familyPublicNotes}
             </span>
           )}
         </div>

@@ -31,11 +31,13 @@ export const columns = [
       <ColumnSortButton column={column}>Child Name</ColumnSortButton>
     ),
     cell: ({ getValue, row }) => {
-      const name = getValue();
+      const name = getValue() ?? "";
       const profilePictureUrl = row.original.profilePictureUrl;
 
       const initials = name
-        .split(" ")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
         .map((n) => n[0])
         .join("")
         .toUpperCase()

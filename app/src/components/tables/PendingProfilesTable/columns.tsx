@@ -48,8 +48,11 @@ export const columns = [
       <ColumnSortButton column={column}>Parent/Guardian</ColumnSortButton>
     ),
     cell: ({ getValue }) => {
-      const initials = getValue()
-        .split(" ")
+      const name = getValue() ?? "";
+      const initials = name
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
         .map((n) => n[0])
         .join("")
         .toUpperCase()
@@ -61,7 +64,7 @@ export const columns = [
               {initials}
             </AvatarFallback>
           </Avatar>
-          <span>{getValue()}</span>
+          <span>{name}</span>
         </div>
       );
     },
