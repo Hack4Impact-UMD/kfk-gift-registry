@@ -1,10 +1,10 @@
 import type { Gift } from "common";
 import { GiftIcon } from "@/components/icons/GiftIcon";
-import { InformationCircleOutlineIcon } from "@/components/icons/InformationCircleOutlineIcon";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { EditableField } from "./EditableField";
 import { useState } from "react";
+import { ExternalLinkIcon } from "lucide-react";
 
 export interface ReviewGiftProps {
   gift: Gift;
@@ -48,10 +48,14 @@ export function ReviewGift({
           ></EditableField>
         </div>
 
-        <InformationCircleOutlineIcon
-          className="col-start-3 row-start-1 size-6 shrink-0 self-center text-muted-foreground"
-          aria-hidden
-        />
+        <a
+          href={gift.productUrl}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="col-start-3 row-start-1 size-7 shrink-0 self-center text-muted-foreground"
+        >
+          <ExternalLinkIcon aria-hidden />
+        </a>
 
         <div className="col-start-4 row-start-1 flex shrink-0 items-center gap-1 self-center">
           <span className="text-foreground tabular-nums">$</span>
@@ -66,7 +70,7 @@ export function ReviewGift({
         </div>
 
         <div className="col-start-2 row-start-2 min-w-0">
-          {editable && (
+          {editable ? (
             <EditableField
               placeholder="Gift Notes"
               value={gift.familyPublicNotes}
@@ -76,6 +80,10 @@ export function ReviewGift({
                 onNotesChange(e.target.value);
               }}
             ></EditableField>
+          ) : (
+            <span className="text-muted-fg text-sm">
+              Family Notes: {gift.familyPublicNotes}
+            </span>
           )}
         </div>
       </div>

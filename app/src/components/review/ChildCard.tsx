@@ -342,7 +342,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
         </div>
 
         <div className="flex flex-col bg-card px-4 sm:px-6 py-4 gap-3 -mx-6">
-          <div className="flex gap-2">
+          <div className={`flex gap-2 ${editing && "flex-col"}`}>
             {child.category === "warrior" && (
               <>
                 <div className="flex items-center gap-2">
