@@ -4,6 +4,7 @@ import { InformationCircleOutlineIcon } from "@/components/icons/InformationCirc
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { EditableField } from "./EditableField";
+import { useState } from "react";
 
 export interface ReviewGiftProps {
   gift: Gift;
@@ -15,7 +16,11 @@ export interface ReviewGiftProps {
 
 function formatPrice(value: number | undefined): string {
   if (value === undefined || Number.isNaN(value)) return "";
-  return String(value);
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    useGrouping: false,
+  }).format(value);
 }
 
 export function ReviewGift({
@@ -25,6 +30,7 @@ export function ReviewGift({
   onPriceChange,
   onNotesChange,
 }: ReviewGiftProps) {
+  const [priceStr, setPriceStr] = useState(formatPrice(gift.listedPrice));
   return (
     <div className={cn("border-b border-slate-200/80 py-3 last:border-b-0")}>
       <div className="grid grid-cols-[0px_minmax(0,1fr)_auto_auto] items-start gap-x-2 gap-y-2">
@@ -52,8 +58,9 @@ export function ReviewGift({
           <Input
             type="text"
             inputMode="decimal"
-            value={formatPrice(gift.listedPrice)}
-            onChange={(e) => onPriceChange(e.target.value)}
+            value={priceStr}
+            onChange={(e) => setPriceStr(e.target.value)}
+            onBlur={(e) => onPriceChange(e.target.value)}
             className="h-9 w-[5.5rem] bg-background shadow-xs"
           />
         </div>

@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,14 +23,12 @@ const ADMIN_COMMENTS_PLACEHOLDER =
 
 interface ReviewActionPanelProps {
   family: Family;
-  onFamilyReviewUpdated: (updatedFamily: Family) => void;
   onPreviousFamily?: () => void;
   onNextFamily?: () => void;
 }
 
 export function ReviewActionPanel({
   family,
-  onFamilyReviewUpdated,
   onPreviousFamily,
   onNextFamily,
 }: ReviewActionPanelProps) {
@@ -40,11 +38,7 @@ export function ReviewActionPanel({
   const savedAdminComments = family.reviewStatus.held
     ? (family.reviewStatus.holdNotes ?? "")
     : (family.reviewStatus.reviewNotes ?? "");
-  const [adminComments, setAdminComments] = React.useState(savedAdminComments);
-
-  React.useEffect(() => {
-    setAdminComments(savedAdminComments);
-  }, [savedAdminComments]);
+  const [adminComments, setAdminComments] = useState(savedAdminComments);
 
   const familyStatus: ApplicationStatus = family.reviewStatus.approved
     ? "approved"
@@ -78,7 +72,6 @@ export function ReviewActionPanel({
       },
       {
         onSuccess: (updatedFamily) => {
-          onFamilyReviewUpdated(updatedFamily);
           options?.onSuccess?.(updatedFamily);
         },
       },

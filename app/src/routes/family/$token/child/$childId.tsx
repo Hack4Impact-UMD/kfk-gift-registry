@@ -6,6 +6,7 @@ import type { FamilyGiftClaim } from "@/server/functions/child";
 import type { Gift } from "common";
 import { useFamilyChild } from "@/hooks/queries/useFamilyChild";
 import { queries } from "@/queries";
+import { Spinner } from "@/components/ui/spinner";
 
 const getGiftSummaryStatus = (
   status: Gift["status"],
@@ -45,7 +46,11 @@ function ChildPage() {
   const { data, isPending, isError, error } = useFamilyChild(token, childId);
 
   if (isPending) {
-    return <div>Loading child...</div>;
+    return (
+      <div className="w-full min-h-32 flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
   if (isError) {

@@ -9,6 +9,7 @@ import ProfileHeader from "@/assets/default-profile-photo.png";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
+import { useDebouncer } from "@tanstack/react-pacer";
 
 interface ChildInfoCardProps {
   child: Child;
@@ -75,21 +76,34 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
     photoUrl: child.photoUrl,
     gifts: fetchedGifts || [],
   });
-  const { mutate } = useUpdateGift();
+  const { mutate: updateGift } = useUpdateGift();
 
-  const updateGift = (giftId: string, patch: Partial<Gift>) => {
+  const debouncedUpdateGift = useDebouncer(updateGift, {
+    wait: 500,
+  });
+
+  const updatePrice = (giftId: string, price: number | undefined) => {
+    setFormState((prev) => ({
+      ...prev,
+      gifts: prev.gifts.map((g) =>
+        g.id === giftId ? { ...g, listedPrice: price } : g,
+      ),
+    }));
+
+    if (hasValidListedPrice(price))
+      debouncedUpdateGift.maybeExecute({
+        giftId: giftId,
+        updates: {
+          listedPrice: price,
+        },
+      });
+  };
+
+  const updateLocalGift = (giftId: string, patch: Partial<Gift>) => {
     setFormState((prev) => ({
       ...prev,
       gifts: prev.gifts.map((g) => (g.id === giftId ? { ...g, ...patch } : g)),
     }));
-
-    if (hasValidListedPrice(patch.listedPrice))
-      mutate({
-        giftId: giftId,
-        updates: {
-          listedPrice: patch.listedPrice,
-        },
-      });
   };
 
   const invalidatePhotoRead = () => {
@@ -215,7 +229,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
             : {}),
         };
 
-        mutate({
+        updateGift({
           giftId: gift.id,
           updates,
         });
@@ -419,15 +433,13 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
                   gift={gift}
                   editable={editing}
                   onTitleChange={(value) =>
-                    updateGift(gift.id, { title: value })
+                    updateLocalGift(gift.id, { title: value })
                   }
                   onPriceChange={(value) =>
-                    updateGift(gift.id, {
-                      listedPrice: parsePriceInput(value),
-                    })
+                    updatePrice(gift.id, parsePriceInput(value))
                   }
                   onNotesChange={(value) =>
-                    updateGift(gift.id, { familyPublicNotes: value })
+                    updateLocalGift(gift.id, { familyPublicNotes: value })
                   }
                 />
               ))}
