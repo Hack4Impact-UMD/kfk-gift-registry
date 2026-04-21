@@ -109,7 +109,7 @@ const passwordRequirements: Array<PasswordRequirement> = [
 ];
 
 function RouteComponent() {
-  const { oobCode } = Route.useSearch();
+  const { oobCode, continueUrl } = Route.useSearch();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -129,7 +129,10 @@ function RouteComponent() {
         setIsSubmitting(true);
 
         await confirmPasswordReset(oobCode, value.password);
-        await navigate({ to: "/resetSuccess" });
+        await navigate({
+          to: "/resetSuccess",
+          search: continueUrl ? { continueUrl } : undefined,
+        });
         return;
       } catch (err) {
         setError(getResetPasswordErrorMessage(err));
