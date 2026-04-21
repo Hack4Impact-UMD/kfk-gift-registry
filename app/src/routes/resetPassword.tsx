@@ -286,14 +286,6 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 text-xs">
-        <Link
-          to="/forgotPassword"
-          className="text-muted-foreground hover:text-foreground underline"
-        >
-          [Dev] Forgot Password
-        </Link>
-      </div>
     </div>
   );
 }
