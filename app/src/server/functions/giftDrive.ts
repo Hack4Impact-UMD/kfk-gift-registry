@@ -28,7 +28,5 @@ export const getActiveGiftDrive = createServerFn().handler(async () => {
 
   if (active && active.exists) {
     return active.data();
-  } else {
-    return null; // keep as returning null, can't return undefined in react query
   }
 });
