@@ -158,7 +158,7 @@ export function ReviewActionPanel({
       <div className="flex flex-col gap-3">
         <Button
           type="button"
-          disabled={isStatusPending}
+          disabled={isStatusPending || family.reviewStatus.approved}
           onClick={() => {
             persistReviewUpdate({
               ...family.reviewStatus,
@@ -172,7 +172,7 @@ export function ReviewActionPanel({
         </Button>
         <Button
           type="button"
-          disabled={isStatusPending}
+          disabled={isStatusPending || family.reviewStatus.held}
           onClick={() => {
             persistReviewUpdate({
               ...family.reviewStatus,
