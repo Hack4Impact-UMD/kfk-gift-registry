@@ -72,10 +72,6 @@ function getResetPasswordErrorMessage(error: unknown): string {
     return "Failed to reset password";
   }
 
-  if (error instanceof Error) {
-    return error.message;
-  }
-
   return "Failed to reset password";
 }
 
