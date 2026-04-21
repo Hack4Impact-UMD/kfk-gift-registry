@@ -190,9 +190,14 @@ function RouteComponent() {
               <form.Field name="password">
                 {(field) => (
                   <div className="flex flex-col gap-2">
+                    <label htmlFor="new-password" className="sr-only">
+                      New password
+                    </label>
                     <div className="relative">
                       <Input
+                        id="new-password"
                         type="password"
+                        autoComplete="new-password"
                         placeholder="Enter new password"
                         value={field.state.value}
                         onChange={(e) => {
@@ -216,9 +221,14 @@ function RouteComponent() {
               <form.Field name="confirmPassword">
                 {(field) => (
                   <div className="flex flex-col gap-1">
+                    <label htmlFor="confirm-password" className="sr-only">
+                      Confirm password
+                    </label>
                     <div className="relative">
                       <Input
+                        id="confirm-password"
                         type="password"
+                        autoComplete="new-password"
                         placeholder="Confirm password"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
