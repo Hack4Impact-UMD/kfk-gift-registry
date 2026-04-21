@@ -1,5 +1,6 @@
-export interface Claim {
+export type DonorClaim = {
   id: string;
+  claimType: "donor";
   giftId: string;
   childId: string;
   donorId: string;
@@ -13,7 +14,26 @@ export interface Claim {
   privateNotes?: string;
   expectedDeliveryDate?: string;
   active: boolean;
-}
+};
+
+export type KFKClaim = {
+  id: string;
+  claimType: "kfk";
+  giftId: string;
+  childId: string;
+  driveId: string;
+  organizationName?: string;
+  claimedAt: string;
+  purchaseConfirmation?: ClaimPurchaseConfirmation;
+  deliveryConfirmed?: DeliveryConfirmation;
+  receivedAt?: string;
+  thankYouNote?: string;
+  privateNotes?: string;
+  expectedDeliveryDate?: string;
+  active: boolean;
+};
+
+export type Claim = DonorClaim | KFKClaim;
 
 export interface ClaimPurchaseConfirmation {
   date: string;

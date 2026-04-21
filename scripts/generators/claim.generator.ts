@@ -69,6 +69,7 @@ export function generateClaim({
     childId,
     donorId,
     driveId,
+    claimType: "donor", //TODO: make a separate path to generate fake KFK claims
     organizationName: faker.datatype.boolean({ probability: 0.2 })
       ? faker.company.name()
       : undefined,
