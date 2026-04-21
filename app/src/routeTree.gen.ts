@@ -9,8 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetSuccessRouteImport } from './routes/resetSuccess'
+import { Route as ResetPasswordRouteImport } from './routes/resetPassword'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ForgotPasswordRouteImport } from './routes/forgotPassword'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as StorefrontRouteRouteImport } from './routes/_storefront/route'
 import { Route as StorefrontIndexRouteImport } from './routes/_storefront/index'
@@ -43,6 +46,16 @@ import { Route as FamilyDriveDriveIdFormGeneralInfoRouteImport } from './routes/
 import { Route as FamilyDriveDriveIdFormConsentRouteImport } from './routes/family/drive/$driveId/form/consent'
 import { Route as FamilyDriveDriveIdFormChildrenRouteImport } from './routes/family/drive/$driveId/form/children'
 
+const ResetSuccessRoute = ResetSuccessRouteImport.update({
+  id: '/resetSuccess',
+  path: '/resetSuccess',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/resetPassword',
+  path: '/resetPassword',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -51,6 +64,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgotPassword',
+  path: '/forgotPassword',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -223,8 +241,11 @@ const FamilyDriveDriveIdFormChildrenRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof StorefrontIndexRoute
+  '/forgotPassword': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/resetPassword': typeof ResetPasswordRoute
+  '/resetSuccess': typeof ResetSuccessRoute
   '/donor': typeof AuthenticatedDonorRouteRouteWithChildren
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/checkout': typeof StorefrontCheckoutRoute
@@ -256,8 +277,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof StorefrontIndexRoute
+  '/forgotPassword': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/resetPassword': typeof ResetPasswordRoute
+  '/resetSuccess': typeof ResetSuccessRoute
   '/donor': typeof AuthenticatedDonorRouteRouteWithChildren
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/checkout': typeof StorefrontCheckoutRoute
@@ -290,8 +314,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_storefront': typeof StorefrontRouteRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/forgotPassword': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/resetPassword': typeof ResetPasswordRoute
+  '/resetSuccess': typeof ResetSuccessRoute
   '/_authenticated/donor': typeof AuthenticatedDonorRouteRouteWithChildren
   '/_authenticated/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/_storefront/checkout': typeof StorefrontCheckoutRoute
@@ -326,8 +353,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/forgotPassword'
     | '/login'
     | '/register'
+    | '/resetPassword'
+    | '/resetSuccess'
     | '/donor'
     | '/staff'
     | '/checkout'
@@ -359,8 +389,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/forgotPassword'
     | '/login'
     | '/register'
+    | '/resetPassword'
+    | '/resetSuccess'
     | '/donor'
     | '/staff'
     | '/checkout'
@@ -392,8 +425,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_storefront'
     | '/_authenticated'
+    | '/forgotPassword'
     | '/login'
     | '/register'
+    | '/resetPassword'
+    | '/resetSuccess'
     | '/_authenticated/donor'
     | '/_authenticated/staff'
     | '/_storefront/checkout'
@@ -428,8 +464,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   StorefrontRouteRoute: typeof StorefrontRouteRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  ResetSuccessRoute: typeof ResetSuccessRoute
   FamilyTokenRoute: typeof FamilyTokenRouteWithChildren
   SignupSuccessRoute: typeof SignupSuccessRoute
   FamilyDriveDriveIdRoute: typeof FamilyDriveDriveIdRouteWithChildren
@@ -438,6 +477,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/resetSuccess': {
+      id: '/resetSuccess'
+      path: '/resetSuccess'
+      fullPath: '/resetSuccess'
+      preLoaderRoute: typeof ResetSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resetPassword': {
+      id: '/resetPassword'
+      path: '/resetPassword'
+      fullPath: '/resetPassword'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -450,6 +503,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgotPassword': {
+      id: '/forgotPassword'
+      path: '/forgotPassword'
+      fullPath: '/forgotPassword'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -817,8 +877,11 @@ const FamilyDriveDriveIdRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   StorefrontRouteRoute: StorefrontRouteRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  ResetSuccessRoute: ResetSuccessRoute,
   FamilyTokenRoute: FamilyTokenRouteWithChildren,
   SignupSuccessRoute: SignupSuccessRoute,
   FamilyDriveDriveIdRoute: FamilyDriveDriveIdRouteWithChildren,
