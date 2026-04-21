@@ -191,12 +191,25 @@ export function GiftDetailsForm({
 
             <form.AppField
               name={`giftSelections[${childIndex}].gifts[${i}].familyPublicNotes`}
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value) return undefined;
+                    const wordCount = value
+                      .trim()
+                      .split(/\s+/)
+                      .filter(Boolean).length;
+                    if (wordCount > 150)
+                      return "Please keep your blurb to 150 words or less";
+                  return undefined;
+                },
+              }}
             >
               {(field) => (
                 <field.FormTextarea
                   className="mt-2"
                   label={`Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
+                  maxWords={150}
                   disabled={disabled}
                 />
               )}
@@ -298,12 +311,25 @@ export function GiftDetailsForm({
 
             <form.AppField
               name={`giftSelections[${childIndex}].backupGifts[${i}].familyPublicNotes`}
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value) return undefined;
+                  const wordCount = value
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean).length;
+                  if (wordCount > 150)
+                    return "Please keep your blurb to 150 words or less";
+                  return undefined;
+                },
+              }}
             >
               {(field) => (
                 <field.FormTextarea
                   className="mt-2"
                   label={`Backup Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
+                  maxWords={150}
                   disabled={disabled}
                 />
               )}

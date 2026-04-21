@@ -161,23 +161,54 @@ export function ChildInfoForm({
                       name={`children[${index}].age`}
                       validators={{
                         onChange: ({ value }) => {
-                          if (!value) return "Age is required";
+                          if (value === "" || value === undefined) return "Age is required";
+                          if (Number(value) < 1 || Number(value) > 18) {
+                            return "Age must be between 1 and 18";
+                          }
+                          return undefined;
+                        },
+                        onBlur: ({ value }) => {
+                          if (value === "" || value === undefined) return "Age is required";
                           return undefined;
                         },
                       }}
                     >
                       {(field) => (
-                        <field.FormSelect
-                          label={
-                            displayCount > 1 ? `Child #${index + 1} Age` : "Age"
-                          }
-                          placeholder="Select Age"
-                          values={Array.from({ length: 18 }, (_unused, i) =>
-                            String(i + 1),
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">
+                            {displayCount > 1 ? `Child #${index + 1} Age` : "Age"}
+                            <span className="text-destructive"> *</span>
+                          </label>
+
+                          <div className="relative py-2">
+                            <input
+                              type="number"
+                              min={1}
+                              max={18}
+                              placeholder="e.g. 8"
+                              value={(field.state.value as number | undefined) ?? ""}
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                (field.handleChange as (v: number | string) => void)(
+                                  raw === "" ? "" : Number(raw),
+                                );
+                              }}
+                              onBlur={field.handleBlur}
+                              disabled={disabled}
+                              className={`w-32 h-11 pl-4 pr-4 rounded-xl border text-sm focus:outline-none focus:border-kfk-blue truncate disabled:opacity-50 ${
+                                field.state.meta.isTouched && field.state.meta.errors[0]
+                                  ? "border-red-500"
+                                  : "border-slate-700"
+                              }`}
+                            />
+                          </div>
+
+                          {field.state.meta.isTouched && field.state.meta.errors[0] && (
+                            <span className="text-sm text-red-500">
+                              {field.state.meta.errors[0]}
+                            </span>
                           )}
-                          required
-                          disabled={disabled}
-                        />
+                        </div>
                       )}
                     </form.AppField>
 
@@ -345,17 +376,17 @@ export function ChildInfoForm({
                             .trim()
                             .split(/\s+/)
                             .filter(Boolean).length;
-                          if (wordCount > 25)
-                            return "Please keep your blurb to 25 words or less";
+                          if (wordCount > 150)
+                            return "Please keep your blurb to 150 words or less";
                           return undefined;
                         },
                       }}
                     >
                       {(field) => (
                         <field.FormTextarea
-                          label="You may write a blurb about your child to be displayed on the gift drive website (25 words or less)"
+                          label="You may write a blurb about your child to be displayed on the gift drive website (150 words or less)"
                           placeholder="You can share details like your child's activities, interests, favorite color, or anything else you'd like to include."
-                          maxWords={25}
+                          maxWords={150}
                           disabled={disabled}
                         />
                       )}
