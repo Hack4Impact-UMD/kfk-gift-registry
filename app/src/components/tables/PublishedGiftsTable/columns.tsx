@@ -9,16 +9,18 @@ import type { PublishedGiftsTableRow } from "./types";
 
 const helper = createColumnHelper<PublishedGiftsTableRow>();
 
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "2-digit",
+  day: "2-digit",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
 function formatDate(iso: string): string {
   if (!iso) return "";
   const date = new Date(iso);
-  if (isNaN(date.getTime())) {
-    return "";
-  }
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${month}/${day}/${year}`;
+  if (isNaN(date.getTime())) return "";
+  return dateFormatter.format(date);
 }
 
 function handleCopyEmail(email: string) {
