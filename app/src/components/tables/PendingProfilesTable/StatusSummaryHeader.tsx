@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from "react";
 import { Clock, CheckCircle, XCircle } from "lucide-react";
 import { UsersIcon } from "@/components/icons";
 import { StatusSummaryCard } from "./StatusSummaryCard";
@@ -15,9 +16,35 @@ export function StatusSummaryHeader({
   onFilterChange,
 }: StatusSummaryHeaderProps) {
   const totalCount = data.length;
-  const pendingCount = data.filter((row) => row.status === "pending").length;
-  const approvedCount = data.filter((row) => row.status === "approved").length;
-  const holdfileCount = data.filter((row) => row.status === "holdfile").length;
+  const pendingCount = useMemo(
+    () => data.filter((row) => row.status === "pending").length,
+    [data],
+  );
+  const approvedCount = useMemo(
+    () => data.filter((row) => row.status === "approved").length,
+    [data],
+  );
+  const holdfileCount = useMemo(
+    () => data.filter((row) => row.status === "holdfile").length,
+    [data],
+  );
+
+  const handleAllClick = useCallback(
+    () => onFilterChange(null),
+    [onFilterChange],
+  );
+  const handlePendingClick = useCallback(
+    () => onFilterChange("pending"),
+    [onFilterChange],
+  );
+  const handleApprovedClick = useCallback(
+    () => onFilterChange("approved"),
+    [onFilterChange],
+  );
+  const handleHoldfileClick = useCallback(
+    () => onFilterChange("holdfile"),
+    [onFilterChange],
+  );
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -26,7 +53,7 @@ export function StatusSummaryHeader({
         count={totalCount}
         icon={<UsersIcon />}
         variant="all"
-        onClick={() => onFilterChange(null)}
+        onClick={handleAllClick}
         isActive={activeFilter === null}
       />
       <StatusSummaryCard
@@ -34,7 +61,7 @@ export function StatusSummaryHeader({
         count={pendingCount}
         icon={<Clock size={24} />}
         variant="pending"
-        onClick={() => onFilterChange("pending")}
+        onClick={handlePendingClick}
         isActive={activeFilter === "pending"}
       />
       <StatusSummaryCard
@@ -42,7 +69,7 @@ export function StatusSummaryHeader({
         count={approvedCount}
         icon={<CheckCircle size={24} />}
         variant="approved"
-        onClick={() => onFilterChange("approved")}
+        onClick={handleApprovedClick}
         isActive={activeFilter === "approved"}
       />
       <StatusSummaryCard
@@ -50,7 +77,7 @@ export function StatusSummaryHeader({
         count={holdfileCount}
         icon={<XCircle size={24} />}
         variant="holdfile"
-        onClick={() => onFilterChange("holdfile")}
+        onClick={handleHoldfileClick}
         isActive={activeFilter === "holdfile"}
       />
     </div>

@@ -36,6 +36,7 @@ import {
   ChevronDoubleRightIcon,
   ClipboardCheckIcon,
   ClipboardIcon,
+  GiftIcon,
   HomeIcon,
   UsersIcon,
 } from "@/components/icons";
@@ -210,6 +211,25 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
                     <ClipboardCheckIcon className="transition-colors size-6" />
                     <span className="group-data-[collapsible=icon]:hidden">
                       Approved Profiles
+                    </span>
+                  </Link>
+                </SidebarMenuButtonWithHovering>
+              </SidebarMenuButtonWithTooltip>
+            </SidebarMenuItem>
+            <SidebarMenuItem className="flex justify-center">
+              <SidebarMenuButtonWithTooltip label="Published Gifts">
+                <SidebarMenuButtonWithHovering>
+                  <Link
+                    to="/staff/gifts"
+                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                    activeProps={{
+                      className:
+                        "group/button flex items-center gap-2 text-kfk-red hover:text-kfk-red",
+                    }}
+                  >
+                    <GiftIcon className="transition-colors size-6" />
+                    <span className="group-data-[collapsible=icon]:hidden">
+                      Published Gifts
                     </span>
                   </Link>
                 </SidebarMenuButtonWithHovering>
