@@ -30,34 +30,28 @@ export const columns = [
     id: "select",
     size: 50,
     header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all rows"
-      />
+      <div className="h-9 flex items-center justify-center">
+        <Checkbox
+          className="size-4"
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all rows"
+        />
+      </div>
     ),
     cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label={`Select row ${row.original.id}`}
-      />
+      <div className="h-9 flex items-center justify-center">
+        <Checkbox
+          className="size-4"
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label={`Select row ${row.original.id}`}
+        />
+      </div>
     ),
     enableSorting: false,
     enableGlobalFilter: false,
   }),
-
-  helper.accessor("id", {
-    size: 140,
-    enableGlobalFilter: true,
-    header: ({ column }) => (
-      <ColumnSortButton column={column}>ID</ColumnSortButton>
-    ),
-    cell: ({ getValue }) => (
-      <span className="text-sm text-gray-600 font-sans">{getValue()}</span>
-    ),
-  }),
-
   helper.accessor("giftName", {
     size: 140,
     enableGlobalFilter: true,
@@ -68,22 +62,20 @@ export const columns = [
       const name = getValue();
       const productUrl = row.original.productUrl;
       return (
-        <div className="flex items-center gap-2 group">
+        <a
+          href={productUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 group hover:underline"
+          aria-label={`Open ${name} in new tab`}
+        >
           <span className="text-sm text-gray-600 font-sans truncate">
             {name}
           </span>
           {productUrl && (
-            <a
-              href={productUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0"
-              aria-label={`Open ${name} in new tab`}
-            >
-              <ExternalLink className="h-4 w-4 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer" />
-            </a>
+            <ExternalLink className="h-4 w-4 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer" />
           )}
-        </div>
+        </a>
       );
     },
   }),

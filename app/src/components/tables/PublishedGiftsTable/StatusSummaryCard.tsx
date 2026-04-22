@@ -1,8 +1,10 @@
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 interface StatusSummaryCardProps {
   label: string;
   count: number;
+  icon: ReactNode;
   variant:
     | "all"
     | "unpurchased"
@@ -15,45 +17,71 @@ interface StatusSummaryCardProps {
 
 const variantStyles = {
   all: {
-    bg: "bg-kfk-blue",
-    text: "text-white",
+    bg: "bg-blue-100",
+    text: "text-blue-900",
+    iconBg: "bg-kfk-blue",
+    iconColor: "text-white",
+    hoverBg: "hover:bg-blue-200",
     activeBg: "bg-kfk-blue",
     activeText: "text-white",
-    lineColor: "var(--color-kfk-blue)",
+    activeIconBg: "bg-white",
+    activeIconColor: "text-kfk-blue",
+    lineColor: "bg-kfk-blue",
   },
   unpurchased: {
-    bg: "bg-kfk-red",
-    text: "text-white",
+    bg: "bg-red-100",
+    text: "text-red-800",
+    iconBg: "bg-kfk-red",
+    iconColor: "text-white",
+    hoverBg: "hover:bg-red-200",
     activeBg: "bg-kfk-red",
     activeText: "text-white",
-    lineColor: "var(--color-kfk-red)",
+    activeIconBg: "bg-white",
+    activeIconColor: "text-kfk-red",
+    lineColor: "bg-kfk-red",
   },
   purchased: {
-    bg: "bg-kfk-green",
-    text: "text-white",
+    bg: "bg-green-100",
+    text: "text-green-800",
+    iconBg: "bg-kfk-green",
+    iconColor: "text-white",
+    hoverBg: "hover:bg-green-200",
     activeBg: "bg-kfk-green",
     activeText: "text-white",
-    lineColor: "var(--color-kfk-green)",
+    activeIconBg: "bg-white",
+    activeIconColor: "text-kfk-green",
+    lineColor: "bg-kfk-green",
   },
   purchased_kfk: {
-    bg: "bg-[#005BFF]",
-    text: "text-white",
+    bg: "bg-blue-100",
+    text: "text-blue-800",
+    iconBg: "bg-[#005BFF]",
+    iconColor: "text-white",
+    hoverBg: "hover:bg-blue-200",
     activeBg: "bg-[#005BFF]",
     activeText: "text-white",
-    lineColor: "#005BFF",
+    activeIconBg: "bg-white",
+    activeIconColor: "text-[#005BFF]",
+    lineColor: "bg-[#005BFF]",
   },
   purchased_donor: {
-    bg: "bg-[#118510]",
-    text: "text-white",
+    bg: "bg-green-100",
+    text: "text-green-800",
+    iconBg: "bg-[#118510]",
+    iconColor: "text-white",
+    hoverBg: "hover:bg-green-200",
     activeBg: "bg-[#118510]",
     activeText: "text-white",
-    lineColor: "#118510",
+    activeIconBg: "bg-white",
+    activeIconColor: "text-[#118510]",
+    lineColor: "bg-[#118510]",
   },
 };
 
 export function StatusSummaryCard({
   label,
   count,
+  icon,
   variant,
   onClick,
   isActive = false,
@@ -61,28 +89,44 @@ export function StatusSummaryCard({
   const style = variantStyles[variant];
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col h-full">
       <button
         type="button"
         onClick={onClick}
         aria-pressed={isActive}
         className={cn(
-          "flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all font-sans",
+          "flex flex-1 items-center gap-4 p-4 rounded-lg cursor-pointer transition-colors font-sans",
           isActive ? style.activeBg : style.bg,
           isActive ? style.activeText : style.text,
+          !isActive && style.hoverBg,
         )}
       >
-        <div className="flex flex-col items-start">
-          <span className="text-sm text-white opacity-90">{label}</span>
-          <span className="text-2xl text-white">{count}</span>
+        <div
+          className={cn(
+            "p-2 rounded-full flex items-center justify-center",
+            isActive ? style.activeIconBg : style.iconBg,
+          )}
+        >
+          <div
+            className={cn(
+              "h-6 w-6 flex items-center justify-center",
+              isActive ? style.activeIconColor : style.iconColor,
+            )}
+          >
+            {icon}
+          </div>
+        </div>
+        <div className="text-left">
+          <p className="text-sm font-medium">{label}</p>
+          <p className="text-3xl font-bold">{count}</p>
         </div>
       </button>
-      {isActive && (
-        <div
-          className="h-1 rounded-full"
-          style={{ backgroundColor: style.lineColor }}
-        />
-      )}
+      <div
+        className={cn(
+          "mt-2 h-1 rounded",
+          isActive ? style.lineColor : "bg-transparent",
+        )}
+      />
     </div>
   );
 }
