@@ -4,7 +4,7 @@ export interface RegisterDonorInput {
   name: string;
   email: string;
   password: string;
-  phone?: string;
+  phone: string;
 }
 
 export interface CheckoutFlowState {
