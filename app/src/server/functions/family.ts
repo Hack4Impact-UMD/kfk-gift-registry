@@ -15,21 +15,26 @@ const familyIdInputSchema = z.object({
 
 const updateFamilySchema = z.object({
   familyId: z.string().min(1),
-  updates: z.object({
-    contactName: z.string().trim().min(1).max(100),
-    email: z.email(),
-    phone: z.string().min(1),
-    address: z.object({
-      street: z.string().min(1),
-      addressLine2: z.string().optional(),
-      city: z.string().min(1),
-      state: z.string().min(1),
-      zipCode: z.string().min(1),
-    }).partial(),
-    privateNotes: z.string().trim().max(2000),
-  }).partial().refine((data) => Object.keys(data).length > 0, {
-    message: "At least one field must be provided for update",
-  }),
+  updates: z
+    .object({
+      contactName: z.string().trim().min(1).max(100),
+      email: z.email(),
+      phone: z.string().min(1),
+      address: z
+        .object({
+          street: z.string().min(1),
+          addressLine2: z.string().optional(),
+          city: z.string().min(1),
+          state: z.string().min(1),
+          zipCode: z.string().min(1),
+        })
+        .partial(),
+      privateNotes: z.string().trim().max(2000),
+    })
+    .partial()
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "At least one field must be provided for update",
+    }),
 });
 
 export const getFamilyByToken = createServerFn({ method: "GET" })
@@ -159,26 +164,26 @@ export const getFamilyDashboardDataByToken = createServerFn({ method: "GET" })
     };
   });
 
-  export const updateFamily = createServerFn({ method: "POST" })
-    .middleware([
-      requireRolesMiddleware([
-        UserRole.ADMIN,
-        UserRole.DIRECTOR,
-        UserRole.VOLUNTEER,
-      ]),
-    ])
-    .inputValidator(updateFamilySchema)
-    .handler(async ({ data }) => {
-      const { familyId, updates } = data;
-      const db = getServerDB();
+export const updateFamily = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(updateFamilySchema)
+  .handler(async ({ data }) => {
+    const { familyId, updates } = data;
+    const db = getServerDB();
 
-      const familyDoc = await db.families.doc(familyId).get();
-      if (!familyDoc.exists) {
-        throw new Error("Family not found");
-      }
+    const familyDoc = await db.families.doc(familyId).get();
+    if (!familyDoc.exists) {
+      throw new Error("Family not found");
+    }
 
-      await db.families.doc(familyId).update(updates);
+    await db.families.doc(familyId).update(updates);
 
-      const updatedFamily = await db.families.doc(familyId).get();
-      return updatedFamily.data()!;
-    });
+    const updatedFamily = await db.families.doc(familyId).get();
+    return updatedFamily.data()!;
+  });

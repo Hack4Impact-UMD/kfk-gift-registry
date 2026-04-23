@@ -13,15 +13,13 @@ import DefaultPhoto from "@/assets/default-profile-photo.png";
 export function SiblingPopover({ sibling }: { sibling: Child }) {
   const [open, setOpen] = useState(false);
 
-  const {
-    data: gifts = [],
-    isLoading,
-    error,
-  } = useChildGifts(sibling.id);
+  const { data: gifts = [], isLoading, error } = useChildGifts(sibling.id);
 
   const activeGifts = gifts.filter((g) => g.active);
   const totalGifts = activeGifts.length;
-  const receivedGifts = activeGifts.filter((g) => g.status === "RECEIVED").length;
+  const receivedGifts = activeGifts.filter(
+    (g) => g.status === "RECEIVED",
+  ).length;
 
   const isComplete = totalGifts > 0 && receivedGifts === totalGifts;
 

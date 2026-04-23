@@ -125,7 +125,10 @@ function ChildProfilePage() {
         ...editedGifts.map((gift) => {
           const original = gifts.find((g) => g.id === gift.id);
           if (!original) return Promise.resolve();
-          if (gift.active !== original.active || gift.backup !== original.backup) {
+          if (
+            gift.active !== original.active ||
+            gift.backup !== original.backup
+          ) {
             return updateGiftMutation.mutateAsync({
               giftId: gift.id,
               updates: { active: gift.active, backup: gift.backup },
@@ -210,7 +213,7 @@ function ChildProfilePage() {
           </div>
         </div>
       </div>
-      
+
       {/* ── Gift Information Section ── */}
       <div className="w-full h-1 rounded-full my-6 bg-muted"></div>
       <GiftInfoSection

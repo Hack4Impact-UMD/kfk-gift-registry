@@ -61,7 +61,9 @@ export function GiftInfoSection({
                 dateOrdered={giftDetailsByGiftId[gift.id]?.dateOrdered}
                 dateDelivered={giftDetailsByGiftId[gift.id]?.dateDelivered}
                 dateReceived={giftDetailsByGiftId[gift.id]?.dateReceived}
-                proofOfPurchaseUrl={giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl}
+                proofOfPurchaseUrl={
+                  giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl
+                }
                 onUpdate={onUpdateGift}
                 onUpdateDetails={onUpdateGiftDetails}
               />
@@ -87,7 +89,9 @@ export function GiftInfoSection({
                 dateOrdered={giftDetailsByGiftId[gift.id]?.dateOrdered}
                 dateDelivered={giftDetailsByGiftId[gift.id]?.dateDelivered}
                 dateReceived={giftDetailsByGiftId[gift.id]?.dateReceived}
-                proofOfPurchaseUrl={giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl}
+                proofOfPurchaseUrl={
+                  giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl
+                }
                 onUpdate={onUpdateGift}
                 onUpdateDetails={onUpdateGiftDetails}
               />

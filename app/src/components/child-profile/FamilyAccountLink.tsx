@@ -38,7 +38,9 @@ export function FamilyAccountLink({ familyToken }: FamilyAccountLinkProps) {
       </p>
 
       {!familyUrl ? (
-        <p className="text-sm text-gray-400">No active family link available.</p>
+        <p className="text-sm text-gray-400">
+          No active family link available.
+        </p>
       ) : (
         <>
           <Button

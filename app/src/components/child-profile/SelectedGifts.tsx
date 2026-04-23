@@ -24,23 +24,23 @@ export function SelectedGifts({
 
   const toggleGift = (giftId: string) => {
     setEditedGifts((prev) => {
-        const activeCount = prev.filter((g) => g.active).length;
+      const activeCount = prev.filter((g) => g.active).length;
 
-        return prev.map((g) => {
+      return prev.map((g) => {
         if (g.id !== giftId) return g;
 
         if (!g.active && activeCount >= 3) {
-            return g;
+          return g;
         }
 
         return {
-            ...g,
-            active: !g.active,
-            backup: !g.backup,
+          ...g,
+          active: !g.active,
+          backup: !g.backup,
         };
-        });
+      });
     });
-    };
+  };
 
   return (
     <div className="space-y-4">
@@ -56,9 +56,7 @@ export function SelectedGifts({
             ? activeGifts.indexOf(gift) + 1
             : inactiveGifts.indexOf(gift) + 1;
 
-          const label = isActive
-            ? `Gift #${index}`
-            : `Backup Gift #${index}`;
+          const label = isActive ? `Gift #${index}` : `Backup Gift #${index}`;
 
           return (
             <div
@@ -91,17 +89,15 @@ export function SelectedGifts({
 
               {!isEditing && (
                 <span
-                    className={
+                  className={
                     gift.status === "RECEIVED"
-                        ? "px-10 py-1 border rounded-full text-kfk-green bg-kfk-muted-green/40"
-                        : "px-6 py-1 border rounded-full text-kfk-red bg-kfk-muted-red/40"
-                    }
+                      ? "px-10 py-1 border rounded-full text-kfk-green bg-kfk-muted-green/40"
+                      : "px-6 py-1 border rounded-full text-kfk-red bg-kfk-muted-red/40"
+                  }
                 >
-                    {gift.status === "RECEIVED"
-                    ? "Received"
-                    : "Not Received"}
+                  {gift.status === "RECEIVED" ? "Received" : "Not Received"}
                 </span>
-                )}
+              )}
             </div>
           );
         })}

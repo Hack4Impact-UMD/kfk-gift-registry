@@ -180,7 +180,7 @@ export function GiftInfoCard({
   const hasProof = !!proofOfPurchaseUrl;
 
   const displayLocal = (val?: string) =>
-    isEditing ? val ?? "" : val?.trim() ? val : "N/A";
+    isEditing ? (val ?? "") : val?.trim() ? val : "N/A";
 
   return (
     <div className="px-6 py-5 space-y-4 text-sm">
@@ -201,10 +201,10 @@ export function GiftInfoCard({
             <EditableField
               value={
                 isEditing
-                  ? getValue("listedPrice") ?? ""
+                  ? (getValue("listedPrice") ?? "")
                   : gift.listedPrice != null
-                  ? `$${gift.listedPrice.toFixed(2)}`
-                  : "N/A"
+                    ? `$${gift.listedPrice.toFixed(2)}`
+                    : "N/A"
               }
               editable={isEditing}
               onChange={(event: ChangeEvent<HTMLInputElement>) => {
@@ -231,7 +231,9 @@ export function GiftInfoCard({
               </Button>
             ) : (
               <div className="flex gap-2">
-                <Button size="sm" onClick={handleSave}>Save</Button>
+                <Button size="sm" onClick={handleSave}>
+                  Save
+                </Button>
                 <Button size="sm" variant="destructive" onClick={handleCancel}>
                   Cancel
                 </Button>

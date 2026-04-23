@@ -8,38 +8,38 @@ export function useUpdateGift() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: { 
-        giftId: string; 
-        updates: {
-            title?: string;
-            listedPrice?: number;
-            status?: GiftStatus;
-            familyPublicNotes?: string;
-            active?: boolean;
-            backup?: boolean;
-        };
+    mutationFn: (params: {
+      giftId: string;
+      updates: {
+        title?: string;
+        listedPrice?: number;
+        status?: GiftStatus;
+        familyPublicNotes?: string;
+        active?: boolean;
+        backup?: boolean;
+      };
     }) => updateGift({ data: params }),
 
     onSuccess: (_data) => {
-        const childId = _data.childId;
-        
-        queryClient.invalidateQueries({
-            queryKey: queries.children.gifts(childId).queryKey,
-        });
+      const childId = _data.childId;
 
-        queryClient.invalidateQueries({
-            queryKey: queries.children.byId(childId).queryKey,
-        });
+      queryClient.invalidateQueries({
+        queryKey: queries.children.gifts(childId).queryKey,
+      });
 
-        queryClient.invalidateQueries({
-            queryKey: ["approvedProfileTableRows"],
-        });
+      queryClient.invalidateQueries({
+        queryKey: queries.children.byId(childId).queryKey,
+      });
 
-        toast.success("Gift updated successfully");
+      queryClient.invalidateQueries({
+        queryKey: ["approvedProfileTableRows"],
+      });
+
+      toast.success("Gift updated successfully");
     },
 
     onError: (error) => {
-        toast.error(`Failed to update gift: ${error.message}`);
+      toast.error(`Failed to update gift: ${error.message}`);
     },
   });
 }

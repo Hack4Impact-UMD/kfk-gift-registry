@@ -27,9 +27,7 @@ export function ChildHeader({
   return (
     <div className="flex justify-between items-center">
       <div className="flex gap-4 items-center">
-        <h1 className="text-3xl font-medium">
-          {currentName}
-        </h1>
+        <h1 className="text-3xl font-medium">{currentName}</h1>
         <div
           className={
             currentCategory === "warrior"
@@ -74,7 +72,6 @@ export function ChildHeader({
           // Handle unpublish logic here
         }}
       />
-
     </div>
   );
 }

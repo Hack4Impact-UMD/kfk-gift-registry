@@ -13,7 +13,9 @@ export function AdminComments({
   debounceMs = 1500,
 }: AdminCommentsProps) {
   const [value, setValue] = useState(initialComments);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
+    "idle",
+  );
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -38,7 +40,9 @@ export function AdminComments({
   };
 
   useEffect(() => {
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, []);
 
   return (
