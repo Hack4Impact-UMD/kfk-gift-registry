@@ -40,10 +40,10 @@ export function GiftInfoSection({
   const backupGifts = gifts.filter((g) => !g.active);
 
   return (
-    <div className="grid grid-cols-[minmax(0,900px)_420px] gap-12 mt-6 items-start justify-start">
+    <div className="mt-6 grid items-start gap-8 2xl:grid-cols-[minmax(0,1fr)_minmax(20rem,420px)]">
       <div className="flex flex-col gap-6 min-w-0">
         <div className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-4">
-          <h2 className="text-4xl font-bold flex items-center justify-center gap-3 pt-3 -mb-3">
+          <h2 className="flex flex-col items-start gap-3 pt-3 text-2xl font-bold leading-tight sm:flex-row sm:items-center sm:justify-center sm:text-3xl lg:text-4xl">
             <GiftIcon className="h-10 w-10 shrink-0" />
             <span className="leading-none">Main Gift Information</span>
           </h2>
@@ -74,7 +74,7 @@ export function GiftInfoSection({
         {/* Backup gifts */}
         {backupGifts.length > 0 && (
           <div className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-4">
-            <h2 className="text-4xl font-bold flex items-center justify-center gap-3 pt-3 -mb-3">
+            <h2 className="flex flex-col items-start gap-3 pt-3 text-2xl font-bold leading-tight sm:flex-row sm:items-center sm:justify-center sm:text-3xl lg:text-4xl">
               <GiftIcon className="h-10 w-10 shrink-0" />
               <span className="leading-none">Backup Gift Information</span>
             </h2>
@@ -101,7 +101,7 @@ export function GiftInfoSection({
       </div>
 
       {/* Right column: comments + family link */}
-      <div className="flex flex-col gap-6 sticky top-4 w-full max-w-[420px]">
+      <div className="flex w-full flex-col gap-6 2xl:sticky 2xl:top-4 2xl:max-w-[420px]">
         <div className="bg-transparent flex flex-col gap-6">
           <ParentComments comments={parentComments} />
 

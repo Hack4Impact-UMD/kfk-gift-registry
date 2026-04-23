@@ -26,9 +26,9 @@ export function ChildSidebar({
   const currentBlurb = editedChild.publicBlurb ?? child.publicBlurb ?? "";
 
   return (
-    <div className="flex flex-col">
+    <div className="mx-auto flex w-full max-w-sm flex-col xl:mx-0 xl:max-w-[230px]">
       <img
-        className="w-[230px] h-auto border-4 border-card rounded-xl shadow-xl mb-3"
+        className="mb-3 w-full rounded-xl border-4 border-card shadow-xl"
         src={currentPhotoUrl ?? DefaultPhoto}
         alt="Profile Photo"
       />
@@ -44,12 +44,12 @@ export function ChildSidebar({
         />
       )}
       <p className="text-xs text-muted-foreground mb-2">Sibling profiles:</p>
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap gap-2">
         {siblings.map((sibling) => (
           <SiblingPopover key={sibling.id} sibling={sibling} />
         ))}
       </div>
-      <div className="shadow-md rounded-lg border p-4 space-y-2 max-w-[230px] mt-6">
+      <div className="mt-6 w-full space-y-2 rounded-lg border p-4 shadow-md">
         <p className="font-bold">Personal Blurb:</p>
         <EditableField
           value={currentBlurb}

@@ -43,12 +43,12 @@ export function SelectedGifts({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4">
       <h2 className="font-semibold text-2xl">
         Storefront Selected Gifts (3 Max)
       </h2>
 
-      <div className="py-4 shadow-md rounded-lg border md:min-w-md max-w-lg divide-y divide-muted divide-y-2">
+      <div className="w-full divide-y divide-muted rounded-lg border py-4 shadow-md divide-y-2">
         {visibleGifts.map((gift, i) => {
           const isActive = gift.active;
 
@@ -61,26 +61,26 @@ export function SelectedGifts({
           return (
             <div
               key={gift.id ?? i}
-              className={`flex justify-between items-center p-4`}
+              className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 items-start gap-3">
                 {isEditing && (
                   <Input
                     type="checkbox"
                     checked={gift.active}
                     onChange={() => toggleGift(gift.id)}
                     disabled={!gift.active && activeGifts.length >= 3}
-                    className="size-5 mx-4"
+                    className="mt-1 size-5 shrink-0"
                   />
                 )}
 
-                <div>
-                  <p className="font-medium">{label}</p>
+                <div className="min-w-0">
+                  <p className="font-medium break-words">{label}</p>
                   <a
                     href={gift.productUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-sm text-kfk-blue underline"
+                    className="text-sm text-kfk-blue underline break-words"
                   >
                     {gift.title}
                   </a>
@@ -91,8 +91,8 @@ export function SelectedGifts({
                 <span
                   className={
                     gift.status === "RECEIVED"
-                      ? "px-10 py-1 border rounded-full text-kfk-green bg-kfk-muted-green/40"
-                      : "px-6 py-1 border rounded-full text-kfk-red bg-kfk-muted-red/40"
+                      ? "self-start shrink-0 rounded-full border bg-kfk-muted-green/40 px-6 py-1 text-kfk-green"
+                      : "self-start shrink-0 rounded-full border bg-kfk-muted-red/40 px-4 py-1 text-kfk-red"
                   }
                 >
                   {gift.status === "RECEIVED" ? "Received" : "Not Received"}

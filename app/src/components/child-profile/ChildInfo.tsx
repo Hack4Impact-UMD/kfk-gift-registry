@@ -67,9 +67,9 @@ export function ChildInfo({
     <div className="space-y-4">
       <div className="flex flex-col gap-4">
         <h2 className="font-semibold text-2xl">Child Information</h2>
-        <div className="shadow-md rounded-lg border p-4 space-y-2 max-w-md">
-          <div className="flex gap-16 md:gap-32">
-            <div className="flex items-center gap-2">
+        <div className="w-full space-y-4 rounded-lg border p-4 shadow-md">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
               <span className="font-bold">Age:</span>
               <EditableField
                 value={editedChild.age ?? child.age}
@@ -79,7 +79,7 @@ export function ChildInfo({
                 }
               />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
               <span className="font-bold">Level:</span>
               <EditableField
                 value={editedChild.treatmentLevel ?? child.treatmentLevel}
@@ -90,7 +90,7 @@ export function ChildInfo({
               />
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
             <span className="font-bold">Diagnosis:</span>
             <EditableField
               value={editedChild.diagnosis ?? child.diagnosis}
@@ -100,7 +100,7 @@ export function ChildInfo({
               }
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
             <span className="font-bold shrink-0">Social Worker Name:</span>
             <EditableField
               value={editedChild.childSocialWorker ?? child.childSocialWorker}
@@ -110,7 +110,7 @@ export function ChildInfo({
               }
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
             <span className="font-bold">Hospital:</span>
             <EditableField
               value={editedChild.hospital ?? child.hospital}
@@ -124,32 +124,34 @@ export function ChildInfo({
       </div>
       <div className="flex flex-col gap-4">
         <h2 className="font-semibold text-2xl">Guardian Information</h2>
-        <div className="shadow-md rounded-lg border p-4 space-y-2 max-w-md">
-          <div className="flex gap-2 items-center">
-            <EnvelopeIcon className="size-6" />
+        <div className="w-full space-y-4 rounded-lg border p-4 shadow-md">
+          <div className="flex min-w-0 gap-2 items-start sm:items-center">
+            <EnvelopeIcon className="size-6 shrink-0" />
             <EditableField
               value={editedFamily.email ?? family.email}
               editable={isEditing}
+              className="min-w-0"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 updateFamilyField("email", e.target.value)
               }
             />
           </div>
-          <div className="flex gap-2 items-center">
-            <PhoneIcon className="size-6" />
+          <div className="flex min-w-0 gap-2 items-start sm:items-center">
+            <PhoneIcon className="size-6 shrink-0" />
             <EditableField
               value={editedFamily.phone ?? family.phone}
               editable={isEditing}
+              className="min-w-0"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 updateFamilyField("phone", e.target.value)
               }
             />
           </div>
-          <div className="flex gap-2 items-start">
-            <HomeIcon className="size-6 mt-1" />
+          <div className="flex min-w-0 gap-2 items-start">
+            <HomeIcon className="mt-1 size-6 shrink-0" />
 
             {!isEditing ? (
-              <p className="py-1 break-all">
+              <p className="min-w-0 py-1 break-words">
                 {formatAddress(editedFamily.address ?? family.address)}
               </p>
             ) : (
@@ -188,7 +190,6 @@ export function ChildInfo({
                     value={(editedFamily.address ?? family.address).state}
                     editable={true}
                     placeholder="State"
-                    className="max-w-20"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       updateAddressField("state", e.target.value)
                     }
@@ -198,7 +199,6 @@ export function ChildInfo({
                     value={(editedFamily.address ?? family.address).zipCode}
                     editable={true}
                     placeholder="Zip"
-                    className="max-w-24"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       updateAddressField("zipCode", e.target.value)
                     }

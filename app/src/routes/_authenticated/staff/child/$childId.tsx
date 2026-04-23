@@ -168,10 +168,10 @@ function ChildProfilePage() {
   };
 
   return (
-    <div className="px-8">
-      <h1 className="font-bold text-4xl my-4">Child Profile</h1>
+    <div className="px-4 pb-8 sm:px-6 lg:px-8">
+      <h1 className="my-4 text-3xl font-bold sm:text-4xl">Child Profile</h1>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col gap-8 xl:flex-row xl:items-start">
         <ChildSidebar
           child={child}
           family={family}
@@ -180,7 +180,7 @@ function ChildProfilePage() {
           setEditedChild={setEditedChild}
         />
 
-        <div className="flex flex-col flex-1 w-full">
+        <div className="flex min-w-0 flex-1 flex-col">
           <ChildHeader
             child={child}
             editedChild={editedChild}
@@ -192,8 +192,8 @@ function ChildProfilePage() {
 
           <div className="w-full h-1 rounded-full my-4 bg-muted"></div>
 
-          <div className="grid grid-cols-[minmax(0,600px)_1fr] gap-12 w-full">
-            <div className="max-w-[600px]">
+          <div className="grid w-full gap-8 2xl:grid-cols-[minmax(0,600px)_minmax(0,1fr)]">
+            <div className="w-full 2xl:max-w-[600px]">
               <ChildInfo
                 child={child}
                 family={family}

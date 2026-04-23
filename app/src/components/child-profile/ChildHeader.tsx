@@ -25,22 +25,25 @@ export function ChildHeader({
   const currentCategory = editedChild.category ?? child.category;
 
   return (
-    <div className="flex justify-between items-center">
-      <div className="flex gap-4 items-center">
-        <h1 className="text-3xl font-medium">{currentName}</h1>
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
+        <h1 className="break-words text-2xl font-medium sm:text-3xl">
+          {currentName}
+        </h1>
         <div
           className={
             currentCategory === "warrior"
-              ? "text-center text-kfk-brown bg-kfk-yellow/30 rounded-full border border-kfk-brown px-4"
-              : "text-center text-kfk-blue bg-kfk-light-blue/30 rounded-full border border-kfk-blue px-4"
+              ? "self-start rounded-full border border-kfk-brown bg-kfk-yellow/30 px-4 py-1 text-center text-kfk-brown"
+              : "self-start rounded-full border border-kfk-blue bg-kfk-light-blue/30 px-4 py-1 text-center text-kfk-blue"
           }
         >
           {currentCategory === "warrior" ? "Warrior" : "Super Sib"}
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
         <Button
+          className="w-full sm:w-auto"
           onClick={() => {
             if (isEditing) {
               onSave();
@@ -52,6 +55,7 @@ export function ChildHeader({
           {isEditing ? "Save" : "Edit"}
         </Button>
         <Button
+          className="w-full sm:w-auto"
           variant="destructive"
           onClick={() => {
             if (isEditing) {

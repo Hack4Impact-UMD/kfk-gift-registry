@@ -42,43 +42,45 @@ function GiftProgressBar({ status }: { status: GiftStatus }) {
     status === "RECEIVED" ? "border-kfk-green" : "border-kfk-yellow";
 
   return (
-    <div className="mt-5 mb-3 w-full font-bold font-gaegu">
-      <div className="relative h-8 flex items-center w-full">
-        <div
-          className={`absolute h-[10px] rounded-full border-2 ${progressBorderColor}`}
-          style={{ left: `${TRACK_START}%`, width: `${TRACK_WIDTH}%` }}
-        />
-        <div
-          className={`absolute h-[10px] rounded-full ${progressColor}`}
-          style={{ left: `${TRACK_START}%`, width: `${fillWidthPercent}%` }}
-        />
-        <div className="relative z-10 flex w-full">
-          {GIFT_STEPS.map((_, i) => {
-            const isComplete = i < filledTo;
-            return (
-              <div key={i} className="flex-1 flex justify-center">
-                <div
-                  className={[
-                    "w-8 h-8 rounded-full flex items-center justify-center text-sm",
-                    isComplete
-                      ? `text-white ${progressColor}`
-                      : `border-2 ${progressBorderColor} bg-white`,
-                  ].join(" ")}
-                >
-                  {i + 1}
+    <div className="mb-3 mt-5 w-full overflow-x-auto font-bold font-gaegu">
+      <div className="min-w-[480px]">
+        <div className="relative flex h-8 items-center w-full">
+          <div
+            className={`absolute h-[10px] rounded-full border-2 ${progressBorderColor}`}
+            style={{ left: `${TRACK_START}%`, width: `${TRACK_WIDTH}%` }}
+          />
+          <div
+            className={`absolute h-[10px] rounded-full ${progressColor}`}
+            style={{ left: `${TRACK_START}%`, width: `${fillWidthPercent}%` }}
+          />
+          <div className="relative z-10 flex w-full">
+            {GIFT_STEPS.map((_, i) => {
+              const isComplete = i < filledTo;
+              return (
+                <div key={i} className="flex flex-1 justify-center">
+                  <div
+                    className={[
+                      "flex h-8 w-8 items-center justify-center rounded-full text-sm",
+                      isComplete
+                        ? `text-white ${progressColor}`
+                        : `border-2 ${progressBorderColor} bg-white`,
+                    ].join(" ")}
+                  >
+                    {i + 1}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="flex w-full mt-1">
-        {GIFT_STEPS.map((label) => (
-          <div key={label} className="flex-1 text-center text-xs">
-            {label}
+              );
+            })}
           </div>
-        ))}
+        </div>
+
+        <div className="mt-1 flex w-full">
+          {GIFT_STEPS.map((label) => (
+            <div key={label} className="flex-1 text-center text-xs">
+              {label}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -185,7 +187,7 @@ export function GiftInfoCard({
   return (
     <div className="px-6 py-5 space-y-4 text-sm">
       <div className="rounded-xl border bg-white shadow-sm overflow-hidden w-full">
-        <div className="bg-[#F6F9FC] px-5 py-4 flex justify-between items-start">
+        <div className="flex flex-col gap-4 bg-[#F6F9FC] px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-1">
             <EditableField
               value={getValue("title") ?? ""}
@@ -220,21 +222,30 @@ export function GiftInfoCard({
             </EditableField>
           </div>
 
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex w-full flex-col gap-2 lg:w-auto lg:items-end">
             {!isEditing ? (
               <Button
                 size="sm"
                 onClick={() => setIsEditing(true)}
-                className="bg-kfk-blue text-white"
+                className="w-full bg-kfk-blue text-white sm:w-auto"
               >
                 Edit
               </Button>
             ) : (
-              <div className="flex gap-2">
-                <Button size="sm" onClick={handleSave}>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button
+                  className="w-full sm:w-auto"
+                  size="sm"
+                  onClick={handleSave}
+                >
                   Save
                 </Button>
-                <Button size="sm" variant="destructive" onClick={handleCancel}>
+                <Button
+                  className="w-full sm:w-auto"
+                  size="sm"
+                  variant="destructive"
+                  onClick={handleCancel}
+                >
                   Cancel
                 </Button>
               </div>
@@ -267,9 +278,9 @@ export function GiftInfoCard({
         </div>
 
         <div className="px-6 py-5 space-y-4 bg-[#F6F9FC]">
-          <div className="flex justify-between gap-6">
+          <div className="grid gap-4 md:grid-cols-2">
             <EditableField
-              className="max-w-[45%]"
+              className="w-full"
               value={displayLocal(localFields.donorName)}
               editable={isEditing}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
@@ -280,7 +291,7 @@ export function GiftInfoCard({
             </EditableField>
 
             <EditableField
-              className="max-w-[45%]"
+              className="w-full"
               value={displayLocal(localFields.donorEmail)}
               editable={isEditing}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
