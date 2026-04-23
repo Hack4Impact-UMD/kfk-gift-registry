@@ -12,15 +12,26 @@ export function AdminComments({
   onSave,
   debounceMs = 1500,
 }: AdminCommentsProps) {
+  return (
+    <AdminCommentsEditor
+      key={initialComments}
+      initialComments={initialComments}
+      onSave={onSave}
+      debounceMs={debounceMs}
+    />
+  );
+}
+
+function AdminCommentsEditor({
+  initialComments = "",
+  onSave,
+  debounceMs = 1500,
+}: AdminCommentsProps) {
   const [value, setValue] = useState(initialComments);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
     "idle",
   );
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    setValue(initialComments);
-  }, [initialComments]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
