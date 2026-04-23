@@ -1,16 +1,22 @@
-import { Gift } from "../../../../common/src/types/gift";
+import type { Gift } from "../../../../common/src/types/gift";
 import { Input } from "../ui/input";
 
 type SelectedGiftsProps = {
-  gifts: Gift[];
+  gifts: Array<Gift>;
   isEditing: boolean;
-  editedGifts: Gift[];
-  setEditedGifts: React.Dispatch<React.SetStateAction<Gift[]>>;
+  editedGifts: Array<Gift>;
+  setEditedGifts: React.Dispatch<React.SetStateAction<Array<Gift>>>;
 };
 
-export function SelectedGifts({ gifts, isEditing, editedGifts, setEditedGifts }: SelectedGiftsProps) {
-  const activeGifts = editedGifts.filter((g) => g.active);
-  const inactiveGifts = editedGifts.filter((g) => !g.active);
+export function SelectedGifts({
+  gifts,
+  isEditing,
+  editedGifts,
+  setEditedGifts,
+}: SelectedGiftsProps) {
+  const currentGifts = isEditing ? editedGifts : gifts;
+  const activeGifts = currentGifts.filter((g) => g.active);
+  const inactiveGifts = currentGifts.filter((g) => !g.active);
 
   const visibleGifts = isEditing
     ? [...activeGifts, ...inactiveGifts]

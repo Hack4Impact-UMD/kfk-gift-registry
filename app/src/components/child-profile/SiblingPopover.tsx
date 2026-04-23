@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Child } from "../../../../common/src/types/child";
+import type { Child } from "../../../../common/src/types/child";
 import { useChildGifts } from "@/hooks/queries/useChildGifts";
 import {
   Popover,

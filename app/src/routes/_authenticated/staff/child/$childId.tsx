@@ -11,11 +11,16 @@ import type { GiftDetails } from "@/components/child-profile/GiftInfoSection";
 // import { ParentComments } from "@/components/child-profile/ParentComments";
 // import { AdminComments } from "@/components/child-profile/AdminComments";
 // import { FamilyAccountLink } from "@/components/child-profile/FamilyAccountLink";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
-import { Child, Family, Gift } from "../../../../../../common/src/types";
+import type { Child, Family, Gift } from "../../../../../../common/src/types";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
+import { useFamilyLinkByFamilyId } from "@/hooks/queries/useFamilyLinkByFamilyId";
+
+function cloneGifts(gifts: ReadonlyArray<Gift>): Array<Gift> {
+  return gifts.map((gift) => ({ ...gift }));
+}
 
 export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
   component: ChildProfilePage,
@@ -27,8 +32,10 @@ function ChildProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedChild, setEditedChild] = useState<Partial<Child>>({});
   const [editedFamily, setEditedFamily] = useState<Partial<Family>>({});
-  const [editedGifts, setEditedGifts] = useState<Gift[]>([]);
-  const [giftDetailsByGiftId, setGiftDetailsByGiftId] = useState<Record<string, GiftDetails>>({});
+  const [editedGifts, setEditedGifts] = useState<Array<Gift>>([]);
+  const [giftDetailsByGiftId, setGiftDetailsByGiftId] = useState<
+    Record<string, GiftDetails>
+  >({});
 
   const updateChildMutation = useUpdateChild();
   const updateFamilyMutation = useUpdateFamily();
@@ -45,18 +52,13 @@ function ChildProfilePage() {
     isLoading: familyLoading,
     error: familyError,
   } = useFamily(child?.familyId ?? "");
+  const { data: familyLink } = useFamilyLinkByFamilyId(child?.familyId ?? "");
 
   const {
     data: gifts,
     isLoading: giftsLoading,
     error: giftsError,
   } = useChildGifts(childId);
-
-  useEffect(() => {
-    if (gifts) {
-      setEditedGifts(gifts.map((g) => ({ ...g })));
-    }
-  }, [gifts]);
 
   if (childLoading) return <div>Loading...</div>;
   if (childError) return <div>Something went wrong</div>;
@@ -70,11 +72,18 @@ function ChildProfilePage() {
   if (giftsError) return <div>Gifts error</div>;
   if (!gifts) return <div>No gifts found</div>;
 
+  const handleStartEditing = () => {
+    setEditedChild({});
+    setEditedFamily({});
+    setEditedGifts(cloneGifts(gifts));
+    setIsEditing(true);
+  };
+
   const handleCancel = () => {
     setIsEditing(false);
     setEditedChild({});
     setEditedFamily({});
-    setEditedGifts(gifts.map((g) => ({ ...g })));
+    setEditedGifts([]);
   };
 
   const handleSaveAll = async () => {
@@ -90,7 +99,7 @@ function ChildProfilePage() {
       ),
     );
 
-    const promises: Promise<unknown>[] = [];
+    const promises: Array<Promise<unknown>> = [];
 
     if (Object.keys(childUpdates).length > 0) {
       promises.push(
@@ -128,7 +137,7 @@ function ChildProfilePage() {
 
       setEditedChild({});
       setEditedFamily({});
-      setEditedGifts(gifts.map((g) => ({ ...g })));
+      setEditedGifts([]);
       setIsEditing(false);
     } catch (err) {
       console.error("Save failed", err);
@@ -172,9 +181,8 @@ function ChildProfilePage() {
           <ChildHeader
             child={child}
             editedChild={editedChild}
-            setEditedChild={setEditedChild}
             isEditing={isEditing}
-            setIsEditing={setIsEditing}
+            onStartEditing={handleStartEditing}
             onSave={handleSaveAll}
             onCancel={handleCancel}
           />
@@ -209,7 +217,7 @@ function ChildProfilePage() {
         gifts={gifts}
         parentComments={family.privateNotes}
         adminComments={child.staffPrivateNotes ?? ""}
-        familyToken={(family as any).token ?? family.id}
+        familyToken={familyLink?.id}
         giftDetailsByGiftId={giftDetailsByGiftId}
         onUpdateGiftDetails={(giftId, details) => {
           setGiftDetailsByGiftId((prev) => ({ ...prev, [giftId]: details }));

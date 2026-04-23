@@ -1,12 +1,12 @@
-import { Child } from "../../../../common/src/types/child";
-import { Family, Address } from "../../../../common/src/types/family";
+import type { Child } from "../../../../common/src/types/child";
+import type { Address, Family } from "../../../../common/src/types/family";
 import {
     EnvelopeIcon,
     HomeIcon,
     PhoneIcon
 } from "@/components/icons";
 import { EditableField } from "../review/EditableField";
-import { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 type ChildInfoProps = {
   child: Child;

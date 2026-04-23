@@ -16,14 +16,14 @@ export type GiftDetails = {
 };
 
 interface GiftInfoSectionProps {
-  gifts: Gift[];
+  gifts: Array<Gift>;
   parentComments?: string;
   adminComments?: string;
-  familyToken: string;
+  familyToken?: string;
   giftDetailsByGiftId?: Record<string, GiftDetails>;
   onUpdateGiftDetails?: (giftId: string, details: GiftDetails) => void;
   onUpdateGift?: (giftId: string, updates: Partial<Gift>) => void;
-  onSaveAdminComments?: (comments: string) => void;
+  onSaveAdminComments?: (comments: string) => void | Promise<void>;
 }
 
 export function GiftInfoSection({

@@ -1,14 +1,13 @@
 import { useState } from "react";
-import { Child } from "../../../../common/src/types/child";
+import type { Child } from "../../../../common/src/types/child";
 import { Button } from "../ui/button";
 import { ConfirmUnpublishModal } from "./ConfirmUnpublishModal";
 
 type ChildHeaderProps = {
   child: Child;
   editedChild: Partial<Child>;
-  setEditedChild: React.Dispatch<React.SetStateAction<Partial<Child>>>;
   isEditing: boolean;
-  setIsEditing: (val: boolean) => void;
+  onStartEditing: () => void;
   onSave: () => void;
   onCancel: () => void;
 };
@@ -16,9 +15,8 @@ type ChildHeaderProps = {
 export function ChildHeader({
   child,
   editedChild,
-  setEditedChild,
   isEditing,
-  setIsEditing,
+  onStartEditing,
   onSave,
   onCancel,
 }: ChildHeaderProps) {
@@ -49,7 +47,7 @@ export function ChildHeader({
             if (isEditing) {
               onSave();
             } else {
-              setIsEditing(true);
+              onStartEditing();
             }
           }}
         >

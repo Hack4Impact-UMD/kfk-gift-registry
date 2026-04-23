@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 // import { Input } from "@/components/ui/input";
 import { EditableField } from "@/components/review/EditableField";
@@ -10,8 +11,14 @@ import {
 } from "@/components/ui/dialog";
 import type { Gift, GiftStatus } from "common";
 
-const GIFT_STEPS = ["Available", "Claimed", "Purchased", "Delivered", "Received"];
-const GIFT_STATUS_ORDER: GiftStatus[] = [
+const GIFT_STEPS = [
+  "Available",
+  "Claimed",
+  "Purchased",
+  "Delivered",
+  "Received",
+];
+const GIFT_STATUS_ORDER: Array<GiftStatus> = [
   "AVAILABLE",
   "CLAIMED",
   "PURCHASED",
@@ -79,6 +86,7 @@ function GiftProgressBar({ status }: { status: GiftStatus }) {
 
 interface GiftInfoCardProps {
   gift: Gift;
+  isBackupGift?: boolean;
   donorName?: string;
   donorEmail?: string;
   trackingId?: string;
@@ -130,7 +138,7 @@ export function GiftInfoCard({
   const getValue = <K extends keyof Gift>(key: K) =>
     (key in editedGift ? editedGift[key] : gift[key]) as Gift[K];
 
-  const handleChange = (key: keyof Gift, value: any) => {
+  const handleChange = <K extends keyof Gift>(key: K, value: Gift[K]) => {
     setEditedGift((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -171,8 +179,6 @@ export function GiftInfoCard({
 
   const hasProof = !!proofOfPurchaseUrl;
 
-  const safeStatus = gift.status || "UNORDERED";
-
   const displayLocal = (val?: string) =>
     isEditing ? val ?? "" : val?.trim() ? val : "N/A";
 
@@ -184,7 +190,9 @@ export function GiftInfoCard({
             <EditableField
               value={getValue("title") ?? ""}
               editable={isEditing}
-              onChange={(e) => handleChange("title", e.target.value)}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                handleChange("title", event.target.value)
+              }
               className="text-lg font-medium"
             >
               Gift Name:
@@ -199,9 +207,14 @@ export function GiftInfoCard({
                   : "N/A"
               }
               editable={isEditing}
-              onChange={(e) =>
-                handleChange("listedPrice", parseFloat(e.target.value))
-              }
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                const nextValue =
+                  event.target.value === ""
+                    ? undefined
+                    : Number(event.target.value);
+
+                handleChange("listedPrice", nextValue);
+              }}
             >
               Price:
             </EditableField>
@@ -227,11 +240,19 @@ export function GiftInfoCard({
 
             {isEditing && (
               <EditableField
-                value={getValue("status") || "UNORDERED"}
+                value={getValue("status")}
                 editable
                 fieldType="select"
                 selectOptions={GIFT_STATUS_ORDER}
-                onChange={(val) => handleChange("status", val)}
+                onChange={(value: string) => {
+                  const nextStatus = GIFT_STATUS_ORDER.find(
+                    (status) => status === value,
+                  );
+
+                  if (nextStatus) {
+                    handleChange("status", nextStatus);
+                  }
+                }}
               >
                 Status:
               </EditableField>
@@ -249,7 +270,9 @@ export function GiftInfoCard({
               className="max-w-[45%]"
               value={displayLocal(localFields.donorName)}
               editable={isEditing}
-              onChange={(e) => handleLocalChange("donorName", e.target.value)}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                handleLocalChange("donorName", event.target.value)
+              }
             >
               Donor:
             </EditableField>
@@ -258,7 +281,9 @@ export function GiftInfoCard({
               className="max-w-[45%]"
               value={displayLocal(localFields.donorEmail)}
               editable={isEditing}
-              onChange={(e) => handleLocalChange("donorEmail", e.target.value)}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                handleLocalChange("donorEmail", event.target.value)
+              }
             >
               Donor Email:
             </EditableField>
@@ -267,7 +292,9 @@ export function GiftInfoCard({
           <EditableField
             value={displayLocal(localFields.trackingId)}
             editable={isEditing}
-            onChange={(e) => handleLocalChange("trackingId", e.target.value)}
+            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+              handleLocalChange("trackingId", event.target.value)
+            }
           >
             Tracking ID:
           </EditableField>
@@ -277,7 +304,9 @@ export function GiftInfoCard({
           <EditableField
             value={displayLocal(localFields.dateOrdered)}
             editable={isEditing}
-            onChange={(e) => handleLocalChange("dateOrdered", e.target.value)}
+            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+              handleLocalChange("dateOrdered", event.target.value)
+            }
           >
             Date Ordered (Confirmed by Donor):
           </EditableField>
@@ -299,7 +328,9 @@ export function GiftInfoCard({
           <EditableField
             value={displayLocal(localFields.dateDelivered)}
             editable={isEditing}
-            onChange={(e) => handleLocalChange("dateDelivered", e.target.value)}
+            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+              handleLocalChange("dateDelivered", event.target.value)
+            }
           >
             Date Delivered (Confirmed by Donor):
           </EditableField>
@@ -307,7 +338,9 @@ export function GiftInfoCard({
           <EditableField
             value={displayLocal(localFields.dateReceived)}
             editable={isEditing}
-            onChange={(e) => handleLocalChange("dateReceived", e.target.value)}
+            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+              handleLocalChange("dateReceived", event.target.value)
+            }
           >
             Date Received (Confirmed by Family):
           </EditableField>

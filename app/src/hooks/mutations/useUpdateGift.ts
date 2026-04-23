@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateGift } from "@/server/functions/child";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
-import { GiftStatus } from "common";
+import type { GiftStatus } from "common";
 
 export function useUpdateGift() {
   const queryClient = useQueryClient();

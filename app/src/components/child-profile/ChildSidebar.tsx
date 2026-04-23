@@ -1,5 +1,5 @@
-import { Child } from "../../../../common/src/types/child";
-import { Family } from "../../../../common/src/types/family";
+import type { Child } from "../../../../common/src/types/child";
+import type { Family } from "../../../../common/src/types/family";
 import { SiblingPopover } from "./SiblingPopover";
 import { useChildProfilesForFamily } from "@/hooks/queries/useChildProfilesForFamily";
 import DefaultPhoto from "@/assets/default-profile-photo.png";
