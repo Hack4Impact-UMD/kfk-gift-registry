@@ -3,7 +3,7 @@ import {
   createFileRoute,
   redirect,
   useNavigate,
-  useRouter,
+  Link,
 } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import z from "zod";
@@ -12,7 +12,7 @@ import { FirebaseError } from "firebase/app";
 import { UserRole } from "common";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLoginMutation } from "@/hooks/mutations/loginMutation";
+import { useLogin } from "@/hooks/mutations/loginMutation";
 import adminVolunteerLoginBg from "@/assets/admin-volunteer-login-bg.png";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
 
@@ -87,10 +87,9 @@ function issueToMessage(issue: unknown): string {
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const router = useRouter();
   const { redirect: redirectPath } = Route.useSearch();
 
-  const loginMutation = useLoginMutation();
+  const loginMutation = useLogin();
   const [rememberMe, setRememberMe] = useState(false);
 
   const form = useForm({
@@ -102,17 +101,21 @@ function RouteComponent() {
       onSubmit: loginSchema,
     },
     onSubmit: async ({ value }) => {
-      const authUser = await loginMutation.mutateAsync({
-        email: value.email,
-        password: value.password,
-      });
-      await router.invalidate();
-
-      await navigate({
-        to:
-          redirectPath ??
-          (authUser.role === UserRole.DONOR ? "/donor" : "/staff/home"),
-      });
+      loginMutation.mutate(
+        {
+          email: value.email,
+          password: value.password,
+        },
+        {
+          onSuccess: async (result) => {
+            await navigate({
+              to:
+                redirectPath ??
+                (result.role === UserRole.DONOR ? "/donor" : "/staff/home"),
+            });
+          },
+        },
+      );
     },
   });
 
@@ -153,7 +156,7 @@ function RouteComponent() {
                   <img
                     src={kfkFoundationLogo}
                     alt="Kisses for Kyle Foundation"
-                    className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
+                    className="w-full max-w-xs sm:max-w-sm h-auto object-contain "
                   />
                 </div>
                 <p className="mt-5 text-center text-base text-kfk-blue">
@@ -213,12 +216,12 @@ function RouteComponent() {
                   />
                   <span className="text-sm text-foreground">Remember me</span>
                 </label>
-                <a
-                  href="#"
+                <Link
+                  to="/forgotPassword"
                   className="text-sm underline hover:opacity-80 text-kfk-blue"
                 >
                   Forgot Password?
-                </a>
+                </Link>
               </div>
 
               <Button

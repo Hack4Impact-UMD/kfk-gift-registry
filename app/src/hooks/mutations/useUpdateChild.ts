@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateChild } from "@/server/functions/child";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
+import type { Child } from "common";
 
 export function useUpdateChild() {
   const queryClient = useQueryClient();
@@ -24,24 +25,70 @@ export function useUpdateChild() {
       };
     }) => updateChild({ data: params }),
 
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queries.children.byId(variables.childId).queryKey,
+    onMutate: async ({ childId, updates }) => {
+      const childKey = queries.children.byId(childId).queryKey;
+      const familyChildrenPartialKey = queries.children.byFamilyId._def;
+
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: childKey }),
+        queryClient.cancelQueries({ queryKey: familyChildrenPartialKey }),
+      ]);
+
+      const previousChild = queryClient.getQueryData<Child>(childKey);
+      const previousFamilyChildren = queryClient.getQueriesData<Array<Child>>({
+        queryKey: familyChildrenPartialKey,
       });
 
-      queryClient.invalidateQueries({
-        queryKey: queries.children.gifts(variables.childId).queryKey,
-      });
+      if (previousChild) {
+        queryClient.setQueryData<Child>(childKey, {
+          ...previousChild,
+          ...updates,
+        });
+      }
 
-      queryClient.invalidateQueries({
-        queryKey: ["approvedProfileTableRows"],
-      });
+      queryClient.setQueriesData<Array<Child>>(
+        { queryKey: familyChildrenPartialKey },
+        (data) =>
+          data?.map((c) => (c.id === childId ? { ...c, ...updates } : c)) ??
+          data,
+      );
 
+      return { previousChild, previousFamilyChildren };
+    },
+
+    onError: (error, { childId }, onMutateResult) => {
+      if (onMutateResult) {
+        queryClient.setQueryData(
+          queries.children.byId(childId).queryKey,
+          onMutateResult.previousChild,
+        );
+        for (const [key, data] of onMutateResult.previousFamilyChildren) {
+          queryClient.setQueryData(key, data);
+        }
+      }
+      toast.error(`Failed to update child: ${error.message}`);
+    },
+
+    onSuccess: () => {
       toast.success("Child profile updated successfully");
     },
 
-    onError: (error) => {
-      toast.error(`Failed to update child: ${error.message}`);
+    onSettled: (_data, _error, { childId }) => {
+      queryClient.invalidateQueries({
+        queryKey: queries.children.byId(childId).queryKey,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: queries.children.gifts(childId).queryKey,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: queries.children.byFamilyId._def,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: queries.children.approvedProfileTableRows._def,
+      });
     },
   });
 }

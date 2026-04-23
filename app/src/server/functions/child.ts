@@ -316,6 +316,73 @@ export const getChildGiftsByChildId = createServerFn({ method: "GET" })
     return gifts.docs.map((doc) => doc.data());
   });
 
+// export const getChildrenForFamily = createServerFn({ method: "GET" })
+//   .inputValidator(familyIdSchema)
+//   .middleware([
+//     requireRolesMiddleware([
+//       UserRole.ADMIN,
+//       UserRole.DIRECTOR,
+//       UserRole.VOLUNTEER,
+//     ]),
+//   ])
+//   .handler(async ({ data }) => {
+//     const children = await getChildProfilesForFamily({
+//       data: { familyId: data.familyId },
+//     });
+
+//     const childrenWithGifts = children.map(async (child) => {
+//       const gifts = await getChildGiftsByChildId({
+//         data: { childId: child.id },
+//       });
+//       return {
+//         ...child,
+//         gifts: gifts,
+//       };
+//     });
+
+//     return childrenWithGifts
+//   });
+
+export const getChildrenForFamily = createServerFn({ method: "GET" })
+  .inputValidator(familyIdSchema)
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .handler(async ({ data }) => {
+    const { familyId } = data;
+    const db = getServerDB();
+
+    // Fetches all children in this family
+    const childrenSnap = await db.children
+      .where("familyId", "==", familyId)
+      .get();
+
+    if (childrenSnap.empty) {
+      return [];
+    }
+
+    // Using Promise.all to fetch gifts for all children in parallel
+    const childrenWithGifts = await Promise.all(
+      childrenSnap.docs.map(async (childDoc) => {
+        const childData = childDoc.data();
+
+        const gifts = await db.gifts.where("childId", "==", childDoc.id).get();
+
+        return {
+          ...childData,
+          id: childDoc.id,
+          gifts: gifts.docs.map((g) => ({ ...g.data(), id: g.id })),
+        };
+      }),
+    );
+
+    return childrenWithGifts;
+  });
+
 /**
  * Token-authenticated child retrieval.
  * Validates that the token has access to the requested child before returning data.
@@ -442,6 +509,72 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
           thankYouNote: claim.thankYouNote,
         }),
       );
+  });
+
+export const getFamilyChildDataByToken = createServerFn({ method: "GET" })
+  .inputValidator(tokenChildSchema)
+  .handler(async ({ data }) => {
+    const { token, childId } = data;
+
+    const link = await getFamilyLinkById(token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const db = getServerDB();
+    const childDoc = await db.children.doc(childId).get();
+
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    if (child.familyId !== link.familyId) {
+      throw new Error("Unauthorized: child does not belong to this family");
+    }
+
+    const [giftsSnapshot, claimsSnapshot] = await Promise.all([
+      db.gifts.where("childId", "==", childId).get(),
+      db.claims.where("childId", "==", childId).get(),
+    ]);
+
+    const gifts = giftsSnapshot.empty
+      ? []
+      : giftsSnapshot.docs
+          .map((doc) => doc.data())
+          .filter((gift) => !gift.backup);
+
+    const claims = claimsSnapshot.empty
+      ? []
+      : claimsSnapshot.docs
+          .map((doc) => doc.data())
+          .filter((claim) => claim.active)
+          .map(
+            (claim): FamilyGiftClaim => ({
+              giftId: claim.giftId,
+              claimedAt: claim.claimedAt,
+              purchaseConfirmation: claim.purchaseConfirmation
+                ? {
+                    date: claim.purchaseConfirmation.date,
+                    trackingNumber: claim.purchaseConfirmation.trackingNumber,
+                  }
+                : undefined,
+              deliveryConfirmed: claim.deliveryConfirmed
+                ? {
+                    date: claim.deliveryConfirmed.date,
+                  }
+                : undefined,
+              expectedDeliveryDate: claim.expectedDeliveryDate,
+              receivedAt: claim.receivedAt,
+              thankYouNote: claim.thankYouNote,
+            }),
+          );
+
+    return {
+      child,
+      gifts,
+      claims,
+    };
   });
 
 export const saveGiftThankYouNoteWithToken = createServerFn({
@@ -607,6 +740,8 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
             listedPrice: g.listedPrice,
             status: g.status,
             familyPublicNotes: g.familyPublicNotes,
+            childId: g.childId,
+            familyId: g.familyId,
           }) satisfies StorefrontChild["gifts"][number],
       ),
     };
@@ -649,6 +784,8 @@ export const getStorefrontGiftsForChild = createServerFn({ method: "GET" })
         listedPrice: giftData.listedPrice,
         status: giftData.status,
         familyPublicNotes: giftData.familyPublicNotes,
+        childId: giftData.childId,
+        familyId: giftData.familyId,
       } satisfies StorefrontGift;
     });
   });
@@ -724,6 +861,8 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
                 listedPrice: g.listedPrice,
                 status: g.status,
                 familyPublicNotes: g.familyPublicNotes,
+                childId: g.childId,
+                familyId: g.familyId,
               }) satisfies StorefrontGift,
           ),
         };

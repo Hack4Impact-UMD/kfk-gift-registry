@@ -72,13 +72,13 @@ export function StatusSummaryCard({
   const style = variantStyles[variant];
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full">
       <button
         type="button"
         onClick={onClick}
         aria-pressed={isActive}
         className={cn(
-          "flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-colors",
+          "flex flex-1 items-center gap-4 p-4 rounded-lg cursor-pointer transition-colors",
           isActive ? style.activeBg : style.bg,
           isActive ? style.activeText : style.text,
           !isActive && style.hoverBg,
@@ -104,7 +104,12 @@ export function StatusSummaryCard({
           <p className="text-3xl font-bold">{count}</p>
         </div>
       </button>
-      {isActive && <div className={cn("mt-2 h-1 rounded", style.lineColor)} />}
+      <div
+        className={cn(
+          "mt-2 h-1 rounded",
+          isActive ? style.lineColor : "bg-transparent",
+        )}
+      />
     </div>
   );
 }

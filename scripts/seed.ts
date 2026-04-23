@@ -29,8 +29,8 @@ type Args = {
 type NonEmptyArray<T> = [T, ...Array<T>];
 
 const defaults: Args = {
-  families: 5,
-  children: 2,
+  families: 100,
+  children: 4,
   gifts: 4,
   seed: 42,
 };
@@ -299,6 +299,7 @@ function main() {
               giftId: gift.id,
               childId: child.id,
               donorId,
+              driveId: giftDrive.id,
               giftStatus: status,
               createdAfter: new Date(gift.createdAt),
               createdBefore: claimUpperBound,

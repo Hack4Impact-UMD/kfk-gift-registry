@@ -10,6 +10,7 @@ import {
   SelectItem,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { PhoneInput } from "../ui/phone-input";
 
 type EditableFieldChangeHandler =
   | React.ChangeEventHandler<HTMLInputElement>
@@ -22,7 +23,7 @@ interface EditableFieldProps extends Omit<
 > {
   editable?: boolean;
   children?: React.ReactNode;
-  fieldType?: "input" | "textarea" | "select";
+  fieldType?: "input" | "textarea" | "select" | "phone";
   selectOptions?: Array<string>;
   onChange?: EditableFieldChangeHandler;
 }
@@ -106,6 +107,23 @@ export function EditableField({
         >
           {wordCount}/25 words
         </p>
+      </>
+    );
+  }
+
+  if (fieldType === "phone") {
+    return (
+      <>
+        {children && (
+          <b className="whitespace-nowrap my-auto mr-2">{children}</b>
+        )}
+        <PhoneInput
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          value={value}
+          onChange={inputOnChange}
+          className={cn("border-foreground", className)}
+          {...props}
+        />
       </>
     );
   }

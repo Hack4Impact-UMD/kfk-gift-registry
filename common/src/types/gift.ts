@@ -5,6 +5,8 @@ export type GiftStatus =
   | "DELIVERED"
   | "RECEIVED";
 
+export type ClaimType = "donor" | "kfk";
+
 export interface Gift {
   id: string;
   childId: string;

@@ -4,6 +4,7 @@ import {
   getChildById,
   getChildGiftsByChildId,
   getChildProfilesForFamily,
+  getFamilyChildDataByToken,
 } from "@/server/functions/child";
 
 export const childQueries = createQueryKeys("children", {
@@ -22,5 +23,9 @@ export const childQueries = createQueryKeys("children", {
   gifts: (childId: string) => ({
     queryKey: ["gifts", childId],
     queryFn: () => getChildGiftsByChildId({ data: { childId } }),
+  }),
+  familyDetailsByToken: (token: string, childId: string) => ({
+    queryKey: ["familyDetailsByToken", token, childId],
+    queryFn: () => getFamilyChildDataByToken({ data: { token, childId } }),
   }),
 });

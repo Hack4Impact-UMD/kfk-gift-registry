@@ -1,32 +1,46 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { X, ExternalLink } from "lucide-react";
-import type { CartGift } from "./cartMockData";
+import { X, ExternalLink, AlertCircleIcon } from "lucide-react";
+import type { CartFamilyGroup } from "@/server/functions/cart";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
-const columnHelper = createColumnHelper<CartGift>();
+type CartColumnGift = CartFamilyGroup["gifts"][number];
+
+const columnHelper = createColumnHelper<CartColumnGift>();
 
 export const createCartColumns = (
   onRemoveGift: (giftId: string) => void,
-): Array<ColumnDef<CartGift>> => [
+): Array<ColumnDef<CartColumnGift>> => [
   columnHelper.accessor("title", {
     header: "Gift",
-    cell: (info) => (
-      <a
-        href={info.row.original.productUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="font-medium text-black hover:underline cursor-pointer font-gaegu flex items-center gap-2"
-      >
-        {info.getValue()}
-        <ExternalLink className="h-4 w-4 text-black" />
-      </a>
+    cell: ({ getValue, row }) => (
+      <div className="flex items-center gap-2">
+        <a
+          href={row.original.productUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-black hover:underline cursor-pointer font-gaegu flex items-center gap-2"
+        >
+          {getValue()}
+          <ExternalLink className="h-4 w-4 text-black" />
+        </a>
+        {row.original.status !== "AVAILABLE" && (
+          <Tooltip>
+            <TooltipTrigger>
+              <span className="bg-red-100 text-red-600 rounded-full border-red-600 border-2 text-sm px-3 py-1 flex gap-2 items-center">
+                <AlertCircleIcon className="size-4" /> Gift Not Available!
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              This is not available. Remove it to proceed with the checkout
+              process.
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
     ),
-  }) as ColumnDef<CartGift>,
-  columnHelper.accessor("childName", {
-    header: "Child Name",
-    cell: (info) => <span className="font-gaegu">{info.getValue()}</span>,
-  }) as ColumnDef<CartGift>,
+  }) as ColumnDef<CartColumnGift>,
   columnHelper.accessor("listedPrice", {
     header: "Price",
     cell: (info) => {
@@ -38,7 +52,7 @@ export const createCartColumns = (
         </span>
       );
     },
-  }) as ColumnDef<CartGift>,
+  }) as ColumnDef<CartColumnGift>,
   columnHelper.display({
     id: "actions",
     header: "",
@@ -54,5 +68,5 @@ export const createCartColumns = (
         <X className="h-4 w-4 text-black" />
       </Button>
     ),
-  }) as ColumnDef<CartGift>,
+  }) as ColumnDef<CartColumnGift>,
 ];

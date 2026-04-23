@@ -4,8 +4,18 @@ import { Button } from "@/components/ui/button";
 import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
+import type { GiftDrive } from "common";
+import { UserRole } from "common";
+import type { AuthContext } from "@/server/functions/auth";
 
-export function StorefrontNavbar() {
+type StorefrontNavbarProps = {
+  currentDrive?: GiftDrive;
+  auth: AuthContext;
+};
+export function StorefrontNavbar({
+  currentDrive,
+  auth,
+}: StorefrontNavbarProps) {
   const { pathname } = useLocation();
   const showMobileSidebarTrigger = pathname !== "/";
 
@@ -17,12 +27,14 @@ export function StorefrontNavbar() {
           <img src={KFKLogo} alt="Kisses for Kyle" className="max-w-62.5" />
         </Link>
 
-        <Link
-          to="/"
-          className="border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center"
-        >
-          2026 Gift Drive
-        </Link>
+        {currentDrive && (
+          <Link
+            to="/"
+            className="border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center"
+          >
+            {currentDrive?.cycle} Gift Drive
+          </Link>
+        )}
 
         {showMobileSidebarTrigger && (
           <SidebarTrigger
@@ -55,17 +67,29 @@ export function StorefrontNavbar() {
         </div>
 
         <div className="hidden md:flex items-center justify-between gap-4">
-          <Link
-            to="/"
-            className="border border-kfk-red text-kfk-red py-1 max-w-58 text-center w-full rounded-sm font-gaegu"
-          >
-            2026 Gift Drive
-          </Link>
-
-          <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button variant="default">Staff/Donor Log-in</Button>
+          {currentDrive && (
+            <Link
+              to="/"
+              className="border border-kfk-red text-kfk-red py-1 max-w-58 text-center w-full rounded-sm font-gaegu"
+            >
+              {currentDrive.cycle} Gift Drive
             </Link>
+          )}
+
+          <div className="flex items-center gap-3 ml-auto">
+            {!auth.isAuthed ? (
+              <Link to="/login">
+                <Button variant="default">Log-in</Button>
+              </Link>
+            ) : auth.authUser.role === UserRole.DONOR ? (
+              <Link to="/donor/home">
+                <Button variant="default">Go to Donor Home</Button>
+              </Link>
+            ) : (
+              <Link to="/staff/home">
+                <Button variant="default">Go to Staff Home</Button>
+              </Link>
+            )}
 
             <Link to="/">
               <Button variant="default">Family Recovery Link</Button>

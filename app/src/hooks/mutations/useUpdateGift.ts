@@ -32,7 +32,7 @@ export function useUpdateGift() {
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["approvedProfileTableRows"],
+        queryKey: queries.children.approvedProfileTableRows._def,
       });
 
       toast.success("Gift updated successfully");

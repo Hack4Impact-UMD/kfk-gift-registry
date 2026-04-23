@@ -14,9 +14,23 @@ import redStripedBackground from "@/assets/red-striped-background.png";
 import { useStorefrontChild } from "@/hooks/queries/useStorefrontChild";
 import { useStorefrontSiblings } from "@/hooks/queries/useStorefrontSiblings";
 import { useMemo } from "react";
+import { Spinner } from "@/components/ui/spinner";
+import { queries } from "@/queries";
 
 export const Route = createFileRoute("/_storefront/child/$childId")({
   component: RouteComponent,
+  beforeLoad: async ({ params, context }) => {
+    const childId = params.childId;
+
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        queries.storefront.childById(childId),
+      ),
+      context.queryClient.ensureQueryData(
+        queries.storefront.siblingsForChild(childId),
+      ),
+    ]);
+  },
 });
 
 function RouteComponent() {
@@ -52,14 +66,8 @@ function RouteComponent() {
 
   if (childPending || siblingsPending) {
     return (
-      <div className="w-full min-h-screen">
-        <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
-          <div className="max-w-7xl mx-auto">
-            <p className="text-center text-lg font-gaegu">
-              Loading child profile...
-            </p>
-          </div>
-        </div>
+      <div className="flex items-center justify-center w-full min-h-screen">
+        <Spinner />
       </div>
     );
   }
@@ -99,7 +107,7 @@ function RouteComponent() {
       <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
         <div className="max-w-7xl mx-auto">
           <div
-            className="w-full px-3 py-8 sm:py-8 md:py-10 lg:px-12 lg:py-12 rounded-3xl bg-cover bg-center flex items-center justify-center"
+            className="w-full p-3 md:p-8 rounded-3xl bg-cover bg-center flex items-center justify-center"
             style={{ backgroundImage: `url(${redStripedBackground})` }}
           >
             <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 items-center md:items-stretch w-full">

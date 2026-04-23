@@ -4,6 +4,10 @@ import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
+import type {
+  PendingProfileTableRow,
+  ApplicationStatus,
+} from "@/components/tables/PendingProfilesTable/types";
 
 const tokenInputSchema = z.object({
   token: z.string().min(1),
@@ -13,11 +17,24 @@ const familyIdInputSchema = z.object({
   familyId: z.string().min(1),
 });
 
+const driveIdInputSchema = z.object({
+  driveId: z.string(),
+});
+
+function getRequiredData<T>(data: T | undefined, errorMessage: string): T {
+  if (!data) {
+    throw new Error(errorMessage);
+  }
+
+  return data;
+}
+
 const updateFamilySchema = z.object({
   familyId: z.string().min(1),
   updates: z
     .object({
       contactName: z.string().trim().min(1).max(100),
+      guardianRelationship: z.string().trim().max(50),
       email: z.email(),
       phone: z.string().min(1),
       address: z
@@ -35,6 +52,23 @@ const updateFamilySchema = z.object({
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
     }),
+});
+
+export const updateFamilyReviewStatusSchema = z.object({
+  familyId: z.string().min(1),
+  updates: z.object({
+    reviewStatus: z
+      .object({
+        approved: z.boolean(),
+        held: z.boolean(),
+        reviewNotes: z.string().trim().max(2000).optional(),
+        holdNotes: z.string().trim().max(2000).optional(),
+      })
+      .refine((status) => !(status.approved && status.held), {
+        message: "A family cannot be both approved and held",
+      }),
+    privateNotes: z.string().trim().max(2000).optional(),
+  }),
 });
 
 export const getFamilyByToken = createServerFn({ method: "GET" })
@@ -144,7 +178,10 @@ export const getFamilyDashboardDataByToken = createServerFn({ method: "GET" })
       throw new Error("Family not found");
     }
 
-    const familyData = familyDoc.data()!;
+    const familyData = getRequiredData(
+      familyDoc.data(),
+      "Family data unavailable",
+    );
 
     // Load children for this family
     const childProfiles = await db.children
@@ -185,5 +222,110 @@ export const updateFamily = createServerFn({ method: "POST" })
     await db.families.doc(familyId).update(updates);
 
     const updatedFamily = await db.families.doc(familyId).get();
-    return updatedFamily.data()!;
+    return getRequiredData(
+      updatedFamily.data(),
+      "Family data unavailable after update",
+    );
+  });
+
+export const getProfileTableRows = createServerFn({ method: "GET" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(driveIdInputSchema)
+  .handler(async ({ data }) => {
+    const { driveId } = data;
+    const db = getServerDB();
+    const rows: Array<PendingProfileTableRow> = [];
+
+    const familiesSnapshot = await db.families
+      .where("giftDrive", "==", driveId)
+      .get();
+
+    if (familiesSnapshot.empty) {
+      return rows;
+    }
+
+    const families = familiesSnapshot.docs.map((doc) => doc.data());
+    const familyIds = families.map((f) => f.id);
+
+    const childCountMap = new Map<string, number>();
+
+    for (let i = 0; i < familyIds.length; i += 10) {
+      const batch = familyIds.slice(i, i + 10);
+      const childrenSnapshot = await db.children
+        .where("familyId", "in", batch)
+        .get();
+
+      for (const childDoc of childrenSnapshot.docs) {
+        const child = childDoc.data();
+        childCountMap.set(
+          child.familyId,
+          (childCountMap.get(child.familyId) || 0) + 1,
+        );
+      }
+    }
+
+    for (const family of families) {
+      let status: ApplicationStatus;
+      const reviewStatus = family.reviewStatus;
+
+      if (reviewStatus?.approved) {
+        status = "approved";
+      } else if (reviewStatus?.held) {
+        status = "holdfile";
+      } else {
+        status = "pending";
+      }
+
+      const row: PendingProfileTableRow = {
+        id: family.id,
+        parentGuardian: family.contactName,
+        numberOfChildren: childCountMap.get(family.id) || 0,
+        status,
+        submissionDate: family.createdAt,
+        adminComments:
+          reviewStatus?.reviewNotes || reviewStatus?.holdNotes || "",
+      };
+      rows.push(row);
+    }
+
+    return rows;
+  });
+
+export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.ADMIN, UserRole.DIRECTOR])])
+  .inputValidator(updateFamilyReviewStatusSchema)
+  .handler(async ({ data, context }) => {
+    const { familyId, updates } = data;
+    const db = getServerDB();
+
+    const staffId = context.authUser.uid;
+
+    const familyDoc = await db.families.doc(familyId).get();
+    if (!familyDoc.exists) {
+      throw new Error("Family not found");
+    }
+
+    const reviewUpdates = {
+      "reviewStatus.approved": updates.reviewStatus.approved,
+      "reviewStatus.held": updates.reviewStatus.held,
+      "reviewStatus.reviewNotes": updates.reviewStatus.reviewNotes ?? "",
+      "reviewStatus.holdNotes": updates.reviewStatus.holdNotes ?? "",
+      "reviewStatus.reviewedBy": staffId ?? "",
+      "reviewStatus.lastReviewedAt": new Date().toISOString(),
+      ...(updates.privateNotes && { privateNotes: updates.privateNotes }),
+    };
+
+    await db.families.doc(familyId).update(reviewUpdates);
+
+    const updatedFamily = await db.families.doc(familyId).get();
+    return getRequiredData(
+      updatedFamily.data(),
+      "Family data unavailable after review update",
+    );
   });
