@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import type { Child } from "../../../../common/src/types/child";
 import { useChildGifts } from "@/hooks/queries/useChildGifts";
 import {
@@ -12,6 +13,7 @@ import DefaultPhoto from "@/assets/default-profile-photo.png";
 
 export function SiblingPopover({ sibling }: { sibling: Child }) {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { data: gifts = [], isLoading, error } = useChildGifts(sibling.id);
 
@@ -31,6 +33,13 @@ export function SiblingPopover({ sibling }: { sibling: Child }) {
           className="p-0 -ml-2 -mr-6 border-transparent hover:bg-transparent data-[state=open]:bg-transparent"
           onMouseEnter={() => setOpen(true)}
           onMouseLeave={() => setOpen(false)}
+          onClick={() => {
+            setOpen(false);
+            navigate({
+              to: "/staff/child/$childId",
+              params: { childId: sibling.id },
+            });
+          }}
         >
           <UserIcon className="size-10 p-1 border border-card shadow-lg bg-kfk-light-grey text-muted-foreground rounded-full hover:scale-105 transition" />
         </Button>
@@ -41,42 +50,51 @@ export function SiblingPopover({ sibling }: { sibling: Child }) {
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
       >
-        {isLoading ? (
-          <div className="text-sm text-muted-foreground">Loading gifts...</div>
-        ) : error ? (
-          <div className="text-sm text-kfk-red">Failed to load gifts</div>
-        ) : (
-          <div className="flex items-center gap-3">
-            <img
-              src={sibling.photoUrl ?? DefaultPhoto}
-              alt={sibling.name}
-              className="w-auto h-[96px] border-4 border-card rounded-xl shadow-xl"
-            />
-
-            <div className="flex flex-col gap-2">
-              <p className="font-semibold text-xl">{sibling.name}</p>
-
-              <p
-                className={
-                  sibling.category === "warrior"
-                    ? "text-center text-kfk-brown bg-kfk-yellow/30 rounded-full border border-kfk-brown px-2"
-                    : "text-center text-kfk-blue bg-kfk-light-blue/30 rounded-full border border-kfk-blue px-2"
-                }
-              >
-                {sibling.category === "warrior" ? "Warrior" : "Super Sib"}
-              </p>
-
-              <p className="text-xs flex items-center gap-2">
-                <span
-                  className={`w-2.5 h-2.5 rounded-full ${
-                    isComplete ? "bg-green-500" : "bg-yellow-400"
-                  }`}
-                />
-                {receivedGifts} / {totalGifts} Gifts
-              </p>
+        <Link
+          to="/staff/child/$childId"
+          params={{ childId: sibling.id }}
+          className="block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kfk-blue/50 focus-visible:ring-offset-2"
+          onClick={() => setOpen(false)}
+        >
+          {isLoading ? (
+            <div className="text-sm text-muted-foreground">
+              Loading gifts...
             </div>
-          </div>
-        )}
+          ) : error ? (
+            <div className="text-sm text-kfk-red">Failed to load gifts</div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <img
+                src={sibling.photoUrl ?? DefaultPhoto}
+                alt={sibling.name}
+                className="w-auto h-[96px] border-4 border-card rounded-xl shadow-xl"
+              />
+
+              <div className="flex flex-col gap-2">
+                <p className="font-semibold text-xl">{sibling.name}</p>
+
+                <p
+                  className={
+                    sibling.category === "warrior"
+                      ? "text-center text-kfk-brown bg-kfk-yellow/30 rounded-full border border-kfk-brown px-2"
+                      : "text-center text-kfk-blue bg-kfk-light-blue/30 rounded-full border border-kfk-blue px-2"
+                  }
+                >
+                  {sibling.category === "warrior" ? "Warrior" : "Super Sib"}
+                </p>
+
+                <p className="text-xs flex items-center gap-2">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      isComplete ? "bg-green-500" : "bg-yellow-400"
+                    }`}
+                  />
+                  {receivedGifts} / {totalGifts} Gifts
+                </p>
+              </div>
+            </div>
+          )}
+        </Link>
       </PopoverContent>
     </Popover>
   );
