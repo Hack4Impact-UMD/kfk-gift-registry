@@ -26,6 +26,7 @@ export function ChildHeader({
   const currentName = editedChild.name ?? child.name;
   const currentCategory = editedChild.category ?? child.category;
   const isPublished = child.published;
+  const publishAction = isPublished ? "unpublish" : "publish";
 
   const handleConfirmOpenChange = (open: boolean) => {
     if (!open) {
@@ -82,14 +83,8 @@ export function ChildHeader({
             if (isEditing) {
               onCancel();
             } else {
-              if (isPublished) {
-                updateChildMutation.reset();
-                setConfirmOpen(true);
-              } else {
-                void handlePublishedChange(true).catch(() => {
-                  // Errors are handled by the mutation's error state and toast.
-                });
-              }
+              updateChildMutation.reset();
+              setConfirmOpen(true);
             }
           }}
         >
@@ -108,7 +103,8 @@ export function ChildHeader({
       <ConfirmUnpublishModal
         open={confirmOpen}
         onOpenChange={handleConfirmOpenChange}
-        onConfirm={() => handlePublishedChange(false)}
+        onConfirm={() => handlePublishedChange(!isPublished)}
+        action={publishAction}
         isPending={updateChildMutation.isPending}
         errorMessage={updateChildMutation.error?.message}
       />

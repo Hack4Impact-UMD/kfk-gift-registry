@@ -5,6 +5,7 @@ type ConfirmUnpublishModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void | Promise<void>;
+  action: "publish" | "unpublish";
   isPending?: boolean;
   errorMessage?: string;
 };
@@ -13,14 +14,17 @@ export function ConfirmUnpublishModal({
   open,
   onOpenChange,
   onConfirm,
+  action,
   isPending = false,
   errorMessage,
 }: ConfirmUnpublishModalProps) {
+  const isUnpublishAction = action === "unpublish";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex flex-col items-center border-2 border-kfk-blue bg-card shadow-xl rounded-xl p-6 w-[313px]">
         <p className="my-6 text-center">
-          Are you sure you want to unpublish this profile?
+          Are you sure you want to {action} this profile?
         </p>
 
         {errorMessage ? (
@@ -41,7 +45,7 @@ export function ConfirmUnpublishModal({
 
           <Button
             className="px-4 py-2 rounded"
-            variant="destructive"
+            variant={isUnpublishAction ? "destructive" : "default"}
             onClick={async () => {
               try {
                 await onConfirm();
