@@ -4,7 +4,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
-import type { Child, Gift, GiftStatus } from "common";
+import type { Family, Gift, GiftStatus } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
@@ -179,26 +179,19 @@ export const getApprovedProfileTableRows = createServerFn({
     const db = getServerDB();
     const rows: Array<ApprovedProfileTableRow> = [];
 
-    // 1. Get all approved families
-    const families = await getAllApprovedFamilyProfilesForDrive({ data });
-    if (families.length === 0) {
-      return rows;
-    }
-
-    const familyIds = families.map((f) => f.id);
-
-    // 2. Batch-fetch all children for these families (Firestore `in` max 10)
-    const allChildren: Array<Child> = [];
-    for (let i = 0; i < familyIds.length; i += 10) {
-      const batch = familyIds.slice(i, i + 10);
-      const childrenQuery = await db.children
-        .where("familyId", "in", batch)
-        .get();
-      allChildren.push(...childrenQuery.docs.map((doc) => doc.data()));
-    }
-
+    // get all children for the active drive
+    const allChildren = await getAllChildProfilesForDrive({ data });
     if (allChildren.length === 0) {
       return rows;
+    }
+
+    const familyIds = [...new Set(allChildren.map((child) => child.familyId))];
+
+    const families: Array<Family> = [];
+    for (let i = 0; i < familyIds.length; i += 10) {
+      const batch = familyIds.slice(i, i + 10);
+      const familyQuery = await db.families.where("id", "in", batch).get();
+      families.push(...familyQuery.docs.map((doc) => doc.data()));
     }
 
     const childIds = allChildren.map((c) => c.id);
@@ -238,6 +231,7 @@ export const getApprovedProfileTableRows = createServerFn({
         age: child.age,
         diagnosis: child.diagnosis,
         type: child.category === "warrior" ? "warrior" : "supersib",
+        published: child.published,
         giftsFulfilled: gifts.filter((g) =>
           ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
         ).length,

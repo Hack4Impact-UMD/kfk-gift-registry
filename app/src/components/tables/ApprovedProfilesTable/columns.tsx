@@ -112,6 +112,26 @@ export const columns = [
       );
     },
   }),
+  helper.accessor("published", {
+    enableGlobalFilter: false,
+    header: ({ column }) => (
+      <ColumnSortButton column={column}>Publish Status</ColumnSortButton>
+    ),
+    cell: ({ getValue }) => {
+      const published = getValue();
+      return (
+        <span
+          className={`inline-flex min-w-24 items-center justify-center rounded-full py-1 text-sm font-semibold ${
+            published
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
+          {published ? "Published" : "Unpublished"}
+        </span>
+      );
+    },
+  }),
   helper.accessor("giftsFulfilled", {
     enableGlobalFilter: false,
     header: ({ column }) => (
