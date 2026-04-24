@@ -96,7 +96,7 @@ interface GiftInfoCardProps {
   dateDelivered?: string;
   dateReceived?: string;
   proofOfPurchaseUrl?: string;
-  onUpdate?: (giftId: string, updates: Partial<Gift>) => void;
+  onUpdate?: (giftId: string, updates: Partial<Gift>) => void | Promise<void>;
   onUpdateDetails?: (
     giftId: string,
     details: {
@@ -148,11 +148,13 @@ export function GiftInfoCard({
     setLocalFields((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = () => {
-    if (onUpdate) {
-      onUpdate(gift.id, {
-        ...editedGift,
-      });
+  const handleSave = async () => {
+    const giftUpdates = Object.fromEntries(
+      Object.entries(editedGift).filter(([, value]) => value !== undefined),
+    ) as Partial<Gift>;
+
+    if (onUpdate && Object.keys(giftUpdates).length > 0) {
+      await onUpdate(gift.id, giftUpdates);
     }
 
     if (onUpdateDetails) {
@@ -236,7 +238,9 @@ export function GiftInfoCard({
                 <Button
                   className="w-full sm:w-auto"
                   size="sm"
-                  onClick={handleSave}
+                  onClick={() => {
+                    void handleSave();
+                  }}
                 >
                   Save
                 </Button>
