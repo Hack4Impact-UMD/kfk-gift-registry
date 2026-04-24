@@ -28,7 +28,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Profile Approval</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Family Approval</h1>
       </div>
       <StatusSummaryHeader
         data={data ?? []}
