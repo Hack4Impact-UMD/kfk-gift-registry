@@ -41,7 +41,15 @@ export function SiblingPopover({ sibling }: { sibling: Child }) {
             });
           }}
         >
-          <UserIcon className="size-10 p-1 border border-card shadow-lg bg-kfk-light-grey text-muted-foreground rounded-full hover:scale-105 transition" />
+          {sibling.photoUrl ? (
+            <img
+              src={sibling.photoUrl}
+              alt={sibling.name}
+              className="size-10 rounded-full border border-card bg-kfk-light-grey object-cover shadow-lg transition hover:scale-105"
+            />
+          ) : (
+            <UserIcon className="size-10 rounded-full border border-card bg-kfk-light-grey p-1 text-muted-foreground shadow-lg transition hover:scale-105" />
+          )}
         </Button>
       </PopoverTrigger>
 

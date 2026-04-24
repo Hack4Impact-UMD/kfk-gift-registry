@@ -29,8 +29,8 @@ export function ChildSidebar({
     <div className="mx-auto flex w-full max-w-sm flex-col xl:mx-0 xl:max-w-[230px]">
       <img
         className="mb-3 w-full rounded-xl border-4 border-card shadow-xl"
-        src={currentPhotoUrl ?? DefaultPhoto}
-        alt="Profile Photo"
+        src={currentPhotoUrl || DefaultPhoto}
+        alt={`${child.name} profile photo`}
       />
       {isEditing && (
         <EditableField
