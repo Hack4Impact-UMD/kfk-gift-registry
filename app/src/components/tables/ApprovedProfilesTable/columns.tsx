@@ -58,7 +58,7 @@ export const columns = [
     },
   }),
   helper.accessor("parentGuardian", {
-    enableGlobalFilter: false,
+    enableGlobalFilter: true,
     header: ({ column }) => (
       <ColumnSortButton column={column}>Parent/Guardian</ColumnSortButton>
     ),
