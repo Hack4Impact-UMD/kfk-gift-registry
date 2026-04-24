@@ -191,7 +191,7 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
                     {/* Placeholder Link */}
                     <ClipboardIcon className="transition-colors size-6" />
                     <span className="group-data-[collapsible=icon]:hidden">
-                      Profile Approval
+                      Family Approval
                     </span>
                   </Link>
                 </SidebarMenuButtonWithHovering>
@@ -210,7 +210,7 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
                   >
                     <ClipboardCheckIcon className="transition-colors size-6" />
                     <span className="group-data-[collapsible=icon]:hidden">
-                      Approved Profiles
+                      Child Profiles
                     </span>
                   </Link>
                 </SidebarMenuButtonWithHovering>
