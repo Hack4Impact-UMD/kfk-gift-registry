@@ -117,18 +117,19 @@ export const columns = [
     header: ({ column }) => (
       <ColumnSortButton column={column}>Gift Fulfillment</ColumnSortButton>
     ),
-    cell: ({ getValue, row }) => {
+    cell: ({ getValue }) => {
       const fulfilled = getValue();
-      const total = row.original.giftsTotal;
+      // const total = row.original.giftsTotal;
       const dotColor =
         fulfilled === 0
           ? "bg-red-300"
-          : fulfilled === total
+          : fulfilled >= 3
             ? "bg-green-300"
             : "bg-yellow-300";
       return (
         <div className="flex items-center gap-2">
           <div className={`h-3 w-3 rounded-full ${dotColor}`}></div>
+          {/* not sure if we should hard code this but will look again; TODO */}
           <div>{fulfilled}/3 Gifts</div>
         </div>
       );
