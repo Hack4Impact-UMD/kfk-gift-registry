@@ -21,6 +21,7 @@ export const columns = [
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onClick={(e) => e.stopPropagation()}
       />
     ),
     enableSorting: false,
@@ -72,7 +73,9 @@ export const columns = [
       return (
         <div className="flex items-center justify-between gap-2">
           <span>{email}</span>
-          <CopyButton text={email} />
+          <div onClick={(e) => e.stopPropagation()}>
+            <CopyButton text={email} />
+          </div>
         </div>
       );
     },

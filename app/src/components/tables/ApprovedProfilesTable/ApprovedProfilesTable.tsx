@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { ExternalLink, Search, Undo2 } from "lucide-react";
 import { DataTable } from "../DataTable";
 import { columns } from "./columns";
@@ -17,6 +18,7 @@ export function ApprovedProfilesTable({
   className = "",
 }: ApprovedProfilesTableProps) {
   const [globalSearch, setGlobalSearch] = useState("");
+  const navigate = useNavigate();
 
   return (
     <div className={cn("flex flex-col gap-4 pt-6 w-full", className)}>
@@ -47,6 +49,12 @@ export function ApprovedProfilesTable({
         data={data}
         globalSearch={globalSearch}
         onGlobalSearchChange={setGlobalSearch}
+        onRowClick={(row) => {
+          navigate({
+            to: "/staff/child/$childId",
+            params: { childId: row.id },
+          });
+        }}
       />
     </div>
   );
