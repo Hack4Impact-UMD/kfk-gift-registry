@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Child } from "../../../../common/src/types/child";
 import { Button } from "../ui/button";
 import { ConfirmUnpublishModal } from "./ConfirmUnpublishModal";
+import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
 
 type ChildHeaderProps = {
   child: Child;
@@ -21,8 +22,25 @@ export function ChildHeader({
   onCancel,
 }: ChildHeaderProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const updateChildMutation = useUpdateChild();
   const currentName = editedChild.name ?? child.name;
   const currentCategory = editedChild.category ?? child.category;
+  const isPublished = child.published;
+
+  const handleConfirmOpenChange = (open: boolean) => {
+    if (!open) {
+      updateChildMutation.reset();
+    }
+    setConfirmOpen(open);
+  };
+
+  const handlePublishedChange = async (published: boolean) => {
+    updateChildMutation.reset();
+    await updateChildMutation.mutateAsync({
+      childId: child.id,
+      updates: { published },
+    });
+  };
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -56,25 +74,43 @@ export function ChildHeader({
         </Button>
         <Button
           className="w-full sm:w-auto"
-          variant="destructive"
+          disabled={updateChildMutation.isPending}
+          variant={
+            isEditing ? "destructive" : isPublished ? "destructive" : "default"
+          }
           onClick={() => {
             if (isEditing) {
               onCancel();
             } else {
-              setConfirmOpen(true);
+              if (isPublished) {
+                updateChildMutation.reset();
+                setConfirmOpen(true);
+              } else {
+                void handlePublishedChange(true).catch(() => {
+                  // Errors are handled by the mutation's error state and toast.
+                });
+              }
             }
           }}
         >
-          {isEditing ? "Cancel" : "Unpublish"}
+          {isEditing
+            ? "Cancel"
+            : updateChildMutation.isPending
+              ? isPublished
+                ? "Unpublishing..."
+                : "Publishing..."
+              : isPublished
+                ? "Unpublish"
+                : "Publish"}
         </Button>
       </div>
 
       <ConfirmUnpublishModal
         open={confirmOpen}
-        onOpenChange={setConfirmOpen}
-        onConfirm={() => {
-          // Handle unpublish logic here
-        }}
+        onOpenChange={handleConfirmOpenChange}
+        onConfirm={() => handlePublishedChange(false)}
+        isPending={updateChildMutation.isPending}
+        errorMessage={updateChildMutation.error?.message}
       />
     </div>
   );

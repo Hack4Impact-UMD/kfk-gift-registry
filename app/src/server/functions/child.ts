@@ -80,6 +80,7 @@ const updateChildSchema = z.object({
       // Constrained choices requiring dropdowns/radios, etc.
       age: z.number().min(1),
       treatmentLevel: z.number().min(0).max(3),
+      published: z.boolean(),
       diagnosisLengthYears: z.enum(["<6m", "6m-1y", "1-2y", "3-4y", "5+y"]),
       offTreatmentDurationYears: z.enum([
         "<6m",

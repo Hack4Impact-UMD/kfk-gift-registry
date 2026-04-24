@@ -20,6 +20,7 @@ export function useUpdateChild() {
         photoUrl?: string;
         age?: number;
         treatmentLevel?: number;
+        published?: boolean;
         diagnosisLengthYears?: "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
         offTreatmentDurationYears?: "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
       };
@@ -88,6 +89,10 @@ export function useUpdateChild() {
 
       queryClient.invalidateQueries({
         queryKey: queries.children.approvedProfileTableRows._def,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: queries.storefront._def,
       });
     },
   });

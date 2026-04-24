@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 type ConfirmUnpublishModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   isPending?: boolean;
   errorMessage?: string;
 };
@@ -42,9 +42,13 @@ export function ConfirmUnpublishModal({
           <Button
             className="px-4 py-2 rounded"
             variant="destructive"
-            onClick={() => {
-              onConfirm();
-              onOpenChange(false);
+            onClick={async () => {
+              try {
+                await onConfirm();
+                onOpenChange(false);
+              } catch {
+                // errors handled by parent component's mutation error state and toast
+              }
             }}
             disabled={isPending}
           >
