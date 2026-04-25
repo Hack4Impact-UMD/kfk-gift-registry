@@ -1,6 +1,7 @@
 import { getServerDB } from "@/lib/firebase.server";
 import z from "zod";
 import { createServerFn } from "@tanstack/react-start";
+import admin from "firebase-admin";
 import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
@@ -75,7 +76,7 @@ const updateChildSchema = z.object({
       childSocialWorker: z.string().trim().min(1).max(100),
       publicBlurb: z.string().trim().min(1).max(1000),
       staffPrivateNotes: z.string().trim().min(1).max(2000),
-      photoUrl: z.url(),
+      photoUrl: z.union([z.url(), z.literal("")]),
 
       // Constrained choices requiring dropdowns/radios, etc.
       age: z.number().min(1),
@@ -885,7 +886,15 @@ export const updateChild = createServerFn({ method: "POST" })
       throw new Error("Child not found");
     }
 
-    await db.children.doc(childId).update(updates);
+    const normalizedUpdates =
+      updates.photoUrl === ""
+        ? {
+            ...updates,
+            photoUrl: admin.firestore.FieldValue.delete(),
+          }
+        : updates;
+
+    await db.children.doc(childId).update(normalizedUpdates);
 
     const updatedChild = await db.children.doc(childId).get();
 

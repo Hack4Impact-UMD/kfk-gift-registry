@@ -176,6 +176,7 @@ function ChildProfilePage() {
 
         <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
           <ChildSidebar
+            key={`${child.id}-${isEditing ? "editing" : "view"}`}
             child={child}
             family={family}
             isEditing={isEditing}
