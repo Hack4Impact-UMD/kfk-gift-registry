@@ -17,14 +17,16 @@ function RouteComponent() {
   });
 
   if (!activeDriveId) {
-    return <div className="p-6">Please select a gift drive from the sidebar</div>;
+    return (
+      <div className="p-6">Please select a gift drive from the sidebar</div>
+    );
   }
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  const tableData: Array<PublishedGiftsTableRow> = gifts.map(gift => ({
+  const tableData: Array<PublishedGiftsTableRow> = gifts.map((gift) => ({
     id: gift.id,
     giftName: gift.title,
     giftStatus: gift.status,

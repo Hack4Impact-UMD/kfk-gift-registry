@@ -1,6 +1,4 @@
-import {
-  getPublishedGifts
-} from "@/server/functions/gifts";
+import { getPublishedGifts } from "@/server/functions/gifts";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
 export const publishedGiftsQueries = createQueryKeys("publishedGifts", {
