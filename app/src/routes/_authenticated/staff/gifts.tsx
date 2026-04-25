@@ -12,7 +12,8 @@ function RouteComponent() {
   const { activeDriveId } = useDrive();
   const { data: tableRows = [], isLoading } = useQuery({
     queryKey: ["publishedGifts", "tableRowsByDrive", activeDriveId ?? ""],
-    queryFn: () => getPublishedGiftsTableRows({ data: { driveId: activeDriveId! } }),
+    queryFn: () =>
+      getPublishedGiftsTableRows({ data: { driveId: activeDriveId! } }),
     enabled: !!activeDriveId,
   });
 
