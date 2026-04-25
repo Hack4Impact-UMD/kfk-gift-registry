@@ -10,8 +10,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { UserIcon } from "@/components/icons";
 import DefaultPhoto from "@/assets/default-profile-photo.png";
+import { cn } from "@/lib/utils";
 
-export function SiblingPopover({ sibling }: { sibling: Child }) {
+type SiblingPopoverProps = {
+  sibling: Child;
+  disabled?: boolean;
+};
+
+export function SiblingPopover({
+  sibling,
+  disabled = false,
+}: SiblingPopoverProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -26,14 +35,39 @@ export function SiblingPopover({ sibling }: { sibling: Child }) {
   const isComplete = totalGifts > 0 && receivedGifts === totalGifts;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={disabled ? false : open}
+      onOpenChange={(nextOpen) => {
+        if (!disabled) {
+          setOpen(nextOpen);
+        }
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          className="p-0 -ml-2 -mr-6 border-transparent hover:bg-transparent data-[state=open]:bg-transparent"
-          onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
+          disabled={disabled}
+          title={
+            disabled
+              ? "Save or cancel changes before switching profiles"
+              : undefined
+          }
+          className={cn(
+            "p-0 -ml-2 -mr-6 border-transparent hover:bg-transparent data-[state=open]:bg-transparent",
+            disabled && "cursor-not-allowed opacity-60",
+          )}
+          onMouseEnter={() => {
+            if (!disabled) {
+              setOpen(true);
+            }
+          }}
+          onMouseLeave={() => {
+            if (!disabled) {
+              setOpen(false);
+            }
+          }}
           onClick={() => {
+            if (disabled) return;
             setOpen(false);
             navigate({
               to: "/staff/child/$childId",
@@ -45,10 +79,18 @@ export function SiblingPopover({ sibling }: { sibling: Child }) {
             <img
               src={sibling.photoUrl}
               alt={sibling.name}
-              className="size-10 rounded-full border border-card bg-kfk-light-grey object-cover shadow-lg transition hover:scale-105"
+              className={cn(
+                "size-10 rounded-full border border-card bg-kfk-light-grey object-cover shadow-lg transition hover:scale-105",
+                disabled && "hover:scale-100",
+              )}
             />
           ) : (
-            <UserIcon className="size-10 rounded-full border border-card bg-kfk-light-grey p-1 text-muted-foreground shadow-lg transition hover:scale-105" />
+            <UserIcon
+              className={cn(
+                "size-10 rounded-full border border-card bg-kfk-light-grey p-1 text-muted-foreground shadow-lg transition hover:scale-105",
+                disabled && "hover:scale-100",
+              )}
+            />
           )}
         </Button>
       </PopoverTrigger>

@@ -163,7 +163,11 @@ export function ChildSidebar({
         </p>
         <div className="flex min-h-12 flex-wrap gap-1.5 rounded-full border border-border/70 bg-card px-2 py-1 shadow-sm">
           {siblings.map((sibling) => (
-            <SiblingPopover key={sibling.id} sibling={sibling} />
+            <SiblingPopover
+              key={sibling.id}
+              sibling={sibling}
+              disabled={isEditing}
+            />
           ))}
         </div>
       </div>
