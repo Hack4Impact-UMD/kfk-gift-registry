@@ -28,10 +28,10 @@ import { Route as FamilyDriveDriveIdRouteImport } from './routes/family/drive/$d
 import { Route as FamilyTokenHomeRouteImport } from './routes/family/$token/home'
 import { Route as StorefrontChildChildIdRouteImport } from './routes/_storefront/child/$childId'
 import { Route as AuthenticatedStaffProfileRouteImport } from './routes/_authenticated/staff/profile'
-import { Route as AuthenticatedStaffPendingRouteImport } from './routes/_authenticated/staff/pending'
 import { Route as AuthenticatedStaffHomeRouteImport } from './routes/_authenticated/staff/home'
 import { Route as AuthenticatedStaffGiftsRouteImport } from './routes/_authenticated/staff/gifts'
-import { Route as AuthenticatedStaffApprovedRouteImport } from './routes/_authenticated/staff/approved'
+import { Route as AuthenticatedStaffFamilyApprovalRouteImport } from './routes/_authenticated/staff/family-approval'
+import { Route as AuthenticatedStaffChildProfileRouteImport } from './routes/_authenticated/staff/child-profile'
 import { Route as AuthenticatedDonorNotificationsRouteImport } from './routes/_authenticated/donor/notifications'
 import { Route as AuthenticatedDonorHomeRouteImport } from './routes/_authenticated/donor/home'
 import { Route as AuthenticatedStaffVolunteerRouteRouteImport } from './routes/_authenticated/staff/volunteer/route'
@@ -142,12 +142,6 @@ const AuthenticatedStaffProfileRoute =
     path: '/profile',
     getParentRoute: () => AuthenticatedStaffRouteRoute,
   } as any)
-const AuthenticatedStaffPendingRoute =
-  AuthenticatedStaffPendingRouteImport.update({
-    id: '/pending',
-    path: '/pending',
-    getParentRoute: () => AuthenticatedStaffRouteRoute,
-  } as any)
 const AuthenticatedStaffHomeRoute = AuthenticatedStaffHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -158,10 +152,16 @@ const AuthenticatedStaffGiftsRoute = AuthenticatedStaffGiftsRouteImport.update({
   path: '/gifts',
   getParentRoute: () => AuthenticatedStaffRouteRoute,
 } as any)
-const AuthenticatedStaffApprovedRoute =
-  AuthenticatedStaffApprovedRouteImport.update({
-    id: '/approved',
-    path: '/approved',
+const AuthenticatedStaffFamilyApprovalRoute =
+  AuthenticatedStaffFamilyApprovalRouteImport.update({
+    id: '/family-approval',
+    path: '/family-approval',
+    getParentRoute: () => AuthenticatedStaffRouteRoute,
+  } as any)
+const AuthenticatedStaffChildProfileRoute =
+  AuthenticatedStaffChildProfileRouteImport.update({
+    id: '/child-profile',
+    path: '/child-profile',
     getParentRoute: () => AuthenticatedStaffRouteRoute,
   } as any)
 const AuthenticatedDonorNotificationsRoute =
@@ -268,10 +268,10 @@ export interface FileRoutesByFullPath {
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/donor/home': typeof AuthenticatedDonorHomeRoute
   '/donor/notifications': typeof AuthenticatedDonorNotificationsRoute
-  '/staff/approved': typeof AuthenticatedStaffApprovedRoute
+  '/staff/child-profile': typeof AuthenticatedStaffChildProfileRoute
+  '/staff/family-approval': typeof AuthenticatedStaffFamilyApprovalRoute
   '/staff/gifts': typeof AuthenticatedStaffGiftsRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
-  '/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/staff/profile': typeof AuthenticatedStaffProfileRoute
   '/child/$childId': typeof StorefrontChildChildIdRoute
   '/family/$token/home': typeof FamilyTokenHomeRoute
@@ -305,10 +305,10 @@ export interface FileRoutesByTo {
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/donor/home': typeof AuthenticatedDonorHomeRoute
   '/donor/notifications': typeof AuthenticatedDonorNotificationsRoute
-  '/staff/approved': typeof AuthenticatedStaffApprovedRoute
+  '/staff/child-profile': typeof AuthenticatedStaffChildProfileRoute
+  '/staff/family-approval': typeof AuthenticatedStaffFamilyApprovalRoute
   '/staff/gifts': typeof AuthenticatedStaffGiftsRoute
   '/staff/home': typeof AuthenticatedStaffHomeRoute
-  '/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/staff/profile': typeof AuthenticatedStaffProfileRoute
   '/child/$childId': typeof StorefrontChildChildIdRoute
   '/family/$token/home': typeof FamilyTokenHomeRoute
@@ -346,10 +346,10 @@ export interface FileRoutesById {
   '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
   '/_authenticated/donor/home': typeof AuthenticatedDonorHomeRoute
   '/_authenticated/donor/notifications': typeof AuthenticatedDonorNotificationsRoute
-  '/_authenticated/staff/approved': typeof AuthenticatedStaffApprovedRoute
+  '/_authenticated/staff/child-profile': typeof AuthenticatedStaffChildProfileRoute
+  '/_authenticated/staff/family-approval': typeof AuthenticatedStaffFamilyApprovalRoute
   '/_authenticated/staff/gifts': typeof AuthenticatedStaffGiftsRoute
   '/_authenticated/staff/home': typeof AuthenticatedStaffHomeRoute
-  '/_authenticated/staff/pending': typeof AuthenticatedStaffPendingRoute
   '/_authenticated/staff/profile': typeof AuthenticatedStaffProfileRoute
   '/_storefront/child/$childId': typeof StorefrontChildChildIdRoute
   '/family/$token/home': typeof FamilyTokenHomeRoute
@@ -386,10 +386,10 @@ export interface FileRouteTypes {
     | '/staff/volunteer'
     | '/donor/home'
     | '/donor/notifications'
-    | '/staff/approved'
+    | '/staff/child-profile'
+    | '/staff/family-approval'
     | '/staff/gifts'
     | '/staff/home'
-    | '/staff/pending'
     | '/staff/profile'
     | '/child/$childId'
     | '/family/$token/home'
@@ -423,10 +423,10 @@ export interface FileRouteTypes {
     | '/staff/volunteer'
     | '/donor/home'
     | '/donor/notifications'
-    | '/staff/approved'
+    | '/staff/child-profile'
+    | '/staff/family-approval'
     | '/staff/gifts'
     | '/staff/home'
-    | '/staff/pending'
     | '/staff/profile'
     | '/child/$childId'
     | '/family/$token/home'
@@ -463,10 +463,10 @@ export interface FileRouteTypes {
     | '/_authenticated/staff/volunteer'
     | '/_authenticated/donor/home'
     | '/_authenticated/donor/notifications'
-    | '/_authenticated/staff/approved'
+    | '/_authenticated/staff/child-profile'
+    | '/_authenticated/staff/family-approval'
     | '/_authenticated/staff/gifts'
     | '/_authenticated/staff/home'
-    | '/_authenticated/staff/pending'
     | '/_authenticated/staff/profile'
     | '/_storefront/child/$childId'
     | '/family/$token/home'
@@ -635,13 +635,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffProfileRouteImport
       parentRoute: typeof AuthenticatedStaffRouteRoute
     }
-    '/_authenticated/staff/pending': {
-      id: '/_authenticated/staff/pending'
-      path: '/pending'
-      fullPath: '/staff/pending'
-      preLoaderRoute: typeof AuthenticatedStaffPendingRouteImport
-      parentRoute: typeof AuthenticatedStaffRouteRoute
-    }
     '/_authenticated/staff/home': {
       id: '/_authenticated/staff/home'
       path: '/home'
@@ -656,11 +649,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffGiftsRouteImport
       parentRoute: typeof AuthenticatedStaffRouteRoute
     }
-    '/_authenticated/staff/approved': {
-      id: '/_authenticated/staff/approved'
-      path: '/approved'
-      fullPath: '/staff/approved'
-      preLoaderRoute: typeof AuthenticatedStaffApprovedRouteImport
+    '/_authenticated/staff/family-approval': {
+      id: '/_authenticated/staff/family-approval'
+      path: '/family-approval'
+      fullPath: '/staff/family-approval'
+      preLoaderRoute: typeof AuthenticatedStaffFamilyApprovalRouteImport
+      parentRoute: typeof AuthenticatedStaffRouteRoute
+    }
+    '/_authenticated/staff/child-profile': {
+      id: '/_authenticated/staff/child-profile'
+      path: '/child-profile'
+      fullPath: '/staff/child-profile'
+      preLoaderRoute: typeof AuthenticatedStaffChildProfileRouteImport
       parentRoute: typeof AuthenticatedStaffRouteRoute
     }
     '/_authenticated/donor/notifications': {
@@ -820,10 +820,10 @@ const AuthenticatedStaffAdminRouteRouteWithChildren =
 interface AuthenticatedStaffRouteRouteChildren {
   AuthenticatedStaffAdminRouteRoute: typeof AuthenticatedStaffAdminRouteRouteWithChildren
   AuthenticatedStaffVolunteerRouteRoute: typeof AuthenticatedStaffVolunteerRouteRoute
-  AuthenticatedStaffApprovedRoute: typeof AuthenticatedStaffApprovedRoute
+  AuthenticatedStaffChildProfileRoute: typeof AuthenticatedStaffChildProfileRoute
+  AuthenticatedStaffFamilyApprovalRoute: typeof AuthenticatedStaffFamilyApprovalRoute
   AuthenticatedStaffGiftsRoute: typeof AuthenticatedStaffGiftsRoute
   AuthenticatedStaffHomeRoute: typeof AuthenticatedStaffHomeRoute
-  AuthenticatedStaffPendingRoute: typeof AuthenticatedStaffPendingRoute
   AuthenticatedStaffProfileRoute: typeof AuthenticatedStaffProfileRoute
   AuthenticatedStaffChildChildIdRoute: typeof AuthenticatedStaffChildChildIdRoute
   AuthenticatedStaffReviewFamilyIdRoute: typeof AuthenticatedStaffReviewFamilyIdRoute
@@ -835,10 +835,11 @@ const AuthenticatedStaffRouteRouteChildren: AuthenticatedStaffRouteRouteChildren
       AuthenticatedStaffAdminRouteRouteWithChildren,
     AuthenticatedStaffVolunteerRouteRoute:
       AuthenticatedStaffVolunteerRouteRoute,
-    AuthenticatedStaffApprovedRoute: AuthenticatedStaffApprovedRoute,
+    AuthenticatedStaffChildProfileRoute: AuthenticatedStaffChildProfileRoute,
+    AuthenticatedStaffFamilyApprovalRoute:
+      AuthenticatedStaffFamilyApprovalRoute,
     AuthenticatedStaffGiftsRoute: AuthenticatedStaffGiftsRoute,
     AuthenticatedStaffHomeRoute: AuthenticatedStaffHomeRoute,
-    AuthenticatedStaffPendingRoute: AuthenticatedStaffPendingRoute,
     AuthenticatedStaffProfileRoute: AuthenticatedStaffProfileRoute,
     AuthenticatedStaffChildChildIdRoute: AuthenticatedStaffChildChildIdRoute,
     AuthenticatedStaffReviewFamilyIdRoute:

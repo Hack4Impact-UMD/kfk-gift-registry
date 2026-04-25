@@ -7,7 +7,7 @@ import { useState } from "react";
 import { StatusSummaryHeader } from "@/components/tables/ApprovedProfilesTable/StatusSummaryHeader";
 import type { ChildProfileVisibility } from "@/components/tables/ApprovedProfilesTable/types";
 
-export const Route = createFileRoute("/_authenticated/staff/approved")({
+export const Route = createFileRoute("/_authenticated/staff/child-profile")({
   component: RouteComponent,
 });
 

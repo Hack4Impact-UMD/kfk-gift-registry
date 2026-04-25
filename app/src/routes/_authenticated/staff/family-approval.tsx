@@ -6,7 +6,7 @@ import type { ApplicationStatus } from "@/components/tables/PendingProfilesTable
 import { usePendingProfileTableRows } from "@/hooks/queries/usePendingProfileTableRows";
 import { useDrive } from "@/context/DriveContext";
 
-export const Route = createFileRoute("/_authenticated/staff/pending")({
+export const Route = createFileRoute("/_authenticated/staff/family-approval")({
   component: RouteComponent,
 });
 
