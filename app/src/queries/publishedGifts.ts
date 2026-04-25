@@ -1,9 +1,16 @@
-import { getPublishedGifts } from "@/server/functions/gifts";
+import {
+  getPublishedGifts,
+  getPublishedGiftsTableRows,
+} from "@/server/functions/gifts";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
 export const publishedGiftsQueries = createQueryKeys("publishedGifts", {
   byDrive: (driveId: string) => ({
     queryKey: ["byDrive", driveId],
     queryFn: () => getPublishedGifts({ data: { driveId } }),
-  }), // next query call will be for getPublishedGiftsTableRows
+  }),
+  tableRowsByDrive: (driveId: string) => ({
+    queryKey: ["tableRowsByDrive", driveId],
+    queryFn: () => getPublishedGiftsTableRows({ data: { driveId } }),
+  }),
 });
