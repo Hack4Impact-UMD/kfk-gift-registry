@@ -10,10 +10,19 @@ const driveIdSchema = z.object({ // param for both functions
 });
 
 export const getPublishedGifts = createServerFn({ method: "GET" })
-    .middleware([requireRolesMiddleware([UserRole.DIRECTOR || UserRole.ADMIN])]) // no specific "staff" role so I'm reffering it to either be director or admin
+    .middleware([requireRolesMiddleware([UserRole.DIRECTOR, UserRole.ADMIN])]) // no specific "staff" role so I'm reffering it to either be director or admin
     .inputValidator(driveIdSchema)
     .handler(async ({ data }) => {
         const db  = getServerDB();
+        const { driveId } = data;
+
+        const gifts = await db.gifts.where("driveId", "==", driveId).get();
+        const thisDrivesChildren = await db.children.where("giftDrive", "==", "driveId").where("published", "==", true).get();
+        
+        const childrensIds = new Set(thisDrivesChildren.docs.map(doc => doc.id));
+        const publishedGifts = gifts.docs.map(doc => doc.id).filter(eachGiftId => childrensIds.has(eachGiftId));
+
+        return publishedGifts;
     })
 
 export const getPublishedGiftsTableRows = createServerFn({ method: "GET" });
