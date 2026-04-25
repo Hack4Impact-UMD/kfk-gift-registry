@@ -13,14 +13,14 @@ export const getPublishedGifts = createServerFn({ method: "GET" })
     .middleware([requireRolesMiddleware([UserRole.DIRECTOR, UserRole.ADMIN])]) // no specific "staff" role so I'm reffering it to either be director or admin
     .inputValidator(driveIdSchema)
     .handler(async ({ data }) => {
-        const db  = getServerDB();
+        const db = getServerDB();
         const { driveId } = data;
 
-        const gifts = await db.gifts.where("driveId", "==", driveId).get();
-        const thisDrivesChildren = await db.children.where("giftDrive", "==", "driveId").where("published", "==", true).get();
+        const gifts = await db.gifts.where("giftDrive", "==", driveId).get();
+        const thisDrivesChildren = await db.children.where("giftDrive", "==", driveId).where("published", "==", true).get();
         
         const childrensIds = new Set(thisDrivesChildren.docs.map(doc => doc.id));
-        const publishedGifts = gifts.docs.map(doc => doc.id).filter(eachGiftId => childrensIds.has(eachGiftId));
+        const publishedGifts = gifts.docs.map(doc => doc.data()).filter(gift => childrensIds.has(gift.childId));
 
         return publishedGifts;
     })
