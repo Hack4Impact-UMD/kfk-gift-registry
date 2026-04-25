@@ -169,53 +169,57 @@ function ChildProfilePage() {
 
   return (
     <div className="px-4 pb-8 sm:px-6 lg:px-8">
-      <h1 className="my-4 text-3xl font-bold sm:text-4xl">Child Profile</h1>
+      <div className="rounded-[28px] border border-border/70 bg-card/95 p-4 shadow-sm sm:p-6">
+        <h1 className="mb-5 text-3xl font-semibold tracking-tight sm:text-4xl">
+          Child Profile
+        </h1>
 
-      <div className="flex flex-col gap-8 xl:flex-row xl:items-start">
-        <ChildSidebar
-          child={child}
-          family={family}
-          isEditing={isEditing}
-          editedChild={editedChild}
-          setEditedChild={setEditedChild}
-        />
-
-        <div className="flex min-w-0 flex-1 flex-col">
-          <ChildHeader
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
+          <ChildSidebar
             child={child}
-            editedChild={editedChild}
+            family={family}
             isEditing={isEditing}
-            onStartEditing={handleStartEditing}
-            onSave={handleSaveAll}
-            onCancel={handleCancel}
+            editedChild={editedChild}
+            setEditedChild={setEditedChild}
           />
 
-          <div className="w-full h-1 rounded-full my-4 bg-muted"></div>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <ChildHeader
+              child={child}
+              editedChild={editedChild}
+              isEditing={isEditing}
+              onStartEditing={handleStartEditing}
+              onSave={handleSaveAll}
+              onCancel={handleCancel}
+            />
 
-          <div className="grid w-full gap-8 2xl:grid-cols-[minmax(0,600px)_minmax(0,1fr)]">
-            <div className="w-full 2xl:max-w-[600px]">
-              <ChildInfo
-                child={child}
-                family={family}
+            <div className="my-5 h-px w-full bg-border/70" />
+
+            <div className="grid w-full gap-6 2xl:grid-cols-[minmax(0,600px)_minmax(0,1fr)]">
+              <div className="w-full 2xl:max-w-[600px]">
+                <ChildInfo
+                  child={child}
+                  family={family}
+                  isEditing={isEditing}
+                  editedChild={editedChild}
+                  setEditedChild={setEditedChild}
+                  editedFamily={editedFamily}
+                  setEditedFamily={setEditedFamily}
+                />
+              </div>
+              <SelectedGifts
+                gifts={gifts}
                 isEditing={isEditing}
-                editedChild={editedChild}
-                setEditedChild={setEditedChild}
-                editedFamily={editedFamily}
-                setEditedFamily={setEditedFamily}
+                editedGifts={editedGifts}
+                setEditedGifts={setEditedGifts}
               />
             </div>
-            <SelectedGifts
-              gifts={gifts}
-              isEditing={isEditing}
-              editedGifts={editedGifts}
-              setEditedGifts={setEditedGifts}
-            />
           </div>
         </div>
       </div>
 
       {/* ── Gift Information Section ── */}
-      <div className="w-full h-1 rounded-full my-6 bg-muted"></div>
+      <div className="my-6 h-px w-full bg-border/70" />
       <GiftInfoSection
         gifts={gifts}
         parentComments={family.privateNotes}

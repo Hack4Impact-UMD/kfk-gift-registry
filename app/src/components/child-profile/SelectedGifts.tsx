@@ -43,12 +43,12 @@ export function SelectedGifts({
   };
 
   return (
-    <div className="min-w-0 space-y-4">
-      <h2 className="font-semibold text-2xl">
+    <div className="min-w-0 space-y-3">
+      <h2 className="text-xl font-semibold tracking-tight">
         Storefront Selected Gifts (3 Max)
       </h2>
 
-      <div className="w-full divide-y divide-muted rounded-lg border py-4 shadow-md divide-y-2">
+      <div className="w-full divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
         {visibleGifts.map((gift, i) => {
           const isActive = gift.active;
 
@@ -56,12 +56,12 @@ export function SelectedGifts({
             ? activeGifts.indexOf(gift) + 1
             : inactiveGifts.indexOf(gift) + 1;
 
-          const label = isActive ? `Gift #${index}` : `Backup Gift #${index}`;
+          const label = isActive ? `Gift ${index}` : `Backup Gift ${index}`;
 
           return (
             <div
               key={gift.id ?? i}
-              className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex min-w-0 items-start gap-3">
                 {isEditing && (
@@ -75,12 +75,12 @@ export function SelectedGifts({
                 )}
 
                 <div className="min-w-0">
-                  <p className="font-medium break-words">{label}</p>
+                  <p className="break-words text-sm font-semibold">{label}</p>
                   <a
                     href={gift.productUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-kfk-blue underline break-words"
+                    className="break-words text-sm text-kfk-blue underline-offset-2 hover:underline"
                   >
                     {gift.title}
                   </a>
@@ -91,8 +91,8 @@ export function SelectedGifts({
                 <span
                   className={
                     gift.status === "RECEIVED"
-                      ? "self-start shrink-0 rounded-full border bg-kfk-muted-green/40 px-6 py-1 text-kfk-green"
-                      : "self-start shrink-0 rounded-full border bg-kfk-muted-red/40 px-4 py-1 text-kfk-red"
+                      ? "self-start shrink-0 rounded-full border border-transparent bg-kfk-muted-green/40 px-5 py-1 text-xs font-medium text-kfk-green"
+                      : "self-start shrink-0 rounded-full border border-transparent bg-kfk-muted-red/40 px-4 py-1 text-xs font-medium text-kfk-red"
                   }
                 >
                   {gift.status === "RECEIVED" ? "Received" : "Not Received"}

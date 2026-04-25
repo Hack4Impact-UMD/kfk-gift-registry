@@ -64,13 +64,15 @@ export function ChildInfo({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-4">
-        <h2 className="font-semibold text-2xl">Child Information</h2>
-        <div className="w-full space-y-4 rounded-lg border p-4 shadow-md">
-          <div className="grid gap-4 sm:grid-cols-2">
+    <div className="space-y-5">
+      <div className="flex flex-col gap-3">
+        <h2 className="text-xl font-semibold tracking-tight">
+          Child Information
+        </h2>
+        <div className="w-full space-y-4 rounded-2xl border border-border/70 bg-card px-5 py-4 shadow-sm">
+          <div className="grid gap-4 text-sm sm:grid-cols-2">
             <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-              <span className="font-bold">Age:</span>
+              <span className="font-semibold">Age:</span>
               <EditableField
                 value={editedChild.age ?? child.age}
                 editable={isEditing}
@@ -80,7 +82,7 @@ export function ChildInfo({
               />
             </div>
             <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-              <span className="font-bold">Level:</span>
+              <span className="font-semibold">Level:</span>
               <EditableField
                 value={editedChild.treatmentLevel ?? child.treatmentLevel}
                 editable={isEditing}
@@ -91,7 +93,7 @@ export function ChildInfo({
             </div>
           </div>
           <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-            <span className="font-bold">Diagnosis:</span>
+            <span className="font-semibold">Diagnosis:</span>
             <EditableField
               value={editedChild.diagnosis ?? child.diagnosis}
               editable={isEditing}
@@ -101,7 +103,7 @@ export function ChildInfo({
             />
           </div>
           <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-            <span className="font-bold shrink-0">Social Worker Name:</span>
+            <span className="shrink-0 font-semibold">Social Worker Name:</span>
             <EditableField
               value={editedChild.childSocialWorker ?? child.childSocialWorker}
               editable={isEditing}
@@ -111,7 +113,7 @@ export function ChildInfo({
             />
           </div>
           <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-            <span className="font-bold">Hospital:</span>
+            <span className="font-semibold">Hospital:</span>
             <EditableField
               value={editedChild.hospital ?? child.hospital}
               editable={isEditing}
@@ -122,11 +124,13 @@ export function ChildInfo({
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-4">
-        <h2 className="font-semibold text-2xl">Guardian Information</h2>
-        <div className="w-full space-y-4 rounded-lg border p-4 shadow-md">
+      <div className="flex flex-col gap-3">
+        <h2 className="text-xl font-semibold tracking-tight">
+          Guardian Contact Information
+        </h2>
+        <div className="w-full space-y-4 rounded-2xl border border-border/70 bg-card px-5 py-4 shadow-sm">
           <div className="flex min-w-0 gap-2 items-start sm:items-center">
-            <EnvelopeIcon className="size-6 shrink-0" />
+            <EnvelopeIcon className="size-5 shrink-0 text-muted-foreground" />
             <EditableField
               value={editedFamily.email ?? family.email}
               editable={isEditing}
@@ -137,7 +141,7 @@ export function ChildInfo({
             />
           </div>
           <div className="flex min-w-0 gap-2 items-start sm:items-center">
-            <PhoneIcon className="size-6 shrink-0" />
+            <PhoneIcon className="size-5 shrink-0 text-muted-foreground" />
             <EditableField
               value={editedFamily.phone ?? family.phone}
               editable={isEditing}
@@ -148,14 +152,14 @@ export function ChildInfo({
             />
           </div>
           <div className="flex min-w-0 gap-2 items-start">
-            <HomeIcon className="mt-1 size-6 shrink-0" />
+            <HomeIcon className="mt-1 size-5 shrink-0 text-muted-foreground" />
 
             {!isEditing ? (
               <p className="min-w-0 py-1 break-words">
                 {formatAddress(editedFamily.address ?? family.address)}
               </p>
             ) : (
-              <div className="flex flex-col gap-2 w-full">
+              <div className="flex w-full flex-col gap-2">
                 <EditableField
                   value={(editedFamily.address ?? family.address).street}
                   editable={true}
@@ -176,7 +180,7 @@ export function ChildInfo({
                   }
                 />
 
-                <div className="flex gap-2">
+                <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_96px_112px]">
                   <EditableField
                     value={(editedFamily.address ?? family.address).city}
                     editable={true}

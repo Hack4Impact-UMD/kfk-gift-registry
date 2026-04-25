@@ -26,35 +26,41 @@ export function ChildSidebar({
   const currentBlurb = editedChild.publicBlurb ?? child.publicBlurb ?? "";
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-col xl:mx-0 xl:max-w-[230px]">
-      <img
-        className="mb-3 w-full rounded-xl border-4 border-card shadow-xl"
-        src={currentPhotoUrl || DefaultPhoto}
-        alt={`${child.name} profile photo`}
-      />
+    <div className="mx-auto flex w-full max-w-sm flex-col gap-4 xl:mx-0 xl:max-w-[230px]">
+      <div className="overflow-hidden rounded-[20px] border border-border/70 bg-muted/40 p-1 shadow-sm">
+        <img
+          className="aspect-[4/5] w-full rounded-[16px] bg-kfk-light-grey object-cover"
+          src={currentPhotoUrl || DefaultPhoto}
+          alt={`${child.name} profile photo`}
+        />
+      </div>
       {isEditing && (
         <EditableField
           value={currentPhotoUrl ?? ""}
           editable
           placeholder="Photo URL"
-          className="mb-3 text-xs"
+          className="rounded-xl border border-dashed border-border/70 bg-muted/20 p-2 text-xs"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setEditedChild((prev) => ({ ...prev, photoUrl: e.target.value }))
           }
         />
       )}
-      <p className="text-xs text-muted-foreground mb-2">Sibling profiles:</p>
-      <div className="flex flex-wrap gap-2">
-        {siblings.map((sibling) => (
-          <SiblingPopover key={sibling.id} sibling={sibling} />
-        ))}
+      <div className="space-y-2">
+        <p className="text-xs font-bold uppercase text-muted-foreground text pl-1">
+          Sibling Profiles:
+        </p>
+        <div className="flex min-h-12 flex-wrap gap-1.5 rounded-full border border-border/70 bg-card px-2 py-1 shadow-sm">
+          {siblings.map((sibling) => (
+            <SiblingPopover key={sibling.id} sibling={sibling} />
+          ))}
+        </div>
       </div>
-      <div className="mt-6 w-full space-y-2 rounded-lg border p-4 shadow-md">
-        <p className="font-bold">Personal Blurb:</p>
+      <div className="w-full space-y-2 rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+        <p className="text-sm font-semibold">Personal Blurb:</p>
         <EditableField
           value={currentBlurb}
           editable={isEditing}
-          className="min-h-[50px]"
+          className="min-h-[112px] border-border/70 bg-background/80 text-sm leading-6"
           fieldType="textarea"
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
             setEditedChild((prev) => ({ ...prev, publicBlurb: e.target.value }))

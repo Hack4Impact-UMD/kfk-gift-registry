@@ -45,24 +45,25 @@ export function ChildHeader({
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
-        <h1 className="break-words text-2xl font-medium sm:text-3xl">
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+        <h1 className="break-words text-[2rem] font-medium leading-none tracking-tight">
           {currentName}
         </h1>
         <div
           className={
             currentCategory === "warrior"
-              ? "self-start rounded-full border border-kfk-brown bg-kfk-yellow/30 px-4 py-1 text-center text-kfk-brown"
-              : "self-start rounded-full border border-kfk-blue bg-kfk-light-blue/30 px-4 py-1 text-center text-kfk-blue"
+              ? "self-start rounded-full border border-kfk-brown bg-kfk-yellow/25 px-3 py-1 text-center text-xs font-medium text-kfk-brown"
+              : "self-start rounded-full border border-kfk-blue bg-kfk-light-blue/25 px-3 py-1 text-center text-xs font-medium text-kfk-blue"
           }
         >
           {currentCategory === "warrior" ? "Warrior" : "Super Sib"}
         </div>
       </div>
 
-      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+      <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
         <Button
-          className="w-full sm:w-auto"
+          size="sm"
+          className="min-w-20 px-4"
           onClick={() => {
             if (isEditing) {
               onSave();
@@ -74,7 +75,8 @@ export function ChildHeader({
           {isEditing ? "Save" : "Edit"}
         </Button>
         <Button
-          className="w-full sm:w-auto"
+          size="sm"
+          className="min-w-24 px-4"
           disabled={updateChildMutation.isPending}
           variant={
             isEditing ? "destructive" : isPublished ? "destructive" : "default"
