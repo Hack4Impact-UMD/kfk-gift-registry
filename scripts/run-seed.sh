@@ -70,7 +70,7 @@ done
 
 echo "Generating seed data..."
 
-seed_command=(pnpm exec tsx scripts/seed.ts)
+seed_command=(pnpm --silent exec tsx scripts/seed.ts)
 if ((${#SEED_ARGS[@]})); then
   seed_command+=("${SEED_ARGS[@]}")
 fi
