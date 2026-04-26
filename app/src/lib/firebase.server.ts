@@ -51,9 +51,7 @@ let auth: admin.auth.Auth | null = null;
 let db: Database | null = null;
 
 if (!admin.apps.length || admin.apps.length === 0) {
-  admin.initializeApp({
-    projectId: process.env.GOOGLE_CLOUD_PROJECT ?? "kfk-gift-registry",
-  });
+  admin.initializeApp();
   admin.firestore().settings({
     ignoreUndefinedProperties: true,
   });
