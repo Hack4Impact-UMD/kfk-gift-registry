@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PublishedGiftsTable } from "@/components/tables/PublishedGiftsTable";
 import { useDrive } from "@/context/DriveContext";
 import { useQuery } from "@tanstack/react-query";
-import { getPublishedGiftsTableRows } from "@/server/functions/gifts";
+import publishedGiftsQueries from "@/queries/publishedGifts";
 
 export const Route = createFileRoute("/_authenticated/staff/gifts")({
   component: RouteComponent,
@@ -10,10 +10,11 @@ export const Route = createFileRoute("/_authenticated/staff/gifts")({
 
 function RouteComponent() {
   const { activeDriveId } = useDrive();
+  const tableRowsByDriveQuery = publishedGiftsQueries.tableRowsByDrive(
+    activeDriveId ?? undefined,
+  );
   const { data: tableRows = [], isLoading } = useQuery({
-    queryKey: ["publishedGifts", "tableRowsByDrive", activeDriveId ?? ""],
-    queryFn: () =>
-      getPublishedGiftsTableRows({ data: { driveId: activeDriveId! } }),
+    ...tableRowsByDriveQuery,
     enabled: !!activeDriveId,
   });
 
