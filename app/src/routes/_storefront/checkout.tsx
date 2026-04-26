@@ -8,6 +8,7 @@ import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup.tsx
 import { useMemo, useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { cartCollection } from "@/local/cartCollection";
+import { CheckoutAuthModal } from "@/components/storefront/CheckoutAuthModal";
 
 export const Route = createFileRoute("/_storefront/checkout")({
   component: CheckoutComponent,
@@ -104,6 +105,7 @@ function CheckoutComponent() {
           }}
         />
       </div>
+      <CheckoutAuthModal></CheckoutAuthModal>
     </div>
   );
 }
