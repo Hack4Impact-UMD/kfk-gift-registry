@@ -5,10 +5,11 @@ import {
   useLocalCartData,
 } from "@/hooks/queries/useCartGifts";
 import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup.tsx";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { cartCollection } from "@/local/cartCollection";
 import { CheckoutAuthModal } from "@/components/storefront/CheckoutAuthModal";
+import { useCheckoutFlow } from "@/hooks/useCheckoutFlow";
 
 export const Route = createFileRoute("/_storefront/checkout")({
   component: CheckoutComponent,
@@ -22,7 +23,7 @@ function CheckoutComponent() {
     isPending,
     isError,
   } = useGroupedCartGifts(localCart ?? []);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const flow = useCheckoutFlow();
 
   const handleRemoveGift = (giftId: string) => {
     cartCollection.delete(giftId);
@@ -49,10 +50,6 @@ function CheckoutComponent() {
       ),
     [familyGroups],
   );
-
-  const handleConfirmGifts = () => {
-    setIsModalOpen(true);
-  };
 
   if (isPending) {
     return (
@@ -92,20 +89,19 @@ function CheckoutComponent() {
               gifts={Object.values(cartData).flatMap((g) => g.gifts)}
               totalGifts={totalGifts}
               totalPrice={totalPrice}
-              onConfirm={handleConfirmGifts}
+              onConfirm={flow.start}
             />
           </div>
         </div>
 
         <ConfirmGiftsModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onConfirm={() => {
-            setIsModalOpen(false);
-          }}
+          isOpen={flow.confirmModalOpen}
+          onClose={flow.closeAll}
+          onConfirm={flow.confirmClaim}
+          isLoading={flow.isPending}
         />
       </div>
-      <CheckoutAuthModal></CheckoutAuthModal>
+      <CheckoutAuthModal flow={flow} />
     </div>
   );
 }

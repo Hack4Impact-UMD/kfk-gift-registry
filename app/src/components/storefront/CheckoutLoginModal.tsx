@@ -3,8 +3,9 @@ import { useForm } from "@tanstack/react-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { InboxIcon, KeyIcon } from "@/components/icons";
 import { CheckoutFieldInput } from "@/components/storefront/CheckoutFieldInput";
+import { CheckoutFlowState } from "@/hooks/useCheckoutFlow";
 
-export function CheckoutLoginModal() {
+export function CheckoutLoginModal({ flow }: { flow: CheckoutFlowState }) {
   const form = useForm({
     defaultValues: {
       email: "",
@@ -12,8 +13,7 @@ export function CheckoutLoginModal() {
       rememberMe: false,
     },
     onSubmit: async ({ value }) => {
-      /* TODO: Replace console.log with a login call */
-      console.log("Form Submitted:", value);
+      await flow.submitLogin(value.email, value.password);
     },
   });
 
@@ -105,16 +105,14 @@ export function CheckoutLoginModal() {
         )}
       />
 
-      <form.Subscribe
-        selector={(state) => [state.canSubmit, state.isSubmitting]}
-      >
-        {([canSubmit, isSubmitting]) => (
+      <form.Subscribe selector={(state) => [state.canSubmit]}>
+        {([canSubmit]) => (
           <Button
             type="submit"
-            disabled={!canSubmit}
+            disabled={!canSubmit || flow.isPending}
             className="w-full bg-kfk-blue hover:bg-[#152885] text-white rounded-full h-10 mt-4"
           >
-            {isSubmitting ? "Processing..." : "Login"}
+            {flow.isPending ? "Processing..." : "Login"}
           </Button>
         )}
       </form.Subscribe>

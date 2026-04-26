@@ -10,8 +10,13 @@ import {
   XCircleIcon,
 } from "@/components/icons";
 import { CheckoutFieldInput } from "./CheckoutFieldInput";
+import { CheckoutFlowState, RegisterDonorInput } from "@/hooks/useCheckoutFlow";
 
-export function CheckoutCreateAccountModal() {
+export function CheckoutCreateAccountModal({
+  flow,
+}: {
+  flow: CheckoutFlowState;
+}) {
   const [passwordCriterias, setPasswordCriterias] = useState<Array<boolean>>([
     false,
     false,
@@ -29,8 +34,13 @@ export function CheckoutCreateAccountModal() {
       confirmPassword: "",
     },
     onSubmit: async ({ value }) => {
-      /* TODO: Replace console.log with the mutation call from useRegisterDonor */
-      console.log("Form Submitted:", value);
+      const registrationData: RegisterDonorInput = {
+        name: value.fullName,
+        phone: value.phoneNumber,
+        email: value.email,
+        password: value.password,
+      };
+      await flow.submitRegister(registrationData);
     },
   });
 
@@ -78,15 +88,15 @@ export function CheckoutCreateAccountModal() {
           validators={{
             onChange: ({ value }) => {
               if (!value || value === "") return "This field is required";
-              if (!/^\(\d{3}\)-\d{3}-\d{4}$/.test(value))
-                return "Format must be (555)-555-5555";
+              if (!/^\+[1-9]\d{1,14}$/.test(value))
+                return "Phone must be in E.164 format (e.g. +12223334444)";
               return undefined;
             },
           }}
           children={(field) => (
             <CheckoutFieldInput
               field={field}
-              placeholder="e.g. (555)-555-5555"
+              placeholder="e.g. +12223334444"
               startIcon={<PhoneIcon className="size-5 fill-current" />}
             />
           )}
@@ -209,7 +219,7 @@ export function CheckoutCreateAccountModal() {
           state.fieldMeta.password?.isDirty,
         ]}
       >
-        {([canSubmit, isSubmitting, isTouched, isDirty]) => {
+        {([canSubmit, isTouched, isDirty]) => {
           const isPasswordPristine = !isTouched && !isDirty;
 
           return (
@@ -272,10 +282,10 @@ export function CheckoutCreateAccountModal() {
               </div>
               <Button
                 type="submit"
-                disabled={!canSubmit}
+                disabled={!canSubmit || flow.isPending}
                 className="w-full bg-kfk-blue hover:bg-[#152885] text-white rounded-full h-10 mt-4"
               >
-                {isSubmitting ? "Processing..." : "Create Account"}
+                {flow.isPending ? "Processing..." : "Create Account"}
               </Button>
             </>
           );

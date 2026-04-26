@@ -1,14 +1,14 @@
-import { useState } from "react";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { CheckoutCreateAccountModal } from "@/components/storefront/CheckoutCreateAccountModal";
 import { CheckoutLoginModal } from "@/components/storefront/CheckoutLoginModal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CheckoutFlowState } from "@/hooks/useCheckoutFlow";
 
-export function CheckoutAuthModal() {
-  const [authMode, setMode] = useState<"login" | "signup">("login");
+export function CheckoutAuthModal({ flow }: { flow: CheckoutFlowState }) {
+  if (!flow.authModalOpen) return null;
 
   return (
-    <Dialog open>
+    <Dialog open={flow.authModalOpen} onOpenChange={flow.closeAll}>
       <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden border-none bg-white shadow-lg [&>button]:top-14">
         <div className="bg-kfk-blue h-10 w-full" />
 
@@ -21,9 +21,9 @@ export function CheckoutAuthModal() {
 
           <div className="flex border rounded-lg mb-8 overflow-hidden">
             <button
-              onClick={() => setMode("login")}
+              onClick={() => flow.setAuthMode("login")}
               className={`flex-1 py-2 text-sm font-semibold transition-colors ${
-                authMode === "login"
+                flow.authMode === "login"
                   ? "bg-[#E8EFFF] text-kfk-blue rounded-l-lg border border-kfk-blue"
                   : "bg-white"
               }`}
@@ -31,9 +31,9 @@ export function CheckoutAuthModal() {
               Log-in
             </button>
             <button
-              onClick={() => setMode("signup")}
+              onClick={() => flow.setAuthMode("register")}
               className={`flex-1 py-2 text-sm font-semibold transition-colors ${
-                authMode === "signup"
+                flow.authMode === "register"
                   ? "bg-[#E8EFFF] text-kfk-blue rounded-r-lg border border-kfk-blue"
                   : "bg-white"
               }`}
@@ -43,14 +43,14 @@ export function CheckoutAuthModal() {
           </div>
 
           <h2 className="font-gaegu text-xl font-bold">
-            {authMode == "login" ? "User Login" : "Create Account"}
+            {flow.authMode == "login" ? "User Login" : "Create Account"}
           </h2>
 
           <img src={KFKLogo} className="w-75 mx-auto mb-5" />
-          {authMode == "login" ? (
-            <CheckoutLoginModal></CheckoutLoginModal>
+          {flow.authMode == "login" ? (
+            <CheckoutLoginModal flow={flow} />
           ) : (
-            <CheckoutCreateAccountModal></CheckoutCreateAccountModal>
+            <CheckoutCreateAccountModal flow={flow} />
           )}
         </div>
       </DialogContent>
