@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
+import { useNavigate } from "@tanstack/react-router";
 import { Checkbox } from "@/components/ui/checkbox";
 import { InboxIcon, KeyIcon } from "@/components/icons";
 import { CheckoutFieldInput } from "@/components/storefront/CheckoutFieldInput";
 import { CheckoutFlowState } from "@/hooks/useCheckoutFlow";
 
 export function CheckoutLoginModal({ flow }: { flow: CheckoutFlowState }) {
+  const navigate = useNavigate();
   const form = useForm({
     defaultValues: {
       email: "",
@@ -95,8 +97,9 @@ export function CheckoutLoginModal({ flow }: { flow: CheckoutFlowState }) {
             <button
               type="button"
               className="text-sm text-kfk-blue underline font-medium cursor-pointer"
-              onClick={() => {
-                /* TODO: Navigate to forgot password */
+              onClick={async () => {
+                flow.closeAll();
+                await navigate({ to: "/forgotPassword" });
               }}
             >
               Forgot Password?
