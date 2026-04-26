@@ -5,7 +5,7 @@ import { useClaimGifts } from "@/hooks/mutations/useClaimGifts";
 import { useLogin } from "@/hooks/mutations/loginMutation";
 import { useRegisterDonor } from "@/hooks/mutations/useRegisterDonor";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
-import { cartCollection } from "@/local/cartCollection";
+import { cartCollection, type CartItem } from "@/local/cartCollection";
 import { toast } from "@/lib/toast";
 
 export interface RegisterDonorInput {
@@ -20,6 +20,7 @@ export interface CheckoutFlowState {
   confirmModalOpen: boolean;
   isPending: boolean;
   authMode: "login" | "register";
+  disabledMessage: string | null;
   start: () => void;
   confirmClaim: () => Promise<void>;
   submitLogin: (email: string, password: string) => Promise<void>;
@@ -33,6 +34,7 @@ export function useCheckoutFlow(): CheckoutFlowState {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [disabledMessage, setDisabledMessage] = useState<string | null>(null);
 
   const { auth } = useRouteContext({ from: "/_storefront/checkout" })
 
@@ -47,11 +49,11 @@ export function useCheckoutFlow(): CheckoutFlowState {
   const isPending = claimMutation.isPending || loginMutation.isPending || registerMutation.isPending;
 
   const clearLocalCart = () => {
-    localCart?.forEach((item) => cartCollection.delete(item.id));
+    localCart?.forEach((item: CartItem) => cartCollection.delete(item.id));
   };
 
   const confirmClaim = async () => {
-    const giftIds = localCart?.map((item) => item.id) ?? [];
+    const giftIds = localCart?.map((item: CartItem) => item.id) ?? [];
 
     try {
       await claimMutation.mutateAsync(giftIds);
@@ -100,14 +102,19 @@ export function useCheckoutFlow(): CheckoutFlowState {
     }
 
     if (auth.authUser.role === UserRole.DONOR) {
+      setDisabledMessage(null);
       setConfirmModalOpen(true);
       return;
     }
+
+    // User is logged in but not a donor
+    setDisabledMessage("Only donors can claim gifts. Please log in with a donor account.");
   };
 
   const closeAll = () => {
     setAuthModalOpen(false);
     setConfirmModalOpen(false);
+    setDisabledMessage(null);
   };
 
   return {
@@ -115,6 +122,7 @@ export function useCheckoutFlow(): CheckoutFlowState {
     confirmModalOpen,
     isPending,
     authMode,
+    disabledMessage,
     start,
     confirmClaim,
     submitLogin,

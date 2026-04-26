@@ -9,6 +9,7 @@ interface ConfirmationPanelProps {
   totalPrice: number;
   onConfirm?: () => void;
   className?: string;
+  disabledMessage?: string | null;
 }
 
 export function ConfirmationPanel({
@@ -17,6 +18,7 @@ export function ConfirmationPanel({
   totalPrice,
   onConfirm,
   className = "",
+  disabledMessage = null,
 }: ConfirmationPanelProps) {
   const giftNotAvailable = useMemo(
     () => gifts.some((g) => g.status !== "AVAILABLE"),
@@ -74,10 +76,16 @@ export function ConfirmationPanel({
           </p>
         )}
 
+        {disabledMessage && (
+          <p className="text-sm text-red-600 mb-4">
+            {disabledMessage}
+          </p>
+        )}
+
         {/* Confirm Button */}
         <Button
           onClick={onConfirm}
-          disabled={!onConfirm || totalGifts === 0 || giftNotAvailable}
+          disabled={!onConfirm || totalGifts === 0 || giftNotAvailable || !!disabledMessage}
           className="w-full rounded-full text-white font-normal py-2"
         >
           Claim Gifts

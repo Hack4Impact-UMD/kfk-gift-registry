@@ -90,6 +90,7 @@ function CheckoutComponent() {
               totalGifts={totalGifts}
               totalPrice={totalPrice}
               onConfirm={flow.start}
+              disabledMessage={flow.disabledMessage}
             />
           </div>
         </div>
