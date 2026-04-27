@@ -45,7 +45,7 @@ export function CheckoutFieldInput({
           aria-invalid={!!errorMessage}
           aria-describedby={errorMessage ? `${field.name}-error` : undefined}
           className={`w-full border border-muted-foreground rounded-md px-3 pl-8 py-2 mt-1 
-            ${errorMessage ? "border-red-500 bg-[#FFF0F0] placeholder:text-red-500 text-red-500" : ""}`}
+            ${isPassword ? "pr-9" : ""} ${errorMessage ? "border-red-500 bg-[#FFF0F0] placeholder:text-red-500 text-red-500" : ""}`}
           onChange={(e) => field.handleChange(e.target.value)}
           onBlur={field.handleBlur}
           disabled={disabled}
