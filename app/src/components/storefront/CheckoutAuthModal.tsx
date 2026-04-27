@@ -16,7 +16,7 @@ export function CheckoutAuthModal({ flow }: { flow: CheckoutFlowState }) {
           <p className="text-[15px] font-medium leading-tight mb-6">
             Wait! Before checking out, please login or create an account.
             <br />
-            <p>Don't worry, we'll save your cart items!</p>
+            <span>Don't worry, we'll save your cart items!</span>
           </p>
 
           <div className="flex border rounded-lg mb-8 overflow-hidden">
