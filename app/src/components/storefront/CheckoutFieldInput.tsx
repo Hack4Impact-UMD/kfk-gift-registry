@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AnyFieldApi } from "@tanstack/react-form";
+import type { AnyFieldApi } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
@@ -69,7 +69,11 @@ export function CheckoutFieldInput({
         )}
       </div>
       {errorMessage && (
-        <span id={`${field.name}-error`} role="alert" className="text-xs text-red-500 mt-1 -mb-2 block pl-1">
+        <span
+          id={`${field.name}-error`}
+          role="alert"
+          className="text-xs text-red-500 mt-1 -mb-2 block pl-1"
+        >
           {errorMessage}
         </span>
       )}

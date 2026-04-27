@@ -78,9 +78,11 @@ export function useCheckoutFlow(): CheckoutFlowState {
   const submitLogin = async (email: string, password: string) => {
     try {
       await loginMutation.mutateAsync({ email, password });
-      
+
       // Get fresh session data to verify role
-      const session = queryClient.getQueryData<AuthUser | null>(queries.session.verify.queryKey);
+      const session = queryClient.getQueryData<AuthUser | null>(
+        queries.session.verify.queryKey,
+      );
       if (!session || session.role !== UserRole.DONOR) {
         setAuthModalOpen(false);
         setDisabledMessage(
@@ -88,7 +90,7 @@ export function useCheckoutFlow(): CheckoutFlowState {
         );
         return;
       }
-      
+
       setAuthModalOpen(false);
       await confirmClaim();
     } catch (error) {
@@ -105,9 +107,11 @@ export function useCheckoutFlow(): CheckoutFlowState {
         email: data.email,
         password: data.password,
       });
-      
+
       // Get fresh session data to verify role
-      const session = queryClient.getQueryData<AuthUser | null>(queries.session.verify.queryKey);
+      const session = queryClient.getQueryData<AuthUser | null>(
+        queries.session.verify.queryKey,
+      );
       if (!session || session.role !== UserRole.DONOR) {
         setAuthModalOpen(false);
         setDisabledMessage(
@@ -115,7 +119,7 @@ export function useCheckoutFlow(): CheckoutFlowState {
         );
         return;
       }
-      
+
       await confirmClaim();
     } catch (error) {
       const message =
