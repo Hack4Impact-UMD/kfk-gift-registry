@@ -161,14 +161,16 @@ export function ChildInfoForm({
                       name={`children[${index}].age`}
                       validators={{
                         onChange: ({ value }) => {
-                          if (value === "" || value === undefined) return "Age is required";
+                          if (value === "" || value === undefined)
+                            return "Age is required";
                           if (Number(value) < 1 || Number(value) > 18) {
                             return "Age must be between 1 and 18";
                           }
                           return undefined;
                         },
                         onBlur: ({ value }) => {
-                          if (value === "" || value === undefined) return "Age is required";
+                          if (value === "" || value === undefined)
+                            return "Age is required";
                           return undefined;
                         },
                       }}
@@ -176,7 +178,9 @@ export function ChildInfoForm({
                       {(field) => (
                         <div className="space-y-2">
                           <label className="text-sm font-medium">
-                            {displayCount > 1 ? `Child #${index + 1} Age` : "Age"}
+                            {displayCount > 1
+                              ? `Child #${index + 1} Age`
+                              : "Age"}
                             <span className="text-destructive"> *</span>
                           </label>
 
@@ -186,28 +190,34 @@ export function ChildInfoForm({
                               min={1}
                               max={18}
                               placeholder="e.g. 8"
-                              value={(field.state.value as number | undefined) ?? ""}
+                              value={
+                                (field.state.value as number | undefined) ?? ""
+                              }
                               onChange={(e) => {
                                 const raw = e.target.value;
-                                (field.handleChange as (v: number | string) => void)(
-                                  raw === "" ? "" : Number(raw),
-                                );
+                                (
+                                  field.handleChange as (
+                                    v: number | string,
+                                  ) => void
+                                )(raw === "" ? "" : Number(raw));
                               }}
                               onBlur={field.handleBlur}
                               disabled={disabled}
                               className={`w-32 h-11 pl-4 pr-4 rounded-xl border text-sm focus:outline-none focus:border-kfk-blue truncate disabled:opacity-50 ${
-                                field.state.meta.isTouched && field.state.meta.errors[0]
+                                field.state.meta.isTouched &&
+                                field.state.meta.errors[0]
                                   ? "border-red-500"
                                   : "border-slate-700"
                               }`}
                             />
                           </div>
 
-                          {field.state.meta.isTouched && field.state.meta.errors[0] && (
-                            <span className="text-sm text-red-500">
-                              {field.state.meta.errors[0]}
-                            </span>
-                          )}
+                          {field.state.meta.isTouched &&
+                            field.state.meta.errors[0] && (
+                              <span className="text-sm text-red-500">
+                                {field.state.meta.errors[0]}
+                              </span>
+                            )}
                         </div>
                       )}
                     </form.AppField>

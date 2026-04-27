@@ -104,7 +104,6 @@ export function StorefrontNavbar({
               <Button variant="default" className="relative">
                 Your Cart
                 <ShoppingCartIcon className="ml-2" />
-
                 {cartCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
                     {cartCount}

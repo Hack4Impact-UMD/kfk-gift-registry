@@ -194,12 +194,12 @@ export function GiftDetailsForm({
               validators={{
                 onChange: ({ value }) => {
                   if (!value) return undefined;
-                    const wordCount = value
-                      .trim()
-                      .split(/\s+/)
-                      .filter(Boolean).length;
-                    if (wordCount > 150)
-                      return "Please keep your blurb to 150 words or less";
+                  const wordCount = value
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean).length;
+                  if (wordCount > 150)
+                    return "Please keep your blurb to 150 words or less";
                   return undefined;
                 },
               }}
