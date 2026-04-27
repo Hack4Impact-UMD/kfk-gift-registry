@@ -8,12 +8,9 @@ import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
 import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
 import { GiftInfoSection } from "@/components/child-profile/GiftInfoSection";
 import type { GiftDetails } from "@/components/child-profile/GiftInfoSection";
-// import { ParentComments } from "@/components/child-profile/ParentComments";
-// import { AdminComments } from "@/components/child-profile/AdminComments";
-// import { FamilyAccountLink } from "@/components/child-profile/FamilyAccountLink";
 import { useState } from "react";
 import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
-import type { Child, Family, Gift } from "../../../../../../common/src/types";
+import type { Child, Family, Gift } from "common";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
 import { useFamilyLinkByFamilyId } from "@/hooks/queries/useFamilyLinkByFamilyId";
@@ -168,7 +165,7 @@ function ChildProfilePage() {
   };
 
   return (
-    <div className="px-4 pb-8 sm:px-6 lg:px-8">
+    <div className="px-4 pb-8 sm:px-6 lg:px-8 @container">
       <div className="rounded-[28px] border border-border/70 bg-card/95 p-4 shadow-sm sm:p-6">
         <h1 className="mb-5 text-3xl font-semibold tracking-tight sm:text-4xl">
           Child Profile
