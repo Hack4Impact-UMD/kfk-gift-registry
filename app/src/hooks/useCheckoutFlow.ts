@@ -5,7 +5,8 @@ import { useClaimGifts } from "@/hooks/mutations/useClaimGifts";
 import { useLogin } from "@/hooks/mutations/loginMutation";
 import { useRegisterDonor } from "@/hooks/mutations/useRegisterDonor";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
-import { cartCollection, type CartItem } from "@/local/cartCollection";
+import { cartCollection } from "@/local/cartCollection";
+import type { CartItem } from "@/local/cartCollection";
 import { toast } from "@/lib/toast";
 
 export interface RegisterDonorInput {
@@ -29,14 +30,13 @@ export interface CheckoutFlowState {
   setAuthMode: (mode: "login" | "register") => void;
 }
 
-
 export function useCheckoutFlow(): CheckoutFlowState {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [disabledMessage, setDisabledMessage] = useState<string | null>(null);
 
-  const { auth } = useRouteContext({ from: "/_storefront/checkout" })
+  const { auth } = useRouteContext({ from: "/_storefront/checkout" });
 
   const navigate = useNavigate();
 
@@ -46,7 +46,10 @@ export function useCheckoutFlow(): CheckoutFlowState {
   const loginMutation = useLogin();
   const registerMutation = useRegisterDonor();
 
-  const isPending = claimMutation.isPending || loginMutation.isPending || registerMutation.isPending;
+  const isPending =
+    claimMutation.isPending ||
+    loginMutation.isPending ||
+    registerMutation.isPending;
 
   const clearLocalCart = () => {
     localCart?.forEach((item: CartItem) => cartCollection.delete(item.id));
@@ -62,7 +65,8 @@ export function useCheckoutFlow(): CheckoutFlowState {
       setAuthModalOpen(false);
       navigate({ to: "/donor/home" });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to claim gifts";
+      const message =
+        error instanceof Error ? error.message : "Failed to claim gifts";
       toast.error(message);
     }
   };
@@ -73,7 +77,8 @@ export function useCheckoutFlow(): CheckoutFlowState {
       setAuthModalOpen(false);
       await confirmClaim();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to login";
+      const message =
+        error instanceof Error ? error.message : "Failed to login";
       toast.error(message);
     }
   };
@@ -81,16 +86,19 @@ export function useCheckoutFlow(): CheckoutFlowState {
   const submitRegister = async (data: RegisterDonorInput) => {
     try {
       await registerMutation.mutateAsync({ data });
-      await loginMutation.mutateAsync({ email: data.email, password: data.password });
+      await loginMutation.mutateAsync({
+        email: data.email,
+        password: data.password,
+      });
       await confirmClaim();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to register";
+      const message =
+        error instanceof Error ? error.message : "Failed to register";
       toast.error(message);
     }
   };
 
   const start = () => {
-
     if (!localCart || localCart.length === 0) {
       toast.error("No gifts in cart. Please add some gifts to your cart.");
       return;
@@ -108,7 +116,9 @@ export function useCheckoutFlow(): CheckoutFlowState {
     }
 
     // User is logged in but not a donor
-    setDisabledMessage("Only donors can claim gifts. Please log in with a donor account.");
+    setDisabledMessage(
+      "Only donors can claim gifts. Please log in with a donor account.",
+    );
   };
 
   const closeAll = () => {

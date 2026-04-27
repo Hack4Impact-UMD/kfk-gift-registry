@@ -4,7 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Checkbox } from "@/components/ui/checkbox";
 import { InboxIcon, KeyIcon } from "@/components/icons";
 import { CheckoutFieldInput } from "@/components/storefront/CheckoutFieldInput";
-import { CheckoutFlowState } from "@/hooks/useCheckoutFlow";
+import type { CheckoutFlowState } from "@/hooks/useCheckoutFlow";
 
 export function CheckoutLoginModal({ flow }: { flow: CheckoutFlowState }) {
   const navigate = useNavigate();

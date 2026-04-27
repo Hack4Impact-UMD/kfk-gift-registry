@@ -2,7 +2,7 @@ import KFKLogo from "@/assets/kfk-logo.png";
 import { CheckoutCreateAccountModal } from "@/components/storefront/CheckoutCreateAccountModal";
 import { CheckoutLoginModal } from "@/components/storefront/CheckoutLoginModal";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { CheckoutFlowState } from "@/hooks/useCheckoutFlow";
+import type { CheckoutFlowState } from "@/hooks/useCheckoutFlow";
 
 export function CheckoutAuthModal({ flow }: { flow: CheckoutFlowState }) {
   if (!flow.authModalOpen) return null;

@@ -10,7 +10,10 @@ import {
   XCircleIcon,
 } from "@/components/icons";
 import { CheckoutFieldInput } from "./CheckoutFieldInput";
-import { CheckoutFlowState, RegisterDonorInput } from "@/hooks/useCheckoutFlow";
+import type {
+  CheckoutFlowState,
+  RegisterDonorInput,
+} from "@/hooks/useCheckoutFlow";
 
 export function CheckoutCreateAccountModal({
   flow,

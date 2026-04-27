@@ -77,15 +77,18 @@ export function ConfirmationPanel({
         )}
 
         {disabledMessage && (
-          <p className="text-sm text-red-600 mb-4">
-            {disabledMessage}
-          </p>
+          <p className="text-sm text-red-600 mb-4">{disabledMessage}</p>
         )}
 
         {/* Confirm Button */}
         <Button
           onClick={onConfirm}
-          disabled={!onConfirm || totalGifts === 0 || giftNotAvailable || !!disabledMessage}
+          disabled={
+            !onConfirm ||
+            totalGifts === 0 ||
+            giftNotAvailable ||
+            !!disabledMessage
+          }
           className="w-full rounded-full text-white font-normal py-2"
         >
           Claim Gifts
