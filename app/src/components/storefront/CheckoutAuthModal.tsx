@@ -46,7 +46,7 @@ export function CheckoutAuthModal({ flow }: { flow: CheckoutFlowState }) {
             {flow.authMode == "login" ? "User Login" : "Create Account"}
           </h2>
 
-          <img src={KFKLogo} className="w-75 mx-auto mb-5" />
+          <img src={KFKLogo} alt="Kisses for Kyle Foundation" className="w-75 mx-auto mb-5" />
           {flow.authMode == "login" ? (
             <CheckoutLoginModal flow={flow} />
           ) : (
