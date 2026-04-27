@@ -218,7 +218,6 @@ export function CheckoutCreateAccountModal({
       <form.Subscribe
         selector={(state) => [
           state.canSubmit,
-          state.isSubmitting,
           state.fieldMeta.password?.isTouched,
           state.fieldMeta.password?.isDirty,
         ]}
