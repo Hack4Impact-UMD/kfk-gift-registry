@@ -56,6 +56,8 @@ export function CheckoutFieldInput({
             type="button"
             variant="ghost"
             onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-pressed={showPassword}
             className="absolute right-3 top-1/2 -translate-y-1/2 mt-0.5 text-muted-foreground hover:text-foreground hover:bg-transparent"
           >
             {showPassword ? (
