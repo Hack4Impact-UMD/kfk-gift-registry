@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { UserRole } from "common";
 import { useClaimGifts } from "@/hooks/mutations/useClaimGifts";
 import { useLogin } from "@/hooks/mutations/loginMutation";
@@ -7,7 +8,9 @@ import { useRegisterDonor } from "@/hooks/mutations/useRegisterDonor";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
 import { cartCollection } from "@/local/cartCollection";
 import type { CartItem } from "@/local/cartCollection";
+import type { AuthUser } from "@/server/functions/auth";
 import { toast } from "@/lib/toast";
+import { queries } from "@/queries";
 
 export interface RegisterDonorInput {
   name: string;
@@ -39,6 +42,7 @@ export function useCheckoutFlow(): CheckoutFlowState {
   const { auth } = useRouteContext({ from: "/_storefront/checkout" });
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: localCart } = useLocalCartData();
 
@@ -74,6 +78,17 @@ export function useCheckoutFlow(): CheckoutFlowState {
   const submitLogin = async (email: string, password: string) => {
     try {
       await loginMutation.mutateAsync({ email, password });
+      
+      // Get fresh session data to verify role
+      const session = queryClient.getQueryData<AuthUser | null>(queries.session.verify.queryKey);
+      if (!session || session.role !== UserRole.DONOR) {
+        setAuthModalOpen(false);
+        setDisabledMessage(
+          "Only donors can claim gifts. Please log in with a donor account.",
+        );
+        return;
+      }
+      
       setAuthModalOpen(false);
       await confirmClaim();
     } catch (error) {
@@ -90,10 +105,21 @@ export function useCheckoutFlow(): CheckoutFlowState {
         email: data.email,
         password: data.password,
       });
+      
+      // Get fresh session data to verify role
+      const session = queryClient.getQueryData<AuthUser | null>(queries.session.verify.queryKey);
+      if (!session || session.role !== UserRole.DONOR) {
+        setAuthModalOpen(false);
+        setDisabledMessage(
+          "Only donors can claim gifts. Please log in with a donor account.",
+        );
+        return;
+      }
+      
       await confirmClaim();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to register";
+        error instanceof Error ? error.message : "Failed to register or login";
       toast.error(message);
     }
   };
