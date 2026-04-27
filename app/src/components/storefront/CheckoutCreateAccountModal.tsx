@@ -202,6 +202,7 @@ export function CheckoutCreateAccountModal({
                 return "Password does not match";
               return undefined;
             },
+            onChangeListenTo: ["password"],
           }}
           children={(field) => (
             <CheckoutFieldInput
