@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { AnyFieldApi } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 
 type CheckoutFieldInputProps = {
   type?: string;
-  field: any;
+  field: AnyFieldApi;
   placeholder: string;
   disabled?: boolean;
   startIcon: React.ReactNode;
@@ -38,7 +39,7 @@ export function CheckoutFieldInput({
         <Input
           type={inputType}
           name={field.name}
-          id={field.id}
+          id={field.name}
           value={field.state.value}
           placeholder={placeholder}
           className={`w-full border border-muted-foreground rounded-md px-3 pl-8 py-2 mt-1 
