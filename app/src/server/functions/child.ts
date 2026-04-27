@@ -2,6 +2,7 @@ import { getServerDB } from "@/lib/firebase.server";
 import z from "zod";
 import { createServerFn } from "@tanstack/react-start";
 import admin from "firebase-admin";
+import { v7 as uuidv7 } from "uuid";
 import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
@@ -118,6 +119,15 @@ const updateGiftSchema = z.object({
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
     }),
+});
+
+const createGiftSchema = z.object({
+  childId: z.string().min(1),
+  title: z.string().trim().min(1).max(100),
+  productUrl: z.string().trim().url(),
+  listedPrice: z.number().min(0).optional(),
+  familyPublicNotes: z.string().trim().max(500).optional(),
+  active: z.boolean().default(true),
 });
 
 export const getAllChildProfilesForDrive = createServerFn({
@@ -899,6 +909,56 @@ export const updateChild = createServerFn({ method: "POST" })
     const updatedChild = await db.children.doc(childId).get();
 
     return updatedChild.data()!;
+  });
+
+export const createGift = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(createGiftSchema)
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const childDoc = await db.children.doc(data.childId).get();
+
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    const existingGifts = await db.gifts
+      .where("childId", "==", data.childId)
+      .get();
+    const activeGiftCount = existingGifts.docs.reduce(
+      (count, giftDoc) => count + (giftDoc.data().active ? 1 : 0),
+      0,
+    );
+
+    if (data.active && activeGiftCount >= 3) {
+      throw new Error("This child already has 3 active storefront gifts");
+    }
+
+    const createdGift: Gift = {
+      id: uuidv7(),
+      childId: child.id,
+      familyId: child.familyId,
+      giftDrive: child.giftDrive,
+      title: data.title,
+      productUrl: data.productUrl,
+      listedPrice: data.listedPrice,
+      familyPublicNotes: data.familyPublicNotes,
+      status: "AVAILABLE",
+      createdAt: new Date().toISOString(),
+      active: data.active,
+      backup: !data.active,
+    };
+
+    await db.gifts.doc(createdGift.id).set(createdGift);
+
+    return createdGift;
   });
 
 export const updateGift = createServerFn({ method: "POST" })

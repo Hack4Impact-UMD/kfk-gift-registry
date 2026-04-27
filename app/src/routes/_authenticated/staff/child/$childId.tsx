@@ -8,14 +8,13 @@ import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
 import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
 import { GiftInfoSection } from "@/components/child-profile/GiftInfoSection";
 import type { GiftDetails } from "@/components/child-profile/GiftInfoSection";
-// import { ParentComments } from "@/components/child-profile/ParentComments";
-// import { AdminComments } from "@/components/child-profile/AdminComments";
-// import { FamilyAccountLink } from "@/components/child-profile/FamilyAccountLink";
+import { AddGiftForm } from "@/components/child-profile/AddGiftForm";
 import { useState } from "react";
 import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
 import type { Child, Family, Gift } from "../../../../../../common/src/types";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
+import { useCreateGift } from "@/hooks/mutations/useCreateGift";
 import { useFamilyLinkByFamilyId } from "@/hooks/queries/useFamilyLinkByFamilyId";
 
 function cloneGifts(gifts: ReadonlyArray<Gift>): Array<Gift> {
@@ -40,6 +39,7 @@ function ChildProfilePage() {
   const updateChildMutation = useUpdateChild();
   const updateFamilyMutation = useUpdateFamily();
   const updateGiftMutation = useUpdateGift();
+  const createGiftMutation = useCreateGift();
 
   const {
     data: child,
@@ -71,6 +71,8 @@ function ChildProfilePage() {
   if (giftsLoading) return <div>Loading gifts...</div>;
   if (giftsError) return <div>Gifts error</div>;
   if (!gifts) return <div>No gifts found</div>;
+
+  const activeGiftCount = gifts.filter((gift) => gift.active).length;
 
   const handleStartEditing = () => {
     setEditedChild({});
@@ -167,6 +169,18 @@ function ChildProfilePage() {
     }
   };
 
+  const handleAddGift = async (gift: {
+    title: string;
+    productUrl: string;
+    listedPrice?: number;
+    active: boolean;
+  }) => {
+    await createGiftMutation.mutateAsync({
+      childId: child.id,
+      ...gift,
+    });
+  };
+
   return (
     <div className="px-4 pb-8 sm:px-6 lg:px-8">
       <div className="rounded-[28px] border border-border/70 bg-card/95 p-4 shadow-sm sm:p-6">
@@ -208,12 +222,20 @@ function ChildProfilePage() {
                   setEditedFamily={setEditedFamily}
                 />
               </div>
-              <SelectedGifts
-                gifts={gifts}
-                isEditing={isEditing}
-                editedGifts={editedGifts}
-                setEditedGifts={setEditedGifts}
-              />
+              <div className="space-y-6">
+                <SelectedGifts
+                  gifts={gifts}
+                  isEditing={isEditing}
+                  editedGifts={editedGifts}
+                  setEditedGifts={setEditedGifts}
+                />
+                <AddGiftForm
+                  canAddToStorefront={activeGiftCount < 3}
+                  disabled={isEditing}
+                  isSubmitting={createGiftMutation.isPending}
+                  onSubmit={handleAddGift}
+                />
+              </div>
             </div>
           </div>
         </div>
