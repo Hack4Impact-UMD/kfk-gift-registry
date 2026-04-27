@@ -42,6 +42,8 @@ export function CheckoutFieldInput({
           id={field.name}
           value={field.state.value}
           placeholder={placeholder}
+          aria-invalid={!!errorMessage}
+          aria-describedby={errorMessage ? `${field.name}-error` : undefined}
           className={`w-full border border-muted-foreground rounded-md px-3 pl-8 py-2 mt-1 
             ${errorMessage ? "border-red-500 bg-[#FFF0F0] placeholder:text-red-500 text-red-500" : ""}`}
           onChange={(e) => field.handleChange(e.target.value)}
@@ -65,7 +67,7 @@ export function CheckoutFieldInput({
         )}
       </div>
       {errorMessage && (
-        <span className="text-xs text-red-500 mt-1 -mb-2 block pl-1">
+        <span id={`${field.name}-error`} role="alert" className="text-xs text-red-500 mt-1 -mb-2 block pl-1">
           {errorMessage}
         </span>
       )}
