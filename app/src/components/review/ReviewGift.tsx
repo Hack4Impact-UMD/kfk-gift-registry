@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import type { Gift } from "common";
 import { GiftIcon } from "@/components/icons/GiftIcon";
 import { Input } from "@/components/ui/input";
@@ -43,13 +44,24 @@ export function ReviewGift({
             className="size-6 shrink-0 my-auto text-foreground"
             aria-hidden
           />
-          <EditableField
-            value={gift.title}
-            editable={editable}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-              onTitleChange(e.target.value);
-            }}
-          ></EditableField>
+
+          {editable ? (
+            <EditableField
+              value={gift.title}
+              editable={editable}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                onTitleChange(e.target.value);
+              }}
+            />
+          ) : (
+            <Link
+              to="/staff/gifts/$giftId"
+              params={{ giftId: gift.id }}
+              className="min-w-0 truncate text-blue-600 hover:underline"
+            >
+              {gift.title}
+            </Link>
+          )}
         </div>
 
         {gift.productUrl && (

@@ -56,11 +56,6 @@ function hasValidListedPrice(
   return listedPrice !== undefined && Number.isFinite(listedPrice);
 }
 
-function computeWordCount(text: string | undefined): number {
-  const trimmed = text?.trim();
-  return trimmed ? trimmed.split(/\s+/).length : 0;
-}
-
 export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   const [editing, setEditing] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -207,10 +202,9 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
 
   const handleSave = () => {
     debouncedUpdateGift.cancel();
-    const currentWordCount = computeWordCount(formState.blurb);
 
-    if (currentWordCount > 25) {
-      alert("Maximum words exceeded");
+    if ((formState.blurb?.length ?? 0) > 150) {
+      alert("Maximum characters exceeded");
       return;
     }
     const updatedChild: Child = {
@@ -359,34 +353,47 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
         </div>
 
         <div className="flex flex-col bg-card px-4 sm:px-6 py-4 gap-3 -mx-6">
-          <div className={cn("flex gap-2", editing && "flex-col")}>
+          <div className="flex flex-wrap gap-4 items-center">
             {child.category === "warrior" && (
-              <>
-                <div className="flex items-center gap-2">
-                  <p className="font-bold whitespace-nowrap">
-                    Treatment Length:
-                  </p>
+              <div
+                className={cn(
+                  "flex items-center gap-2 min-w-0",
+                  editing && "min-w-[260px] flex-1"
+                )}
+              >
+                <p className="font-bold whitespace-nowrap">
+                  Treatment Length:
+                </p>
+                <div className="min-w-0 flex-1">
                   <EditableField
                     value={formState.treatmentLength}
                     editable={editing}
-                    size={20}
                     fieldType="select"
                     selectOptions={timePeriodOptions}
-                    onChange={
-                      ((value: string) =>
-                        setFormState((prev) => ({
-                          ...prev,
-                          treatmentLength: value as TimePeriod,
-                        }))) as unknown as ChangeEventHandler<HTMLInputElement>
+                    onChange={(value: string) =>
+                      setFormState((prev) => ({
+                        ...prev,
+                        treatmentLength: value as TimePeriod,
+                      }))
                     }
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <p className="font-bold whitespace-nowrap">Diagnosis:</p>
+              </div>
+            )}
+            {child.category === "warrior" && (
+              <div
+                className={cn(
+                  "flex items-center gap-2 min-w-0",
+                  editing && "min-w-[260px] flex-1"
+                )}
+              >
+                <p className="font-bold whitespace-nowrap">
+                  Diagnosis:
+                </p>
+                <div className="min-w-0 flex-1">
                   <EditableField
                     value={formState.diagnosis}
                     editable={editing}
-                    size={20}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setFormState((prev) => ({
                         ...prev,
@@ -395,38 +402,53 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
                     }
                   />
                 </div>
-              </>
+              </div>
             )}
-            <div className="flex items-center gap-2">
-              <p className="font-bold whitespace-nowrap">Age:</p>
-              <EditableField
-                value={formState.age}
-                editable={editing}
-                size={5}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    age: Number(e.target.value),
-                  }))
-                }
-              />
+            <div
+              className={cn(
+                "flex items-center gap-2 min-w-0",
+                editing && "min-w-[180px] flex-1"
+              )}
+            >
+              <p className="font-bold whitespace-nowrap">
+                Age:
+              </p>
+              <div className="min-w-0 flex-1">
+                <EditableField
+                  value={formState.age}
+                  editable={editing}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      age: Number(e.target.value),
+                    }))
+                  }
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <p className="font-bold whitespace-nowrap">Level:</p>
-              <EditableField
-                value={formState.level}
-                editable={editing}
-                size={10}
-                fieldType="select"
-                selectOptions={levelOptions}
-                onChange={
-                  ((value: string) =>
+            <div
+              className={cn(
+                "flex items-center gap-2 min-w-0",
+                editing && "min-w-[180px] flex-1"
+              )}
+            >
+              <p className="font-bold whitespace-nowrap">
+                Level:
+              </p>
+              <div className="min-w-0 flex-1">
+                <EditableField
+                  value={formState.level}
+                  editable={editing}
+                  fieldType="select"
+                  selectOptions={levelOptions}
+                  onChange={(value: string) =>
                     setFormState((prev) => ({
                       ...prev,
                       level: Number(value),
-                    }))) as unknown as ChangeEventHandler<HTMLInputElement>
-                }
-              />
+                    }))
+                  }
+                />
+              </div>
             </div>
           </div>
           <div className="flex flex-col">
@@ -472,33 +494,41 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
 
         {child.category == "warrior" && (
           <div className="flex flex-row rounded-b-xl bg-card px-4 sm:px-6 py-4 gap-3 -mx-6">
-            <div className="flex items-center gap-2">
-              <p className="font-bold whitespace-nowrap">Social Worker Name:</p>
-              <EditableField
-                value={formState.socialWorkerName}
-                editable={editing}
-                size={15}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    socialWorkerName: e.target.value,
-                  }))
-                }
-              />
+            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+              <span className="font-semibold whitespace-nowrap shrink-0">
+                Social Worker Name:
+              </span>
+              <div className="min-w-0 flex-1">
+                <EditableField
+                  value={formState.socialWorkerName}
+                  editable={editing}
+                  size={15}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      socialWorkerName: e.target.value,
+                    }))
+                  }
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <p className="font-bold whitespace-nowrap">Hospital:</p>
-              <EditableField
-                value={formState.hospitalName}
-                editable={editing}
-                size={20}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setFormState((prev) => ({
-                    ...prev,
-                    hospitalName: e.target.value,
-                  }))
-                }
-              />
+            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+              <span className="font-semibold whitespace-nowrap shrink-0">
+                Hospital:
+              </span>
+              <div className="min-w-0 flex-1">
+                <EditableField
+                  value={formState.hospitalName}
+                  editable={editing}
+                  size={20}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      hospitalName: e.target.value,
+                    }))
+                  }
+                />
+              </div>
             </div>
           </div>
         )}

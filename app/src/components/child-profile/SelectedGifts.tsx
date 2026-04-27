@@ -82,7 +82,7 @@ export function SelectedGifts({
                 <div className="min-w-0">
                   <p className="break-words text-sm font-semibold">{label}</p>
                   <a
-                    href={gift.productUrl}
+                    href={gift.productUrl ?? "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="break-words text-sm text-kfk-blue underline-offset-2 hover:underline"

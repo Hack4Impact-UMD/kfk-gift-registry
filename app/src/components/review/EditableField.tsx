@@ -53,14 +53,10 @@ export function EditableField({
 
   if (!editable) {
     return (
-      <p
-        className={cn(
-          `py-1 ${!children && "flex h-9"} items-center break-all`,
-          className,
-        )}
-      >
-        <b>{children}</b> {value}
-      </p>
+      <div className={cn("flex items-center gap-2 min-w-0 py-1")}>
+        {children && <b className="whitespace-nowrap shrink-0">{children}</b>}
+        <span className="min-w-0 break-words">{value}</span>
+      </div>
     );
   }
 
@@ -71,7 +67,7 @@ export function EditableField({
         value={value?.toString()}
         onValueChange={selectOnChange}
       >
-        <SelectTrigger className="w-full max-w-48 border-1 border-black">
+        <SelectTrigger className="w-full min-w-0 border border-black">
           <SelectValue placeholder="Select a level" />
         </SelectTrigger>
         <SelectContent>
@@ -88,7 +84,7 @@ export function EditableField({
 
   if (fieldType === "textarea") {
     const text = typeof value === "string" ? value : (value?.toString() ?? "");
-    const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+    const charCount = text.length;
 
     return (
       <>
@@ -102,10 +98,10 @@ export function EditableField({
         />
         <p
           className={`self-end ${
-            wordCount <= 25 ? "text-muted-foreground" : "text-destructive"
+            charCount <= 150 ? "text-muted-foreground" : "text-destructive"
           }`}
         >
-          {wordCount}/25 words
+          {charCount}/150 characters
         </p>
       </>
     );
@@ -135,7 +131,7 @@ export function EditableField({
         ref={inputRef as React.RefObject<HTMLInputElement>}
         value={value}
         onChange={inputOnChange}
-        className="flex-1 min-w-0 border-foreground"
+        className="w-full min-w-0 border-foreground"
         {...props}
       />
     </div>
