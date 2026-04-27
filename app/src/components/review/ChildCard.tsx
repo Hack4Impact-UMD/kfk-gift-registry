@@ -358,12 +358,10 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
               <div
                 className={cn(
                   "flex items-center gap-2 min-w-0",
-                  editing && "min-w-[260px] flex-1"
+                  editing && "min-w-[260px] flex-1",
                 )}
               >
-                <p className="font-bold whitespace-nowrap">
-                  Treatment Length:
-                </p>
+                <p className="font-bold whitespace-nowrap">Treatment Length:</p>
                 <div className="min-w-0 flex-1">
                   <EditableField
                     value={formState.treatmentLength}
@@ -384,12 +382,10 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
               <div
                 className={cn(
                   "flex items-center gap-2 min-w-0",
-                  editing && "min-w-[260px] flex-1"
+                  editing && "min-w-[260px] flex-1",
                 )}
               >
-                <p className="font-bold whitespace-nowrap">
-                  Diagnosis:
-                </p>
+                <p className="font-bold whitespace-nowrap">Diagnosis:</p>
                 <div className="min-w-0 flex-1">
                   <EditableField
                     value={formState.diagnosis}
@@ -407,12 +403,10 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
             <div
               className={cn(
                 "flex items-center gap-2 min-w-0",
-                editing && "min-w-[180px] flex-1"
+                editing && "min-w-[180px] flex-1",
               )}
             >
-              <p className="font-bold whitespace-nowrap">
-                Age:
-              </p>
+              <p className="font-bold whitespace-nowrap">Age:</p>
               <div className="min-w-0 flex-1">
                 <EditableField
                   value={formState.age}
@@ -429,12 +423,10 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
             <div
               className={cn(
                 "flex items-center gap-2 min-w-0",
-                editing && "min-w-[180px] flex-1"
+                editing && "min-w-[180px] flex-1",
               )}
             >
-              <p className="font-bold whitespace-nowrap">
-                Level:
-              </p>
+              <p className="font-bold whitespace-nowrap">Level:</p>
               <div className="min-w-0 flex-1">
                 <EditableField
                   value={formState.level}

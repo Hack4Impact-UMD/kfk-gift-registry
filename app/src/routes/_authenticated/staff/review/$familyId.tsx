@@ -78,7 +78,7 @@ function RouteComponent() {
   const { data: familyRows } = usePendingProfileTableRows(activeDriveId);
   const { data: family } = useFamily(familyId);
   const { data: children } = useChildProfilesForFamily(familyId) as {
-    data: Child[] | undefined;
+    data: Array<Child> | undefined;
   };
   const { mutate: updateFamily } = useUpdateFamily();
   const { mutate: updateChild } = useUpdateChild();
