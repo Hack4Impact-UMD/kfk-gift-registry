@@ -16,6 +16,10 @@ import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
 import { useCreateGift } from "@/hooks/mutations/useCreateGift";
 import { useFamilyLinkByFamilyId } from "@/hooks/queries/useFamilyLinkByFamilyId";
+import { queries } from "@/queries";
+import { Spinner } from "@/components/ui/spinner";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 function cloneGifts(gifts: ReadonlyArray<Gift>): Array<Gift> {
   return gifts.map((gift) => ({ ...gift }));
@@ -23,6 +27,16 @@ function cloneGifts(gifts: ReadonlyArray<Gift>): Array<Gift> {
 
 export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
   component: ChildProfilePage,
+  beforeLoad: async ({ context, params }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        queries.children.byId(params.childId),
+      ),
+      context.queryClient.ensureQueryData(
+        queries.children.gifts(params.childId),
+      ),
+    ]);
+  },
 });
 
 function ChildProfilePage() {
@@ -35,6 +49,7 @@ function ChildProfilePage() {
   const [giftDetailsByGiftId, setGiftDetailsByGiftId] = useState<
     Record<string, GiftDetails>
   >({});
+  const [addGiftOpen, setAddGiftOpen] = useState(false);
 
   const updateChildMutation = useUpdateChild();
   const updateFamilyMutation = useUpdateFamily();
@@ -43,20 +58,24 @@ function ChildProfilePage() {
 
   const {
     data: child,
-    isLoading: childLoading,
+    isPending: childLoading,
     error: childError,
   } = useChild(childId);
 
   const {
     data: family,
-    isLoading: familyLoading,
+    isPending: familyLoading,
     error: familyError,
   } = useFamily(child?.familyId ?? "");
-  const { data: familyLink } = useFamilyLinkByFamilyId(child?.familyId ?? "");
+  const {
+    data: familyLink,
+    isPending: familyLinkPending,
+    error: familyLinkError,
+  } = useFamilyLinkByFamilyId(child?.familyId ?? "");
 
   const {
     data: gifts,
-    isLoading: giftsLoading,
+    isPending: giftsLoading,
     error: giftsError,
   } = useChildGifts(childId);
 
@@ -179,6 +198,7 @@ function ChildProfilePage() {
       childId: child.id,
       ...gift,
     });
+    setAddGiftOpen(false);
   };
 
   return (
@@ -228,12 +248,25 @@ function ChildProfilePage() {
                   isEditing={isEditing}
                   editedGifts={editedGifts}
                   setEditedGifts={setEditedGifts}
-                />
-                <AddGiftForm
-                  canAddToStorefront={activeGiftCount < 3}
-                  disabled={isEditing}
-                  isSubmitting={createGiftMutation.isPending}
-                  onSubmit={handleAddGift}
+                  headerAction={
+                    <Dialog open={addGiftOpen} onOpenChange={setAddGiftOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={isEditing}
+                        >
+                          Add Gift
+                        </Button>
+                      </DialogTrigger>
+                      <AddGiftForm
+                        canAddToStorefront={activeGiftCount < 3}
+                        disabled={false}
+                        isSubmitting={createGiftMutation.isPending}
+                        onSubmit={handleAddGift}
+                      />
+                    </Dialog>
+                  }
                 />
               </div>
             </div>
@@ -243,18 +276,31 @@ function ChildProfilePage() {
 
       {/* ── Gift Information Section ── */}
       <div className="my-6 h-px w-full bg-border/70" />
-      <GiftInfoSection
-        gifts={gifts}
-        parentComments={family.privateNotes}
-        adminComments={child.staffPrivateNotes ?? ""}
-        familyToken={familyLink?.id}
-        giftDetailsByGiftId={giftDetailsByGiftId}
-        onUpdateGiftDetails={(giftId, details) => {
-          setGiftDetailsByGiftId((prev) => ({ ...prev, [giftId]: details }));
-        }}
-        onUpdateGift={handleUpdateGift}
-        onSaveAdminComments={handleSaveAdminComments}
-      />
+      {/*TODO: This should not be handling the family link/admin comments too. Separate into a different component.*/}
+      {familyLinkPending ? (
+        <div className="p-2 w-full">
+          <Spinner />
+        </div>
+      ) : familyLinkError ? (
+        <div className="p-2 w-full">
+          <span className="text-kfk-red">
+            Failed to fetch family link: {familyLinkError.message}
+          </span>
+        </div>
+      ) : (
+        <GiftInfoSection
+          gifts={gifts}
+          parentComments={family.privateNotes}
+          adminComments={child.staffPrivateNotes ?? ""}
+          familyToken={familyLink?.id}
+          giftDetailsByGiftId={giftDetailsByGiftId}
+          onUpdateGiftDetails={(giftId, details) => {
+            setGiftDetailsByGiftId((prev) => ({ ...prev, [giftId]: details }));
+          }}
+          onUpdateGift={handleUpdateGift}
+          onSaveAdminComments={handleSaveAdminComments}
+        />
+      )}
     </div>
   );
 }

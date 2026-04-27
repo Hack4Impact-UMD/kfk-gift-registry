@@ -84,6 +84,7 @@ export function ChildInfo({
             <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
               <span className="font-semibold">Level:</span>
               <EditableField
+                type="number"
                 value={editedChild.treatmentLevel ?? child.treatmentLevel}
                 editable={isEditing}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

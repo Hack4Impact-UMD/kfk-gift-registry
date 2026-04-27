@@ -321,7 +321,13 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button asChild type="button" variant="outline" size="xs">
+            <Button
+              asChild
+              type="button"
+              disabled={editing}
+              variant="outline"
+              size="xs"
+            >
               <Link
                 to="/staff/child/$childId"
                 params={{ childId: child.id }}

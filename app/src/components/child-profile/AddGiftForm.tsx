@@ -3,6 +3,13 @@ import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/lib/toast";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type AddGiftFormProps = {
   canAddToStorefront: boolean;
@@ -68,77 +75,78 @@ export function AddGiftForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4 rounded-2xl border border-border/70 bg-card p-4 shadow-sm"
-    >
-      <div className="space-y-1">
-        <h2 className="text-xl font-semibold tracking-tight">Add Gift</h2>
-        <p className="text-sm text-muted-foreground">
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Add Gift</DialogTitle>
+        <DialogDescription>
           Add a gift directly to this child's profile.
-        </p>
-      </div>
+        </DialogDescription>
+      </DialogHeader>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid gap-3">
+          <Input
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="Gift name"
+            disabled={disabled || isSubmitting}
+            required
+          />
+          <Input
+            type="url"
+            value={productUrl}
+            onChange={(event) => setProductUrl(event.target.value)}
+            placeholder="Gift link"
+            disabled={disabled || isSubmitting}
+            required
+          />
+          <Input
+            type="number"
+            min="0"
+            step="0.01"
+            value={listedPrice}
+            onChange={(event) => setListedPrice(event.target.value)}
+            placeholder="Price (optional)"
+            disabled={disabled || isSubmitting}
+          />
+        </div>
 
-      <div className="grid gap-3">
-        <Input
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          placeholder="Gift name"
-          disabled={disabled || isSubmitting}
-          required
-        />
-        <Input
-          type="url"
-          value={productUrl}
-          onChange={(event) => setProductUrl(event.target.value)}
-          placeholder="Gift link"
-          disabled={disabled || isSubmitting}
-          required
-        />
-        <Input
-          type="number"
-          min="0"
-          step="0.01"
-          value={listedPrice}
-          onChange={(event) => setListedPrice(event.target.value)}
-          placeholder="Price (optional)"
-          disabled={disabled || isSubmitting}
-        />
-      </div>
+        {canAddToStorefront && (
+          <label className="flex items-center gap-2 text-sm text-foreground">
+            <Checkbox
+              checked={addToStorefront}
+              onCheckedChange={(c) => {
+                setWantsStorefrontPlacement(c === true);
+              }}
+              disabled={disabled || isSubmitting || !canAddToStorefront}
+              className="size-4 rounded border border-input"
+            />
+            Add to storefront now
+          </label>
+        )}
 
-      <label className="flex items-center gap-2 text-sm text-foreground">
-        <input
-          type="checkbox"
-          checked={addToStorefront}
-          onChange={(event) =>
-            setWantsStorefrontPlacement(event.target.checked)
-          }
-          disabled={disabled || isSubmitting || !canAddToStorefront}
-          className="size-4 rounded border border-input"
-        />
-        Add to storefront now
-      </label>
+        {!canAddToStorefront && (
+          <p className="text-sm text-muted-foreground">
+            This child already has 3 storefront gifts. New gifts will be added
+            as backup gifts.
+          </p>
+        )}
 
-      {!canAddToStorefront && (
-        <p className="text-sm text-muted-foreground">
-          This child already has 3 storefront gifts. New gifts will be added as
-          backup gifts.
-        </p>
-      )}
+        {disabled && (
+          <p className="text-sm text-muted-foreground">
+            Save or cancel the current edits before adding another gift.
+          </p>
+        )}
 
-      {disabled && (
-        <p className="text-sm text-muted-foreground">
-          Save or cancel the current edits before adding another gift.
-        </p>
-      )}
-
-      <Button
-        type="submit"
-        disabled={disabled || isSubmitting}
-        className="w-full sm:w-auto"
-      >
-        {isSubmitting ? "Adding..." : "Add Gift"}
-      </Button>
-    </form>
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            disabled={disabled || isSubmitting}
+            className="w-full sm:w-auto"
+          >
+            {isSubmitting ? "Adding..." : "Add Gift"}
+          </Button>
+        </div>
+      </form>
+    </DialogContent>
   );
 }

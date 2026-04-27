@@ -175,7 +175,7 @@ export const getAllApprovedFamilyProfilesForDrive = createServerFn({
     return familyProfiles.docs.map((doc) => doc.data());
   });
 
-export const getApprovedProfileTableRows = createServerFn({
+export const getChildProfileTableRows = createServerFn({
   method: "GET",
 })
   .middleware([

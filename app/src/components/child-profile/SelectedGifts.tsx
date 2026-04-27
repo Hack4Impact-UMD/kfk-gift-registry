@@ -6,6 +6,7 @@ type SelectedGiftsProps = {
   isEditing: boolean;
   editedGifts: Array<Gift>;
   setEditedGifts: React.Dispatch<React.SetStateAction<Array<Gift>>>;
+  headerAction?: React.ReactNode;
 };
 
 export function SelectedGifts({
@@ -13,6 +14,7 @@ export function SelectedGifts({
   isEditing,
   editedGifts,
   setEditedGifts,
+  headerAction,
 }: SelectedGiftsProps) {
   const currentGifts = isEditing ? editedGifts : gifts;
   const activeGifts = currentGifts.filter((g) => g.active);
@@ -44,9 +46,12 @@ export function SelectedGifts({
 
   return (
     <div className="min-w-0 space-y-3">
-      <h2 className="text-xl font-semibold tracking-tight">
-        Storefront Selected Gifts (3 Max)
-      </h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-xl font-semibold tracking-tight">
+          Storefront Selected Gifts (3 Max)
+        </h2>
+        {headerAction}
+      </div>
 
       <div className="w-full divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
         {visibleGifts.map((gift, i) => {
