@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "../DataTable";
 import { columns } from "./columns";
 import { PendingProfilesTableActionButton } from "./PendingProfilesTableActionButton";
 import { Input } from "@/components/ui/input";
 import { useReviewOrder } from "@/context/ReviewOrderContext";
 import { cn } from "@/lib/utils";
+import { queries } from "@/queries";
+import { updateChild } from "@/server/functions/child";
+import { toast } from "@/lib/toast";
 import type { ApplicationStatus, PendingProfileTableRow } from "./types";
 
 interface PendingProfilesTableProps {
@@ -26,8 +30,13 @@ export function PendingProfilesTable({
   paginated = true,
 }: PendingProfilesTableProps) {
   const [globalSearch, setGlobalSearch] = useState("");
+  const [selectedRows, setSelectedRows] = useState<
+    Array<PendingProfileTableRow>
+  >([]);
+  const [selectionVersion, setSelectionVersion] = useState(0);
   const navigate = useNavigate();
   const { setReviewOrder } = useReviewOrder();
+  const queryClient = useQueryClient();
 
   const handleRowClick = (
     row: PendingProfileTableRow,
@@ -44,6 +53,85 @@ export function PendingProfilesTable({
     ? data.filter((row) => row.status === statusFilter)
     : data;
   const tableKey = statusFilter ?? "all";
+  const selectedFamilyIds = selectedRows.map((row) => row.id);
+
+  const publishSelectedFamiliesMutation = useMutation({
+    mutationFn: async (familyIds: Array<string>) => {
+      const uniqueFamilyIds = [...new Set(familyIds)];
+      const familyChildren = await Promise.all(
+        uniqueFamilyIds.map(async (familyId) => ({
+          familyId,
+          children: await queryClient.fetchQuery(
+            queries.children.byFamilyId(familyId),
+          ),
+        })),
+      );
+
+      const unpublishedChildren = familyChildren.flatMap(({ children }) =>
+        children.filter((child) => !child.published),
+      );
+
+      await Promise.all(
+        unpublishedChildren.map((child) =>
+          updateChild({
+            data: {
+              childId: child.id,
+              updates: {
+                published: true,
+              },
+            },
+          }),
+        ),
+      );
+
+      return {
+        familyCount: uniqueFamilyIds.length,
+        publishedChildCount: unpublishedChildren.length,
+      };
+    },
+    onSuccess: async ({ familyCount, publishedChildCount }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: queries.children.byFamilyId._def,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: queries.children.approvedProfileTableRows._def,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: queries.families.profileTableRows._def,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: queries.storefront._def,
+        }),
+      ]);
+
+      setSelectedRows([]);
+      setSelectionVersion((current) => current + 1);
+
+      if (publishedChildCount === 0) {
+        toast.success("Selected families already have all children published");
+        return;
+      }
+
+      toast.success(
+        `Published ${publishedChildCount} child profile${
+          publishedChildCount === 1 ? "" : "s"
+        } across ${familyCount} famil${familyCount === 1 ? "y" : "ies"}`,
+      );
+    },
+    onError: (error) => {
+      toast.error(`Failed to publish children: ${error.message}`);
+    },
+  });
+
+  const handlePublishToStorefront = () => {
+    if (selectedFamilyIds.length === 0) {
+      toast.warning("Select at least one family to publish");
+      return;
+    }
+
+    publishSelectedFamiliesMutation.mutate(selectedFamilyIds);
+  };
 
   return (
     <div className={cn("flex flex-col gap-4 pt-6", className)}>
@@ -62,12 +150,23 @@ export function PendingProfilesTable({
           <PendingProfilesTableActionButton
             className="sm:ml-auto"
             statusFilter={statusFilter}
+            disabled={
+              statusFilter === "approved"
+                ? selectedFamilyIds.length === 0
+                : false
+            }
+            loading={publishSelectedFamiliesMutation.isPending}
+            onClick={
+              statusFilter === "approved"
+                ? handlePublishToStorefront
+                : undefined
+            }
           />
         </div>
       </div>
 
       <DataTable
-        key={tableKey}
+        key={`${tableKey}-${selectionVersion}`}
         columns={columns}
         data={filteredData}
         globalSearch={globalSearch}
@@ -77,6 +176,7 @@ export function PendingProfilesTable({
         onOrderedRowsChange={(orderedRows) =>
           setReviewOrder(orderedRows.map((orderedRow) => orderedRow.id))
         }
+        onSelectedRowsChange={setSelectedRows}
         onRowClick={handleRowClick}
       />
     </div>
