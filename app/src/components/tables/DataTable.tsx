@@ -5,14 +5,17 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  type RowSelectionState,
   useReactTable,
 } from "@tanstack/react-table";
 
 import { twMerge } from "tailwind-merge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../ui/button";
-import type { ColumnDef, TableOptions } from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  RowSelectionState,
+  TableOptions,
+} from "@tanstack/react-table";
 import {
   Table,
   TableBody,
