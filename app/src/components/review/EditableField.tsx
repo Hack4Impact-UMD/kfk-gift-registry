@@ -101,7 +101,9 @@ export function EditableField({
           {...(props as React.ComponentProps<typeof Textarea>)}
         />
         <p
-          className={`self-end ${wordCount <= 25 ? "text-muted-foreground" : "text-destructive"}`}
+          className={`self-end ${
+            wordCount <= 25 ? "text-muted-foreground" : "text-destructive"
+          }`}
         >
           {wordCount}/25 words
         </p>
@@ -127,15 +129,15 @@ export function EditableField({
   }
 
   return (
-    <>
-      {children && <b className="whitespace-nowrap my-auto mr-2">{children}</b>}
+    <div className={cn("flex items-center gap-2 w-full", className)}>
+      {children && <b className="whitespace-nowrap">{children}</b>}
       <Input
         ref={inputRef as React.RefObject<HTMLInputElement>}
         value={value}
         onChange={inputOnChange}
-        className={cn("border-foreground", className)}
+        className="flex-1 min-w-0 border-foreground"
         {...props}
       />
-    </>
+    </div>
   );
 }

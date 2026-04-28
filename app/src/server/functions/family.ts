@@ -133,6 +133,30 @@ export const getFamilyById = createServerFn({ method: "GET" })
     return familyDoc.data();
   });
 
+export const getActiveFamilyLinkByFamilyId = createServerFn({ method: "GET" })
+  .inputValidator(familyIdInputSchema)
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const linkSnapshot = await db.familyLinks
+      .where("familyId", "==", data.familyId)
+      .where("active", "==", true)
+      .limit(1)
+      .get();
+
+    if (linkSnapshot.empty) {
+      return null;
+    }
+
+    return linkSnapshot.docs[0].data();
+  });
+
 export const getFamilyDashboardDataByToken = createServerFn({ method: "GET" })
   .inputValidator(tokenInputSchema)
   .handler(async ({ data }) => {

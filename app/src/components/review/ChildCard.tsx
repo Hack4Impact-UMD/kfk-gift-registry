@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { EditableField } from "./EditableField";
 import { ReviewGift } from "./ReviewGift";
 import { useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import type { ChangeEventHandler } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
@@ -320,6 +321,21 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
             </div>
           </div>
           <div className="flex gap-2">
+            <Button
+              asChild
+              type="button"
+              disabled={editing}
+              variant="outline"
+              size="xs"
+            >
+              <Link
+                to="/staff/child/$childId"
+                params={{ childId: child.id }}
+                search={(prev) => prev}
+              >
+                Open Child Page
+              </Link>
+            </Button>
             <Button
               type="button"
               size="xs"

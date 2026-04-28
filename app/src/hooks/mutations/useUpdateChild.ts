@@ -3,6 +3,7 @@ import { updateChild } from "@/server/functions/child";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
 import type { Child } from "common";
+import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 
 export function useUpdateChild() {
   const queryClient = useQueryClient();
@@ -20,6 +21,7 @@ export function useUpdateChild() {
         photoUrl?: string;
         age?: number;
         treatmentLevel?: number;
+        published?: boolean;
         diagnosisLengthYears?: "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
         offTreatmentDurationYears?: "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
       };
@@ -28,15 +30,23 @@ export function useUpdateChild() {
     onMutate: async ({ childId, updates }) => {
       const childKey = queries.children.byId(childId).queryKey;
       const familyChildrenPartialKey = queries.children.byFamilyId._def;
+      const approvedProfilesPartialKey =
+        queries.children.approvedProfileTableRows._def;
 
       await Promise.all([
         queryClient.cancelQueries({ queryKey: childKey }),
         queryClient.cancelQueries({ queryKey: familyChildrenPartialKey }),
+        queryClient.cancelQueries({ queryKey: approvedProfilesPartialKey }),
       ]);
 
       const previousChild = queryClient.getQueryData<Child>(childKey);
       const previousFamilyChildren = queryClient.getQueriesData<Array<Child>>({
         queryKey: familyChildrenPartialKey,
+      });
+      const previousApprovedProfiles = queryClient.getQueriesData<
+        Array<ApprovedProfileTableRow>
+      >({
+        queryKey: approvedProfilesPartialKey,
       });
 
       if (previousChild) {
@@ -53,7 +63,36 @@ export function useUpdateChild() {
           data,
       );
 
-      return { previousChild, previousFamilyChildren };
+      queryClient.setQueriesData<Array<ApprovedProfileTableRow>>(
+        { queryKey: approvedProfilesPartialKey },
+        (data) =>
+          data?.map((row) =>
+            row.id === childId
+              ? {
+                  ...row,
+                  ...(updates.name !== undefined
+                    ? { childName: updates.name }
+                    : {}),
+                  ...(updates.photoUrl !== undefined
+                    ? { profilePictureUrl: updates.photoUrl }
+                    : {}),
+                  ...(updates.age !== undefined ? { age: updates.age } : {}),
+                  ...(updates.diagnosis !== undefined
+                    ? { diagnosis: updates.diagnosis }
+                    : {}),
+                  ...(updates.published !== undefined
+                    ? { published: updates.published }
+                    : {}),
+                }
+              : row,
+          ) ?? data,
+      );
+
+      return {
+        previousChild,
+        previousFamilyChildren,
+        previousApprovedProfiles,
+      };
     },
 
     onError: (error, { childId }, onMutateResult) => {
@@ -63,6 +102,9 @@ export function useUpdateChild() {
           onMutateResult.previousChild,
         );
         for (const [key, data] of onMutateResult.previousFamilyChildren) {
+          queryClient.setQueryData(key, data);
+        }
+        for (const [key, data] of onMutateResult.previousApprovedProfiles) {
           queryClient.setQueryData(key, data);
         }
       }
@@ -88,6 +130,10 @@ export function useUpdateChild() {
 
       queryClient.invalidateQueries({
         queryKey: queries.children.approvedProfileTableRows._def,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: queries.storefront._def,
       });
     },
   });

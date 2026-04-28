@@ -1,6 +1,6 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 import {
-  getApprovedProfileTableRows,
+  getChildProfileTableRows,
   getChildById,
   getChildGiftsByChildId,
   getChildProfilesForFamily,
@@ -10,7 +10,7 @@ import {
 export const childQueries = createQueryKeys("children", {
   approvedProfileTableRows: (driveId: string) => ({
     queryKey: ["approvedProfileTableRows", driveId],
-    queryFn: () => getApprovedProfileTableRows({ data: { driveId } }),
+    queryFn: () => getChildProfileTableRows({ data: { driveId } }),
   }),
   byFamilyId: (familyId: string) => ({
     queryKey: ["byFamilyId", familyId],
