@@ -253,7 +253,10 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
     const families = familiesSnapshot.docs.map((doc) => doc.data());
     const familyIds = families.map((f) => f.id);
 
-    const childCountMap = new Map<string, number>();
+    const childCountMap = new Map<
+      string,
+      { total: number; published: number }
+    >();
 
     for (let i = 0; i < familyIds.length; i += 10) {
       const batch = familyIds.slice(i, i + 10);
@@ -263,16 +266,24 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
 
       for (const childDoc of childrenSnapshot.docs) {
         const child = childDoc.data();
-        childCountMap.set(
-          child.familyId,
-          (childCountMap.get(child.familyId) || 0) + 1,
-        );
+        const existingCounts = childCountMap.get(child.familyId) ?? {
+          total: 0,
+          published: 0,
+        };
+        childCountMap.set(child.familyId, {
+          total: existingCounts.total + 1,
+          published: existingCounts.published + (child.published ? 1 : 0),
+        });
       }
     }
 
     for (const family of families) {
       let status: ApplicationStatus;
       const reviewStatus = family.reviewStatus;
+      const childCounts = childCountMap.get(family.id) ?? {
+        total: 0,
+        published: 0,
+      };
 
       if (reviewStatus?.approved) {
         status = "approved";
@@ -285,7 +296,8 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
       const row: PendingProfileTableRow = {
         id: family.id,
         parentGuardian: family.contactName,
-        numberOfChildren: childCountMap.get(family.id) || 0,
+        numberOfChildren: childCounts.total,
+        publishedChildren: childCounts.published,
         status,
         submissionDate: family.createdAt,
         adminComments:

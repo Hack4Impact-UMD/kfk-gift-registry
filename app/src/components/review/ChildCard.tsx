@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { EditableField } from "./EditableField";
 import { ReviewGift } from "./ReviewGift";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import type { ChangeEventHandler } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
@@ -10,7 +10,6 @@ import ProfileHeader from "@/assets/default-profile-photo.png";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
-import { useDebouncer } from "@tanstack/react-pacer";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -68,6 +67,9 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   const photoReadIdRef = useRef(0);
   const photoReaderRef = useRef<FileReader | null>(null);
   const isEditingRef = useRef(false);
+  const giftUpdateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const [formState, setFormState] = useState<ChildFormState>({
     treatmentLength: child.diagnosisLengthYears,
     diagnosis: child.diagnosis,
@@ -81,9 +83,27 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   });
   const { mutate: updateGift } = useUpdateGift();
 
-  const debouncedUpdateGift = useDebouncer(updateGift, {
-    wait: 500,
-  });
+  const cancelPendingGiftUpdate = () => {
+    if (giftUpdateTimeoutRef.current) {
+      clearTimeout(giftUpdateTimeoutRef.current);
+      giftUpdateTimeoutRef.current = null;
+    }
+  };
+
+  useEffect(() => cancelPendingGiftUpdate, []);
+
+  const queueGiftPriceUpdate = (giftId: string, price: number) => {
+    cancelPendingGiftUpdate();
+    giftUpdateTimeoutRef.current = setTimeout(() => {
+      updateGift({
+        giftId,
+        updates: {
+          listedPrice: price,
+        },
+      });
+      giftUpdateTimeoutRef.current = null;
+    }, 500);
+  };
 
   const updatePrice = (giftId: string, price: number | undefined) => {
     setFormState((prev) => ({
@@ -94,12 +114,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
     }));
 
     if (hasValidListedPrice(price)) {
-      debouncedUpdateGift.maybeExecute({
-        giftId: giftId,
-        updates: {
-          listedPrice: price,
-        },
-      });
+      queueGiftPriceUpdate(giftId, price);
     } else {
       toast.warning("Invalid price!");
     }
@@ -125,7 +140,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   };
 
   const handleCancelClick = () => {
-    debouncedUpdateGift.cancel();
+    cancelPendingGiftUpdate();
     invalidatePhotoRead();
     resetPhotoInput();
     isEditingRef.current = false;
@@ -206,7 +221,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   };
 
   const handleSave = () => {
-    debouncedUpdateGift.cancel();
+    cancelPendingGiftUpdate();
     const currentWordCount = computeWordCount(formState.blurb);
 
     if (currentWordCount > 25) {
