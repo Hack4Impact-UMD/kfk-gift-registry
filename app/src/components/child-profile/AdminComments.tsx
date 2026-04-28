@@ -14,7 +14,6 @@ export function AdminComments({
 }: AdminCommentsProps) {
   return (
     <AdminCommentsEditor
-      key={initialComments}
       initialComments={initialComments}
       onSave={onSave}
       debounceMs={debounceMs}
