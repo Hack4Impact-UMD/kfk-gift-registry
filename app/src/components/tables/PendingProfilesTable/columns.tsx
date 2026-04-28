@@ -70,15 +70,15 @@ export const columns = [
     },
   }),
 
-  helper.accessor("numberOfChildren", {
-    enableGlobalFilter: false,
-    header: ({ column }) => (
-      <ColumnSortButton column={column}># of Children</ColumnSortButton>
-    ),
-    cell: ({ getValue }) => (
-      <span className="text-center block">{getValue()}</span>
-    ),
-  }),
+  // helper.accessor("numberOfChildren", {
+  //   enableGlobalFilter: false,
+  //   header: ({ column }) => (
+  //     <ColumnSortButton column={column}># of Children</ColumnSortButton>
+  //   ),
+  //   cell: ({ getValue }) => (
+  //     <span className="text-center block">{getValue()}</span>
+  //   ),
+  // }),
 
   helper.accessor("publishedChildren", {
     enableGlobalFilter: false,
