@@ -133,6 +133,10 @@ export function useUpdateChild() {
       });
 
       queryClient.invalidateQueries({
+        queryKey: queries.families.profileTableRows._def,
+      });
+
+      queryClient.invalidateQueries({
         queryKey: queries.storefront._def,
       });
     },

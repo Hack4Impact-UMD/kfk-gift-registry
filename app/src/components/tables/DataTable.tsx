@@ -11,7 +11,11 @@ import {
 import { twMerge } from "tailwind-merge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../ui/button";
-import type { ColumnDef, TableOptions } from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  RowSelectionState,
+  TableOptions,
+} from "@tanstack/react-table";
 import {
   Table,
   TableBody,
@@ -31,6 +35,7 @@ interface DataTableProps<TData, TValue> {
   globalSearch?: string;
   onGlobalSearchChange?: (value: string) => void;
   onOrderedRowsChange?: (orderedRows: Array<TData>) => void;
+  onSelectedRowsChange?: (selectedRows: Array<TData>) => void;
   onRowClick?: (row: TData, orderedRows: Array<TData>) => void;
 }
 
@@ -44,15 +49,32 @@ export function DataTable<TData, TValue>({
   rowsPerPage = 10,
   paginated = true,
   onOrderedRowsChange,
+  onSelectedRowsChange,
   onRowClick,
 }: DataTableProps<TData, TValue>) {
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+  const {
+    state: optionsState,
+    onRowSelectionChange: optionsOnRowSelectionChange,
+    enableRowSelection,
+    ...restOptions
+  } = options;
+
   const table = useReactTable({
     data,
     columns,
+    ...restOptions,
     state: {
+      ...optionsState,
       globalFilter: globalSearch,
+      rowSelection,
     },
     onGlobalFilterChange: onGlobalSearchChange,
+    onRowSelectionChange: (updater) => {
+      setRowSelection(updater);
+      optionsOnRowSelectionChange?.(updater);
+    },
+    enableRowSelection: enableRowSelection ?? true,
     getCoreRowModel: getCoreRowModel(), // These are here by default, should be able to override with options,
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -67,7 +89,6 @@ export function DataTable<TData, TValue>({
           },
         }
       : {}),
-    ...options,
   });
 
   const totalRows = table.getFilteredRowModel().rows.length;
@@ -87,6 +108,12 @@ export function DataTable<TData, TValue>({
   React.useEffect(() => {
     onOrderedRowsChange?.(orderedRows);
   }, [onOrderedRowsChange, orderedRows]);
+
+  React.useEffect(() => {
+    onSelectedRowsChange?.(
+      table.getSelectedRowModel().rows.map((row) => row.original),
+    );
+  }, [onSelectedRowsChange, rowSelection, table]);
 
   const getPageNumbers = (): Array<number | "..."> => {
     if (pageCount <= 5) {
