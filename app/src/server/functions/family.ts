@@ -369,7 +369,7 @@ export const publishFamilies = createServerFn({ method: "POST" })
           async (id) => await getChildrenForFamily({ data: { familyId: id } }),
         ),
       )
-    ).flatMap((cs) => cs);
+    ).flatMap((cs) => cs).filter(c => !c.published);
 
     await db._instance.runTransaction(async (tx) => {
       children.map((c) =>
