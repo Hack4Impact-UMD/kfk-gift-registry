@@ -67,9 +67,9 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   const photoReadIdRef = useRef(0);
   const photoReaderRef = useRef<FileReader | null>(null);
   const isEditingRef = useRef(false);
-  const giftUpdateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
+  const giftUpdateTimeoutsRef = useRef<
+    Map<string, ReturnType<typeof setTimeout>>
+  >(new Map());
   const [formState, setFormState] = useState<ChildFormState>({
     treatmentLength: child.diagnosisLengthYears,
     diagnosis: child.diagnosis,
@@ -84,25 +84,27 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   const { mutate: updateGift } = useUpdateGift();
 
   const cancelPendingGiftUpdate = () => {
-    if (giftUpdateTimeoutRef.current) {
-      clearTimeout(giftUpdateTimeoutRef.current);
-      giftUpdateTimeoutRef.current = null;
-    }
+    giftUpdateTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
+    giftUpdateTimeoutsRef.current.clear();
   };
 
   useEffect(() => cancelPendingGiftUpdate, []);
 
   const queueGiftPriceUpdate = (giftId: string, price: number) => {
-    cancelPendingGiftUpdate();
-    giftUpdateTimeoutRef.current = setTimeout(() => {
-      updateGift({
-        giftId,
-        updates: {
-          listedPrice: price,
-        },
-      });
-      giftUpdateTimeoutRef.current = null;
-    }, 500);
+    const existing = giftUpdateTimeoutsRef.current.get(giftId);
+    if (existing) clearTimeout(existing);
+    giftUpdateTimeoutsRef.current.set(
+      giftId,
+      setTimeout(() => {
+        updateGift({
+          giftId,
+          updates: {
+            listedPrice: price,
+          },
+        });
+        giftUpdateTimeoutsRef.current.delete(giftId);
+      }, 500),
+    );
   };
 
   const updatePrice = (giftId: string, price: number | undefined) => {
