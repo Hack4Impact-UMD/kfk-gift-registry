@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
+import type { Child } from "common";
 import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import { getServerDB } from "@/lib/firebase.server";
@@ -8,6 +9,7 @@ import type {
   PendingProfileTableRow,
   ApplicationStatus,
 } from "@/components/tables/PendingProfilesTable/types";
+import { getChildrenForFamily } from "./child";
 
 const tokenInputSchema = z.object({
   token: z.string().min(1),
@@ -340,4 +342,40 @@ export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
       updatedFamily.data(),
       "Family data unavailable after review update",
     );
+  });
+
+const publishFamiliesSchema = z.array(z.string().nonempty());
+
+export const publishFamilies = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.VOLUNTEER,
+      UserRole.DIRECTOR,
+    ]),
+  ])
+  .inputValidator(publishFamiliesSchema)
+  .handler(async ({ data: familyIds }) => {
+    const db = getServerDB();
+    const families = await Promise.all(
+      familyIds.map((id) => getFamilyById({ data: { familyId: id } })),
+    );
+    if (families.some((f) => !f?.reviewStatus.approved)) {
+      throw new Error("Can't publish a family that was not approved!");
+    }
+    const children: Array<Child> = (
+      await Promise.all(
+        familyIds.map(
+          async (id) => await getChildrenForFamily({ data: { familyId: id } }),
+        ),
+      )
+    ).flatMap((cs) => cs);
+
+    await db._instance.runTransaction(async (tx) => {
+      children.map((c) =>
+        tx.update(db.children.doc(c.id), {
+          published: true,
+        } satisfies Partial<Child>),
+      );
+    });
   });

@@ -1,16 +1,13 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "../DataTable";
 import { columns } from "./columns";
 import { PendingProfilesTableActionButton } from "./PendingProfilesTableActionButton";
 import { Input } from "@/components/ui/input";
 import { useReviewOrder } from "@/context/ReviewOrderContext";
 import { cn } from "@/lib/utils";
-import { queries } from "@/queries";
-import { updateChild } from "@/server/functions/child";
-import { toast } from "@/lib/toast";
+import { usePublishFamilies } from "@/hooks/mutations/usePublishFamilies";
 import type { ApplicationStatus, PendingProfileTableRow } from "./types";
 
 interface PendingProfilesTableProps {
@@ -36,7 +33,7 @@ export function PendingProfilesTable({
   const [selectionVersion, setSelectionVersion] = useState(0);
   const navigate = useNavigate();
   const { setReviewOrder } = useReviewOrder();
-  const queryClient = useQueryClient();
+  const publishFamiliesMutation = usePublishFamilies();
 
   const handleRowClick = (
     row: PendingProfileTableRow,
@@ -49,88 +46,24 @@ export function PendingProfilesTable({
     });
   };
 
-  const filteredData = statusFilter
-    ? data.filter((row) => row.status === statusFilter)
-    : data;
+  const filteredData = useMemo(
+    () =>
+      statusFilter ? data.filter((row) => row.status === statusFilter) : data,
+    [statusFilter, data],
+  );
   const tableKey = statusFilter ?? "all";
-  const selectedFamilyIds = selectedRows.map((row) => row.id);
-
-  const publishSelectedFamiliesMutation = useMutation({
-    mutationFn: async (familyIds: Array<string>) => {
-      const uniqueFamilyIds = [...new Set(familyIds)];
-      const familyChildren = await Promise.all(
-        uniqueFamilyIds.map(async (familyId) => ({
-          familyId,
-          children: await queryClient.fetchQuery(
-            queries.children.byFamilyId(familyId),
-          ),
-        })),
-      );
-
-      const unpublishedChildren = familyChildren.flatMap(({ children }) =>
-        children.filter((child) => !child.published),
-      );
-
-      await Promise.all(
-        unpublishedChildren.map((child) =>
-          updateChild({
-            data: {
-              childId: child.id,
-              updates: {
-                published: true,
-              },
-            },
-          }),
-        ),
-      );
-
-      return {
-        familyCount: uniqueFamilyIds.length,
-        publishedChildCount: unpublishedChildren.length,
-      };
-    },
-    onSuccess: async ({ familyCount, publishedChildCount }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: queries.children.byFamilyId._def,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: queries.children.approvedProfileTableRows._def,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: queries.families.profileTableRows._def,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: queries.storefront._def,
-        }),
-      ]);
-
-      setSelectedRows([]);
-      setSelectionVersion((current) => current + 1);
-
-      if (publishedChildCount === 0) {
-        toast.success("Selected families already have all children published");
-        return;
-      }
-
-      toast.success(
-        `Published ${publishedChildCount} child profile${
-          publishedChildCount === 1 ? "" : "s"
-        } across ${familyCount} famil${familyCount === 1 ? "y" : "ies"}`,
-      );
-    },
-    onError: (error) => {
-      toast.error(`Failed to publish children: ${error.message}`);
-    },
-  });
+  const selectedFamilyIds = useMemo(
+    () => selectedRows.map((row) => row.id),
+    [selectedRows],
+  );
 
   const handlePublishToStorefront = () => {
-    if (selectedFamilyIds.length === 0) {
-      toast.warning("Select at least one family to publish");
-      return;
-    }
-
-    publishSelectedFamiliesMutation.mutate(selectedFamilyIds);
+    publishFamiliesMutation.mutate(selectedFamilyIds, {
+      onSuccess: () => {
+        setSelectedRows([]);
+        setSelectionVersion((current) => current + 1);
+      },
+    });
   };
 
   return (
@@ -151,11 +84,12 @@ export function PendingProfilesTable({
             className="sm:ml-auto"
             statusFilter={statusFilter}
             disabled={
-              statusFilter === "approved"
+              selectedRows.length == 0 ||
+              (statusFilter === "approved"
                 ? selectedFamilyIds.length === 0
-                : false
+                : false)
             }
-            loading={publishSelectedFamiliesMutation.isPending}
+            loading={publishFamiliesMutation.isPending}
             onClick={
               statusFilter === "approved"
                 ? handlePublishToStorefront

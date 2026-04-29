@@ -6,7 +6,7 @@ import { v7 as uuidv7 } from "uuid";
 import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
-import type { Family, Gift, GiftStatus } from "common";
+import type { Family, Gift, GiftStatus, Child } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
@@ -348,8 +348,11 @@ export const getChildGiftsByChildId = createServerFn({ method: "GET" })
 
 //     return childrenWithGifts
 //   });
+//
 
-export const getChildrenForFamily = createServerFn({ method: "GET" })
+export type ChildWithGifts = Child & { gifts: Array<Gift> };
+
+export const getChildrenForFamilyWithGifts = createServerFn({ method: "GET" })
   .inputValidator(familyIdSchema)
   .middleware([
     requireRolesMiddleware([
@@ -378,15 +381,43 @@ export const getChildrenForFamily = createServerFn({ method: "GET" })
 
         const gifts = await db.gifts.where("childId", "==", childDoc.id).get();
 
-        return {
+        const childWithGifts: ChildWithGifts = {
           ...childData,
           id: childDoc.id,
           gifts: gifts.docs.map((g) => ({ ...g.data(), id: g.id })),
         };
+
+        return childWithGifts;
       }),
     );
 
     return childrenWithGifts;
+  });
+
+export const getChildrenForFamily = createServerFn({ method: "GET" })
+  .inputValidator(familyIdSchema)
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .handler(async ({ data }) => {
+    const { familyId } = data;
+    const db = getServerDB();
+
+    // Fetches all children in this family
+    const childrenSnap = await db.children
+      .where("familyId", "==", familyId)
+      .get();
+
+    if (childrenSnap.empty) {
+      return [];
+    }
+
+    // Using Promise.all to fetch gifts for all children in parallel
+    return childrenSnap.docs.map((d) => d.data());
   });
 
 /**
