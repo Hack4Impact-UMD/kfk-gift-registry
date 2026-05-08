@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { ChildStatusSchema, type ChildStatus } from "common";
+import { ChildStatusSchema } from "common";
+import type { ChildStatus } from "common";
 
 // Ordered to match display order in the form.
 export const CHILD_STATUS_VALUES = ChildStatusSchema.options;

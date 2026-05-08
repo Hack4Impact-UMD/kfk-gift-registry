@@ -7,7 +7,9 @@ export const ClaimPurchaseConfirmationSchema = z.object({
   trackingNumber: z.string().optional(),
 });
 
-export type ClaimPurchaseConfirmation = z.infer<typeof ClaimPurchaseConfirmationSchema>;
+export type ClaimPurchaseConfirmation = z.infer<
+  typeof ClaimPurchaseConfirmationSchema
+>;
 
 export const DeliveryConfirmationSchema = z.object({
   date: z.string(),

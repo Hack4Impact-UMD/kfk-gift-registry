@@ -13,11 +13,19 @@ export const ProfileUpdateGiftSchema = GiftSchema.pick({
 
 export type ProfileUpdateGift = z.infer<typeof ProfileUpdateGiftSchema>;
 
-export const ChildProfileUpdateDataSchema = ChildSchema.omit({ id: true }).partial();
+export const ChildProfileUpdateDataSchema = ChildSchema.omit({
+  id: true,
+}).partial();
 
-export type ChildProfileUpdateData = z.infer<typeof ChildProfileUpdateDataSchema>;
+export type ChildProfileUpdateData = z.infer<
+  typeof ChildProfileUpdateDataSchema
+>;
 
-export const ProfileUpdateStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED"]);
+export const ProfileUpdateStatusSchema = z.enum([
+  "PENDING",
+  "APPROVED",
+  "REJECTED",
+]);
 
 export type ProfileUpdateStatus = z.infer<typeof ProfileUpdateStatusSchema>;
 
