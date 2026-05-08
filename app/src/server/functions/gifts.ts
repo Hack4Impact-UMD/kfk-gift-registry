@@ -1,23 +1,20 @@
 /* Backend server functions relating to published gifts (per specific giftDrive) */
 import { createServerFn } from "@tanstack/react-start";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
-import type { Claim, GiftStatus, UserProfile } from "common";
+import type { Claim, UserProfile } from "common";
 import { UserRole } from "common";
 import z from "zod";
 import { getServerDB } from "@/lib/firebase.server";
+import type {
+  GiftClaimStatus,
+  PublishedGiftsTableRow,
+} from "@/components/tables/PublishedGiftsTable/types";
+import { chunk } from "@/lib/utils";
 
 const driveIdSchema = z.object({
   // param for both functions
   driveId: z.string(),
 });
-
-const GIFT_STATUS_TO_ROW: Record<GiftStatus, string> = {
-  AVAILABLE: "unclaimed",
-  CLAIMED: "claimed",
-  PURCHASED: "purchased",
-  DELIVERED: "delivered",
-  RECEIVED: "received",
-};
 
 function isDonorClaim(
   claim: Claim,
@@ -26,7 +23,13 @@ function isDonorClaim(
 }
 
 export const getPublishedGifts = createServerFn({ method: "GET" })
-  .middleware([requireRolesMiddleware([UserRole.DIRECTOR, UserRole.ADMIN])])
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.DIRECTOR,
+      UserRole.ADMIN,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
   .inputValidator(driveIdSchema)
   .handler(async ({ data }) => {
     const db = getServerDB();
@@ -47,18 +50,17 @@ export const getPublishedGifts = createServerFn({ method: "GET" })
   });
 
 export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
-  .middleware([requireRolesMiddleware([UserRole.DIRECTOR, UserRole.ADMIN])])
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.DIRECTOR,
+      UserRole.ADMIN,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
   .inputValidator(driveIdSchema)
   .handler(async ({ data }) => {
     const gifts = await getPublishedGifts({ data });
     const db = getServerDB();
-    const chunk = <T>(items: Array<T>, size: number): Array<Array<T>> => {
-      const chunks: Array<Array<T>> = [];
-      for (let i = 0; i < items.length; i += size) {
-        chunks.push(items.slice(i, i + size));
-      }
-      return chunks;
-    };
 
     const giftIds = gifts.map((gift) => gift.id);
     const claimByGiftId = new Map<string, Claim>();
@@ -71,7 +73,7 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
           .get();
 
         for (const claimDoc of claimsSnapshot.docs) {
-          const claim = claimDoc.data() as Claim;
+          const claim = claimDoc.data();
           if (!claimByGiftId.has(claim.giftId)) {
             claimByGiftId.set(claim.giftId, claim);
           }
@@ -106,8 +108,7 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
     return gifts.map((gift) => {
       const claim = claimByGiftId.get(gift.id);
 
-      let sponsorType: "unpurchased" | "purchased_kfk" | "purchased_donor" =
-        "unpurchased";
+      let sponsorType: GiftClaimStatus = "unpurchased";
       let sponsorName: string | undefined;
       let sponsorEmail: string | undefined;
 
@@ -123,12 +124,10 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
         sponsorEmail = donorProfile?.email;
       }
 
-      const giftStatus = GIFT_STATUS_TO_ROW[gift.status];
-
       return {
         id: gift.id,
         giftName: gift.title,
-        giftStatus,
+        giftStatus: gift.status,
         sponsorType,
         sponsorName,
         sponsorEmail,
@@ -137,6 +136,6 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
           claim?.deliveryConfirmed?.date ??
           claim?.purchaseConfirmation?.date,
         productUrl: gift.productUrl,
-      };
+      } satisfies PublishedGiftsTableRow;
     });
   });

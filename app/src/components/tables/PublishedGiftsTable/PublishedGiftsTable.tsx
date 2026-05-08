@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { DataTable } from "../DataTable";
 import { columns } from "./columns";
@@ -6,13 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { StatusSummaryHeader } from "./StatusSummaryHeader";
-import type { GiftPurchaseStatus, PublishedGiftsTableRow } from "./types";
+import type { GiftClaimStatus, PublishedGiftsTableRow } from "./types";
 
 interface PublishedGiftsTableProps {
   data: Array<PublishedGiftsTableRow>;
   className?: string;
   /** Filter by sponsor type (passed in from header cards) **/
-  sponsorTypeFilter?: GiftPurchaseStatus | null;
+  sponsorTypeFilter?: GiftClaimStatus | null;
   rowsPerPage?: number;
   paginated?: boolean;
 }
@@ -25,22 +25,20 @@ export function PublishedGiftsTable({
   paginated = true,
 }: PublishedGiftsTableProps) {
   const [globalSearch, setGlobalSearch] = useState("");
-  const [activeFilter, setActiveFilter] = useState<GiftPurchaseStatus | null>(
+  const [activeFilter, setActiveFilter] = useState<GiftClaimStatus | null>(
     sponsorTypeFilter,
   );
 
   // Apply filter from header cards (if any)
-  const filteredData =
-    activeFilter === "purchased"
-      ? data.filter(
-          (row) =>
-            row.sponsorType === "purchased" ||
-            row.sponsorType === "purchased_kfk" ||
-            row.sponsorType === "purchased_donor",
-        )
-      : activeFilter
-        ? data.filter((row) => row.sponsorType === activeFilter)
-        : data;
+  const filteredData = useMemo(
+    () =>
+      activeFilter === "purchased"
+        ? data.filter((row) => row.giftStatus === "PURCHASED")
+        : activeFilter
+          ? data.filter((row) => row.sponsorType === activeFilter)
+          : data,
+    [activeFilter, data],
+  );
 
   const tableKey = activeFilter ?? "all";
 

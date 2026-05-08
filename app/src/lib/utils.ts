@@ -18,3 +18,11 @@ export function closestDrive(drives: Array<GiftDrive>) {
     );
   })[0];
 }
+
+export const chunk = <T>(items: Array<T>, size: number): Array<Array<T>> => {
+  const chunks: Array<Array<T>> = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+};

@@ -3,6 +3,7 @@ import { PublishedGiftsTable } from "@/components/tables/PublishedGiftsTable";
 import { useDrive } from "@/context/DriveContext";
 import { useQuery } from "@tanstack/react-query";
 import publishedGiftsQueries from "@/queries/publishedGifts";
+import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/_authenticated/staff/gifts")({
   component: RouteComponent,
@@ -25,7 +26,11 @@ function RouteComponent() {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-full h-full p-2 flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
   return (

@@ -1,16 +1,12 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import type { GiftClaimStatus } from "./types";
 
 interface StatusSummaryCardProps {
   label: string;
   count: number;
   icon: ReactNode;
-  variant:
-    | "all"
-    | "unpurchased"
-    | "purchased"
-    | "purchased_kfk"
-    | "purchased_donor";
+  variant: "all" | GiftClaimStatus;
   onClick?: () => void;
   isActive?: boolean;
 }

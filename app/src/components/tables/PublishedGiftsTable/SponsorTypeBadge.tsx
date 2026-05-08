@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils";
-import type { GiftPurchaseStatus } from "./types";
+import type { GiftClaimStatus } from "./types";
 
 interface SponsorTypeBadgeProps {
-  sponsorType: GiftPurchaseStatus;
+  sponsorType: GiftClaimStatus;
   className?: string;
 }
 
 const sponsorTypeConfig: Record<
-  GiftPurchaseStatus,
+  GiftClaimStatus,
   { label: string; className: string; style?: React.CSSProperties }
 > = {
   unpurchased: {

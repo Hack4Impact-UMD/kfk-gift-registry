@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from "react";
 import { Gift, Package, ShoppingBag, Building2, Heart } from "lucide-react";
 import { StatusSummaryCard } from "./StatusSummaryCard";
-import type { GiftPurchaseStatus, PublishedGiftsTableRow } from "./types";
+import type { GiftClaimStatus, PublishedGiftsTableRow } from "./types";
 
 interface StatusSummaryHeaderProps {
   data: Array<PublishedGiftsTableRow>;
-  activeFilter: GiftPurchaseStatus | null;
-  onFilterChange: (status: GiftPurchaseStatus | null) => void;
+  activeFilter: GiftClaimStatus | null;
+  onFilterChange: (status: GiftClaimStatus | null) => void;
 }
 
 export function StatusSummaryHeader({
@@ -20,13 +20,7 @@ export function StatusSummaryHeader({
     [data],
   );
   const purchasedCount = useMemo(
-    () =>
-      data.filter(
-        (row) =>
-          row.sponsorType === "purchased" ||
-          row.sponsorType === "purchased_kfk" ||
-          row.sponsorType === "purchased_donor",
-      ).length,
+    () => data.filter((row) => row.giftStatus === "PURCHASED").length,
     [data],
   );
   const purchasedKfkCount = useMemo(

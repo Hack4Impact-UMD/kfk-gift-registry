@@ -1,4 +1,6 @@
-export type GiftPurchaseStatus =
+import type { GiftStatus } from "common";
+
+export type GiftClaimStatus =
   | "unpurchased"
   | "purchased"
   | "purchased_kfk"
@@ -7,8 +9,8 @@ export type GiftPurchaseStatus =
 export type PublishedGiftsTableRow = {
   id: string;
   giftName: string;
-  giftStatus: string;
-  sponsorType: GiftPurchaseStatus;
+  giftStatus: GiftStatus;
+  sponsorType: GiftClaimStatus;
   sponsorName?: string;
   sponsorEmail?: string;
   dateOfFulfillment?: string;
