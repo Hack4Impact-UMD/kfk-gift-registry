@@ -1,16 +1,12 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import type { GiftClaimStatus } from "./types";
 
 interface StatusSummaryCardProps {
   label: string;
   count: number;
   icon: ReactNode;
-  variant:
-    | "all"
-    | "unpurchased"
-    | "purchased"
-    | "purchased_kfk"
-    | "purchased_donor";
+  variant: "all" | GiftClaimStatus;
   onClick?: () => void;
   isActive?: boolean;
 }
@@ -28,7 +24,7 @@ const variantStyles = {
     activeIconColor: "text-kfk-blue",
     lineColor: "bg-kfk-blue",
   },
-  unpurchased: {
+  unclaimed: {
     bg: "bg-red-100",
     text: "text-red-800",
     iconBg: "bg-kfk-red",
@@ -40,7 +36,7 @@ const variantStyles = {
     activeIconColor: "text-kfk-red",
     lineColor: "bg-kfk-red",
   },
-  purchased: {
+  claimed: {
     bg: "bg-green-100",
     text: "text-green-800",
     iconBg: "bg-kfk-green",
@@ -52,7 +48,7 @@ const variantStyles = {
     activeIconColor: "text-kfk-green",
     lineColor: "bg-kfk-green",
   },
-  purchased_kfk: {
+  claimed_kfk: {
     bg: "bg-blue-100",
     text: "text-blue-800",
     iconBg: "bg-[#005BFF]",
@@ -64,7 +60,7 @@ const variantStyles = {
     activeIconColor: "text-[#005BFF]",
     lineColor: "bg-[#005BFF]",
   },
-  purchased_donor: {
+  claimed_donor: {
     bg: "bg-green-100",
     text: "text-green-800",
     iconBg: "bg-[#118510]",

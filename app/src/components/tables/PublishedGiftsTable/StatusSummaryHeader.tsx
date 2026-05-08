@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from "react";
 import { Gift, Package, ShoppingBag, Building2, Heart } from "lucide-react";
 import { StatusSummaryCard } from "./StatusSummaryCard";
-import type { GiftPurchaseStatus, PublishedGiftsTableRow } from "./types";
+import type { GiftClaimStatus, PublishedGiftsTableRow } from "./types";
 
 interface StatusSummaryHeaderProps {
   data: Array<PublishedGiftsTableRow>;
-  activeFilter: GiftPurchaseStatus | null;
-  onFilterChange: (status: GiftPurchaseStatus | null) => void;
+  activeFilter: GiftClaimStatus | null;
+  onFilterChange: (status: GiftClaimStatus | null) => void;
 }
 
 export function StatusSummaryHeader({
@@ -15,26 +15,26 @@ export function StatusSummaryHeader({
   onFilterChange,
 }: StatusSummaryHeaderProps) {
   const totalCount = data.length;
-  const unpurchasedCount = useMemo(
-    () => data.filter((row) => row.sponsorType === "unpurchased").length,
+  const unclaimedCount = useMemo(
+    () => data.filter((row) => row.sponsorType === "unclaimed").length,
     [data],
   );
-  const purchasedCount = useMemo(
+  const claimedCount = useMemo(
     () =>
       data.filter(
         (row) =>
-          row.sponsorType === "purchased" ||
-          row.sponsorType === "purchased_kfk" ||
-          row.sponsorType === "purchased_donor",
+          row.sponsorType === "claimed_kfk" ||
+          row.sponsorType === "claimed_donor" ||
+          row.sponsorType === "claimed",
       ).length,
     [data],
   );
-  const purchasedKfkCount = useMemo(
-    () => data.filter((row) => row.sponsorType === "purchased_kfk").length,
+  const claimedKfkCount = useMemo(
+    () => data.filter((row) => row.sponsorType === "claimed_kfk").length,
     [data],
   );
-  const purchasedDonorCount = useMemo(
-    () => data.filter((row) => row.sponsorType === "purchased_donor").length,
+  const claimedDonorCount = useMemo(
+    () => data.filter((row) => row.sponsorType === "claimed_donor").length,
     [data],
   );
 
@@ -42,20 +42,20 @@ export function StatusSummaryHeader({
     () => onFilterChange(null),
     [onFilterChange],
   );
-  const handleUnpurchasedClick = useCallback(
-    () => onFilterChange("unpurchased"),
+  const handleUnclaimedClick = useCallback(
+    () => onFilterChange("unclaimed"),
     [onFilterChange],
   );
-  const handlePurchasedClick = useCallback(
-    () => onFilterChange("purchased"),
+  const handleClaimedClick = useCallback(
+    () => onFilterChange("claimed"),
     [onFilterChange],
   );
-  const handlePurchasedKfkClick = useCallback(
-    () => onFilterChange("purchased_kfk"),
+  const handleClaimedKfkClick = useCallback(
+    () => onFilterChange("claimed_kfk"),
     [onFilterChange],
   );
-  const handlePurchasedDonorClick = useCallback(
-    () => onFilterChange("purchased_donor"),
+  const handleClaimedDonorClick = useCallback(
+    () => onFilterChange("claimed_donor"),
     [onFilterChange],
   );
 
@@ -70,36 +70,36 @@ export function StatusSummaryHeader({
         isActive={activeFilter === null}
       />
       <StatusSummaryCard
-        label="Unpurchased Gifts"
-        count={unpurchasedCount}
+        label="Unclaimed Gifts"
+        count={unclaimedCount}
         icon={<Package size={24} />}
-        variant="unpurchased"
-        onClick={handleUnpurchasedClick}
-        isActive={activeFilter === "unpurchased"}
+        variant="unclaimed"
+        onClick={handleUnclaimedClick}
+        isActive={activeFilter === "unclaimed"}
       />
       <StatusSummaryCard
-        label="All Purchased Gifts"
-        count={purchasedCount}
+        label="All Claimed Gifts"
+        count={claimedCount}
         icon={<ShoppingBag size={24} />}
-        variant="purchased"
-        onClick={handlePurchasedClick}
-        isActive={activeFilter === "purchased"}
+        variant="claimed"
+        onClick={handleClaimedClick}
+        isActive={activeFilter === "claimed"}
       />
       <StatusSummaryCard
-        label="Purchased by KFK"
-        count={purchasedKfkCount}
+        label="Claimed by KFK"
+        count={claimedKfkCount}
         icon={<Building2 size={24} />}
-        variant="purchased_kfk"
-        onClick={handlePurchasedKfkClick}
-        isActive={activeFilter === "purchased_kfk"}
+        variant="claimed_kfk"
+        onClick={handleClaimedKfkClick}
+        isActive={activeFilter === "claimed_kfk"}
       />
       <StatusSummaryCard
-        label="Purchased by Donor"
-        count={purchasedDonorCount}
+        label="Claimed by Donor"
+        count={claimedDonorCount}
         icon={<Heart size={24} />}
-        variant="purchased_donor"
-        onClick={handlePurchasedDonorClick}
-        isActive={activeFilter === "purchased_donor"}
+        variant="claimed_donor"
+        onClick={handleClaimedDonorClick}
+        isActive={activeFilter === "claimed_donor"}
       />
     </div>
   );
