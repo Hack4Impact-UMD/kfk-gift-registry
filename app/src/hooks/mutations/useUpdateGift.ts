@@ -15,6 +15,8 @@ export function useUpdateGift() {
         listedPrice?: number;
         status?: GiftStatus;
         familyPublicNotes?: string;
+        active?: boolean;
+        backup?: boolean;
       };
     }) => updateGift({ data: params }),
 

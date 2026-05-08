@@ -1,10 +1,12 @@
 import { getServerDB } from "@/lib/firebase.server";
 import z from "zod";
 import { createServerFn } from "@tanstack/react-start";
+import admin from "firebase-admin";
+import { v7 as uuidv7 } from "uuid";
 import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
-import type { Child, Gift, GiftStatus } from "common";
+import type { Family, Gift, GiftStatus, Child } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
@@ -75,11 +77,12 @@ const updateChildSchema = z.object({
       childSocialWorker: z.string().trim().min(1).max(100),
       publicBlurb: z.string().trim().min(1).max(1000),
       staffPrivateNotes: z.string().trim().min(1).max(2000),
-      photoUrl: z.url(),
+      photoUrl: z.union([z.url(), z.literal("")]),
 
       // Constrained choices requiring dropdowns/radios, etc.
       age: z.number().min(1),
       treatmentLevel: z.number().min(0).max(3),
+      published: z.boolean(),
       diagnosisLengthYears: z.enum(["<6m", "6m-1y", "1-2y", "3-4y", "5+y"]),
       offTreatmentDurationYears: z.enum([
         "<6m",
@@ -109,11 +112,22 @@ const updateGiftSchema = z.object({
         "RECEIVED",
       ] as const satisfies ReadonlyArray<GiftStatus>),
       familyPublicNotes: z.string().trim().max(500),
+      active: z.boolean(),
+      backup: z.boolean(),
     })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
     }),
+});
+
+const createGiftSchema = z.object({
+  childId: z.string().min(1),
+  title: z.string().trim().min(1).max(100),
+  productUrl: z.string().trim().url(),
+  listedPrice: z.number().min(0).optional(),
+  familyPublicNotes: z.string().trim().max(500).optional(),
+  active: z.boolean().default(true),
 });
 
 export const getAllChildProfilesForDrive = createServerFn({
@@ -161,7 +175,7 @@ export const getAllApprovedFamilyProfilesForDrive = createServerFn({
     return familyProfiles.docs.map((doc) => doc.data());
   });
 
-export const getApprovedProfileTableRows = createServerFn({
+export const getChildProfileTableRows = createServerFn({
   method: "GET",
 })
   .middleware([
@@ -176,26 +190,19 @@ export const getApprovedProfileTableRows = createServerFn({
     const db = getServerDB();
     const rows: Array<ApprovedProfileTableRow> = [];
 
-    // 1. Get all approved families
-    const families = await getAllApprovedFamilyProfilesForDrive({ data });
-    if (families.length === 0) {
-      return rows;
-    }
-
-    const familyIds = families.map((f) => f.id);
-
-    // 2. Batch-fetch all children for these families (Firestore `in` max 10)
-    const allChildren: Array<Child> = [];
-    for (let i = 0; i < familyIds.length; i += 10) {
-      const batch = familyIds.slice(i, i + 10);
-      const childrenQuery = await db.children
-        .where("familyId", "in", batch)
-        .get();
-      allChildren.push(...childrenQuery.docs.map((doc) => doc.data()));
-    }
-
+    // get all children for the active drive
+    const allChildren = await getAllChildProfilesForDrive({ data });
     if (allChildren.length === 0) {
       return rows;
+    }
+
+    const familyIds = [...new Set(allChildren.map((child) => child.familyId))];
+
+    const families: Array<Family> = [];
+    for (let i = 0; i < familyIds.length; i += 10) {
+      const batch = familyIds.slice(i, i + 10);
+      const familyQuery = await db.families.where("id", "in", batch).get();
+      families.push(...familyQuery.docs.map((doc) => doc.data()));
     }
 
     const childIds = allChildren.map((c) => c.id);
@@ -235,6 +242,7 @@ export const getApprovedProfileTableRows = createServerFn({
         age: child.age,
         diagnosis: child.diagnosis,
         type: child.category === "warrior" ? "warrior" : "supersib",
+        published: child.published,
         giftsFulfilled: gifts.filter((g) =>
           ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
         ).length,
@@ -340,8 +348,11 @@ export const getChildGiftsByChildId = createServerFn({ method: "GET" })
 
 //     return childrenWithGifts
 //   });
+//
 
-export const getChildrenForFamily = createServerFn({ method: "GET" })
+export type ChildWithGifts = Child & { gifts: Array<Gift> };
+
+export const getChildrenForFamilyWithGifts = createServerFn({ method: "GET" })
   .inputValidator(familyIdSchema)
   .middleware([
     requireRolesMiddleware([
@@ -370,15 +381,43 @@ export const getChildrenForFamily = createServerFn({ method: "GET" })
 
         const gifts = await db.gifts.where("childId", "==", childDoc.id).get();
 
-        return {
+        const childWithGifts: ChildWithGifts = {
           ...childData,
           id: childDoc.id,
           gifts: gifts.docs.map((g) => ({ ...g.data(), id: g.id })),
         };
+
+        return childWithGifts;
       }),
     );
 
     return childrenWithGifts;
+  });
+
+export const getChildrenForFamily = createServerFn({ method: "GET" })
+  .inputValidator(familyIdSchema)
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .handler(async ({ data }) => {
+    const { familyId } = data;
+    const db = getServerDB();
+
+    // Fetches all children in this family
+    const childrenSnap = await db.children
+      .where("familyId", "==", familyId)
+      .get();
+
+    if (childrenSnap.empty) {
+      return [];
+    }
+
+    // Using Promise.all to fetch gifts for all children in parallel
+    return childrenSnap.docs.map((d) => d.data());
   });
 
 /**
@@ -888,11 +927,69 @@ export const updateChild = createServerFn({ method: "POST" })
       throw new Error("Child not found");
     }
 
-    await db.children.doc(childId).update(updates);
+    const normalizedUpdates =
+      updates.photoUrl === ""
+        ? {
+            ...updates,
+            photoUrl: admin.firestore.FieldValue.delete(),
+          }
+        : updates;
+
+    await db.children.doc(childId).update(normalizedUpdates);
 
     const updatedChild = await db.children.doc(childId).get();
 
     return updatedChild.data()!;
+  });
+
+export const createGift = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(createGiftSchema)
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const childDoc = await db.children.doc(data.childId).get();
+
+    if (!childDoc.exists) {
+      throw new Error("Child not found");
+    }
+
+    const child = childDoc.data()!;
+    const existingGifts = await db.gifts
+      .where("childId", "==", data.childId)
+      .get();
+    const activeGiftCount = existingGifts.docs.reduce(
+      (count, giftDoc) => count + (giftDoc.data().active ? 1 : 0),
+      0,
+    );
+
+    if (data.active && activeGiftCount >= 3) {
+      throw new Error("This child already has 3 active storefront gifts");
+    }
+
+    const createdGift: Gift = {
+      id: uuidv7(),
+      childId: child.id,
+      familyId: child.familyId,
+      giftDrive: child.giftDrive,
+      title: data.title,
+      productUrl: data.productUrl,
+      listedPrice: data.listedPrice,
+      familyPublicNotes: data.familyPublicNotes,
+      status: "AVAILABLE",
+      createdAt: new Date().toISOString(),
+      active: data.active,
+      backup: !data.active,
+    };
+
+    await db.gifts.doc(createdGift.id).set(createdGift);
+
+    return createdGift;
   });
 
 export const updateGift = createServerFn({ method: "POST" })

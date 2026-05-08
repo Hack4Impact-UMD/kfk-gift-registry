@@ -30,18 +30,32 @@ function createGuardianFormState(family: Family) {
   };
 }
 
-export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
+function getGuardianInfoCardKey(family: Family) {
+  return [
+    family.id,
+    family.contactName,
+    family.phone,
+    family.email,
+    family.guardianRelationship ?? "",
+    family.privateNotes ?? "",
+  ].join("\0");
+}
+
+export function GuardianInfoCard(props: ChildInfoCardProps) {
+  return (
+    <GuardianInfoCardInner
+      key={getGuardianInfoCardKey(props.family)}
+      {...props}
+    />
+  );
+}
+
+function GuardianInfoCardInner({ family, onSave }: ChildInfoCardProps) {
   const [editing, setEditing] = React.useState(false);
   const [formState, setFormState] = React.useState(() =>
     createGuardianFormState(family),
   );
   const [fieldErrors, setFieldErrors] = React.useState<GuardianFieldErrors>({});
-
-  React.useEffect(() => {
-    setFormState(createGuardianFormState(family));
-    setFieldErrors({});
-    setEditing(false);
-  }, [family]);
 
   const handleEditClick = () => {
     setFieldErrors({});

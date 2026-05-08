@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
+import type { Child } from "common";
 import { UserRole } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import { getServerDB } from "@/lib/firebase.server";
@@ -8,6 +9,7 @@ import type {
   PendingProfileTableRow,
   ApplicationStatus,
 } from "@/components/tables/PendingProfilesTable/types";
+import { getChildrenForFamily } from "./child";
 
 const tokenInputSchema = z.object({
   token: z.string().min(1),
@@ -133,6 +135,30 @@ export const getFamilyById = createServerFn({ method: "GET" })
     return familyDoc.data();
   });
 
+export const getActiveFamilyLinkByFamilyId = createServerFn({ method: "GET" })
+  .inputValidator(familyIdInputSchema)
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const linkSnapshot = await db.familyLinks
+      .where("familyId", "==", data.familyId)
+      .where("active", "==", true)
+      .limit(1)
+      .get();
+
+    if (linkSnapshot.empty) {
+      return null;
+    }
+
+    return linkSnapshot.docs[0].data();
+  });
+
 export const getFamilyDashboardDataByToken = createServerFn({ method: "GET" })
   .inputValidator(tokenInputSchema)
   .handler(async ({ data }) => {
@@ -229,7 +255,10 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
     const families = familiesSnapshot.docs.map((doc) => doc.data());
     const familyIds = families.map((f) => f.id);
 
-    const childCountMap = new Map<string, number>();
+    const childCountMap = new Map<
+      string,
+      { total: number; published: number }
+    >();
 
     for (let i = 0; i < familyIds.length; i += 10) {
       const batch = familyIds.slice(i, i + 10);
@@ -239,16 +268,24 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
 
       for (const childDoc of childrenSnapshot.docs) {
         const child = childDoc.data();
-        childCountMap.set(
-          child.familyId,
-          (childCountMap.get(child.familyId) || 0) + 1,
-        );
+        const existingCounts = childCountMap.get(child.familyId) ?? {
+          total: 0,
+          published: 0,
+        };
+        childCountMap.set(child.familyId, {
+          total: existingCounts.total + 1,
+          published: existingCounts.published + (child.published ? 1 : 0),
+        });
       }
     }
 
     for (const family of families) {
       let status: ApplicationStatus;
       const reviewStatus = family.reviewStatus;
+      const childCounts = childCountMap.get(family.id) ?? {
+        total: 0,
+        published: 0,
+      };
 
       if (reviewStatus?.approved) {
         status = "approved";
@@ -261,7 +298,8 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
       const row: PendingProfileTableRow = {
         id: family.id,
         parentGuardian: family.contactName,
-        numberOfChildren: childCountMap.get(family.id) || 0,
+        numberOfChildren: childCounts.total,
+        publishedChildren: childCounts.published,
         status,
         submissionDate: family.createdAt,
         adminComments:
@@ -304,4 +342,42 @@ export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
       updatedFamily.data(),
       "Family data unavailable after review update",
     );
+  });
+
+const publishFamiliesSchema = z.array(z.string().nonempty());
+
+export const publishFamilies = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.VOLUNTEER,
+      UserRole.DIRECTOR,
+    ]),
+  ])
+  .inputValidator(publishFamiliesSchema)
+  .handler(async ({ data: familyIds }) => {
+    const db = getServerDB();
+    const families = await Promise.all(
+      familyIds.map((id) => getFamilyById({ data: { familyId: id } })),
+    );
+    if (families.some((f) => !f?.reviewStatus.approved)) {
+      throw new Error("Can't publish a family that was not approved!");
+    }
+    const children: Array<Child> = (
+      await Promise.all(
+        familyIds.map(
+          async (id) => await getChildrenForFamily({ data: { familyId: id } }),
+        ),
+      )
+    )
+      .flatMap((cs) => cs)
+      .filter((c) => !c.published);
+
+    await db._instance.runTransaction(async (tx) => {
+      children.map((c) =>
+        tx.update(db.children.doc(c.id), {
+          published: true,
+        } satisfies Partial<Child>),
+      );
+    });
   });

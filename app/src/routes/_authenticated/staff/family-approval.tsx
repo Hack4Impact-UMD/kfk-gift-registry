@@ -7,7 +7,7 @@ import { usePendingProfileTableRows } from "@/hooks/queries/usePendingProfileTab
 import { useDrive } from "@/context/DriveContext";
 import { Spinner } from "@/components/ui/spinner";
 
-export const Route = createFileRoute("/_authenticated/staff/pending")({
+export const Route = createFileRoute("/_authenticated/staff/family-approval")({
   component: RouteComponent,
 });
 

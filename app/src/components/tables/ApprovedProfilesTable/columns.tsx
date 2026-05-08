@@ -21,6 +21,7 @@ export const columns = [
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onClick={(e) => e.stopPropagation()}
       />
     ),
     enableSorting: false,
@@ -57,7 +58,7 @@ export const columns = [
     },
   }),
   helper.accessor("parentGuardian", {
-    enableGlobalFilter: false,
+    enableGlobalFilter: true,
     header: ({ column }) => (
       <ColumnSortButton column={column}>Parent/Guardian</ColumnSortButton>
     ),
@@ -72,7 +73,9 @@ export const columns = [
       return (
         <div className="flex items-center justify-between gap-2">
           <span>{email}</span>
-          <CopyButton text={email} />
+          <div onClick={(e) => e.stopPropagation()}>
+            <CopyButton text={email} />
+          </div>
         </div>
       );
     },
@@ -109,23 +112,44 @@ export const columns = [
       );
     },
   }),
+  helper.accessor("published", {
+    enableGlobalFilter: false,
+    header: ({ column }) => (
+      <ColumnSortButton column={column}>Publish Status</ColumnSortButton>
+    ),
+    cell: ({ getValue }) => {
+      const published = getValue();
+      return (
+        <span
+          className={`inline-flex min-w-24 items-center justify-center rounded-full py-1 text-sm font-semibold ${
+            published
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
+          {published ? "Published" : "Unpublished"}
+        </span>
+      );
+    },
+  }),
   helper.accessor("giftsFulfilled", {
     enableGlobalFilter: false,
     header: ({ column }) => (
       <ColumnSortButton column={column}>Gift Fulfillment</ColumnSortButton>
     ),
-    cell: ({ getValue, row }) => {
+    cell: ({ getValue }) => {
       const fulfilled = getValue();
-      const total = row.original.giftsTotal;
+      // const total = row.original.giftsTotal;
       const dotColor =
         fulfilled === 0
           ? "bg-red-300"
-          : fulfilled === total
+          : fulfilled >= 3
             ? "bg-green-300"
             : "bg-yellow-300";
       return (
         <div className="flex items-center gap-2">
           <div className={`h-3 w-3 rounded-full ${dotColor}`}></div>
+          {/* not sure if we should hard code this but will look again; TODO */}
           <div>{fulfilled}/3 Gifts</div>
         </div>
       );
