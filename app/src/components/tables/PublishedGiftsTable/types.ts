@@ -1,10 +1,10 @@
 import type { GiftStatus } from "common";
 
 export type GiftClaimStatus =
-  | "unpurchased"
-  | "purchased"
-  | "purchased_kfk"
-  | "purchased_donor";
+  | "unclaimed"
+  | "claimed"
+  | "claimed_kfk"
+  | "claimed_donor";
 
 export type PublishedGiftsTableRow = {
   id: string;

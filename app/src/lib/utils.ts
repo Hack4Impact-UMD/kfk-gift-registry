@@ -20,6 +20,7 @@ export function closestDrive(drives: Array<GiftDrive>) {
 }
 
 export const chunk = <T>(items: Array<T>, size: number): Array<Array<T>> => {
+  if (size <= 0) throw new Error("Size must be greater than 0");
   const chunks: Array<Array<T>> = [];
   for (let i = 0; i < items.length; i += size) {
     chunks.push(items.slice(i, i + size));

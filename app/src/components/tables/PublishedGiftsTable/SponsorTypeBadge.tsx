@@ -10,20 +10,20 @@ const sponsorTypeConfig: Record<
   GiftClaimStatus,
   { label: string; className: string; style?: React.CSSProperties }
 > = {
-  unpurchased: {
+  unclaimed: {
     label: "",
     className: "hidden",
   },
-  purchased: {
+  claimed: {
     label: "",
     className: "hidden",
   },
-  purchased_kfk: {
+  claimed_kfk: {
     label: "KFK Team",
     className: "text-white border-0",
     style: { backgroundColor: "#005BFF" },
   },
-  purchased_donor: {
+  claimed_donor: {
     label: "Donor",
     className: "text-white border-0",
     style: { backgroundColor: "#118510" },

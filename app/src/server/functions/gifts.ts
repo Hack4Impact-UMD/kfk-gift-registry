@@ -108,17 +108,17 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
     return gifts.map((gift) => {
       const claim = claimByGiftId.get(gift.id);
 
-      let sponsorType: GiftClaimStatus = "unpurchased";
+      let sponsorType: GiftClaimStatus = "unclaimed";
       let sponsorName: string | undefined;
       let sponsorEmail: string | undefined;
 
       if (claim?.claimType === "kfk") {
-        sponsorType = "purchased_kfk";
+        sponsorType = "claimed_kfk";
         sponsorName = claim.organizationName ?? "KFK Team";
       }
 
       if (claim?.claimType === "donor") {
-        sponsorType = "purchased_donor";
+        sponsorType = "claimed_donor";
         const donorProfile = profileByDonorId.get(claim.donorId);
         sponsorName = donorProfile?.name;
         sponsorEmail = donorProfile?.email;

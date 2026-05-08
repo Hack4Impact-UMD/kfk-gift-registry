@@ -1,11 +1,16 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
+import type { GiftStatus } from "common";
 import { DataTable } from "../DataTable";
 import { columns } from "./columns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { StatusSummaryHeader } from "./StatusSummaryHeader";
+import {
+  GiftStatusFilterChips,
+  getVisibleGiftStatuses,
+} from "./GiftStatusFilterChips";
 import type { GiftClaimStatus, PublishedGiftsTableRow } from "./types";
 
 interface PublishedGiftsTableProps {
@@ -28,19 +33,32 @@ export function PublishedGiftsTable({
   const [activeFilter, setActiveFilter] = useState<GiftClaimStatus | null>(
     sponsorTypeFilter,
   );
-
-  // Apply filter from header cards (if any)
-  const filteredData = useMemo(
-    () =>
-      activeFilter === "purchased"
-        ? data.filter((row) => row.giftStatus === "PURCHASED")
-        : activeFilter
-          ? data.filter((row) => row.sponsorType === activeFilter)
-          : data,
-    [activeFilter, data],
+  const [giftStatusFilter, setGiftStatusFilter] = useState<GiftStatus | null>(
+    null,
   );
 
-  const tableKey = activeFilter ?? "all";
+  const filteredData = useMemo(() => {
+    let result = data;
+
+    if (activeFilter === "claimed") {
+      result = result.filter(
+        (row) =>
+          row.sponsorType === "claimed_kfk" ||
+          row.sponsorType === "claimed_donor" ||
+          row.sponsorType === "claimed",
+      );
+    } else if (activeFilter) {
+      result = result.filter((row) => row.sponsorType === activeFilter);
+    }
+
+    if (giftStatusFilter) {
+      result = result.filter((row) => row.giftStatus === giftStatusFilter);
+    }
+
+    return result;
+  }, [activeFilter, giftStatusFilter, data]);
+
+  const tableKey = `${activeFilter ?? "all"}-${giftStatusFilter ?? "all"}`;
 
   const handleExport = () => {
     // TODO: Implement export functionality
@@ -53,10 +71,19 @@ export function PublishedGiftsTable({
       <StatusSummaryHeader
         data={data}
         activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
+        onFilterChange={(filter) => {
+          setActiveFilter(filter);
+          const visible = getVisibleGiftStatuses(filter);
+          if (
+            !visible ||
+            (giftStatusFilter && !visible.includes(giftStatusFilter))
+          ) {
+            setGiftStatusFilter(null);
+          }
+        }}
       />
 
-      {/* Search and Export */}
+      {/* Search, Gift Status Filter, and Export */}
       <div className="rounded-md border bg-card px-4 py-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex w-full items-center sm:mr-auto sm:w-56">
@@ -76,6 +103,15 @@ export function PublishedGiftsTable({
             Export
           </Button>
         </div>
+        {activeFilter !== "unclaimed" && (
+          <div className="mt-3 border-t pt-3">
+            <GiftStatusFilterChips
+              activeFilter={giftStatusFilter}
+              claimFilter={activeFilter}
+              onFilterChange={setGiftStatusFilter}
+            />
+          </div>
+        )}
       </div>
 
       {/* Data Table */}
