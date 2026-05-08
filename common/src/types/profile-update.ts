@@ -1,24 +1,37 @@
-import type { Child } from "./child";
-import type { Gift } from "./gift";
+import { z } from "zod";
+import { GiftSchema } from "./gift.js";
+import { ChildSchema } from "./child.js";
 
-export type ProfileUpdateGift = Pick<
-  Gift,
-  "id" | "title" | "productUrl" | "backup" | "active" | "privateNotes"
->;
+export const ProfileUpdateGiftSchema = GiftSchema.pick({
+  id: true,
+  title: true,
+  productUrl: true,
+  backup: true,
+  active: true,
+  privateNotes: true,
+});
 
-export type ChildProfileUpdateData = Partial<Omit<Child, "id">>;
+export type ProfileUpdateGift = z.infer<typeof ProfileUpdateGiftSchema>;
 
-export type ProfileUpdateStatus = "PENDING" | "APPROVED" | "REJECTED";
+export const ChildProfileUpdateDataSchema = ChildSchema.omit({ id: true }).partial();
 
-export interface ChildProfileUpdate {
-  id: string;
-  childId: string;
-  requestedBy: string;
-  changes: ChildProfileUpdateData;
-  status: ProfileUpdateStatus;
-  requestedAt: string;
-  reviewedAt?: string;
-  appliedAt?: string;
-  reviewedBy?: string;
-  rejectionReason?: string;
-}
+export type ChildProfileUpdateData = z.infer<typeof ChildProfileUpdateDataSchema>;
+
+export const ProfileUpdateStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED"]);
+
+export type ProfileUpdateStatus = z.infer<typeof ProfileUpdateStatusSchema>;
+
+export const ChildProfileUpdateSchema = z.object({
+  id: z.string(),
+  childId: z.string(),
+  requestedBy: z.string(),
+  changes: ChildProfileUpdateDataSchema,
+  status: ProfileUpdateStatusSchema,
+  requestedAt: z.string(),
+  reviewedAt: z.string().optional(),
+  appliedAt: z.string().optional(),
+  reviewedBy: z.string().optional(),
+  rejectionReason: z.string().optional(),
+});
+
+export type ChildProfileUpdate = z.infer<typeof ChildProfileUpdateSchema>;

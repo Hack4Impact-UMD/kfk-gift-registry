@@ -1,11 +1,14 @@
-import type { UserRole } from "./user.js";
+import { z } from "zod";
+import { UserRole } from "./user.js";
 
-export interface StaffInvite {
-  id: string;
-  sentBy: string;
-  name: string;
-  email: string;
-  role: UserRole.ADMIN | UserRole.VOLUNTEER;
-  createdAt: string;
-  used: boolean;
-}
+export const StaffInviteSchema = z.object({
+  id: z.string(),
+  sentBy: z.string(),
+  name: z.string(),
+  email: z.string(),
+  role: z.enum([UserRole.ADMIN, UserRole.VOLUNTEER]),
+  createdAt: z.string(),
+  used: z.boolean(),
+});
+
+export type StaffInvite = z.infer<typeof StaffInviteSchema>;

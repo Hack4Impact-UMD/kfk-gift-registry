@@ -3,10 +3,10 @@ import z from "zod";
 import { createServerFn } from "@tanstack/react-start";
 import admin from "firebase-admin";
 import { v7 as uuidv7 } from "uuid";
-import { UserRole } from "common";
+import { UserRole, ChildSchema, GiftSchema } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
-import type { Family, Gift, GiftStatus, Child } from "common";
+import type { Family, Gift, Child } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
@@ -68,30 +68,15 @@ const tokenGiftThankYouNoteSchema = z.object({
 
 const updateChildSchema = z.object({
   childId: z.string().min(1),
-  updates: z
-    .object({
-      // These are all for text fields
-      name: z.string().trim().min(1).max(100),
-      diagnosis: z.string().trim().min(1).max(200),
-      hospital: z.string().trim().min(1).max(200),
-      childSocialWorker: z.string().trim().min(1).max(100),
-      publicBlurb: z.string().trim().min(1).max(1000),
-      staffPrivateNotes: z.string().trim().min(1).max(2000),
-      photoUrl: z.union([z.url(), z.literal("")]),
-
-      // Constrained choices requiring dropdowns/radios, etc.
-      age: z.number().min(1),
-      treatmentLevel: z.number().min(0).max(3),
-      published: z.boolean(),
-      diagnosisLengthYears: z.enum(["<6m", "6m-1y", "1-2y", "3-4y", "5+y"]),
-      offTreatmentDurationYears: z.enum([
-        "<6m",
-        "6m-1y",
-        "1-2y",
-        "3-4y",
-        "5+y",
-      ]),
-    })
+  updates: ChildSchema.omit({
+    id: true,
+    familyId: true,
+    giftDrive: true,
+    createdAt: true,
+    category: true,
+    status: true,
+    livesAtHome: true,
+  })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
@@ -100,21 +85,14 @@ const updateChildSchema = z.object({
 
 const updateGiftSchema = z.object({
   giftId: z.string().min(1),
-  updates: z
-    .object({
-      title: z.string().trim().min(1).max(100),
-      listedPrice: z.number().min(0),
-      status: z.enum([
-        "AVAILABLE",
-        "CLAIMED",
-        "PURCHASED",
-        "DELIVERED",
-        "RECEIVED",
-      ] as const satisfies ReadonlyArray<GiftStatus>),
-      familyPublicNotes: z.string().trim().max(500),
-      active: z.boolean(),
-      backup: z.boolean(),
-    })
+  updates: GiftSchema.omit({
+    id: true,
+    childId: true,
+    familyId: true,
+    giftDrive: true,
+    claimedByDonorId: true,
+    createdAt: true,
+  })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",

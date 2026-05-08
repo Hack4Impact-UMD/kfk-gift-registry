@@ -1,25 +1,34 @@
-export type GiftStatus =
-  | "AVAILABLE"
-  | "CLAIMED"
-  | "PURCHASED"
-  | "DELIVERED"
-  | "RECEIVED";
+import { z } from "zod";
 
-export type ClaimType = "donor" | "kfk";
+export const GiftStatusSchema = z.enum([
+  "AVAILABLE",
+  "CLAIMED",
+  "PURCHASED",
+  "DELIVERED",
+  "RECEIVED",
+]);
 
-export interface Gift {
-  id: string;
-  childId: string;
-  familyId: string;
-  giftDrive: string;
-  title: string;
-  productUrl: string;
-  listedPrice?: number;
-  status: GiftStatus;
-  claimedByDonorId?: string;
-  createdAt: string;
-  familyPublicNotes?: string;
-  privateNotes?: string;
-  backup: boolean;
-  active: boolean;
-}
+export type GiftStatus = z.infer<typeof GiftStatusSchema>;
+
+export const ClaimTypeSchema = z.enum(["donor", "kfk"]);
+
+export type ClaimType = z.infer<typeof ClaimTypeSchema>;
+
+export const GiftSchema = z.object({
+  id: z.string(),
+  childId: z.string(),
+  familyId: z.string(),
+  giftDrive: z.string(),
+  title: z.string(),
+  productUrl: z.string(),
+  listedPrice: z.number().optional(),
+  status: GiftStatusSchema,
+  claimedByDonorId: z.string().optional(),
+  createdAt: z.string(),
+  familyPublicNotes: z.string().optional(),
+  privateNotes: z.string().optional(),
+  backup: z.boolean(),
+  active: z.boolean(),
+});
+
+export type Gift = z.infer<typeof GiftSchema>;

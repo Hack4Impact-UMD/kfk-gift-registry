@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { UserRole } from "common";
+import { UserRole, UserProfileSchema } from "common";
 import z from "zod";
 import { DateTime } from "luxon";
 import {
@@ -73,13 +73,8 @@ export const getAllUserProfiles = createServerFn({
 
 const updateUserProfileSchema = z.object({
   userId: z.string().min(1),
-  updates: z
-    .object({
-      name: z.string().trim().min(1),
-      phone: z.string().trim().min(1),
-    })
+  updates: UserProfileSchema.pick({ name: true, phone: true })
     .partial()
-    .strict()
     .refine((u) => Object.keys(u).length > 0, {
       message: "At least one update field is required",
     }),

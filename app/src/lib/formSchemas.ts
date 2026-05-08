@@ -1,16 +1,8 @@
 import { z } from "zod";
-import type { ChildStatus } from "common";
+import { ChildStatusSchema, type ChildStatus } from "common";
 
 // Ordered to match display order in the form.
-export const CHILD_STATUS_VALUES = [
-  "recently_diagnosed_relapse",
-  "diagnosed_in_treatment_1yr+",
-  "recently_off_treatment",
-  "off_treatment_5yr+",
-  "sibling_in_treatment",
-  "bereaved_sibling",
-  "bereaved_sibling_5yr+",
-] as const satisfies ReadonlyArray<ChildStatus>;
+export const CHILD_STATUS_VALUES = ChildStatusSchema.options;
 
 export const CHILD_STATUS_LABELS: Record<ChildStatus, string> = {
   recently_diagnosed_relapse:
