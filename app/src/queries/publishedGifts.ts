@@ -9,9 +9,9 @@ const publishedGiftsQueries = createQueryKeys("publishedGifts", {
     queryKey: ["byDrive", driveId],
     queryFn: () => getPublishedGifts({ data: { driveId } }),
   }),
-  tableRowsByDrive: (driveId?: string) => ({
+  tableRowsByDrive: (driveId: string) => ({
     queryKey: ["tableRowsByDrive", driveId],
-    queryFn: () => getPublishedGiftsTableRows({ data: { driveId: driveId! } }),
+    queryFn: () => getPublishedGiftsTableRows({ data: { driveId } }),
   }),
 });
 

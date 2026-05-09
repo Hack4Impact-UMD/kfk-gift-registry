@@ -7,15 +7,15 @@ export enum UserRole {
   DONOR = "DONOR",
 }
 
-export const UserRoleSchema = z.nativeEnum(UserRole);
+export const UserRoleSchema = z.enum(UserRole);
 
 export const UserProfileSchema = z.object({
   id: z.string(),
-  email: z.string(),
+  email: z.email(),
   name: z.string(),
   role: UserRoleSchema,
-  phone: z.string().optional(),
-  createdAt: z.string(),
+  phone: z.e164().optional(),
+  createdAt: z.iso.datetime(),
   enabled: z.boolean(),
 });
 

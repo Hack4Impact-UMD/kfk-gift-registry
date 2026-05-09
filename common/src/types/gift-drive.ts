@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const GiftDriveSchema = z.object({
   id: z.string(),
-  createdAt: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
+  createdAt: z.iso.datetime(),
+  startDate: z.iso.datetime(),
+  endDate: z.iso.datetime(),
   cycle: z.string(),
 });
 

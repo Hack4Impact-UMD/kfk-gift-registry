@@ -24,7 +24,7 @@ export const GiftSchema = z.object({
   listedPrice: z.number().optional(),
   status: GiftStatusSchema,
   claimedByDonorId: z.string().optional(),
-  createdAt: z.string(),
+  createdAt: z.iso.datetime(),
   familyPublicNotes: z.string().optional(),
   privateNotes: z.string().optional(),
   backup: z.boolean(),

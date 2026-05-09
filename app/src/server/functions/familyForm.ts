@@ -192,15 +192,17 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
         const childId = childIds[idx];
 
         const regular = selection.gifts
-          .filter((g) => g.giftName && g.giftUrl)
+          .filter((g): g is typeof g & { giftName: string; giftUrl: string } =>
+            Boolean(g.giftName && g.giftUrl),
+          )
           .map(
             (g): Gift => ({
               id: uuidv7(),
               childId,
               familyId,
               giftDrive: data.giftDriveId,
-              title: g.giftName!,
-              productUrl: g.giftUrl!,
+              title: g.giftName,
+              productUrl: g.giftUrl,
               status: "AVAILABLE",
               backup: false,
               active: true,
@@ -210,15 +212,17 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
           );
 
         const backup = (selection.backupGifts ?? [])
-          .filter((g) => g.giftName && g.giftUrl)
+          .filter((g): g is typeof g & { giftName: string; giftUrl: string } =>
+            Boolean(g.giftName && g.giftUrl),
+          )
           .map(
             (g): Gift => ({
               id: uuidv7(),
               childId,
               familyId,
               giftDrive: data.giftDriveId,
-              title: g.giftName!,
-              productUrl: g.giftUrl!,
+              title: g.giftName,
+              productUrl: g.giftUrl,
               status: "AVAILABLE",
               backup: true,
               active: true,

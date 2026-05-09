@@ -196,10 +196,9 @@ export const getChildProfileTableRows = createServerFn({
     // 4. Index gifts by childId for O(1) lookup
     const giftsByChildId = new Map<string, Array<Gift>>();
     for (const gift of allGifts) {
-      if (!giftsByChildId.has(gift.childId)) {
-        giftsByChildId.set(gift.childId, []);
-      }
-      giftsByChildId.get(gift.childId)!.push(gift);
+      const childGifts = giftsByChildId.get(gift.childId) ?? [];
+      childGifts.push(gift);
+      giftsByChildId.set(gift.childId, childGifts);
     }
 
     // 5. Index families by id for O(1) lookup
@@ -417,11 +416,10 @@ export const getChildByIdWithToken = createServerFn({ method: "GET" })
 
     // Fetch child
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
-
-    const child = childDoc.data()!;
 
     // Verify child belongs to the token's family
     if (child.familyId !== link.familyId) {
@@ -452,11 +450,10 @@ export const getChildGiftsByChildIdWithToken = createServerFn({
 
     // Fetch child to verify ownership
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
-
-    const child = childDoc.data()!;
 
     // Verify child belongs to the token's family
     if (child.familyId !== link.familyId) {
@@ -487,11 +484,11 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
     const db = getServerDB();
 
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
 
-    const child = childDoc.data()!;
     if (child.familyId !== link.familyId) {
       throw new Error("Unauthorized: child does not belong to this family");
     }
@@ -538,12 +535,11 @@ export const getFamilyChildDataByToken = createServerFn({ method: "GET" })
 
     const db = getServerDB();
     const childDoc = await db.children.doc(childId).get();
-
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
 
-    const child = childDoc.data()!;
     if (child.familyId !== link.familyId) {
       throw new Error("Unauthorized: child does not belong to this family");
     }
@@ -607,21 +603,21 @@ export const saveGiftThankYouNoteWithToken = createServerFn({
     const db = getServerDB();
 
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
 
-    const child = childDoc.data()!;
     if (child.familyId !== link.familyId) {
       throw new Error("Unauthorized: child does not belong to this family");
     }
 
     const giftDoc = await db.gifts.doc(giftId).get();
-    if (!giftDoc.exists) {
+    const gift = giftDoc.data();
+    if (!gift) {
       throw new Error("Gift not found");
     }
 
-    const gift = giftDoc.data()!;
     if (gift.childId !== childId || gift.familyId !== link.familyId) {
       throw new Error("Unauthorized: gift does not belong to this family");
     }
@@ -660,21 +656,21 @@ export const confirmGiftReceivedWithToken = createServerFn({
     const db = getServerDB();
 
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
 
-    const child = childDoc.data()!;
     if (child.familyId !== link.familyId) {
       throw new Error("Unauthorized: child does not belong to this family");
     }
 
     const giftDoc = await db.gifts.doc(giftId).get();
-    if (!giftDoc.exists) {
+    const gift = giftDoc.data();
+    if (!gift) {
       throw new Error("Gift not found");
     }
 
-    const gift = giftDoc.data()!;
     if (gift.childId !== childId || gift.familyId !== link.familyId) {
       throw new Error("Unauthorized: gift does not belong to this family");
     }
@@ -719,14 +715,8 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
     const { childId } = data;
     const db = getServerDB();
     const childDoc = await db.children.doc(childId).get();
-
-    if (!childDoc.exists) {
-      throw new Error("Child not found");
-    }
-
-    const child = childDoc.data()!;
-
-    if (!child.published) {
+    const child = childDoc.data();
+    if (!child?.published) {
       throw new Error("Child not found");
     }
 
@@ -772,12 +762,8 @@ export const getStorefrontGiftsForChild = createServerFn({ method: "GET" })
     const db = getServerDB();
 
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
-      throw new Error("Child not found");
-    }
-
-    const child = childDoc.data()!;
-    if (!child.published) {
+    const child = childDoc.data();
+    if (!child?.published) {
       throw new Error("Child not found");
     }
 
@@ -811,14 +797,8 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
     const { childId } = data;
     const db = getServerDB();
     const childDoc = await db.children.doc(childId).get();
-
-    if (!childDoc.exists) {
-      throw new Error("Child not found");
-    }
-
-    const child = childDoc.data()!;
-
-    if (!child.published) {
+    const child = childDoc.data();
+    if (!child?.published) {
       throw new Error("Child not found");
     }
 
@@ -848,10 +828,9 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
 
     const giftsBySiblingId = new Map<string, Array<Gift>>();
     for (const gift of allGifts) {
-      if (!giftsBySiblingId.has(gift.childId)) {
-        giftsBySiblingId.set(gift.childId, []);
-      }
-      giftsBySiblingId.get(gift.childId)!.push(gift);
+      const siblingGifts = giftsBySiblingId.get(gift.childId) ?? [];
+      siblingGifts.push(gift);
+      giftsBySiblingId.set(gift.childId, siblingGifts);
     }
 
     const storefrontSiblings: Array<StorefrontChild> = siblings.map(
@@ -916,8 +895,9 @@ export const updateChild = createServerFn({ method: "POST" })
     await db.children.doc(childId).update(normalizedUpdates);
 
     const updatedChild = await db.children.doc(childId).get();
-
-    return updatedChild.data()!;
+    const updatedChildData = updatedChild.data();
+    if (!updatedChildData) throw new Error("Child not found");
+    return updatedChildData;
   });
 
 export const createGift = createServerFn({ method: "POST" })
@@ -932,12 +912,10 @@ export const createGift = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const db = getServerDB();
     const childDoc = await db.children.doc(data.childId).get();
-
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
-
-    const child = childDoc.data()!;
     const existingGifts = await db.gifts
       .where("childId", "==", data.childId)
       .get();
@@ -992,5 +970,7 @@ export const updateGift = createServerFn({ method: "POST" })
     await db.gifts.doc(giftId).update(updates);
 
     const updatedGift = await db.gifts.doc(giftId).get();
-    return updatedGift.data()!;
+    const updatedGiftData = updatedGift.data();
+    if (!updatedGiftData) throw new Error("Gift not found");
+    return updatedGiftData;
   });

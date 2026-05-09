@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/staff/gifts")({
 function RouteComponent() {
   const { activeDriveId } = useDrive();
   const tableRowsByDriveQuery = publishedGiftsQueries.tableRowsByDrive(
-    activeDriveId ?? undefined,
+    activeDriveId ?? "",
   );
   const { data: tableRows = [], isLoading } = useQuery({
     ...tableRowsByDriveQuery,

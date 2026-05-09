@@ -39,11 +39,19 @@ const updateFamilySchema = z.object({
     createdAt: true,
     reviewStatus: true,
   })
-    .extend({ address: AddressSchema.partial() })
+    .extend({
+      address: AddressSchema.partial().refine(
+        (addr) => Object.keys(addr).length > 0,
+        {
+          error: "Address cannot be empty",
+        },
+      ),
+    })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
-    }),
+    })
+    .strict(),
 });
 
 export const updateFamilyReviewStatusSchema = z.object({

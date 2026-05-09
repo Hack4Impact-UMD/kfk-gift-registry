@@ -77,7 +77,8 @@ const updateUserProfileSchema = z.object({
     .partial()
     .refine((u) => Object.keys(u).length > 0, {
       message: "At least one update field is required",
-    }),
+    })
+    .strict(),
 });
 
 /**
@@ -353,7 +354,8 @@ export const getCurrentUserProfile = createServerFn({
     const db = getServerDB();
     const userDoc = await db.users.doc(context.authUser.uid).get();
 
-    if (!userDoc.exists) throw new Error("User not found");
+    const userData = userDoc.data();
+    if (!userData) throw new Error("User not found");
 
-    return userDoc.data()!;
+    return userData;
   });

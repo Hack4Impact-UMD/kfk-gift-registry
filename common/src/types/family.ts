@@ -23,12 +23,12 @@ export const FamilySchema = z.object({
   id: z.string(),
   contactName: z.string(),
   guardianRelationship: z.string().optional(),
-  email: z.string(),
+  email: z.email(),
   phone: z.string(),
   address: AddressSchema,
   privateNotes: z.string().optional(),
   giftDrive: z.string(),
-  createdAt: z.string(),
+  createdAt: z.iso.datetime(),
   reviewStatus: ReviewStatusSchema,
 });
 

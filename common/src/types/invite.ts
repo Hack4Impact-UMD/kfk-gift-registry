@@ -5,9 +5,9 @@ export const StaffInviteSchema = z.object({
   id: z.string(),
   sentBy: z.string(),
   name: z.string(),
-  email: z.string(),
+  email: z.email(),
   role: z.enum([UserRole.ADMIN, UserRole.VOLUNTEER]),
-  createdAt: z.string(),
+  createdAt: z.iso.datetime(),
   used: z.boolean(),
 });
 

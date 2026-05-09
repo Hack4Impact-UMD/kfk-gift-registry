@@ -49,7 +49,7 @@ export const ChildSchema = z.object({
   offTreatmentDurationYears: TimePeriodSchema.optional(),
   livesAtHome: z.boolean(),
   publicBlurb: z.string().optional(),
-  createdAt: z.string(),
+  createdAt: z.iso.datetime(),
   hospital: z.string(),
   age: z.number(),
   childSocialWorker: z.string(),
