@@ -80,7 +80,8 @@ const updateChildSchema = z.object({
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
-    }),
+    })
+    .strict(),
 });
 
 const updateGiftSchema = z.object({
@@ -96,7 +97,8 @@ const updateGiftSchema = z.object({
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
-    }),
+    })
+    .strict(),
 });
 
 const createGiftSchema = z.object({
