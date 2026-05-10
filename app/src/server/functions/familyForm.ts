@@ -6,8 +6,7 @@ import { getServerDB } from "@/lib/firebase.server";
 import { createFamilyLink } from "@/server/services/familyLinkService.server";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
-
-import { CHILD_STATUS_VALUES } from "@/lib/formSchemas";
+import { AddressSchema, ChildStatusSchema } from "common";
 
 // --- Photo upload constants ---
 const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -25,22 +24,12 @@ const MIME_TO_EXT: Record<AllowedMimeType, string> = {
 
 // --- Zod schemas ---
 
-const addressSchema = z.object({
-  street: z.string(),
-  addressLine2: z.string().optional(),
-  city: z.string(),
-  state: z.string(),
-  zipCode: z.string(),
-});
-
 const generalInfoSchema = z.object({
   parentName: z.string(),
   email: z.email(),
   phoneNumber: z.string(),
-  address: addressSchema,
+  address: AddressSchema,
 });
-
-const childStatusSchema = z.enum(CHILD_STATUS_VALUES);
 
 const childInfoSchema = z.object({
   name: z.string(),
@@ -49,7 +38,7 @@ const childInfoSchema = z.object({
   hospitalTreatedAt: z.string().optional(),
   socialWorkerName: z.string().optional(),
   photoUrl: z.string().optional(),
-  status: childStatusSchema,
+  status: ChildStatusSchema,
   treatmentLength: z.string().optional(),
   blurb: z.string().optional(),
   isSibling: z.boolean().optional(),
@@ -203,15 +192,17 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
         const childId = childIds[idx];
 
         const regular = selection.gifts
-          .filter((g) => g.giftName && g.giftUrl)
+          .filter((g): g is typeof g & { giftName: string; giftUrl: string } =>
+            Boolean(g.giftName && g.giftUrl),
+          )
           .map(
             (g): Gift => ({
               id: uuidv7(),
               childId,
               familyId,
               giftDrive: data.giftDriveId,
-              title: g.giftName!,
-              productUrl: g.giftUrl!,
+              title: g.giftName,
+              productUrl: g.giftUrl,
               status: "AVAILABLE",
               backup: false,
               active: true,
@@ -221,15 +212,17 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
           );
 
         const backup = (selection.backupGifts ?? [])
-          .filter((g) => g.giftName && g.giftUrl)
+          .filter((g): g is typeof g & { giftName: string; giftUrl: string } =>
+            Boolean(g.giftName && g.giftUrl),
+          )
           .map(
             (g): Gift => ({
               id: uuidv7(),
               childId,
               familyId,
               giftDrive: data.giftDriveId,
-              title: g.giftName!,
-              productUrl: g.giftUrl!,
+              title: g.giftName,
+              productUrl: g.giftUrl,
               status: "AVAILABLE",
               backup: true,
               active: true,

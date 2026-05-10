@@ -1,49 +1,66 @@
-export type DonorClaim = {
-  id: string;
-  claimType: "donor";
-  giftId: string;
-  childId: string;
-  donorId: string;
-  driveId: string;
-  organizationName?: string;
-  claimedAt: string;
-  purchaseConfirmation?: ClaimPurchaseConfirmation;
-  deliveryConfirmed?: DeliveryConfirmation;
-  receivedAt?: string;
-  thankYouNote?: string;
-  privateNotes?: string;
-  expectedDeliveryDate?: string;
-  active: boolean;
-};
+import { z } from "zod";
 
-export type KFKClaim = {
-  id: string;
-  claimType: "kfk";
-  giftId: string;
-  childId: string;
-  driveId: string;
-  organizationName?: string;
-  claimedAt: string;
-  purchaseConfirmation?: ClaimPurchaseConfirmation;
-  deliveryConfirmed?: DeliveryConfirmation;
-  receivedAt?: string;
-  thankYouNote?: string;
-  privateNotes?: string;
-  expectedDeliveryDate?: string;
-  active: boolean;
-};
+export const ClaimPurchaseConfirmationSchema = z.object({
+  date: z.string(),
+  documentationUrl: z.string(),
+  verified: z.boolean(),
+  trackingNumber: z.string().optional(),
+});
 
-export type Claim = DonorClaim | KFKClaim;
+export type ClaimPurchaseConfirmation = z.infer<
+  typeof ClaimPurchaseConfirmationSchema
+>;
 
-export interface ClaimPurchaseConfirmation {
-  date: string;
-  documentationUrl: string;
-  verified: boolean; // whether the confirmation has been verified by admin
-  trackingNumber?: string;
-}
+export const DeliveryConfirmationSchema = z.object({
+  date: z.string(),
+  documentationUrl: z.string(),
+  verified: z.boolean(),
+});
 
-export interface DeliveryConfirmation {
-  date: string;
-  documentationUrl: string;
-  verified: boolean;
-}
+export type DeliveryConfirmation = z.infer<typeof DeliveryConfirmationSchema>;
+
+export const DonorClaimSchema = z.object({
+  id: z.string(),
+  claimType: z.literal("donor"),
+  giftId: z.string(),
+  childId: z.string(),
+  donorId: z.string(),
+  driveId: z.string(),
+  organizationName: z.string().optional(),
+  claimedAt: z.string(),
+  purchaseConfirmation: ClaimPurchaseConfirmationSchema.optional(),
+  deliveryConfirmed: DeliveryConfirmationSchema.optional(),
+  receivedAt: z.string().optional(),
+  thankYouNote: z.string().optional(),
+  privateNotes: z.string().optional(),
+  expectedDeliveryDate: z.string().optional(),
+  active: z.boolean(),
+});
+
+export type DonorClaim = z.infer<typeof DonorClaimSchema>;
+
+export const KFKClaimSchema = z.object({
+  id: z.string(),
+  claimType: z.literal("kfk"),
+  giftId: z.string(),
+  childId: z.string(),
+  driveId: z.string(),
+  organizationName: z.string().optional(),
+  claimedAt: z.string(),
+  purchaseConfirmation: ClaimPurchaseConfirmationSchema.optional(),
+  deliveryConfirmed: DeliveryConfirmationSchema.optional(),
+  receivedAt: z.string().optional(),
+  thankYouNote: z.string().optional(),
+  privateNotes: z.string().optional(),
+  expectedDeliveryDate: z.string().optional(),
+  active: z.boolean(),
+});
+
+export type KFKClaim = z.infer<typeof KFKClaimSchema>;
+
+export const ClaimSchema = z.discriminatedUnion("claimType", [
+  DonorClaimSchema,
+  KFKClaimSchema,
+]);
+
+export type Claim = z.infer<typeof ClaimSchema>;

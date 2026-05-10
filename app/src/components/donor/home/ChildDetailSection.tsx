@@ -62,7 +62,7 @@ export function ChildDetailSection({
             <GiftInformationCard
               key={gift.id}
               gift={gift}
-              state={giftStates[gift.id]!}
+              state={giftStates[gift.id]}
               onOrdered={() => onOrdered(gift.id)}
               onDelivered={() => onDelivered(gift.id)}
               onUndoDelivery={() => onUndoDelivery(gift.id)}

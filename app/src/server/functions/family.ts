@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 import type { Child } from "common";
-import { UserRole } from "common";
+import { UserRole, FamilySchema, AddressSchema } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
@@ -33,27 +33,25 @@ function getRequiredData<T>(data: T | undefined, errorMessage: string): T {
 
 const updateFamilySchema = z.object({
   familyId: z.string().min(1),
-  updates: z
-    .object({
-      contactName: z.string().trim().min(1).max(100),
-      guardianRelationship: z.string().trim().max(50),
-      email: z.email(),
-      phone: z.string().min(1),
-      address: z
-        .object({
-          street: z.string().min(1),
-          addressLine2: z.string().optional(),
-          city: z.string().min(1),
-          state: z.string().min(1),
-          zipCode: z.string().min(1),
-        })
-        .partial(),
-      privateNotes: z.string().trim().max(2000),
+  updates: FamilySchema.omit({
+    id: true,
+    giftDrive: true,
+    createdAt: true,
+    reviewStatus: true,
+  })
+    .extend({
+      address: AddressSchema.partial().refine(
+        (addr) => Object.keys(addr).length > 0,
+        {
+          error: "Address cannot be empty",
+        },
+      ),
     })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
-    }),
+    })
+    .strict(),
 });
 
 export const updateFamilyReviewStatusSchema = z.object({

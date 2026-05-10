@@ -1,9 +1,31 @@
+import { z } from "zod";
+
+export const ChildStatusSchema = z.enum([
+  "recently_diagnosed_relapse",
+  "diagnosed_in_treatment_1yr+",
+  "recently_off_treatment",
+  "off_treatment_5yr+",
+  "sibling_in_treatment",
+  "bereaved_sibling",
+  "bereaved_sibling_5yr+",
+]);
+
+export type ChildStatus = z.infer<typeof ChildStatusSchema>;
+
+export const ChildCategorySchema = z.enum(["warrior", "super_sib"]);
+
+export type ChildCategory = z.infer<typeof ChildCategorySchema>;
+
+export const TimePeriodSchema = z.enum(["<6m", "6m-1y", "1-2y", "3-4y", "5+y"]);
+
+export type TimePeriod = z.infer<typeof TimePeriodSchema>;
+
 export type TreatmentLevel = number;
+
+export const TreatmentLevelSchema = z.number();
 
 export const treatmentLevelToLetter = (level: TreatmentLevel) =>
   String.fromCharCode(65 + level);
-
-export type ChildCategory = "warrior" | "super_sib";
 
 /**
  * Types:
@@ -14,35 +36,26 @@ export type ChildCategory = "warrior" | "super_sib";
  *- Sibling of child diagnosed with cancer (in or off treatment)
  *- Bereaved sibling
  */
-export type ChildStatus =
-  | "recently_diagnosed_relapse"
-  | "diagnosed_in_treatment_1yr+"
-  | "recently_off_treatment"
-  | "off_treatment_5yr+"
-  | "sibling_in_treatment"
-  | "bereaved_sibling"
-  | "bereaved_sibling_5yr+";
+export const ChildSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  status: ChildStatusSchema,
+  photoUrl: z.string().optional(),
+  category: ChildCategorySchema,
+  treatmentLevel: TreatmentLevelSchema.optional(),
+  familyId: z.string(),
+  diagnosis: z.string(),
+  diagnosisLengthYears: TimePeriodSchema.optional(),
+  offTreatmentDurationYears: TimePeriodSchema.optional(),
+  livesAtHome: z.boolean(),
+  publicBlurb: z.string().optional(),
+  createdAt: z.iso.datetime(),
+  hospital: z.string(),
+  age: z.number(),
+  childSocialWorker: z.string(),
+  giftDrive: z.string(),
+  staffPrivateNotes: z.string().optional(),
+  published: z.boolean(),
+});
 
-export type TimePeriod = "<6m" | "6m-1y" | "1-2y" | "3-4y" | "5+y";
-
-export interface Child {
-  id: string;
-  name: string;
-  status: ChildStatus;
-  photoUrl?: string;
-  category: ChildCategory;
-  treatmentLevel?: TreatmentLevel;
-  familyId: string;
-  diagnosis: string;
-  diagnosisLengthYears?: TimePeriod;
-  offTreatmentDurationYears?: TimePeriod;
-  livesAtHome: boolean;
-  publicBlurb?: string;
-  createdAt: string;
-  hospital: string;
-  age: number;
-  childSocialWorker: string;
-  giftDrive: string;
-  staffPrivateNotes?: string;
-  published: boolean; // whether the child should be shown on the storefront
-}
+export type Child = z.infer<typeof ChildSchema>;
