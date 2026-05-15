@@ -35,10 +35,12 @@ export function SelectedGifts({
           return g;
         }
 
+        const nextActive = !g.active;
+
         return {
           ...g,
-          active: !g.active,
-          backup: !g.backup,
+          active: nextActive,
+          backup: !nextActive,
         };
       });
     });
