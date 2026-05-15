@@ -10,6 +10,15 @@ import { Spinner } from "@/components/ui/spinner";
 import { cartCollection } from "@/local/cartCollection";
 
 export const Route = createFileRoute("/_storefront/checkout")({
+  head: () => ({
+    meta: [
+      { title: "Checkout - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Review and confirm your gift selections",
+      },
+    ],
+  }),
   component: CheckoutComponent,
   ssr: false,
 });

@@ -37,6 +37,15 @@ export const Route = createFileRoute("/family/$token/child/$childId")({
       queries.children.familyDetailsByToken(params.token, params.childId),
     );
   },
+  head: () => ({
+    meta: [
+      { title: "Child Details - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "View child profile and gift information",
+      },
+    ],
+  }),
   component: ChildPage,
   errorComponent: ChildError,
 });

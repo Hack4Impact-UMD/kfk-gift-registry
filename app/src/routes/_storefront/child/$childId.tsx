@@ -31,6 +31,15 @@ export const Route = createFileRoute("/_storefront/child/$childId")({
       ),
     ]);
   },
+  head: () => ({
+    meta: [
+      { title: "Child Profile - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Browse gifts for a child in the Kisses for Kyle program",
+      },
+    ],
+  }),
 });
 
 function RouteComponent() {

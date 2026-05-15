@@ -5,6 +5,15 @@ import DefaultProfile from "@/assets/default-profile-photo.png";
 import type { CommittedChild } from "@/components/donor/home/types";
 
 export const Route = createFileRoute("/_authenticated/donor/home")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard - Donor" },
+      {
+        name: "description",
+        content: "View your committed gifts and manage your donations",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 
