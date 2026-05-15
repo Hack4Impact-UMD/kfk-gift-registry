@@ -34,11 +34,11 @@ export const getStorefrontGift = createServerFn({ method: "GET" })
     const db = getServerDB();
     const giftDoc = await db.gifts.doc(data.giftId).get();
 
-    if (!giftDoc.exists) {
+    const gift = giftDoc.data();
+
+    if (!gift) {
       throw new Error("Gift not found");
     }
-
-    const gift = giftDoc.data()!;
 
     if (!gift.active) {
       throw new Error("Gift not found");
@@ -94,10 +94,9 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
 
     const giftsByChildId = new Map<string, Array<Gift>>();
     for (const gift of allGifts) {
-      if (!giftsByChildId.has(gift.childId)) {
-        giftsByChildId.set(gift.childId, []);
-      }
-      giftsByChildId.get(gift.childId)!.push(gift);
+      const childGifts = giftsByChildId.get(gift.childId) ?? [];
+      childGifts.push(gift);
+      giftsByChildId.set(gift.childId, childGifts);
     }
 
     const familyTreatmentLevels = new Map<string, number>();

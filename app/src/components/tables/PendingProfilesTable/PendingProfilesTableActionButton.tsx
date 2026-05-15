@@ -5,11 +5,17 @@ import type { ApplicationStatus } from "./types";
 interface PendingProfilesTableActionButtonProps {
   statusFilter?: ApplicationStatus | null;
   className?: string;
+  disabled?: boolean;
+  loading?: boolean;
+  onClick?: () => void;
 }
 
 export function PendingProfilesTableActionButton({
   statusFilter = null,
   className,
+  disabled = false,
+  loading = false,
+  onClick,
 }: PendingProfilesTableActionButtonProps) {
   if (!statusFilter) {
     return null;
@@ -27,8 +33,12 @@ export function PendingProfilesTableActionButton({
       : undefined;
 
   return (
-    <Button className={cn("min-w-36", buttonClassName, className)}>
-      {label}
+    <Button
+      className={cn("min-w-36", buttonClassName, className)}
+      disabled={disabled || loading}
+      onClick={onClick}
+    >
+      {loading ? "Publishing..." : label}
     </Button>
   );
 }

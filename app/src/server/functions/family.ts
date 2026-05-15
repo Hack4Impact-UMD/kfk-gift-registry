@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
-import { UserRole } from "common";
+import type { Child } from "common";
+import { UserRole, FamilySchema, AddressSchema } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
@@ -8,6 +9,7 @@ import type {
   PendingProfileTableRow,
   ApplicationStatus,
 } from "@/components/tables/PendingProfilesTable/types";
+import { getChildrenForFamily } from "./child";
 
 const tokenInputSchema = z.object({
   token: z.string().min(1),
@@ -31,27 +33,25 @@ function getRequiredData<T>(data: T | undefined, errorMessage: string): T {
 
 const updateFamilySchema = z.object({
   familyId: z.string().min(1),
-  updates: z
-    .object({
-      contactName: z.string().trim().min(1).max(100),
-      guardianRelationship: z.string().trim().max(50),
-      email: z.email(),
-      phone: z.string().min(1),
-      address: z
-        .object({
-          street: z.string().min(1),
-          addressLine2: z.string().optional(),
-          city: z.string().min(1),
-          state: z.string().min(1),
-          zipCode: z.string().min(1),
-        })
-        .partial(),
-      privateNotes: z.string().trim().max(2000),
+  updates: FamilySchema.omit({
+    id: true,
+    giftDrive: true,
+    createdAt: true,
+    reviewStatus: true,
+  })
+    .extend({
+      address: AddressSchema.partial().refine(
+        (addr) => Object.keys(addr).length > 0,
+        {
+          error: "Address cannot be empty",
+        },
+      ),
     })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
-    }),
+    })
+    .strict(),
 });
 
 export const updateFamilyReviewStatusSchema = z.object({
@@ -253,7 +253,10 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
     const families = familiesSnapshot.docs.map((doc) => doc.data());
     const familyIds = families.map((f) => f.id);
 
-    const childCountMap = new Map<string, number>();
+    const childCountMap = new Map<
+      string,
+      { total: number; published: number }
+    >();
 
     for (let i = 0; i < familyIds.length; i += 10) {
       const batch = familyIds.slice(i, i + 10);
@@ -263,16 +266,24 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
 
       for (const childDoc of childrenSnapshot.docs) {
         const child = childDoc.data();
-        childCountMap.set(
-          child.familyId,
-          (childCountMap.get(child.familyId) || 0) + 1,
-        );
+        const existingCounts = childCountMap.get(child.familyId) ?? {
+          total: 0,
+          published: 0,
+        };
+        childCountMap.set(child.familyId, {
+          total: existingCounts.total + 1,
+          published: existingCounts.published + (child.published ? 1 : 0),
+        });
       }
     }
 
     for (const family of families) {
       let status: ApplicationStatus;
       const reviewStatus = family.reviewStatus;
+      const childCounts = childCountMap.get(family.id) ?? {
+        total: 0,
+        published: 0,
+      };
 
       if (reviewStatus?.approved) {
         status = "approved";
@@ -285,7 +296,8 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
       const row: PendingProfileTableRow = {
         id: family.id,
         parentGuardian: family.contactName,
-        numberOfChildren: childCountMap.get(family.id) || 0,
+        numberOfChildren: childCounts.total,
+        publishedChildren: childCounts.published,
         status,
         submissionDate: family.createdAt,
         adminComments:
@@ -328,4 +340,42 @@ export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
       updatedFamily.data(),
       "Family data unavailable after review update",
     );
+  });
+
+const publishFamiliesSchema = z.array(z.string().nonempty());
+
+export const publishFamilies = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.VOLUNTEER,
+      UserRole.DIRECTOR,
+    ]),
+  ])
+  .inputValidator(publishFamiliesSchema)
+  .handler(async ({ data: familyIds }) => {
+    const db = getServerDB();
+    const families = await Promise.all(
+      familyIds.map((id) => getFamilyById({ data: { familyId: id } })),
+    );
+    if (families.some((f) => !f?.reviewStatus.approved)) {
+      throw new Error("Can't publish a family that was not approved!");
+    }
+    const children: Array<Child> = (
+      await Promise.all(
+        familyIds.map(
+          async (id) => await getChildrenForFamily({ data: { familyId: id } }),
+        ),
+      )
+    )
+      .flatMap((cs) => cs)
+      .filter((c) => !c.published);
+
+    await db._instance.runTransaction(async (tx) => {
+      children.map((c) =>
+        tx.update(db.children.doc(c.id), {
+          published: true,
+        } satisfies Partial<Child>),
+      );
+    });
   });

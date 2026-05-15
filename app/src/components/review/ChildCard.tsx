@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { EditableField } from "./EditableField";
 import { ReviewGift } from "./ReviewGift";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import type { ChangeEventHandler } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
@@ -10,7 +10,6 @@ import ProfileHeader from "@/assets/default-profile-photo.png";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
-import { useDebouncer } from "@tanstack/react-pacer";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +62,9 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   const photoReadIdRef = useRef(0);
   const photoReaderRef = useRef<FileReader | null>(null);
   const isEditingRef = useRef(false);
+  const giftUpdateTimeoutsRef = useRef<
+    Map<string, ReturnType<typeof setTimeout>>
+  >(new Map());
   const [formState, setFormState] = useState<ChildFormState>({
     treatmentLength: child.diagnosisLengthYears,
     diagnosis: child.diagnosis,
@@ -76,9 +78,29 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   });
   const { mutate: updateGift } = useUpdateGift();
 
-  const debouncedUpdateGift = useDebouncer(updateGift, {
-    wait: 500,
-  });
+  const cancelPendingGiftUpdate = () => {
+    giftUpdateTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
+    giftUpdateTimeoutsRef.current.clear();
+  };
+
+  useEffect(() => cancelPendingGiftUpdate, []);
+
+  const queueGiftPriceUpdate = (giftId: string, price: number) => {
+    const existing = giftUpdateTimeoutsRef.current.get(giftId);
+    if (existing) clearTimeout(existing);
+    giftUpdateTimeoutsRef.current.set(
+      giftId,
+      setTimeout(() => {
+        updateGift({
+          giftId,
+          updates: {
+            listedPrice: price,
+          },
+        });
+        giftUpdateTimeoutsRef.current.delete(giftId);
+      }, 500),
+    );
+  };
 
   const updatePrice = (giftId: string, price: number | undefined) => {
     setFormState((prev) => ({
@@ -89,12 +111,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
     }));
 
     if (hasValidListedPrice(price)) {
-      debouncedUpdateGift.maybeExecute({
-        giftId: giftId,
-        updates: {
-          listedPrice: price,
-        },
-      });
+      queueGiftPriceUpdate(giftId, price);
     } else {
       toast.warning("Invalid price!");
     }
@@ -120,7 +137,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   };
 
   const handleCancelClick = () => {
-    debouncedUpdateGift.cancel();
+    cancelPendingGiftUpdate();
     invalidatePhotoRead();
     resetPhotoInput();
     isEditingRef.current = false;
@@ -201,7 +218,6 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   };
 
   const handleSave = () => {
-    debouncedUpdateGift.cancel();
 
     if ((formState.blurb?.length ?? 0) > 150) {
       alert("Maximum characters exceeded");

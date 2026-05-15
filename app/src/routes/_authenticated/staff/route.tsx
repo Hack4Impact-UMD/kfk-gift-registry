@@ -62,8 +62,8 @@ function RouteComponent() {
               <main className="flex min-w-0 flex-1 flex-col">
                 <div className="w-full bg-accent border-b block md:hidden">
                   <SidebarTrigger
-                    openIcon={<XIcon />}
-                    closeIcon={<MenuIcon />}
+                    closeIcon={<XIcon />}
+                    openIcon={<MenuIcon />}
                   />
                 </div>
                 <div className="flex min-h-0 flex-1 flex-col p-4">

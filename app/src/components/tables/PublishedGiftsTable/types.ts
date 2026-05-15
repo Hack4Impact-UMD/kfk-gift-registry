@@ -1,14 +1,16 @@
-export type GiftPurchaseStatus =
-  | "unpurchased"
-  | "purchased"
-  | "purchased_kfk"
-  | "purchased_donor";
+import type { GiftStatus } from "common";
+
+export type GiftClaimStatus =
+  | "unclaimed"
+  | "claimed"
+  | "claimed_kfk"
+  | "claimed_donor";
 
 export type PublishedGiftsTableRow = {
   id: string;
   giftName: string;
-  giftStatus: string;
-  sponsorType: GiftPurchaseStatus;
+  giftStatus: GiftStatus;
+  sponsorType: GiftClaimStatus;
   sponsorName?: string;
   sponsorEmail?: string;
   dateOfFulfillment?: string;

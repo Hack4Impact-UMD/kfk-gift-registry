@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { DataTable } from "../DataTable";
@@ -7,6 +7,7 @@ import { PendingProfilesTableActionButton } from "./PendingProfilesTableActionBu
 import { Input } from "@/components/ui/input";
 import { useReviewOrder } from "@/context/ReviewOrderContext";
 import { cn } from "@/lib/utils";
+import { usePublishFamilies } from "@/hooks/mutations/usePublishFamilies";
 import type { ApplicationStatus, PendingProfileTableRow } from "./types";
 
 interface PendingProfilesTableProps {
@@ -26,8 +27,13 @@ export function PendingProfilesTable({
   paginated = true,
 }: PendingProfilesTableProps) {
   const [globalSearch, setGlobalSearch] = useState("");
+  const [selectedRows, setSelectedRows] = useState<
+    Array<PendingProfileTableRow>
+  >([]);
+  const [selectionVersion, setSelectionVersion] = useState(0);
   const navigate = useNavigate();
   const { setReviewOrder } = useReviewOrder();
+  const publishFamiliesMutation = usePublishFamilies();
 
   const handleRowClick = (
     row: PendingProfileTableRow,
@@ -40,10 +46,25 @@ export function PendingProfilesTable({
     });
   };
 
-  const filteredData = statusFilter
-    ? data.filter((row) => row.status === statusFilter)
-    : data;
+  const filteredData = useMemo(
+    () =>
+      statusFilter ? data.filter((row) => row.status === statusFilter) : data,
+    [statusFilter, data],
+  );
   const tableKey = statusFilter ?? "all";
+  const selectedFamilyIds = useMemo(
+    () => selectedRows.map((row) => row.id),
+    [selectedRows],
+  );
+
+  const handlePublishToStorefront = () => {
+    publishFamiliesMutation.mutate(selectedFamilyIds, {
+      onSuccess: () => {
+        setSelectedRows([]);
+        setSelectionVersion((current) => current + 1);
+      },
+    });
+  };
 
   return (
     <div className={cn("flex flex-col gap-4 pt-6", className)}>
@@ -62,12 +83,24 @@ export function PendingProfilesTable({
           <PendingProfilesTableActionButton
             className="sm:ml-auto"
             statusFilter={statusFilter}
+            disabled={
+              selectedRows.length == 0 ||
+              (statusFilter === "approved"
+                ? selectedFamilyIds.length === 0
+                : false)
+            }
+            loading={publishFamiliesMutation.isPending}
+            onClick={
+              statusFilter === "approved"
+                ? handlePublishToStorefront
+                : undefined
+            }
           />
         </div>
       </div>
 
       <DataTable
-        key={tableKey}
+        key={`${tableKey}-${selectionVersion}`}
         columns={columns}
         data={filteredData}
         globalSearch={globalSearch}
@@ -77,6 +110,7 @@ export function PendingProfilesTable({
         onOrderedRowsChange={(orderedRows) =>
           setReviewOrder(orderedRows.map((orderedRow) => orderedRow.id))
         }
+        onSelectedRowsChange={setSelectedRows}
         onRowClick={handleRowClick}
       />
     </div>
