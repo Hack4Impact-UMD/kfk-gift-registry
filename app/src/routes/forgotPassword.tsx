@@ -39,6 +39,15 @@ export const Route = createFileRoute("/forgotPassword")({
     }
   },
   validateSearch: searchSchema,
+  head: () => ({
+    meta: [
+      { title: "Forgot Password - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Reset your Kisses for Kyle account password",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 

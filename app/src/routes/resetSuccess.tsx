@@ -15,6 +15,15 @@ export const Route = createFileRoute("/resetSuccess")({
       });
     }
   },
+  head: () => ({
+    meta: [
+      { title: "Password Reset Successful - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Your password has been successfully reset",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 
