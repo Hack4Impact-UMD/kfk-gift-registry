@@ -7,6 +7,15 @@ import { usePendingProfileTableRows } from "@/hooks/queries/usePendingProfileTab
 import { useDrive } from "@/context/DriveContext";
 
 export const Route = createFileRoute("/_authenticated/staff/family-approval")({
+  head: () => ({
+    meta: [
+      { title: "Family Approval - Staff" },
+      {
+        name: "description",
+        content: "Review and approve family applications",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 

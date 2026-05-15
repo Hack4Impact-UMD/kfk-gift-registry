@@ -8,6 +8,15 @@ import { StatusSummaryHeader } from "@/components/tables/ApprovedProfilesTable/S
 import type { ChildProfileVisibility } from "@/components/tables/ApprovedProfilesTable/types";
 
 export const Route = createFileRoute("/_authenticated/staff/child-profile")({
+  head: () => ({
+    meta: [
+      { title: "Child Profiles - Staff" },
+      {
+        name: "description",
+        content: "View and manage approved child profiles",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 
