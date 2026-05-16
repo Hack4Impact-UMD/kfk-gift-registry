@@ -230,6 +230,8 @@ interface FormFieldInputProps {
     | "url";
   autoComplete?: string;
   value?: string;
+  maxCharactersErrorMessage?: string;
+  showMaxCharactersError?: boolean;
   characterLimit?: number;
   disabled?: boolean;
   className?: string;
@@ -244,13 +246,24 @@ export const FormFieldInput = ({
   inputMode,
   autoComplete,
   value,
+  maxCharactersErrorMessage,
+  showMaxCharactersError: showMaxCharactersErrorImmediately = false,
   characterLimit,
   disabled,
   className = "",
 }: FormFieldInputProps) => {
   const field = useFieldContext<string>();
-  const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
-  const charCount = (field.state.value || value || "").length;
+  const characterCount = (field.state.value || value || "").length;
+  const immediateMaxCharacterError =
+    showMaxCharactersErrorImmediately &&
+    characterLimit !== undefined &&
+    characterCount > characterLimit
+      ? (maxCharactersErrorMessage ??
+        `Please keep this field to ${characterLimit} characters or less`)
+      : undefined;
+  const errorMessage =
+    (field.state.meta.isTouched && field.state.meta.errors[0]) ||
+    immediateMaxCharacterError;
 
   return (
     <FormItem className={cn("group relative mt-6", className)}>
@@ -326,10 +339,10 @@ export const FormFieldInput = ({
       {characterLimit !== undefined && !disabled && (
         <p
           className={`text-xs text-right ${
-            charCount <= characterLimit ? "text-slate-500" : "text-red-500"
+            characterCount <= characterLimit ? "text-slate-500" : "text-red-500"
           }`}
         >
-          {charCount}/{characterLimit} characters
+          {characterCount}/{characterLimit} characters
         </p>
       )}
     </FormItem>
@@ -341,6 +354,8 @@ type FormTextareaProps = {
   placeholder?: string;
   required?: boolean;
   maxWords?: number;
+  maxCharactersErrorMessage?: string;
+  showMaxCharactersErrorImmediately?: boolean;
   maxLength?: number;
   disabled?: boolean;
   className?: string;
@@ -351,16 +366,27 @@ export function FormTextarea({
   placeholder,
   required = false,
   maxWords,
+  maxCharactersErrorMessage,
+  showMaxCharactersErrorImmediately = false,
   maxLength,
   disabled,
   className = "",
 }: FormTextareaProps) {
   const field = useFieldContext<string>();
-  const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
-  const charCount = field.state.value?.length ?? 0;
   const wordCount = field.state.value
     ? field.state.value.trim().split(/\s+/).filter(Boolean).length
     : 0;
+  const characterCount = field.state.value?.length ?? 0;
+  const immediateMaxCharacterError =
+    showMaxCharactersErrorImmediately &&
+    maxLength !== undefined &&
+    characterCount > maxLength
+      ? (maxCharactersErrorMessage ??
+        `Please keep this field to ${maxLength} characters or less`)
+      : undefined;
+  const errorMessage =
+    (field.state.meta.isTouched && field.state.meta.errors[0]) ||
+    immediateMaxCharacterError;
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -379,11 +405,15 @@ export function FormTextarea({
         className={`resize-none min-h-[100px] ${errorMessage ? "border-red-500" : ""}`}
       />
       {maxLength !== undefined && !disabled && (
-        <p className="text-xs text-right text-slate-500">
-          {charCount}/{maxLength} characters
+        <p
+          className={`text-xs text-right ${
+            characterCount <= maxLength ? "text-slate-500" : "text-red-500"
+          }`}
+        >
+          {characterCount}/{maxLength} characters
         </p>
       )}
-      {maxWords !== undefined && !disabled && (
+      {maxWords !== undefined && maxLength === undefined && !disabled && (
         <p className="text-xs text-right text-slate-500">
           {wordCount} out of {maxWords}
         </p>
