@@ -2,6 +2,8 @@ import { z } from "zod";
 import { ChildStatusSchema } from "common";
 import type { ChildStatus } from "common";
 
+const MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH = 150;
+
 // Ordered to match display order in the form.
 export const CHILD_STATUS_VALUES = ChildStatusSchema.options;
 
@@ -247,7 +249,13 @@ const giftSchema = z
   .object({
     giftName: z.string(),
     giftUrl: z.string(),
-    familyPublicNotes: z.string().optional(),
+    familyPublicNotes: z
+      .string()
+      .max(
+        MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
+        `Gift notes must be ${MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH} characters or fewer`,
+      )
+      .optional(),
   })
   .refine(
     (data) => {

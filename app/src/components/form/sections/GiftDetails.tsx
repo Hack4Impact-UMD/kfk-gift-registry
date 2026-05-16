@@ -12,6 +12,7 @@ type GiftDetailsFormProps = {
 };
 
 const GIFT_NAME_MAX_CHARS = 50;
+const MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH = 150;
 
 export function GiftDetailsForm({
   form,
@@ -197,6 +198,7 @@ export function GiftDetailsForm({
                   className="mt-2"
                   label={`Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
+                  maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
                   disabled={disabled}
                 />
               )}
@@ -304,6 +306,7 @@ export function GiftDetailsForm({
                   className="mt-2"
                   label={`Backup Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
+                  maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
                   disabled={disabled}
                 />
               )}

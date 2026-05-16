@@ -20,10 +20,13 @@ import { queries } from "@/queries";
 import { Spinner } from "@/components/ui/spinner";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/lib/toast";
 
 function cloneGifts(gifts: ReadonlyArray<Gift>): Array<Gift> {
   return gifts.map((gift) => ({ ...gift }));
 }
+
+const MAX_BLURB_LENGTH = 150;
 
 export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
   component: ChildProfilePage,
@@ -108,6 +111,12 @@ function ChildProfilePage() {
   };
 
   const handleSaveAll = async () => {
+    const currentBlurb = editedChild.publicBlurb ?? child.publicBlurb ?? "";
+    if (currentBlurb.length > MAX_BLURB_LENGTH) {
+      toast.error("Personal blurb must be 150 characters or fewer.");
+      return;
+    }
+
     const childUpdates = Object.fromEntries(
       Object.entries(editedChild).filter(
         ([key, value]) => value !== child[key as keyof typeof child],

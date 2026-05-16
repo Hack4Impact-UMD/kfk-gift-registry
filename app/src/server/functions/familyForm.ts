@@ -21,6 +21,7 @@ const MIME_TO_EXT: Record<AllowedMimeType, string> = {
   "image/png": "png",
   "image/webp": "webp",
 };
+const MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH = 150;
 
 // --- Zod schemas ---
 
@@ -54,7 +55,10 @@ const childrenFormSchema = z.object({
 const giftSelectionSchema = z.object({
   giftUrl: z.url().optional().or(z.literal("")),
   giftName: z.string().optional(),
-  familyPublicNotes: z.string().optional(),
+  familyPublicNotes: z
+    .string()
+    .max(MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH)
+    .optional(),
 });
 
 const childGiftSelectionSchema = z.object({

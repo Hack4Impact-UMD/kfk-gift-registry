@@ -4,6 +4,20 @@ import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
 import type { GiftStatus } from "common";
 
+const GIFT_NOTES_TOO_LONG_ERROR = "Gift notes must be 150 characters or fewer.";
+
+function getUpdateGiftErrorMessage(error: Error) {
+  if (
+    error.message.includes("familyPublicNotes") &&
+    error.message.includes("maximum") &&
+    error.message.includes("150")
+  ) {
+    return GIFT_NOTES_TOO_LONG_ERROR;
+  }
+
+  return `Failed to update gift: ${error.message}`;
+}
+
 export function useUpdateGift() {
   const queryClient = useQueryClient();
 
@@ -39,7 +53,7 @@ export function useUpdateGift() {
     },
 
     onError: (error) => {
-      toast.error(`Failed to update gift: ${error.message}`);
+      toast.error(getUpdateGiftErrorMessage(error));
     },
   });
 }

@@ -8,10 +8,7 @@ import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfil
 const TOO_LONG_ERROR = "150 characters or fewer.";
 
 function getUpdateChildErrorMessage(error: Error) {
-  if (
-    error.message.includes("maximum") &&
-    error.message.includes("150")
-  ) {
+  if (error.message.includes("maximum") && error.message.includes("150")) {
     return TOO_LONG_ERROR;
   }
 

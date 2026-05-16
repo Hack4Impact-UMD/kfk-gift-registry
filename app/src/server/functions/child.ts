@@ -11,6 +11,7 @@ import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
 const MAX_CHILD_PUBLIC_BLURB_LENGTH = 150;
+const MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH = 150;
 
 export type FamilyGiftClaim = {
   giftId: string;
@@ -99,6 +100,13 @@ const updateGiftSchema = z.object({
     claimedByDonorId: true,
     createdAt: true,
   })
+    .extend({
+      familyPublicNotes: z
+        .string()
+        .trim()
+        .max(MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH)
+        .optional(),
+    })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
@@ -111,7 +119,11 @@ const createGiftSchema = z.object({
   title: z.string().trim().min(1).max(100),
   productUrl: z.string().trim().url(),
   listedPrice: z.number().min(0).optional(),
-  familyPublicNotes: z.string().trim().max(500).optional(),
+  familyPublicNotes: z
+    .string()
+    .trim()
+    .max(MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH)
+    .optional(),
   active: z.boolean().default(true),
 });
 

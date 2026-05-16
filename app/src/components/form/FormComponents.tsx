@@ -329,6 +329,7 @@ type FormTextareaProps = {
   placeholder?: string;
   required?: boolean;
   maxWords?: number;
+  maxLength?: number;
   disabled?: boolean;
   className?: string;
 };
@@ -338,11 +339,13 @@ export function FormTextarea({
   placeholder,
   required = false,
   maxWords,
+  maxLength,
   disabled,
   className = "",
 }: FormTextareaProps) {
   const field = useFieldContext<string>();
   const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
+  const charCount = field.state.value?.length ?? 0;
   const wordCount = field.state.value
     ? field.state.value.trim().split(/\s+/).filter(Boolean).length
     : 0;
@@ -363,6 +366,11 @@ export function FormTextarea({
         disabled={disabled}
         className={`resize-none min-h-[100px] ${errorMessage ? "border-red-500" : ""}`}
       />
+      {maxLength !== undefined && !disabled && (
+        <p className="text-xs text-right text-slate-500">
+          {charCount}/{maxLength} characters
+        </p>
+      )}
       {maxWords !== undefined && !disabled && (
         <p className="text-xs text-right text-slate-500">
           {wordCount} out of {maxWords}

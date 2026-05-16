@@ -41,6 +41,7 @@ const timePeriodOptions: Array<TimePeriod> = [
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_BLURB_LENGTH = 150;
+const MAX_GIFT_NOTES_LENGTH = 150;
 
 function parsePriceInput(raw: string): number | undefined {
   const t = raw.trim();
@@ -222,6 +223,16 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
       toast.error("Personal blurb must be 150 characters or fewer.");
       return;
     }
+
+    if (
+      formState.gifts.some(
+        (gift) => (gift.familyPublicNotes?.length ?? 0) > MAX_GIFT_NOTES_LENGTH,
+      )
+    ) {
+      toast.error("Gift notes must be 150 characters or fewer.");
+      return;
+    }
+
     const updatedChild: Child = {
       ...child,
       diagnosisLengthYears: formState.treatmentLength,
@@ -463,7 +474,6 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
               value={formState.blurb}
               editable={editing}
               fieldType={"textarea"}
-              maxLength={MAX_BLURB_LENGTH}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 const nextBlurb = e.target.value;
                 setFormState((prev) => ({
