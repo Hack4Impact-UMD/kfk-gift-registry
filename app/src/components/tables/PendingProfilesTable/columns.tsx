@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ColumnSortButton from "../ColumnSortButton";
 import { StatusBadge } from "./StatusBadge";
 import type { PendingProfileTableRow } from "./types";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const helper = createColumnHelper<PendingProfileTableRow>();
 
@@ -41,34 +42,68 @@ export const columns = [
     enableGlobalFilter: false,
   }),
 
-  helper.accessor("id", {
-    enableGlobalFilter: true,
-    header: ({ column }) => (
-      <ColumnSortButton column={column}>id</ColumnSortButton>
-    ),
-    cell: ({ getValue }) => (
-      <span className="font-mono text-xs text-gray-500">{getValue()}</span>
-    ),
-  }),
-
   helper.accessor("parentGuardian", {
     enableGlobalFilter: true,
     header: ({ column }) => (
       <ColumnSortButton column={column}>Parent/Guardian</ColumnSortButton>
     ),
-    cell: ({ getValue }) => (
-      <span className="font-medium text-gray-900">{getValue()}</span>
-    ),
+    cell: ({ getValue }) => {
+      const name = getValue() ?? "";
+      const initials = name
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+      return (
+        <div className="flex items-center gap-3">
+          <Avatar className="h-9 w-9">
+            <AvatarFallback className="bg-blue-100 text-blue-600 text-sm font-medium">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <span>{name}</span>
+        </div>
+      );
+    },
   }),
 
-  helper.accessor("numberOfChildren", {
+  // helper.accessor("numberOfChildren", {
+  //   enableGlobalFilter: false,
+  //   header: ({ column }) => (
+  //     <ColumnSortButton column={column}># of Children</ColumnSortButton>
+  //   ),
+  //   cell: ({ getValue }) => (
+  //     <span className="text-center block">{getValue()}</span>
+  //   ),
+  // }),
+
+  helper.accessor("publishedChildren", {
     enableGlobalFilter: false,
     header: ({ column }) => (
-      <ColumnSortButton column={column}># of Children</ColumnSortButton>
+      <ColumnSortButton column={column}>Published Children</ColumnSortButton>
     ),
-    cell: ({ getValue }) => (
-      <span className="text-center block">{getValue()}</span>
-    ),
+    cell: ({ getValue, row }) => {
+      const publishedChildren = getValue();
+      const totalChildren = row.original.numberOfChildren;
+      const dotColor =
+        publishedChildren === 0
+          ? "bg-red-300"
+          : publishedChildren === totalChildren
+            ? "bg-green-300"
+            : "bg-yellow-300";
+
+      return (
+        <div className="flex items-center gap-2">
+          <div className={`h-3 w-3 rounded-full ${dotColor}`}></div>
+          <div>
+            {publishedChildren}/{totalChildren} Published
+          </div>
+        </div>
+      );
+    },
   }),
 
   helper.accessor("status", {

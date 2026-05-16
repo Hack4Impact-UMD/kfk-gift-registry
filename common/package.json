@@ -21,6 +21,9 @@
     "lint": "oxlint .",
     "typecheck": "tsc --noEmit -p ."
   },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
   "devDependencies": {
     "oxlint": "^1.56.0",
     "typescript": "^5.7.2"

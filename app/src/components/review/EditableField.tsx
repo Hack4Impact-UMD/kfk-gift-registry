@@ -10,6 +10,7 @@ import {
   SelectItem,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { PhoneInput } from "../ui/phone-input";
 
 type EditableFieldChangeHandler =
   | React.ChangeEventHandler<HTMLInputElement>
@@ -22,7 +23,7 @@ interface EditableFieldProps extends Omit<
 > {
   editable?: boolean;
   children?: React.ReactNode;
-  fieldType?: "input" | "textarea" | "select";
+  fieldType?: "input" | "textarea" | "select" | "phone";
   selectOptions?: Array<string>;
   onChange?: EditableFieldChangeHandler;
 }
@@ -100,7 +101,9 @@ export function EditableField({
           {...(props as React.ComponentProps<typeof Textarea>)}
         />
         <p
-          className={`self-end ${wordCount <= 25 ? "text-muted-foreground" : "text-destructive"}`}
+          className={`self-end ${
+            wordCount <= 25 ? "text-muted-foreground" : "text-destructive"
+          }`}
         >
           {wordCount}/25 words
         </p>
@@ -108,16 +111,33 @@ export function EditableField({
     );
   }
 
+  if (fieldType === "phone") {
+    return (
+      <>
+        {children && (
+          <b className="whitespace-nowrap my-auto mr-2">{children}</b>
+        )}
+        <PhoneInput
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          value={value}
+          onChange={inputOnChange}
+          className={cn("border-foreground", className)}
+          {...props}
+        />
+      </>
+    );
+  }
+
   return (
-    <>
-      {children && <b className="whitespace-nowrap my-auto mr-2">{children}</b>}
+    <div className={cn("flex items-center gap-2 w-full", className)}>
+      {children && <b className="whitespace-nowrap">{children}</b>}
       <Input
         ref={inputRef as React.RefObject<HTMLInputElement>}
         value={value}
         onChange={inputOnChange}
-        className={cn("border-foreground", className)}
+        className="flex-1 min-w-0 border-foreground"
         {...props}
       />
-    </>
+    </div>
   );
 }

@@ -2,13 +2,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { EditableField } from "./EditableField";
 import { ReviewGift } from "./ReviewGift";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import type { ChangeEventHandler } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface ChildInfoCardProps {
   child: Child;
@@ -64,6 +67,9 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   const photoReadIdRef = useRef(0);
   const photoReaderRef = useRef<FileReader | null>(null);
   const isEditingRef = useRef(false);
+  const giftUpdateTimeoutsRef = useRef<
+    Map<string, ReturnType<typeof setTimeout>>
+  >(new Map());
   const [formState, setFormState] = useState<ChildFormState>({
     treatmentLength: child.diagnosisLengthYears,
     diagnosis: child.diagnosis,
@@ -75,21 +81,52 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
     photoUrl: child.photoUrl,
     gifts: fetchedGifts || [],
   });
-  const { mutate } = useUpdateGift();
+  const { mutate: updateGift } = useUpdateGift();
 
-  const updateGift = (giftId: string, patch: Partial<Gift>) => {
+  const cancelPendingGiftUpdate = () => {
+    giftUpdateTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
+    giftUpdateTimeoutsRef.current.clear();
+  };
+
+  useEffect(() => cancelPendingGiftUpdate, []);
+
+  const queueGiftPriceUpdate = (giftId: string, price: number) => {
+    const existing = giftUpdateTimeoutsRef.current.get(giftId);
+    if (existing) clearTimeout(existing);
+    giftUpdateTimeoutsRef.current.set(
+      giftId,
+      setTimeout(() => {
+        updateGift({
+          giftId,
+          updates: {
+            listedPrice: price,
+          },
+        });
+        giftUpdateTimeoutsRef.current.delete(giftId);
+      }, 500),
+    );
+  };
+
+  const updatePrice = (giftId: string, price: number | undefined) => {
+    setFormState((prev) => ({
+      ...prev,
+      gifts: prev.gifts.map((g) =>
+        g.id === giftId ? { ...g, listedPrice: price } : g,
+      ),
+    }));
+
+    if (hasValidListedPrice(price)) {
+      queueGiftPriceUpdate(giftId, price);
+    } else {
+      toast.warning("Invalid price!");
+    }
+  };
+
+  const updateLocalGift = (giftId: string, patch: Partial<Gift>) => {
     setFormState((prev) => ({
       ...prev,
       gifts: prev.gifts.map((g) => (g.id === giftId ? { ...g, ...patch } : g)),
     }));
-
-    if (hasValidListedPrice(patch.listedPrice))
-      mutate({
-        giftId: giftId,
-        updates: {
-          listedPrice: patch.listedPrice,
-        },
-      });
   };
 
   const invalidatePhotoRead = () => {
@@ -105,6 +142,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   };
 
   const handleCancelClick = () => {
+    cancelPendingGiftUpdate();
     invalidatePhotoRead();
     resetPhotoInput();
     isEditingRef.current = false;
@@ -185,6 +223,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   };
 
   const handleSave = () => {
+    cancelPendingGiftUpdate();
     const currentWordCount = computeWordCount(formState.blurb);
 
     if (currentWordCount > 25) {
@@ -215,7 +254,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
             : {}),
         };
 
-        mutate({
+        updateGift({
           giftId: gift.id,
           updates,
         });
@@ -300,6 +339,21 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
           </div>
           <div className="flex gap-2">
             <Button
+              asChild
+              type="button"
+              disabled={editing}
+              variant="outline"
+              size="xs"
+            >
+              <Link
+                to="/staff/child/$childId"
+                params={{ childId: child.id }}
+                search={(prev) => prev}
+              >
+                Open Child Page
+              </Link>
+            </Button>
+            <Button
               type="button"
               size="xs"
               onClick={editing ? handleSave : handleEditClick}
@@ -322,7 +376,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
         </div>
 
         <div className="flex flex-col bg-card px-4 sm:px-6 py-4 gap-3 -mx-6">
-          <div className="flex gap-2">
+          <div className={cn("flex gap-2", editing && "flex-col")}>
             {child.category === "warrior" && (
               <>
                 <div className="flex items-center gap-2">
@@ -419,15 +473,13 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
                   gift={gift}
                   editable={editing}
                   onTitleChange={(value) =>
-                    updateGift(gift.id, { title: value })
+                    updateLocalGift(gift.id, { title: value })
                   }
                   onPriceChange={(value) =>
-                    updateGift(gift.id, {
-                      listedPrice: parsePriceInput(value),
-                    })
+                    updatePrice(gift.id, parsePriceInput(value))
                   }
                   onNotesChange={(value) =>
-                    updateGift(gift.id, { familyPublicNotes: value })
+                    updateLocalGift(gift.id, { familyPublicNotes: value })
                   }
                 />
               ))}

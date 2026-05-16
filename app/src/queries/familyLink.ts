@@ -1,5 +1,9 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
-import { getFamilyByToken, getFamilyLink } from "@/server/functions/family";
+import {
+  getActiveFamilyLinkByFamilyId,
+  getFamilyByToken,
+  getFamilyLink,
+} from "@/server/functions/family";
 
 export const familyLinkQueries = createQueryKeys("familyLinks", {
   fromToken: (token: string) => ({
@@ -9,5 +13,9 @@ export const familyLinkQueries = createQueryKeys("familyLinks", {
   byToken: (token: string) => ({
     queryKey: ["byToken", token],
     queryFn: () => getFamilyLink({ data: { token } }),
+  }),
+  byFamilyId: (familyId: string) => ({
+    queryKey: ["byFamilyId", familyId],
+    queryFn: () => getActiveFamilyLinkByFamilyId({ data: { familyId } }),
   }),
 });

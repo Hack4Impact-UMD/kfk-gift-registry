@@ -4,7 +4,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-SEED_FILE="$(mktemp "${TMPDIR:-/tmp}/kfk-seed.XXXXXX.json")"
+SEED_FILE="$(mktemp "${TMPDIR:-/tmp}/kfk-seed.XXXXXX").json"
 
 cleanup() {
   rm -f "${SEED_FILE}"
@@ -70,7 +70,7 @@ done
 
 echo "Generating seed data..."
 
-seed_command=(pnpm exec tsx scripts/seed.ts)
+seed_command=(pnpm --silent exec tsx scripts/seed.ts)
 if ((${#SEED_ARGS[@]})); then
   seed_command+=("${SEED_ARGS[@]}")
 fi

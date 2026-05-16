@@ -1,10 +1,12 @@
 import { getServerDB } from "@/lib/firebase.server";
 import z from "zod";
 import { createServerFn } from "@tanstack/react-start";
-import { UserRole } from "common";
+import admin from "firebase-admin";
+import { v7 as uuidv7 } from "uuid";
+import { UserRole, ChildSchema, GiftSchema } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
-import type { Child, Gift, GiftStatus } from "common";
+import type { Family, Gift, Child } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
@@ -66,54 +68,46 @@ const tokenGiftThankYouNoteSchema = z.object({
 
 const updateChildSchema = z.object({
   childId: z.string().min(1),
-  updates: z
-    .object({
-      // These are all for text fields
-      name: z.string().trim().min(1).max(100),
-      diagnosis: z.string().trim().min(1).max(200),
-      hospital: z.string().trim().min(1).max(200),
-      childSocialWorker: z.string().trim().min(1).max(100),
-      publicBlurb: z.string().trim().min(1).max(1000),
-      staffPrivateNotes: z.string().trim().min(1).max(2000),
-      photoUrl: z.url(),
-
-      // Constrained choices requiring dropdowns/radios, etc.
-      age: z.number().min(1),
-      treatmentLevel: z.number().min(0).max(3),
-      diagnosisLengthYears: z.enum(["<6m", "6m-1y", "1-2y", "3-4y", "5+y"]),
-      offTreatmentDurationYears: z.enum([
-        "<6m",
-        "6m-1y",
-        "1-2y",
-        "3-4y",
-        "5+y",
-      ]),
-    })
+  updates: ChildSchema.omit({
+    id: true,
+    familyId: true,
+    giftDrive: true,
+    createdAt: true,
+    category: true,
+    status: true,
+    livesAtHome: true,
+  })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
-    }),
+    })
+    .strict(),
 });
 
 const updateGiftSchema = z.object({
   giftId: z.string().min(1),
-  updates: z
-    .object({
-      title: z.string().trim().min(1).max(100),
-      listedPrice: z.number().min(0),
-      status: z.enum([
-        "AVAILABLE",
-        "CLAIMED",
-        "PURCHASED",
-        "DELIVERED",
-        "RECEIVED",
-      ] as const satisfies ReadonlyArray<GiftStatus>),
-      familyPublicNotes: z.string().trim().max(500),
-    })
+  updates: GiftSchema.omit({
+    id: true,
+    childId: true,
+    familyId: true,
+    giftDrive: true,
+    claimedByDonorId: true,
+    createdAt: true,
+  })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
-    }),
+    })
+    .strict(),
+});
+
+const createGiftSchema = z.object({
+  childId: z.string().min(1),
+  title: z.string().trim().min(1).max(100),
+  productUrl: z.string().trim().url(),
+  listedPrice: z.number().min(0).optional(),
+  familyPublicNotes: z.string().trim().max(500).optional(),
+  active: z.boolean().default(true),
 });
 
 export const getAllChildProfilesForDrive = createServerFn({
@@ -161,7 +155,7 @@ export const getAllApprovedFamilyProfilesForDrive = createServerFn({
     return familyProfiles.docs.map((doc) => doc.data());
   });
 
-export const getApprovedProfileTableRows = createServerFn({
+export const getChildProfileTableRows = createServerFn({
   method: "GET",
 })
   .middleware([
@@ -176,26 +170,19 @@ export const getApprovedProfileTableRows = createServerFn({
     const db = getServerDB();
     const rows: Array<ApprovedProfileTableRow> = [];
 
-    // 1. Get all approved families
-    const families = await getAllApprovedFamilyProfilesForDrive({ data });
-    if (families.length === 0) {
-      return rows;
-    }
-
-    const familyIds = families.map((f) => f.id);
-
-    // 2. Batch-fetch all children for these families (Firestore `in` max 10)
-    const allChildren: Array<Child> = [];
-    for (let i = 0; i < familyIds.length; i += 10) {
-      const batch = familyIds.slice(i, i + 10);
-      const childrenQuery = await db.children
-        .where("familyId", "in", batch)
-        .get();
-      allChildren.push(...childrenQuery.docs.map((doc) => doc.data()));
-    }
-
+    // get all children for the active drive
+    const allChildren = await getAllChildProfilesForDrive({ data });
     if (allChildren.length === 0) {
       return rows;
+    }
+
+    const familyIds = [...new Set(allChildren.map((child) => child.familyId))];
+
+    const families: Array<Family> = [];
+    for (let i = 0; i < familyIds.length; i += 10) {
+      const batch = familyIds.slice(i, i + 10);
+      const familyQuery = await db.families.where("id", "in", batch).get();
+      families.push(...familyQuery.docs.map((doc) => doc.data()));
     }
 
     const childIds = allChildren.map((c) => c.id);
@@ -211,10 +198,9 @@ export const getApprovedProfileTableRows = createServerFn({
     // 4. Index gifts by childId for O(1) lookup
     const giftsByChildId = new Map<string, Array<Gift>>();
     for (const gift of allGifts) {
-      if (!giftsByChildId.has(gift.childId)) {
-        giftsByChildId.set(gift.childId, []);
-      }
-      giftsByChildId.get(gift.childId)!.push(gift);
+      const childGifts = giftsByChildId.get(gift.childId) ?? [];
+      childGifts.push(gift);
+      giftsByChildId.set(gift.childId, childGifts);
     }
 
     // 5. Index families by id for O(1) lookup
@@ -235,6 +221,7 @@ export const getApprovedProfileTableRows = createServerFn({
         age: child.age,
         diagnosis: child.diagnosis,
         type: child.category === "warrior" ? "warrior" : "supersib",
+        published: child.published,
         giftsFulfilled: gifts.filter((g) =>
           ["CLAIMED", "PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
         ).length,
@@ -340,8 +327,11 @@ export const getChildGiftsByChildId = createServerFn({ method: "GET" })
 
 //     return childrenWithGifts
 //   });
+//
 
-export const getChildrenForFamily = createServerFn({ method: "GET" })
+export type ChildWithGifts = Child & { gifts: Array<Gift> };
+
+export const getChildrenForFamilyWithGifts = createServerFn({ method: "GET" })
   .inputValidator(familyIdSchema)
   .middleware([
     requireRolesMiddleware([
@@ -370,15 +360,43 @@ export const getChildrenForFamily = createServerFn({ method: "GET" })
 
         const gifts = await db.gifts.where("childId", "==", childDoc.id).get();
 
-        return {
+        const childWithGifts: ChildWithGifts = {
           ...childData,
           id: childDoc.id,
           gifts: gifts.docs.map((g) => ({ ...g.data(), id: g.id })),
         };
+
+        return childWithGifts;
       }),
     );
 
     return childrenWithGifts;
+  });
+
+export const getChildrenForFamily = createServerFn({ method: "GET" })
+  .inputValidator(familyIdSchema)
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .handler(async ({ data }) => {
+    const { familyId } = data;
+    const db = getServerDB();
+
+    // Fetches all children in this family
+    const childrenSnap = await db.children
+      .where("familyId", "==", familyId)
+      .get();
+
+    if (childrenSnap.empty) {
+      return [];
+    }
+
+    // Using Promise.all to fetch gifts for all children in parallel
+    return childrenSnap.docs.map((d) => d.data());
   });
 
 /**
@@ -400,11 +418,10 @@ export const getChildByIdWithToken = createServerFn({ method: "GET" })
 
     // Fetch child
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
-
-    const child = childDoc.data()!;
 
     // Verify child belongs to the token's family
     if (child.familyId !== link.familyId) {
@@ -435,11 +452,10 @@ export const getChildGiftsByChildIdWithToken = createServerFn({
 
     // Fetch child to verify ownership
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
-
-    const child = childDoc.data()!;
 
     // Verify child belongs to the token's family
     if (child.familyId !== link.familyId) {
@@ -470,11 +486,11 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
     const db = getServerDB();
 
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
 
-    const child = childDoc.data()!;
     if (child.familyId !== link.familyId) {
       throw new Error("Unauthorized: child does not belong to this family");
     }
@@ -521,12 +537,11 @@ export const getFamilyChildDataByToken = createServerFn({ method: "GET" })
 
     const db = getServerDB();
     const childDoc = await db.children.doc(childId).get();
-
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
 
-    const child = childDoc.data()!;
     if (child.familyId !== link.familyId) {
       throw new Error("Unauthorized: child does not belong to this family");
     }
@@ -590,21 +605,21 @@ export const saveGiftThankYouNoteWithToken = createServerFn({
     const db = getServerDB();
 
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
 
-    const child = childDoc.data()!;
     if (child.familyId !== link.familyId) {
       throw new Error("Unauthorized: child does not belong to this family");
     }
 
     const giftDoc = await db.gifts.doc(giftId).get();
-    if (!giftDoc.exists) {
+    const gift = giftDoc.data();
+    if (!gift) {
       throw new Error("Gift not found");
     }
 
-    const gift = giftDoc.data()!;
     if (gift.childId !== childId || gift.familyId !== link.familyId) {
       throw new Error("Unauthorized: gift does not belong to this family");
     }
@@ -643,21 +658,21 @@ export const confirmGiftReceivedWithToken = createServerFn({
     const db = getServerDB();
 
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
+    const child = childDoc.data();
+    if (!child) {
       throw new Error("Child not found");
     }
 
-    const child = childDoc.data()!;
     if (child.familyId !== link.familyId) {
       throw new Error("Unauthorized: child does not belong to this family");
     }
 
     const giftDoc = await db.gifts.doc(giftId).get();
-    if (!giftDoc.exists) {
+    const gift = giftDoc.data();
+    if (!gift) {
       throw new Error("Gift not found");
     }
 
-    const gift = giftDoc.data()!;
     if (gift.childId !== childId || gift.familyId !== link.familyId) {
       throw new Error("Unauthorized: gift does not belong to this family");
     }
@@ -702,14 +717,8 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
     const { childId } = data;
     const db = getServerDB();
     const childDoc = await db.children.doc(childId).get();
-
-    if (!childDoc.exists) {
-      throw new Error("Child not found");
-    }
-
-    const child = childDoc.data()!;
-
-    if (!child.published) {
+    const child = childDoc.data();
+    if (!child?.published) {
       throw new Error("Child not found");
     }
 
@@ -755,12 +764,8 @@ export const getStorefrontGiftsForChild = createServerFn({ method: "GET" })
     const db = getServerDB();
 
     const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) {
-      throw new Error("Child not found");
-    }
-
-    const child = childDoc.data()!;
-    if (!child.published) {
+    const child = childDoc.data();
+    if (!child?.published) {
       throw new Error("Child not found");
     }
 
@@ -794,14 +799,8 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
     const { childId } = data;
     const db = getServerDB();
     const childDoc = await db.children.doc(childId).get();
-
-    if (!childDoc.exists) {
-      throw new Error("Child not found");
-    }
-
-    const child = childDoc.data()!;
-
-    if (!child.published) {
+    const child = childDoc.data();
+    if (!child?.published) {
       throw new Error("Child not found");
     }
 
@@ -831,10 +830,9 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
 
     const giftsBySiblingId = new Map<string, Array<Gift>>();
     for (const gift of allGifts) {
-      if (!giftsBySiblingId.has(gift.childId)) {
-        giftsBySiblingId.set(gift.childId, []);
-      }
-      giftsBySiblingId.get(gift.childId)!.push(gift);
+      const siblingGifts = giftsBySiblingId.get(gift.childId) ?? [];
+      siblingGifts.push(gift);
+      giftsBySiblingId.set(gift.childId, siblingGifts);
     }
 
     const storefrontSiblings: Array<StorefrontChild> = siblings.map(
@@ -888,11 +886,68 @@ export const updateChild = createServerFn({ method: "POST" })
       throw new Error("Child not found");
     }
 
-    await db.children.doc(childId).update(updates);
+    const normalizedUpdates =
+      updates.photoUrl === ""
+        ? {
+            ...updates,
+            photoUrl: admin.firestore.FieldValue.delete(),
+          }
+        : updates;
+
+    await db.children.doc(childId).update(normalizedUpdates);
 
     const updatedChild = await db.children.doc(childId).get();
+    const updatedChildData = updatedChild.data();
+    if (!updatedChildData) throw new Error("Child not found");
+    return updatedChildData;
+  });
 
-    return updatedChild.data()!;
+export const createGift = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(createGiftSchema)
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const childDoc = await db.children.doc(data.childId).get();
+    const child = childDoc.data();
+    if (!child) {
+      throw new Error("Child not found");
+    }
+    const existingGifts = await db.gifts
+      .where("childId", "==", data.childId)
+      .get();
+    const activeGiftCount = existingGifts.docs.reduce(
+      (count, giftDoc) => count + (giftDoc.data().active ? 1 : 0),
+      0,
+    );
+
+    if (data.active && activeGiftCount >= 3) {
+      throw new Error("This child already has 3 active storefront gifts");
+    }
+
+    const createdGift: Gift = {
+      id: uuidv7(),
+      childId: child.id,
+      familyId: child.familyId,
+      giftDrive: child.giftDrive,
+      title: data.title,
+      productUrl: data.productUrl,
+      listedPrice: data.listedPrice,
+      familyPublicNotes: data.familyPublicNotes,
+      status: "AVAILABLE",
+      createdAt: new Date().toISOString(),
+      active: data.active,
+      backup: !data.active,
+    };
+
+    await db.gifts.doc(createdGift.id).set(createdGift);
+
+    return createdGift;
   });
 
 export const updateGift = createServerFn({ method: "POST" })
@@ -917,5 +972,7 @@ export const updateGift = createServerFn({ method: "POST" })
     await db.gifts.doc(giftId).update(updates);
 
     const updatedGift = await db.gifts.doc(giftId).get();
-    return updatedGift.data()!;
+    const updatedGiftData = updatedGift.data();
+    if (!updatedGiftData) throw new Error("Gift not found");
+    return updatedGiftData;
   });

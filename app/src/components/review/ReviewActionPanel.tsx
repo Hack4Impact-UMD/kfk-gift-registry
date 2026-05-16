@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,14 +23,12 @@ const ADMIN_COMMENTS_PLACEHOLDER =
 
 interface ReviewActionPanelProps {
   family: Family;
-  onFamilyReviewUpdated: (updatedFamily: Family) => void;
   onPreviousFamily?: () => void;
   onNextFamily?: () => void;
 }
 
 export function ReviewActionPanel({
   family,
-  onFamilyReviewUpdated,
   onPreviousFamily,
   onNextFamily,
 }: ReviewActionPanelProps) {
@@ -40,11 +38,7 @@ export function ReviewActionPanel({
   const savedAdminComments = family.reviewStatus.held
     ? (family.reviewStatus.holdNotes ?? "")
     : (family.reviewStatus.reviewNotes ?? "");
-  const [adminComments, setAdminComments] = React.useState(savedAdminComments);
-
-  React.useEffect(() => {
-    setAdminComments(savedAdminComments);
-  }, [savedAdminComments]);
+  const [adminComments, setAdminComments] = useState(savedAdminComments);
 
   const familyStatus: ApplicationStatus = family.reviewStatus.approved
     ? "approved"
@@ -78,7 +72,6 @@ export function ReviewActionPanel({
       },
       {
         onSuccess: (updatedFamily) => {
-          onFamilyReviewUpdated(updatedFamily);
           options?.onSuccess?.(updatedFamily);
         },
       },
@@ -103,9 +96,9 @@ export function ReviewActionPanel({
   };
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-80 xl:w-96">
+    <aside className="flex w-full shrink-0 flex-col gap-3 lg:w-80 xl:w-96">
       <section>
-        <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold tracking-tight text-foreground">
             Family Status
           </h2>
@@ -165,7 +158,7 @@ export function ReviewActionPanel({
       <div className="flex flex-col gap-3">
         <Button
           type="button"
-          disabled={isStatusPending}
+          disabled={isStatusPending || family.reviewStatus.approved}
           onClick={() => {
             persistReviewUpdate({
               ...family.reviewStatus,
@@ -179,7 +172,7 @@ export function ReviewActionPanel({
         </Button>
         <Button
           type="button"
-          disabled={isStatusPending}
+          disabled={isStatusPending || family.reviewStatus.held}
           onClick={() => {
             persistReviewUpdate({
               ...family.reviewStatus,

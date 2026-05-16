@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  redirect,
+  useNavigate,
+  Link,
+} from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import z from "zod";
 import { AuthErrorCodes } from "firebase/auth";
@@ -151,7 +156,7 @@ function RouteComponent() {
                   <img
                     src={kfkFoundationLogo}
                     alt="Kisses for Kyle Foundation"
-                    className="w-full max-w-xs sm:max-w-sm h-auto object-contain"
+                    className="w-full max-w-xs sm:max-w-sm h-auto object-contain "
                   />
                 </div>
                 <p className="mt-5 text-center text-base text-kfk-blue">
@@ -211,12 +216,12 @@ function RouteComponent() {
                   />
                   <span className="text-sm text-foreground">Remember me</span>
                 </label>
-                <a
-                  href="#"
+                <Link
+                  to="/forgotPassword"
                   className="text-sm underline hover:opacity-80 text-kfk-blue"
                 >
                   Forgot Password?
-                </a>
+                </Link>
               </div>
 
               <Button

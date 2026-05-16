@@ -5,8 +5,9 @@ import { StatusSummaryHeader } from "@/components/tables/PendingProfilesTable/St
 import type { ApplicationStatus } from "@/components/tables/PendingProfilesTable/types";
 import { usePendingProfileTableRows } from "@/hooks/queries/usePendingProfileTableRows";
 import { useDrive } from "@/context/DriveContext";
+import { Spinner } from "@/components/ui/spinner";
 
-export const Route = createFileRoute("/_authenticated/staff/pending")({
+export const Route = createFileRoute("/_authenticated/staff/family-approval")({
   component: RouteComponent,
 });
 
@@ -18,7 +19,11 @@ function RouteComponent() {
   );
 
   if (isPending) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-full h-full p-2 flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
   if (error) {
@@ -28,7 +33,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Profile Approval</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Family Approval</h1>
       </div>
       <StatusSummaryHeader
         data={data ?? []}

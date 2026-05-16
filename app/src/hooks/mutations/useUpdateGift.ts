@@ -15,6 +15,8 @@ export function useUpdateGift() {
         listedPrice?: number;
         status?: GiftStatus;
         familyPublicNotes?: string;
+        active?: boolean;
+        backup?: boolean;
       };
     }) => updateGift({ data: params }),
 
@@ -30,7 +32,7 @@ export function useUpdateGift() {
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["approvedProfileTableRows"],
+        queryKey: queries.children.approvedProfileTableRows._def,
       });
 
       toast.success("Gift updated successfully");

@@ -40,7 +40,7 @@ export function ReauthAlertDialog({
       if (!auth.currentUser || !authCtx.authUser.email)
         throw new Error("not authenticated");
       await reauthenticateWithCredential(
-        auth.currentUser!,
+        auth.currentUser,
         EmailAuthProvider.credential(authCtx.authUser.email, pass),
       );
       setErr(false);
