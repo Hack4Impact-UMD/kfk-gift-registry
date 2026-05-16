@@ -10,6 +10,8 @@ import type { Family, Gift, Child } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 
+const MAX_CHILD_PUBLIC_BLURB_LENGTH = 150;
+
 export type FamilyGiftClaim = {
   giftId: string;
   claimedAt: string;
@@ -77,6 +79,9 @@ const updateChildSchema = z.object({
     status: true,
     livesAtHome: true,
   })
+    .extend({
+      publicBlurb: z.string().max(MAX_CHILD_PUBLIC_BLURB_LENGTH).optional(),
+    })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",

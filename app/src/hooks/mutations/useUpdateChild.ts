@@ -5,6 +5,19 @@ import { toast } from "@/lib/toast";
 import type { Child } from "common";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 
+const TOO_LONG_ERROR = "150 characters or fewer.";
+
+function getUpdateChildErrorMessage(error: Error) {
+  if (
+    error.message.includes("maximum") &&
+    error.message.includes("150")
+  ) {
+    return TOO_LONG_ERROR;
+  }
+
+  return `Failed to update child: ${error.message}`;
+}
+
 export function useUpdateChild() {
   const queryClient = useQueryClient();
 
@@ -108,7 +121,7 @@ export function useUpdateChild() {
           queryClient.setQueryData(key, data);
         }
       }
-      toast.error(`Failed to update child: ${error.message}`);
+      toast.error(getUpdateChildErrorMessage(error));
     },
 
     onSuccess: () => {

@@ -9,8 +9,8 @@ import ProfileHeader from "@/assets/default-profile-photo.png";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { toast } from "@/lib/toast";
 
 interface ChildInfoCardProps {
   child: Child;
@@ -40,6 +40,7 @@ const timePeriodOptions: Array<TimePeriod> = [
 ];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_BLURB_LENGTH = 150;
 
 function parsePriceInput(raw: string): number | undefined {
   const t = raw.trim();
@@ -217,8 +218,8 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   };
 
   const handleSave = () => {
-    if ((formState.blurb?.length ?? 0) > 150) {
-      alert("Maximum characters exceeded");
+    if ((formState.blurb?.length ?? 0) > MAX_BLURB_LENGTH) {
+      toast.error("Personal blurb must be 150 characters or fewer.");
       return;
     }
     const updatedChild: Child = {
@@ -462,6 +463,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
               value={formState.blurb}
               editable={editing}
               fieldType={"textarea"}
+              maxLength={MAX_BLURB_LENGTH}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 const nextBlurb = e.target.value;
                 setFormState((prev) => ({
