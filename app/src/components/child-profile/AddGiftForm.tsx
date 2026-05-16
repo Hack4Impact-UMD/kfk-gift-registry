@@ -10,6 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  GIFT_TITLE_TOO_LONG_MESSAGE,
+  MAX_GIFT_TITLE_LENGTH,
+  isGiftTitleTooLong,
+} from "common";
 
 type AddGiftFormProps = {
   canAddToStorefront: boolean;
@@ -45,6 +50,11 @@ export function AddGiftForm({
 
     if (!trimmedTitle || !trimmedProductUrl) {
       toast.error("Gift name and link are required");
+      return;
+    }
+
+    if (isGiftTitleTooLong(trimmedTitle)) {
+      toast.error(GIFT_TITLE_TOO_LONG_MESSAGE);
       return;
     }
 
@@ -84,13 +94,24 @@ export function AddGiftForm({
       </DialogHeader>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid gap-3">
-          <Input
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Gift name"
-            disabled={disabled || isSubmitting}
-            required
-          />
+          <div className="space-y-1">
+            <Input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Gift name"
+              disabled={disabled || isSubmitting}
+              required
+            />
+            <p
+              className={`text-right text-xs ${
+                title.length <= MAX_GIFT_TITLE_LENGTH
+                  ? "text-muted-foreground"
+                  : "text-destructive"
+              }`}
+            >
+              {title.length}/{MAX_GIFT_TITLE_LENGTH} characters
+            </p>
+          </div>
           <Input
             type="url"
             value={productUrl}

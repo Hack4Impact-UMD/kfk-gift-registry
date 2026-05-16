@@ -230,6 +230,7 @@ interface FormFieldInputProps {
     | "url";
   autoComplete?: string;
   value?: string;
+  characterLimit?: number;
   disabled?: boolean;
   className?: string;
 }
@@ -243,11 +244,13 @@ export const FormFieldInput = ({
   inputMode,
   autoComplete,
   value,
+  characterLimit,
   disabled,
   className = "",
 }: FormFieldInputProps) => {
   const field = useFieldContext<string>();
   const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
+  const charCount = (field.state.value || value || "").length;
 
   return (
     <FormItem className={cn("group relative mt-6", className)}>
@@ -320,6 +323,15 @@ export const FormFieldInput = ({
           {errorMessage}
         </span>
       )}
+      {characterLimit !== undefined && !disabled && (
+        <p
+          className={`text-xs text-right ${
+            charCount <= characterLimit ? "text-slate-500" : "text-red-500"
+          }`}
+        >
+          {charCount}/{characterLimit} characters
+        </p>
+      )}
     </FormItem>
   );
 };
@@ -329,6 +341,7 @@ type FormTextareaProps = {
   placeholder?: string;
   required?: boolean;
   maxWords?: number;
+  maxLength?: number;
   disabled?: boolean;
   className?: string;
 };
@@ -338,11 +351,13 @@ export function FormTextarea({
   placeholder,
   required = false,
   maxWords,
+  maxLength,
   disabled,
   className = "",
 }: FormTextareaProps) {
   const field = useFieldContext<string>();
   const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
+  const charCount = field.state.value?.length ?? 0;
   const wordCount = field.state.value
     ? field.state.value.trim().split(/\s+/).filter(Boolean).length
     : 0;
@@ -363,6 +378,11 @@ export function FormTextarea({
         disabled={disabled}
         className={`resize-none min-h-[100px] ${errorMessage ? "border-red-500" : ""}`}
       />
+      {maxLength !== undefined && !disabled && (
+        <p className="text-xs text-right text-slate-500">
+          {charCount}/{maxLength} characters
+        </p>
+      )}
       {maxWords !== undefined && !disabled && (
         <p className="text-xs text-right text-slate-500">
           {wordCount} out of {maxWords}

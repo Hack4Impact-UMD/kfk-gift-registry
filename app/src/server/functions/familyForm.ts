@@ -6,7 +6,12 @@ import { getServerDB } from "@/lib/firebase.server";
 import { createFamilyLink } from "@/server/services/familyLinkService.server";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
-import { AddressSchema, ChildStatusSchema } from "common";
+import {
+  AddressSchema,
+  ChildStatusSchema,
+  GiftFamilyPublicNotesSchema,
+  NormalizedGiftTitleSchema,
+} from "common";
 
 // --- Photo upload constants ---
 const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -53,8 +58,8 @@ const childrenFormSchema = z.object({
 
 const giftSelectionSchema = z.object({
   giftUrl: z.url().optional().or(z.literal("")),
-  giftName: z.string().optional(),
-  familyPublicNotes: z.string().optional(),
+  giftName: NormalizedGiftTitleSchema.optional(),
+  familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
 });
 
 const childGiftSelectionSchema = z.object({

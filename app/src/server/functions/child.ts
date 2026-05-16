@@ -3,7 +3,13 @@ import z from "zod";
 import { createServerFn } from "@tanstack/react-start";
 import admin from "firebase-admin";
 import { v7 as uuidv7 } from "uuid";
-import { UserRole, ChildSchema, GiftSchema } from "common";
+import {
+  UserRole,
+  ChildSchema,
+  GiftSchema,
+  GiftFamilyPublicNotesSchema,
+  RequiredGiftTitleSchema,
+} from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 import type { Family, Gift, Child } from "common";
@@ -103,10 +109,10 @@ const updateGiftSchema = z.object({
 
 const createGiftSchema = z.object({
   childId: z.string().min(1),
-  title: z.string().trim().min(1).max(100),
+  title: RequiredGiftTitleSchema,
   productUrl: z.string().trim().url(),
   listedPrice: z.number().min(0).optional(),
-  familyPublicNotes: z.string().trim().max(500).optional(),
+  familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
   active: z.boolean().default(true),
 });
 

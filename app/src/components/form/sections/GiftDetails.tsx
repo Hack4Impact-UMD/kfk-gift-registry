@@ -3,6 +3,11 @@ import type { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { CardDescription } from "@/components/ui/card";
 import { useState, useRef } from "react";
 import { fetchProductDetails } from "@/server/functions/giftLinks";
+import {
+  MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
+  MAX_GIFT_TITLE_LENGTH,
+  getGiftTitleTooLongCounterMessage,
+} from "common";
 
 type GiftDetailsFormProps = {
   form: ReturnType<typeof useGiftsForm>;
@@ -10,8 +15,6 @@ type GiftDetailsFormProps = {
   childName: string;
   disabled?: boolean;
 };
-
-const GIFT_NAME_MAX_CHARS = 50;
 
 export function GiftDetailsForm({
   form,
@@ -166,8 +169,11 @@ export function GiftDetailsForm({
                       onChange: ({ value }) => {
                         if (i !== 0 && !value) return undefined;
                         if (!value) return "Gift name is required";
-                        if (value.length > GIFT_NAME_MAX_CHARS)
-                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                        if (value.length > MAX_GIFT_TITLE_LENGTH) {
+                          return getGiftTitleTooLongCounterMessage(
+                            value.length,
+                          );
+                        }
                         return undefined;
                       },
                     }
@@ -181,6 +187,7 @@ export function GiftDetailsForm({
                       Icon={GiftIcon}
                       label={`Gift #${i + 1} Name${i !== 0 ? " (Optional)" : ""}`}
                       placeholder="e.g. Monopoly"
+                      characterLimit={MAX_GIFT_TITLE_LENGTH}
                       required={i === 0}
                       disabled={disabled}
                     />
@@ -197,6 +204,7 @@ export function GiftDetailsForm({
                   className="mt-2"
                   label={`Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
+                  maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
                   disabled={disabled}
                 />
               )}
@@ -273,8 +281,11 @@ export function GiftDetailsForm({
                       onChange: ({ value }) => {
                         const str = value;
                         if (!str) return "Gift name is required";
-                        if (str.length > GIFT_NAME_MAX_CHARS)
-                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                        if (str.length > MAX_GIFT_TITLE_LENGTH) {
+                          return getGiftTitleTooLongCounterMessage(
+                            value.length,
+                          );
+                        }
                         return undefined;
                       },
                     }
@@ -288,6 +299,7 @@ export function GiftDetailsForm({
                       Icon={GiftIcon}
                       label={`Backup Gift #${i + 1} Name`}
                       placeholder="e.g. Monopoly"
+                      characterLimit={MAX_GIFT_TITLE_LENGTH}
                       required
                       disabled={disabled}
                     />
@@ -304,6 +316,7 @@ export function GiftDetailsForm({
                   className="mt-2"
                   label={`Backup Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
+                  maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
                   disabled={disabled}
                 />
               )}

@@ -83,14 +83,16 @@ export function ChildInfo({
             </div>
             <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
               <span className="font-semibold">Level:</span>
-              <EditableField
-                type="number"
-                value={editedChild.treatmentLevel ?? child.treatmentLevel}
-                editable={isEditing}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  updateField("treatmentLevel", Number(e.target.value))
-                }
-              />
+              <div className="min-w-0 flex-1">
+                <EditableField
+                  type="number"
+                  value={editedChild.treatmentLevel ?? child.treatmentLevel}
+                  editable={isEditing}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    updateField("treatmentLevel", Number(e.target.value))
+                  }
+                />
+              </div>
             </div>
           </div>
           <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
@@ -103,7 +105,7 @@ export function ChildInfo({
               }
             />
           </div>
-          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="min-w-0 truncate flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
             <span className="shrink-0 font-semibold">Social Worker Name:</span>
             <EditableField
               value={editedChild.childSocialWorker ?? child.childSocialWorker}
@@ -113,7 +115,7 @@ export function ChildInfo({
               }
             />
           </div>
-          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="min-w-0 truncate flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
             <span className="font-semibold">Hospital:</span>
             <EditableField
               value={editedChild.hospital ?? child.hospital}
