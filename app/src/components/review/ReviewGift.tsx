@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import type { Gift } from "common";
 import { GiftIcon } from "@/components/icons/GiftIcon";
 import { Input } from "@/components/ui/input";
@@ -58,13 +57,19 @@ export function ReviewGift({
                 onTitleChange(e.target.value);
               }}
             />
-          ) : (
-            <Link
-              to={gift.productUrl ? gift.productUrl : "#"}
+          ) : gift.productUrl ? (
+            <a
+              href={gift.productUrl}
+              target="_blank"
+              rel="noreferrer noopener"
               className="min-w-0 truncate text-blue-600 hover:underline"
             >
               {gift.title}
-            </Link>
+            </a>
+          ) : (
+            <span className="min-w-0 truncate text-muted-foreground">
+              {gift.title}
+            </span>
           )}
         </div>
 

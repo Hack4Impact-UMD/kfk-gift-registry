@@ -113,8 +113,10 @@ function ChildProfilePage() {
   };
 
   const handleSaveAll = async () => {
-    const currentBlurb = editedChild.publicBlurb ?? child.publicBlurb ?? "";
-    if (isChildPublicBlurbTooLong(currentBlurb)) {
+    if (
+      editedChild.publicBlurb !== undefined &&
+      isChildPublicBlurbTooLong(editedChild.publicBlurb ?? "")
+    ) {
       toast.error(CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE);
       return;
     }

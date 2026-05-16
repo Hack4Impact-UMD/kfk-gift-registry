@@ -16,7 +16,23 @@ type ValidationRule = {
 };
 
 function isValidationIssue(value: unknown): value is ValidationIssue {
-  return typeof value === "object" && value !== null;
+  if (typeof value !== "object" || value === null) return false;
+  const issue = value as Record<string, unknown>;
+
+  const validPath =
+    issue.path === undefined ||
+    (Array.isArray(issue.path) &&
+      issue.path.every(
+        (segment) => typeof segment === "string" || typeof segment === "number",
+      ));
+
+  const validCode = issue.code === undefined || typeof issue.code === "string";
+  const validMaximum =
+    issue.maximum === undefined || typeof issue.maximum === "number";
+  const validMinimum =
+    issue.minimum === undefined || typeof issue.minimum === "number";
+
+  return validPath && validCode && validMaximum && validMinimum;
 }
 
 function pathsEqual(left: ValidationPath, right: ValidationPath) {

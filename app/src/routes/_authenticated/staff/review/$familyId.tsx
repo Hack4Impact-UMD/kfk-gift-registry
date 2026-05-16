@@ -77,9 +77,7 @@ function RouteComponent() {
   const { reviewOrder } = useReviewOrder();
   const { data: familyRows } = usePendingProfileTableRows(activeDriveId);
   const { data: family } = useFamily(familyId);
-  const { data: children } = useChildProfilesForFamily(familyId) as {
-    data: Array<Child> | undefined;
-  };
+  const { data: children } = useChildProfilesForFamily(familyId);
   const { mutate: updateFamily } = useUpdateFamily();
   const { mutateAsync: updateChild } = useUpdateChild();
 
