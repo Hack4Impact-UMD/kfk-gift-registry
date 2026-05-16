@@ -3,6 +3,14 @@ import type { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { CardDescription } from "@/components/ui/card";
 import { useState, useRef } from "react";
 import { fetchProductDetails } from "@/server/functions/giftLinks";
+import {
+  GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
+  GIFT_TITLE_REQUIRED_MESSAGE,
+  GIFT_TITLE_TOO_LONG_MESSAGE,
+  MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
+  MAX_GIFT_TITLE_LENGTH,
+  getGiftTitleTooLongCounterMessage,
+} from "common";
 
 type GiftDetailsFormProps = {
   form: ReturnType<typeof useGiftsForm>;
@@ -10,11 +18,6 @@ type GiftDetailsFormProps = {
   childName: string;
   disabled?: boolean;
 };
-
-const GIFT_NAME_MAX_CHARS = 50;
-const GIFT_NAME_LIMIT_MESSAGE = `Gift name is too long: more than ${GIFT_NAME_MAX_CHARS} characters`;
-const GIFT_PUBLIC_NOTES_MAX_CHARACTERS = 150;
-const GIFT_PUBLIC_NOTES_LIMIT_MESSAGE = `Please keep your public notes to ${GIFT_PUBLIC_NOTES_MAX_CHARACTERS} characters or less`;
 
 export function GiftDetailsForm({
   form,
@@ -168,9 +171,12 @@ export function GiftDetailsForm({
                   : {
                       onChange: ({ value }) => {
                         if (i !== 0 && !value) return undefined;
-                        if (!value) return "Gift name is required";
-                        if (value.length > GIFT_NAME_MAX_CHARS)
-                          return GIFT_NAME_LIMIT_MESSAGE;
+                        if (!value) return GIFT_TITLE_REQUIRED_MESSAGE;
+                        if (value.length > MAX_GIFT_TITLE_LENGTH) {
+                          return getGiftTitleTooLongCounterMessage(
+                            value.length,
+                          );
+                        }
                         return undefined;
                       },
                     }
@@ -184,9 +190,9 @@ export function GiftDetailsForm({
                       Icon={GiftIcon}
                       label={`Gift #${i + 1} Name${i !== 0 ? " (Optional)" : ""}`}
                       placeholder="e.g. Monopoly"
+                      characterLimit={MAX_GIFT_TITLE_LENGTH}
                       required={i === 0}
-                      maxCharacters={GIFT_NAME_MAX_CHARS}
-                      maxCharactersErrorMessage={GIFT_NAME_LIMIT_MESSAGE}
+                      maxCharactersErrorMessage={GIFT_TITLE_TOO_LONG_MESSAGE}
                       showMaxCharactersError
                       disabled={disabled}
                     />
@@ -200,8 +206,9 @@ export function GiftDetailsForm({
               validators={{
                 onChange: ({ value }) => {
                   if (!value) return undefined;
-                  if (value.length > GIFT_PUBLIC_NOTES_MAX_CHARACTERS)
-                    return GIFT_PUBLIC_NOTES_LIMIT_MESSAGE;
+                  if (value.length > MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH) {
+                    return GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE;
+                  }
                   return undefined;
                 },
               }}
@@ -211,8 +218,10 @@ export function GiftDetailsForm({
                   className="mt-2"
                   label={`Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
-                  maxCharacters={GIFT_PUBLIC_NOTES_MAX_CHARACTERS}
-                  maxCharactersErrorMessage={GIFT_PUBLIC_NOTES_LIMIT_MESSAGE}
+                  maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
+                  maxCharactersErrorMessage={
+                    GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE
+                  }
                   showMaxCharactersErrorImmediately
                   disabled={disabled}
                 />
@@ -289,9 +298,12 @@ export function GiftDetailsForm({
                   : {
                       onChange: ({ value }) => {
                         const str = value;
-                        if (!str) return "Gift name is required";
-                        if (str.length > GIFT_NAME_MAX_CHARS)
-                          return GIFT_NAME_LIMIT_MESSAGE;
+                        if (!str) return GIFT_TITLE_REQUIRED_MESSAGE;
+                        if (str.length > MAX_GIFT_TITLE_LENGTH) {
+                          return getGiftTitleTooLongCounterMessage(
+                            value.length,
+                          );
+                        }
                         return undefined;
                       },
                     }
@@ -305,9 +317,9 @@ export function GiftDetailsForm({
                       Icon={GiftIcon}
                       label={`Backup Gift #${i + 1} Name`}
                       placeholder="e.g. Monopoly"
+                      characterLimit={MAX_GIFT_TITLE_LENGTH}
                       required
-                      maxCharacters={GIFT_NAME_MAX_CHARS}
-                      maxCharactersErrorMessage={GIFT_NAME_LIMIT_MESSAGE}
+                      maxCharactersErrorMessage={GIFT_TITLE_TOO_LONG_MESSAGE}
                       showMaxCharactersError
                       disabled={disabled}
                     />
@@ -321,8 +333,9 @@ export function GiftDetailsForm({
               validators={{
                 onChange: ({ value }) => {
                   if (!value) return undefined;
-                  if (value.length > GIFT_PUBLIC_NOTES_MAX_CHARACTERS)
-                    return GIFT_PUBLIC_NOTES_LIMIT_MESSAGE;
+                  if (value.length > MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH) {
+                    return GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE;
+                  }
                   return undefined;
                 },
               }}
@@ -332,8 +345,10 @@ export function GiftDetailsForm({
                   className="mt-2"
                   label={`Backup Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
-                  maxCharacters={GIFT_PUBLIC_NOTES_MAX_CHARACTERS}
-                  maxCharactersErrorMessage={GIFT_PUBLIC_NOTES_LIMIT_MESSAGE}
+                  maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
+                  maxCharactersErrorMessage={
+                    GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE
+                  }
                   showMaxCharactersErrorImmediately
                   disabled={disabled}
                 />

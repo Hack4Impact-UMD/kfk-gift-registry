@@ -10,6 +10,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Gift, GiftStatus } from "common";
+import { toast } from "@/lib/toast";
+import {
+  GIFT_TITLE_TOO_LONG_MESSAGE,
+  MAX_GIFT_TITLE_LENGTH,
+  isGiftTitleTooLong,
+} from "common";
 
 const GIFT_STEPS = [
   "Available",
@@ -153,19 +159,28 @@ export function GiftInfoCard({
       Object.entries(editedGift).filter(([, value]) => value !== undefined),
     ) as Partial<Gift>;
 
-    if (onUpdate && Object.keys(giftUpdates).length > 0) {
-      await onUpdate(gift.id, giftUpdates);
+    if (isGiftTitleTooLong(getValue("title") ?? "")) {
+      toast.error(GIFT_TITLE_TOO_LONG_MESSAGE);
+      return;
     }
 
-    if (onUpdateDetails) {
-      onUpdateDetails(gift.id, {
-        ...localFields,
-        proofOfPurchaseUrl,
-      });
-    }
+    try {
+      if (onUpdate && Object.keys(giftUpdates).length > 0) {
+        await onUpdate(gift.id, giftUpdates);
+      }
 
-    setEditedGift({});
-    setIsEditing(false);
+      if (onUpdateDetails) {
+        onUpdateDetails(gift.id, {
+          ...localFields,
+          proofOfPurchaseUrl,
+        });
+      }
+
+      setEditedGift({});
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Gift info save failed", error);
+    }
   };
 
   const handleCancel = () => {
@@ -194,6 +209,7 @@ export function GiftInfoCard({
             <EditableField
               value={getValue("title") ?? ""}
               editable={isEditing}
+              characterLimit={MAX_GIFT_TITLE_LENGTH}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 handleChange("title", event.target.value)
               }

@@ -1,4 +1,4 @@
-import type { Gift } from "../../../../common/src/types/gift";
+import type { Gift } from "common";
 import { Input } from "../ui/input";
 
 type SelectedGiftsProps = {
@@ -35,10 +35,12 @@ export function SelectedGifts({
           return g;
         }
 
+        const nextActive = !g.active;
+
         return {
           ...g,
-          active: !g.active,
-          backup: !g.backup,
+          active: nextActive,
+          backup: !nextActive,
         };
       });
     });
@@ -82,7 +84,7 @@ export function SelectedGifts({
                 <div className="min-w-0">
                   <p className="break-words text-sm font-semibold">{label}</p>
                   <a
-                    href={gift.productUrl}
+                    href={gift.productUrl ?? "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="break-words text-sm text-kfk-blue underline-offset-2 hover:underline"

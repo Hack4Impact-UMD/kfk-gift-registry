@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  GiftFamilyPublicNotesSchema,
+  RequiredGiftTitleSchema,
+} from "../validation";
 
 export const GiftStatusSchema = z.enum([
   "AVAILABLE",
@@ -19,13 +23,13 @@ export const GiftSchema = z.object({
   childId: z.string(),
   familyId: z.string(),
   giftDrive: z.string(),
-  title: z.string(),
+  title: RequiredGiftTitleSchema,
   productUrl: z.string(),
   listedPrice: z.number().optional(),
   status: GiftStatusSchema,
   claimedByDonorId: z.string().optional(),
   createdAt: z.iso.datetime(),
-  familyPublicNotes: z.string().optional(),
+  familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
   privateNotes: z.string().optional(),
   backup: z.boolean(),
   active: z.boolean(),

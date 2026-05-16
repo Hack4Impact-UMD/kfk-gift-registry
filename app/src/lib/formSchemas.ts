@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { ChildStatusSchema } from "common";
+import {
+  ChildStatusSchema,
+  GiftFamilyPublicNotesSchema,
+  GiftTitleSchema,
+} from "common";
 import type { ChildStatus } from "common";
 
 // Ordered to match display order in the form.
@@ -255,12 +259,9 @@ export const childrenFormSchema = z
 
 const giftSchema = z
   .object({
-    giftName: z.string(),
+    giftName: GiftTitleSchema,
     giftUrl: z.string(),
-    familyPublicNotes: z
-      .string()
-      .max(150, "Public notes must be at most 150 characters")
-      .optional(),
+    familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
   })
   .refine(
     (data) => {
