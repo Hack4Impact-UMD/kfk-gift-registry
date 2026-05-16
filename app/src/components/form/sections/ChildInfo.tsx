@@ -1,7 +1,11 @@
 import { Building2, Stethoscope, User, UserCog } from "lucide-react";
 import { PhotoUpload } from "../PhotoUpload";
 import type { useChildrenForm } from "@/hooks/family-form/formHooks";
-import { CHILD_STATUS_VALUES, CHILD_STATUS_LABELS } from "@/lib/formSchemas";
+import {
+  CHILD_STATUS_VALUES,
+  CHILD_STATUS_LABELS,
+  isSiblingChildStatus,
+} from "@/lib/formSchemas";
 
 const CHILD_STATUS_OPTIONS = CHILD_STATUS_VALUES.map((value) => ({
   value,
@@ -163,14 +167,19 @@ export function ChildInfoForm({
                         onChange: ({ value }) => {
                           if (value === "" || value === undefined)
                             return "Age is required";
-                          if (Number(value) < 1 || Number(value) > 18) {
-                            return "Age must be between 1 and 18";
+                          const n = Number(value);
+                          if (!Number.isFinite(n) || !Number.isInteger(n) || n < 1 || n > 18) {
+                            return "Age must be a whole number between 1 and 18";
                           }
                           return undefined;
                         },
                         onBlur: ({ value }) => {
                           if (value === "" || value === undefined)
                             return "Age is required";
+                          const n = Number(value);
+                          if (!Number.isFinite(n) || !Number.isInteger(n) || n < 1 || n > 18) {
+                            return "Age must be a whole number between 1 and 18";
+                          }
                           return undefined;
                         },
                       }}
@@ -189,17 +198,11 @@ export function ChildInfoForm({
                               type="number"
                               min={1}
                               max={18}
+                              step={1}
                               placeholder="e.g. 8"
-                              value={
-                                (field.state.value as number | undefined) ?? ""
-                              }
+                              value={field.state.value ?? ""}
                               onChange={(e) => {
-                                const raw = e.target.value;
-                                (
-                                  field.handleChange as (
-                                    v: number | string,
-                                  ) => void
-                                )(raw === "" ? "" : Number(raw));
+                                field.handleChange(e.target.value);
                               }}
                               onBlur={field.handleBlur}
                               disabled={disabled}
@@ -226,9 +229,7 @@ export function ChildInfoForm({
                     <form.Subscribe
                       selector={(state) => state.values.children[index]?.status}
                       children={(status) => {
-                        const isSibling =
-                          status === "sibling_in_treatment" ||
-                          status === "bereaved_sibling";
+                        const isSibling = isSiblingChildStatus(status);
 
                         if (isSibling) return null;
 

@@ -12,6 +12,7 @@ import {
   defaultChild,
   generalInfoFormDefaults,
   generalInfoSchema,
+  isSiblingChildStatus,
 } from "@/lib/formSchemas";
 import {
   FormAgreement,
@@ -149,9 +150,7 @@ export function useChildrenForm() {
     const normalizedChildren = values.children
       .slice(0, numChildren)
       .map((child) => {
-        const isSibling =
-          child.status === "sibling_in_treatment" ||
-          child.status === "bereaved_sibling";
+        const isSibling = isSiblingChildStatus(child.status);
 
         const requiresTreatmentLength =
           child.status === "recently_off_treatment" ||
