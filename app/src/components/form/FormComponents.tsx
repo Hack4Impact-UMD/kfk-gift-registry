@@ -339,9 +339,7 @@ export const FormFieldInput = ({
       {characterLimit !== undefined && !disabled && (
         <p
           className={`text-xs text-right ${
-            characterCount <= characterLimit
-              ? "text-slate-500"
-              : "text-red-500"
+            characterCount <= characterLimit ? "text-slate-500" : "text-red-500"
           }`}
         >
           {characterCount}/{characterLimit} characters

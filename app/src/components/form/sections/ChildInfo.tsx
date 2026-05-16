@@ -405,7 +405,7 @@ export function ChildInfoForm({
                         <field.FormTextarea
                           label={`You may write a blurb about your child to be displayed on the gift drive website (${PERSONAL_BLURB_MAX_CHARACTERS} characters or less)`}
                           placeholder="You can share details like your child's activities, interests, favorite color, or anything else you'd like to include."
-                          maxCharacters={PERSONAL_BLURB_MAX_CHARACTERS}
+                          maxLength={PERSONAL_BLURB_MAX_CHARACTERS}
                           disabled={disabled}
                         />
                       )}
