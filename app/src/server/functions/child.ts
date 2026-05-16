@@ -3,15 +3,18 @@ import z from "zod";
 import { createServerFn } from "@tanstack/react-start";
 import admin from "firebase-admin";
 import { v7 as uuidv7 } from "uuid";
-import { UserRole, ChildSchema, GiftSchema } from "common";
+import {
+  UserRole,
+  ChildSchema,
+  GiftSchema,
+  GiftFamilyPublicNotesSchema,
+  RequiredGiftTitleSchema,
+} from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 import type { Family, Gift, Child } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
-
-const MAX_CHILD_PUBLIC_BLURB_LENGTH = 150;
-const MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH = 150;
 
 export type FamilyGiftClaim = {
   giftId: string;
@@ -80,9 +83,6 @@ const updateChildSchema = z.object({
     status: true,
     livesAtHome: true,
   })
-    .extend({
-      publicBlurb: z.string().max(MAX_CHILD_PUBLIC_BLURB_LENGTH).optional(),
-    })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
@@ -100,13 +100,6 @@ const updateGiftSchema = z.object({
     claimedByDonorId: true,
     createdAt: true,
   })
-    .extend({
-      familyPublicNotes: z
-        .string()
-        .trim()
-        .max(MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH)
-        .optional(),
-    })
     .partial()
     .refine((data) => Object.keys(data).length > 0, {
       message: "At least one field must be provided for update",
@@ -116,14 +109,10 @@ const updateGiftSchema = z.object({
 
 const createGiftSchema = z.object({
   childId: z.string().min(1),
-  title: z.string().trim().min(1).max(100),
+  title: RequiredGiftTitleSchema,
   productUrl: z.string().trim().url(),
   listedPrice: z.number().min(0).optional(),
-  familyPublicNotes: z
-    .string()
-    .trim()
-    .max(MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH)
-    .optional(),
+  familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
   active: z.boolean().default(true),
 });
 

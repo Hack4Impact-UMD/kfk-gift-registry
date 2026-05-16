@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
 
 interface ChildCardWithGiftsProps {
   child: Child;
-  onSave: (updatedChild: Child) => void;
+  onSave: (updatedChild: Child) => Promise<void>;
 }
 
 function omitUndefined<T extends Record<string, unknown>>(
@@ -81,7 +81,7 @@ function RouteComponent() {
     data: Array<Child> | undefined;
   };
   const { mutate: updateFamily } = useUpdateFamily();
-  const { mutate: updateChild } = useUpdateChild();
+  const { mutateAsync: updateChild } = useUpdateChild();
 
   if (!family || !children) {
     throw new Error("Family not found");
@@ -113,7 +113,7 @@ function RouteComponent() {
     });
   };
 
-  const handleChildUpdate = (updatedChild: Child) => {
+  const handleChildUpdate = async (updatedChild: Child) => {
     const childUpdates = omitUndefined({
       diagnosisLengthYears: updatedChild.diagnosisLengthYears,
       diagnosis: updatedChild.diagnosis,
@@ -127,7 +127,7 @@ function RouteComponent() {
       offTreatmentDurationYears: updatedChild.offTreatmentDurationYears,
     });
 
-    updateChild({
+    await updateChild({
       childId: updatedChild.id,
       updates: childUpdates,
     });

@@ -6,6 +6,10 @@ import { cn } from "@/lib/utils";
 import { EditableField } from "./EditableField";
 import { useEffect, useState } from "react";
 import { ExternalLinkIcon } from "lucide-react";
+import {
+  MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
+  MAX_GIFT_TITLE_LENGTH,
+} from "common";
 
 export interface ReviewGiftProps {
   gift: Gift;
@@ -49,6 +53,7 @@ export function ReviewGift({
             <EditableField
               value={gift.title}
               editable={editable}
+              characterLimit={MAX_GIFT_TITLE_LENGTH}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 onTitleChange(e.target.value);
               }}
@@ -93,6 +98,7 @@ export function ReviewGift({
               value={gift.familyPublicNotes}
               fieldType="textarea"
               editable={editable}
+              characterLimit={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 onNotesChange(e.target.value);
               }}

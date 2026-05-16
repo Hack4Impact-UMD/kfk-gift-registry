@@ -230,6 +230,7 @@ interface FormFieldInputProps {
     | "url";
   autoComplete?: string;
   value?: string;
+  characterLimit?: number;
   disabled?: boolean;
   className?: string;
 }
@@ -243,11 +244,13 @@ export const FormFieldInput = ({
   inputMode,
   autoComplete,
   value,
+  characterLimit,
   disabled,
   className = "",
 }: FormFieldInputProps) => {
   const field = useFieldContext<string>();
   const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
+  const charCount = (field.state.value || value || "").length;
 
   return (
     <FormItem className={cn("group relative mt-6", className)}>
@@ -319,6 +322,15 @@ export const FormFieldInput = ({
         <span className="text-xs text-red-500 mt-1 block pl-1">
           {errorMessage}
         </span>
+      )}
+      {characterLimit !== undefined && !disabled && (
+        <p
+          className={`text-xs text-right ${
+            charCount <= characterLimit ? "text-slate-500" : "text-red-500"
+          }`}
+        >
+          {charCount}/{characterLimit} characters
+        </p>
       )}
     </FormItem>
   );

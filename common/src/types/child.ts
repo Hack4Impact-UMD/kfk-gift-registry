@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ChildPublicBlurbSchema } from "../validation";
 
 export const ChildStatusSchema = z.enum([
   "recently_diagnosed_relapse",
@@ -48,7 +49,7 @@ export const ChildSchema = z.object({
   diagnosisLengthYears: TimePeriodSchema.optional(),
   offTreatmentDurationYears: TimePeriodSchema.optional(),
   livesAtHome: z.boolean(),
-  publicBlurb: z.string().optional(),
+  publicBlurb: ChildPublicBlurbSchema.optional(),
   createdAt: z.iso.datetime(),
   hospital: z.string(),
   age: z.number(),

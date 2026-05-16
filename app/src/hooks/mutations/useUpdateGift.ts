@@ -1,19 +1,33 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateGift } from "@/server/functions/child";
 import { queries } from "@/queries";
+import { getValidationMessage } from "@/lib/serverValidation";
 import { toast } from "@/lib/toast";
 import type { GiftStatus } from "common";
-
-const GIFT_NOTES_TOO_LONG_ERROR = "Gift notes must be 150 characters or fewer.";
+import {
+  GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
+  GIFT_TITLE_TOO_LONG_MESSAGE,
+  MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
+  MAX_GIFT_TITLE_LENGTH,
+} from "common";
 
 function getUpdateGiftErrorMessage(error: Error) {
-  if (
-    error.message.includes("familyPublicNotes") &&
-    error.message.includes("maximum") &&
-    error.message.includes("150")
-  ) {
-    return GIFT_NOTES_TOO_LONG_ERROR;
-  }
+  const validationMessage = getValidationMessage(error, [
+    {
+      code: "too_big",
+      maximum: MAX_GIFT_TITLE_LENGTH,
+      message: GIFT_TITLE_TOO_LONG_MESSAGE,
+      path: ["updates", "title"],
+    },
+    {
+      code: "too_big",
+      maximum: MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
+      message: GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
+      path: ["updates", "familyPublicNotes"],
+    },
+  ]);
+
+  if (validationMessage) return validationMessage;
 
   return `Failed to update gift: ${error.message}`;
 }

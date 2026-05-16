@@ -9,6 +9,7 @@ import DefaultPhoto from "@/assets/default-profile-photo.png";
 import { EditableField } from "../review/EditableField";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
+import { MAX_CHILD_PUBLIC_BLURB_LENGTH } from "common";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -178,6 +179,7 @@ export function ChildSidebar({
           editable={isEditing}
           className="min-h-[112px] border-border/70 bg-background/80 text-sm leading-6"
           fieldType="textarea"
+          characterLimit={MAX_CHILD_PUBLIC_BLURB_LENGTH}
           onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
             setEditedChild((prev) => ({ ...prev, publicBlurb: e.target.value }))
           }

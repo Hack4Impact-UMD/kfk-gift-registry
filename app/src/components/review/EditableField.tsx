@@ -24,6 +24,7 @@ interface EditableFieldProps extends Omit<
   editable?: boolean;
   children?: React.ReactNode;
   fieldType?: "input" | "textarea" | "select" | "phone";
+  characterLimit?: number;
   selectOptions?: Array<string>;
   onChange?: EditableFieldChangeHandler;
 }
@@ -34,6 +35,7 @@ export function EditableField({
   editable = false,
   className,
   fieldType,
+  characterLimit,
   selectOptions,
   children,
   ...props
@@ -96,13 +98,17 @@ export function EditableField({
           className={cn("border-foreground", className)}
           {...(props as React.ComponentProps<typeof Textarea>)}
         />
-        <p
-          className={`self-end ${
-            charCount <= 150 ? "text-muted-foreground" : "text-destructive"
-          }`}
-        >
-          {charCount}/150 characters
-        </p>
+        {characterLimit !== undefined && (
+          <p
+            className={`self-end ${
+              charCount <= characterLimit
+                ? "text-muted-foreground"
+                : "text-destructive"
+            }`}
+          >
+            {charCount}/{characterLimit} characters
+          </p>
+        )}
       </>
     );
   }
@@ -125,15 +131,28 @@ export function EditableField({
   }
 
   return (
-    <div className={cn("flex items-center gap-2 w-full", className)}>
-      {children && <b className="whitespace-nowrap">{children}</b>}
-      <Input
-        ref={inputRef as React.RefObject<HTMLInputElement>}
-        value={value}
-        onChange={inputOnChange}
-        className="w-full min-w-0 border-foreground"
-        {...props}
-      />
+    <div className={cn("flex w-full flex-col gap-1", className)}>
+      <div className="flex w-full items-center gap-2">
+        {children && <b className="whitespace-nowrap">{children}</b>}
+        <Input
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          value={value}
+          onChange={inputOnChange}
+          className="w-full min-w-0 border-foreground"
+          {...props}
+        />
+      </div>
+      {characterLimit !== undefined && (
+        <p
+          className={`self-end text-xs ${
+            String(value ?? "").length <= characterLimit
+              ? "text-muted-foreground"
+              : "text-destructive"
+          }`}
+        >
+          {String(value ?? "").length}/{characterLimit} characters
+        </p>
+      )}
     </div>
   );
 }

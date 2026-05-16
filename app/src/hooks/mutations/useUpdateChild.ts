@@ -2,15 +2,25 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateChild } from "@/server/functions/child";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
+import { getValidationMessage } from "@/lib/serverValidation";
 import type { Child } from "common";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
-
-const TOO_LONG_ERROR = "150 characters or fewer.";
+import {
+  CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE,
+  MAX_CHILD_PUBLIC_BLURB_LENGTH,
+} from "common";
 
 function getUpdateChildErrorMessage(error: Error) {
-  if (error.message.includes("maximum") && error.message.includes("150")) {
-    return TOO_LONG_ERROR;
-  }
+  const validationMessage = getValidationMessage(error, [
+    {
+      code: "too_big",
+      maximum: MAX_CHILD_PUBLIC_BLURB_LENGTH,
+      message: CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE,
+      path: ["updates", "publicBlurb"],
+    },
+  ]);
+
+  if (validationMessage) return validationMessage;
 
   return `Failed to update child: ${error.message}`;
 }

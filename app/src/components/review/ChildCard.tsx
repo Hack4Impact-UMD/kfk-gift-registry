@@ -11,11 +11,20 @@ import type { Child, Gift, TimePeriod } from "common";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
 import { cn } from "@/lib/utils";
 import { toast } from "@/lib/toast";
+import {
+  CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE,
+  GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
+  GIFT_TITLE_TOO_LONG_MESSAGE,
+  MAX_CHILD_PUBLIC_BLURB_LENGTH,
+  isChildPublicBlurbTooLong,
+  isGiftFamilyPublicNotesTooLong,
+  isGiftTitleTooLong,
+} from "common";
 
 interface ChildInfoCardProps {
   child: Child;
   fetchedGifts: Array<Gift> | undefined;
-  onSave?: (updatedChild: Child) => void;
+  onSave?: (updatedChild: Child) => void | Promise<void>;
 }
 
 export interface ChildFormState {
@@ -40,8 +49,6 @@ const timePeriodOptions: Array<TimePeriod> = [
 ];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_BLURB_LENGTH = 150;
-const MAX_GIFT_NOTES_LENGTH = 150;
 
 function parsePriceInput(raw: string): number | undefined {
   const t = raw.trim();
@@ -54,6 +61,38 @@ function hasValidListedPrice(
   listedPrice: number | undefined,
 ): listedPrice is number {
   return listedPrice !== undefined && Number.isFinite(listedPrice);
+}
+
+function getGiftUpdatePayload(
+  originalGift: Gift | undefined,
+  editedGift: Gift,
+): Partial<Gift> {
+  if (!originalGift) {
+    return {
+      title: editedGift.title,
+      status: editedGift.status,
+      familyPublicNotes: editedGift.familyPublicNotes,
+      ...(hasValidListedPrice(editedGift.listedPrice)
+        ? { listedPrice: editedGift.listedPrice }
+        : {}),
+    };
+  }
+
+  return {
+    ...(editedGift.title !== originalGift.title
+      ? { title: editedGift.title }
+      : {}),
+    ...(editedGift.status !== originalGift.status
+      ? { status: editedGift.status }
+      : {}),
+    ...(editedGift.familyPublicNotes !== originalGift.familyPublicNotes
+      ? { familyPublicNotes: editedGift.familyPublicNotes }
+      : {}),
+    ...(editedGift.listedPrice !== originalGift.listedPrice &&
+    hasValidListedPrice(editedGift.listedPrice)
+      ? { listedPrice: editedGift.listedPrice }
+      : {}),
+  };
 }
 
 export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
@@ -77,7 +116,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
     photoUrl: child.photoUrl,
     gifts: fetchedGifts || [],
   });
-  const { mutate: updateGift } = useUpdateGift();
+  const { mutate: updateGift, mutateAsync: updateGiftAsync } = useUpdateGift();
 
   const cancelPendingGiftUpdate = () => {
     giftUpdateTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
@@ -218,18 +257,23 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
     reader.readAsDataURL(file);
   };
 
-  const handleSave = () => {
-    if ((formState.blurb?.length ?? 0) > MAX_BLURB_LENGTH) {
-      toast.error("Personal blurb must be 150 characters or fewer.");
+  const handleSave = async () => {
+    if (isChildPublicBlurbTooLong(formState.blurb)) {
+      toast.error(CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE);
+      return;
+    }
+
+    if (formState.gifts.some((gift) => isGiftTitleTooLong(gift.title))) {
+      toast.error(GIFT_TITLE_TOO_LONG_MESSAGE);
       return;
     }
 
     if (
-      formState.gifts.some(
-        (gift) => (gift.familyPublicNotes?.length ?? 0) > MAX_GIFT_NOTES_LENGTH,
+      formState.gifts.some((gift) =>
+        isGiftFamilyPublicNotesTooLong(gift.familyPublicNotes),
       )
     ) {
-      toast.error("Gift notes must be 150 characters or fewer.");
+      toast.error(GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE);
       return;
     }
 
@@ -245,30 +289,41 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
       photoUrl: formState.photoUrl,
     };
 
-    if (onSave) {
-      onSave(updatedChild);
-      formState.gifts.map((gift) => {
-        const updates = {
-          title: gift.title,
-          status: gift.status,
-          familyPublicNotes: gift.familyPublicNotes,
-          ...(hasValidListedPrice(gift.listedPrice)
-            ? { listedPrice: gift.listedPrice }
-            : {}),
-        };
+    try {
+      cancelPendingGiftUpdate();
 
-        updateGift({
-          giftId: gift.id,
-          updates,
-        });
-      });
+      if (onSave) {
+        await onSave(updatedChild);
+      }
+
+      await Promise.all(
+        formState.gifts.flatMap((gift) => {
+          const originalGift = fetchedGifts?.find(
+            (existingGift) => existingGift.id === gift.id,
+          );
+          const updates = getGiftUpdatePayload(originalGift, gift);
+
+          if (Object.keys(updates).length === 0) {
+            return [];
+          }
+
+          return [
+            updateGiftAsync({
+              giftId: gift.id,
+              updates,
+            }),
+          ];
+        }),
+      );
+
+      invalidatePhotoRead();
+      resetPhotoInput();
+      isEditingRef.current = false;
+      setPhotoError(null);
+      setEditing(false);
+    } catch (error) {
+      console.error("Child review save failed", error);
     }
-
-    invalidatePhotoRead();
-    resetPhotoInput();
-    isEditingRef.current = false;
-    setPhotoError(null);
-    setEditing(false);
   };
 
   return (
@@ -474,6 +529,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
               value={formState.blurb}
               editable={editing}
               fieldType={"textarea"}
+              characterLimit={MAX_CHILD_PUBLIC_BLURB_LENGTH}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 const nextBlurb = e.target.value;
                 setFormState((prev) => ({
