@@ -7,6 +7,8 @@ import {
   isSiblingChildStatus,
 } from "@/lib/formSchemas";
 
+const PERSONAL_BLURB_MAX_CHARACTERS = 150;
+
 const CHILD_STATUS_OPTIONS = CHILD_STATUS_VALUES.map((value) => ({
   value,
   label: CHILD_STATUS_LABELS[value],
@@ -168,7 +170,12 @@ export function ChildInfoForm({
                           if (value === "" || value === undefined)
                             return "Age is required";
                           const n = Number(value);
-                          if (!Number.isFinite(n) || !Number.isInteger(n) || n < 1 || n > 18) {
+                          if (
+                            !Number.isFinite(n) ||
+                            !Number.isInteger(n) ||
+                            n < 1 ||
+                            n > 18
+                          ) {
                             return "Age must be a whole number between 1 and 18";
                           }
                           return undefined;
@@ -177,7 +184,12 @@ export function ChildInfoForm({
                           if (value === "" || value === undefined)
                             return "Age is required";
                           const n = Number(value);
-                          if (!Number.isFinite(n) || !Number.isInteger(n) || n < 1 || n > 18) {
+                          if (
+                            !Number.isFinite(n) ||
+                            !Number.isInteger(n) ||
+                            n < 1 ||
+                            n > 18
+                          ) {
                             return "Age must be a whole number between 1 and 18";
                           }
                           return undefined;
@@ -383,21 +395,17 @@ export function ChildInfoForm({
                       validators={{
                         onChange: ({ value }) => {
                           if (!value) return undefined;
-                          const wordCount = value
-                            .trim()
-                            .split(/\s+/)
-                            .filter(Boolean).length;
-                          if (wordCount > 150)
-                            return "Please keep your blurb to 150 words or less";
+                          if (value.length > PERSONAL_BLURB_MAX_CHARACTERS)
+                            return `Please keep your blurb to ${PERSONAL_BLURB_MAX_CHARACTERS} characters or less`;
                           return undefined;
                         },
                       }}
                     >
                       {(field) => (
                         <field.FormTextarea
-                          label="You may write a blurb about your child to be displayed on the gift drive website (150 words or less)"
+                          label={`You may write a blurb about your child to be displayed on the gift drive website (${PERSONAL_BLURB_MAX_CHARACTERS} characters or less)`}
                           placeholder="You can share details like your child's activities, interests, favorite color, or anything else you'd like to include."
-                          maxWords={150}
+                          maxCharacters={PERSONAL_BLURB_MAX_CHARACTERS}
                           disabled={disabled}
                         />
                       )}

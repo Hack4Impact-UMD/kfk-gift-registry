@@ -218,18 +218,7 @@ export const childInfoSchema = z.object({
     .or(z.literal("")),
   treatmentLength: z.string().optional().or(z.literal("")),
   photoUrl: photoUrlSchema,
-  blurb: z
-    .string()
-    .refine(
-      (value) => {
-        const wordCount = value.match(/\S+/g)?.length ?? 0;
-        return wordCount <= 150;
-      },
-      {
-        message: "Blurb must be at most 150 words",
-      },
-    )
-    .optional(),
+  blurb: z.string().max(150, "Blurb must be at most 150 characters").optional(),
 });
 
 export const defaultChild = (): ChildInfo => ({
@@ -268,7 +257,10 @@ const giftSchema = z
   .object({
     giftName: z.string(),
     giftUrl: z.string(),
-    familyPublicNotes: z.string().optional(),
+    familyPublicNotes: z
+      .string()
+      .max(150, "Public notes must be at most 150 characters")
+      .optional(),
   })
   .refine(
     (data) => {

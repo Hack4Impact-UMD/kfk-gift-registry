@@ -230,6 +230,9 @@ interface FormFieldInputProps {
     | "url";
   autoComplete?: string;
   value?: string;
+  maxCharactersErrorMessage?: string;
+  showMaxCharactersError?: boolean;
+  maxCharacters?: number;
   disabled?: boolean;
   className?: string;
 }
@@ -243,11 +246,24 @@ export const FormFieldInput = ({
   inputMode,
   autoComplete,
   value,
+  maxCharactersErrorMessage,
+  showMaxCharactersError: showMaxCharactersErrorImmediately = false,
+  maxCharacters,
   disabled,
   className = "",
 }: FormFieldInputProps) => {
   const field = useFieldContext<string>();
-  const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
+  const characterCount = field.state.value?.length ?? 0;
+  const immediateMaxCharacterError =
+    showMaxCharactersErrorImmediately &&
+    maxCharacters !== undefined &&
+    characterCount > maxCharacters
+      ? (maxCharactersErrorMessage ??
+        `Please keep this field to ${maxCharacters} characters or less`)
+      : undefined;
+  const errorMessage =
+    (field.state.meta.isTouched && field.state.meta.errors[0]) ||
+    immediateMaxCharacterError;
 
   return (
     <FormItem className={cn("group relative mt-6", className)}>
@@ -329,6 +345,9 @@ type FormTextareaProps = {
   placeholder?: string;
   required?: boolean;
   maxWords?: number;
+  maxCharacters?: number;
+  maxCharactersErrorMessage?: string;
+  showMaxCharactersErrorImmediately?: boolean;
   disabled?: boolean;
   className?: string;
 };
@@ -338,14 +357,27 @@ export function FormTextarea({
   placeholder,
   required = false,
   maxWords,
+  maxCharacters,
+  maxCharactersErrorMessage,
+  showMaxCharactersErrorImmediately = false,
   disabled,
   className = "",
 }: FormTextareaProps) {
   const field = useFieldContext<string>();
-  const errorMessage = field.state.meta.isTouched && field.state.meta.errors[0];
   const wordCount = field.state.value
     ? field.state.value.trim().split(/\s+/).filter(Boolean).length
     : 0;
+  const characterCount = field.state.value?.length ?? 0;
+  const immediateMaxCharacterError =
+    showMaxCharactersErrorImmediately &&
+    maxCharacters !== undefined &&
+    characterCount > maxCharacters
+      ? (maxCharactersErrorMessage ??
+        `Please keep this field to ${maxCharacters} characters or less`)
+      : undefined;
+  const errorMessage =
+    (field.state.meta.isTouched && field.state.meta.errors[0]) ||
+    immediateMaxCharacterError;
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -363,7 +395,12 @@ export function FormTextarea({
         disabled={disabled}
         className={`resize-none min-h-[100px] ${errorMessage ? "border-red-500" : ""}`}
       />
-      {maxWords !== undefined && !disabled && (
+      {maxCharacters !== undefined && !disabled && (
+        <p className="text-xs text-right text-slate-500">
+          {characterCount} out of {maxCharacters}
+        </p>
+      )}
+      {maxWords !== undefined && maxCharacters === undefined && !disabled && (
         <p className="text-xs text-right text-slate-500">
           {wordCount} out of {maxWords}
         </p>

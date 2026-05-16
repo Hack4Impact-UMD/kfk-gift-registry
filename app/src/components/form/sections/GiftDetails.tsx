@@ -12,6 +12,9 @@ type GiftDetailsFormProps = {
 };
 
 const GIFT_NAME_MAX_CHARS = 50;
+const GIFT_NAME_LIMIT_MESSAGE = `Gift name is too long: more than ${GIFT_NAME_MAX_CHARS} characters`;
+const GIFT_PUBLIC_NOTES_MAX_CHARACTERS = 150;
+const GIFT_PUBLIC_NOTES_LIMIT_MESSAGE = `Please keep your public notes to ${GIFT_PUBLIC_NOTES_MAX_CHARACTERS} characters or less`;
 
 export function GiftDetailsForm({
   form,
@@ -167,7 +170,7 @@ export function GiftDetailsForm({
                         if (i !== 0 && !value) return undefined;
                         if (!value) return "Gift name is required";
                         if (value.length > GIFT_NAME_MAX_CHARS)
-                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                          return GIFT_NAME_LIMIT_MESSAGE;
                         return undefined;
                       },
                     }
@@ -182,6 +185,9 @@ export function GiftDetailsForm({
                       label={`Gift #${i + 1} Name${i !== 0 ? " (Optional)" : ""}`}
                       placeholder="e.g. Monopoly"
                       required={i === 0}
+                      maxCharacters={GIFT_NAME_MAX_CHARS}
+                      maxCharactersErrorMessage={GIFT_NAME_LIMIT_MESSAGE}
+                      showMaxCharactersError
                       disabled={disabled}
                     />
                   </div>
@@ -194,12 +200,8 @@ export function GiftDetailsForm({
               validators={{
                 onChange: ({ value }) => {
                   if (!value) return undefined;
-                  const wordCount = value
-                    .trim()
-                    .split(/\s+/)
-                    .filter(Boolean).length;
-                  if (wordCount > 150)
-                    return "Please keep your blurb to 150 words or less";
+                  if (value.length > GIFT_PUBLIC_NOTES_MAX_CHARACTERS)
+                    return GIFT_PUBLIC_NOTES_LIMIT_MESSAGE;
                   return undefined;
                 },
               }}
@@ -209,7 +211,9 @@ export function GiftDetailsForm({
                   className="mt-2"
                   label={`Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
-                  maxWords={150}
+                  maxCharacters={GIFT_PUBLIC_NOTES_MAX_CHARACTERS}
+                  maxCharactersErrorMessage={GIFT_PUBLIC_NOTES_LIMIT_MESSAGE}
+                  showMaxCharactersErrorImmediately
                   disabled={disabled}
                 />
               )}
@@ -287,7 +291,7 @@ export function GiftDetailsForm({
                         const str = value;
                         if (!str) return "Gift name is required";
                         if (str.length > GIFT_NAME_MAX_CHARS)
-                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                          return GIFT_NAME_LIMIT_MESSAGE;
                         return undefined;
                       },
                     }
@@ -302,6 +306,9 @@ export function GiftDetailsForm({
                       label={`Backup Gift #${i + 1} Name`}
                       placeholder="e.g. Monopoly"
                       required
+                      maxCharacters={GIFT_NAME_MAX_CHARS}
+                      maxCharactersErrorMessage={GIFT_NAME_LIMIT_MESSAGE}
+                      showMaxCharactersError
                       disabled={disabled}
                     />
                   </div>
@@ -314,12 +321,8 @@ export function GiftDetailsForm({
               validators={{
                 onChange: ({ value }) => {
                   if (!value) return undefined;
-                  const wordCount = value
-                    .trim()
-                    .split(/\s+/)
-                    .filter(Boolean).length;
-                  if (wordCount > 150)
-                    return "Please keep your blurb to 150 words or less";
+                  if (value.length > GIFT_PUBLIC_NOTES_MAX_CHARACTERS)
+                    return GIFT_PUBLIC_NOTES_LIMIT_MESSAGE;
                   return undefined;
                 },
               }}
@@ -329,7 +332,9 @@ export function GiftDetailsForm({
                   className="mt-2"
                   label={`Backup Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
-                  maxWords={150}
+                  maxCharacters={GIFT_PUBLIC_NOTES_MAX_CHARACTERS}
+                  maxCharactersErrorMessage={GIFT_PUBLIC_NOTES_LIMIT_MESSAGE}
+                  showMaxCharactersErrorImmediately
                   disabled={disabled}
                 />
               )}
