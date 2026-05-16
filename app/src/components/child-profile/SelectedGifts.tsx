@@ -1,4 +1,4 @@
-import type { Gift } from "../../../../common/src/types/gift";
+import type { Gift } from "common";
 import { Input } from "../ui/input";
 
 type SelectedGiftsProps = {

@@ -4,7 +4,6 @@ import { EditableField } from "./EditableField";
 import { ReviewGift } from "./ReviewGift";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import type { ChangeEventHandler } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
@@ -218,7 +217,6 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   };
 
   const handleSave = () => {
-
     if ((formState.blurb?.length ?? 0) > 150) {
       alert("Maximum characters exceeded");
       return;

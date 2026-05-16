@@ -55,8 +55,7 @@ export function ReviewGift({
             />
           ) : (
             <Link
-              to="/staff/gifts/$giftId"
-              params={{ giftId: gift.id }}
+              to={gift.productUrl ? gift.productUrl : "#"}
               className="min-w-0 truncate text-blue-600 hover:underline"
             >
               {gift.title}
