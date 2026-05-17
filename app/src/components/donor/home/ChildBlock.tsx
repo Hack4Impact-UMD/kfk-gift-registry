@@ -21,7 +21,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
   const set = useCallback((id: string, patch: Partial<GiftFormState>) => {
     setGiftStates((p) => ({
       ...p,
-      [id]: { ...p[id]!, ...patch, changesSaved: false },
+      [id]: { ...p[id], ...patch, changesSaved: false },
     }));
   }, []);
 
@@ -55,9 +55,9 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
     setGiftStates((p) => ({
       ...p,
       [id]: {
-        ...p[id]!,
+        ...p[id],
         changesSaved: true,
-        unclaimed: p[id]!.pendingUnclaim, // promote pending to actual
+        unclaimed: p[id]?.pendingUnclaim, // promote pending to actual
       },
     }));
   }, []);

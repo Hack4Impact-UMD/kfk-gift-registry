@@ -84,6 +84,8 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
     strokeLinejoin: "round" as const,
   };
 
+  const isCentered = siblings.length < 3;
+
   return (
     <div className="flex flex-col sm:flex-row w-full items-center gap-1 sm:gap-2 md:gap-4">
       <Button
@@ -106,7 +108,7 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
           opts={{ align: "start", loop: false }}
           className="w-full p-2"
         >
-          <CarouselContent>
+          <CarouselContent className={cn(isCentered && "justify-center")}>
             {siblings.map((sibling) => (
               <CarouselItem
                 key={sibling.id}

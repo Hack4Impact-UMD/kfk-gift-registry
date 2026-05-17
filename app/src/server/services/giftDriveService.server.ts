@@ -9,11 +9,11 @@ export async function assertGiftDriveActive(
   const db = getServerDB();
   const driveSnap = await tx.get(db.giftDrives.doc(driveId));
 
-  if (!driveSnap.exists) {
+  const drive = driveSnap.data();
+
+  if (!drive) {
     throw new Error(`Gift drive ${driveId} not found`);
   }
-
-  const drive = driveSnap.data()!;
   const now = DateTime.utc();
   const start = DateTime.fromISO(drive.startDate, { zone: "utc" });
   const end = DateTime.fromISO(drive.endDate, { zone: "utc" });

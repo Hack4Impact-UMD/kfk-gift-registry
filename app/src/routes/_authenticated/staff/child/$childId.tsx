@@ -20,6 +20,11 @@ import { queries } from "@/queries";
 import { Spinner } from "@/components/ui/spinner";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/lib/toast";
+import {
+  CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE,
+  isChildPublicBlurbTooLong,
+} from "common";
 
 function cloneGifts(gifts: ReadonlyArray<Gift>): Array<Gift> {
   return gifts.map((gift) => ({ ...gift }));
@@ -117,6 +122,14 @@ function ChildProfilePage() {
   };
 
   const handleSaveAll = async () => {
+    if (
+      editedChild.publicBlurb !== undefined &&
+      isChildPublicBlurbTooLong(editedChild.publicBlurb ?? "")
+    ) {
+      toast.error(CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE);
+      return;
+    }
+
     const childUpdates = Object.fromEntries(
       Object.entries(editedChild).filter(
         ([key, value]) => value !== child[key as keyof typeof child],
@@ -182,6 +195,7 @@ function ChildProfilePage() {
       await updateGiftMutation.mutateAsync({ giftId, updates });
     } catch (err) {
       console.error("Gift update failed", err);
+      throw err;
     }
   };
 

@@ -40,7 +40,7 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
 
 interface ChildCardWithGiftsProps {
   child: Child;
-  onSave: (updatedChild: Child) => void;
+  onSave: (updatedChild: Child) => Promise<void>;
 }
 
 function omitUndefined<T extends Record<string, unknown>>(
@@ -88,7 +88,7 @@ function RouteComponent() {
   const { data: family } = useFamily(familyId);
   const { data: children } = useChildProfilesForFamily(familyId);
   const { mutate: updateFamily } = useUpdateFamily();
-  const { mutate: updateChild } = useUpdateChild();
+  const { mutateAsync: updateChild } = useUpdateChild();
 
   if (!family || !children) {
     throw new Error("Family not found");
@@ -120,7 +120,7 @@ function RouteComponent() {
     });
   };
 
-  const handleChildUpdate = (updatedChild: Child) => {
+  const handleChildUpdate = async (updatedChild: Child) => {
     const childUpdates = omitUndefined({
       diagnosisLengthYears: updatedChild.diagnosisLengthYears,
       diagnosis: updatedChild.diagnosis,
@@ -134,7 +134,7 @@ function RouteComponent() {
       offTreatmentDurationYears: updatedChild.offTreatmentDurationYears,
     });
 
-    updateChild({
+    await updateChild({
       childId: updatedChild.id,
       updates: childUpdates,
     });
@@ -148,6 +148,11 @@ function RouteComponent() {
     });
   };
 
+  const sortedChildren = [...children].sort((a, b) => {
+    const rank = (c: Child) => (c.category === "warrior" ? 0 : 1);
+    return rank(a) - rank(b);
+  });
+
   return (
     <div className="flex h-full flex-col p-4 ">
       <div className=" flex min-h-0 w-full flex-1 flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
@@ -159,7 +164,7 @@ function RouteComponent() {
           <ScrollArea className="h-full min-h-[40rem] w-full rounded-md border p-4 shadow-xl">
             <div className="flex flex-col gap-7 pr-4">
               <GuardianInfoCard family={family} onSave={handleFamilyUpdate} />
-              {children.map((childData) => (
+              {sortedChildren.map((childData) => (
                 <ChildCardWithGifts
                   key={childData.id}
                   child={childData}
