@@ -4,6 +4,7 @@ import { v7 as uuidv7 } from "uuid";
 import admin from "firebase-admin";
 import { getServerDB } from "@/lib/firebase.server";
 import { createFamilyLink } from "@/server/services/familyLinkService.server";
+import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
 import {
@@ -120,9 +121,14 @@ async function uploadChildPhoto(
   return file.publicUrl();
 }
 
+const submitFamilyFormSchema = familyFormStateSchema.extend({
+  appCheckToken: z.string().min(1, "AppCheck token is required"),
+});
+
 //TODO: rate limit
 export const submitFamilyForm = createServerFn({ method: "POST" })
-  .inputValidator(familyFormStateSchema)
+  .middleware([appCheckMiddleware])
+  .inputValidator(submitFamilyFormSchema)
   .handler(async ({ data }) => {
     if (!data.generalInfo) throw new Error("General information is required");
     if (!data.children?.children.length)
