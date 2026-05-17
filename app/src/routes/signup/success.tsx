@@ -3,6 +3,15 @@ import KFKLogo from "@/assets/kfk-logo.png";
 import Ladybug from "@/assets/ladybug-success.png";
 
 export const Route = createFileRoute("/signup/success")({
+  head: () => ({
+    meta: [
+      { title: "Registration Successful - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Your account has been successfully created",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 

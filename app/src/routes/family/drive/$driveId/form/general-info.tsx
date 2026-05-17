@@ -11,6 +11,15 @@ import { GeneralInfoForm } from "@/components/form/sections/GeneralInfo";
 export const Route = createFileRoute(
   "/family/drive/$driveId/form/general-info",
 )({
+  head: () => ({
+    meta: [
+      { title: "Family Information - Registration" },
+      {
+        name: "description",
+        content: "Enter your family information for registration",
+      },
+    ],
+  }),
   component: GeneralRouteComponent,
 });
 

@@ -9,6 +9,15 @@ import {
 import { FormProgressBar } from "@/components/form/FormProgressBar";
 
 export const Route = createFileRoute("/family/drive/$driveId/form")({
+  head: () => ({
+    meta: [
+      { title: "Registration Form - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Complete your family registration form",
+      },
+    ],
+  }),
   component: FormLayoutComponent,
   ssr: false,
 });
