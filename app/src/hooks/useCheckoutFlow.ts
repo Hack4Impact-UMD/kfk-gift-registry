@@ -9,6 +9,8 @@ import { cartCollection } from "@/local/cartCollection";
 import type { CartItem } from "@/local/cartCollection";
 import type { AuthContext } from "@/server/functions/auth";
 import { toast } from "@/lib/toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { queries } from "@/queries";
 
 export interface RegisterDonorInput {
   name: string;
@@ -41,6 +43,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
 
   const { data: localCart } = useLocalCartData();
 
+  const queryClient = useQueryClient();
   const claimMutation = useClaimGifts();
   const loginMutation = useLogin();
   const registerMutation = useRegisterDonor();
@@ -68,6 +71,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
         const message =
           error instanceof Error ? error.message : "Failed to claim gifts";
         toast.error(message);
+        queryClient.invalidateQueries({ queryKey: queries.gifts.cart._def });
       },
     });
   };
