@@ -24,7 +24,7 @@ export interface CheckoutFlowState {
   authMode: "login" | "register";
   disabledMessage: string | null;
   start: () => void;
-  confirmClaim: () => Promise<void>;
+  confirmClaim: () => void;
   submitLogin: (email: string, password: string) => Promise<void>;
   submitRegister: (data: RegisterDonorInput) => Promise<void>;
   closeAll: () => void;
@@ -54,20 +54,22 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
     localCart?.forEach((item: CartItem) => cartCollection.delete(item.id));
   };
 
-  const confirmClaim = async () => {
+  const confirmClaim = () => {
     const giftIds = localCart?.map((item: CartItem) => item.id) ?? [];
 
-    try {
-      await claimMutation.mutateAsync(giftIds);
-      clearLocalCart();
-      setConfirmModalOpen(false);
-      setAuthModalOpen(false);
-      navigate({ to: "/donor/home" });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to claim gifts";
-      toast.error(message);
-    }
+    claimMutation.mutate(giftIds, {
+      onSuccess: () => {
+        clearLocalCart();
+        setConfirmModalOpen(false);
+        setAuthModalOpen(false);
+        navigate({ to: "/donor/home" });
+      },
+      onError: (error) => {
+        const message =
+          error instanceof Error ? error.message : "Failed to claim gifts";
+        toast.error(message);
+      },
+    });
   };
 
   const submitLogin = async (email: string, password: string) => {
@@ -84,7 +86,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
           }
 
           setAuthModalOpen(false);
-          await confirmClaim();
+          confirmClaim();
         },
         onError: (error) => {
           const message =
@@ -115,7 +117,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
             }
 
             setAuthModalOpen(false);
-            await confirmClaim();
+            confirmClaim();
           },
           onError: (error) => {
             const message =
