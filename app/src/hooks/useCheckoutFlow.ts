@@ -114,6 +114,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
               return;
             }
 
+            setAuthModalOpen(false);
             await confirmClaim();
           },
           onError: (error) => {
