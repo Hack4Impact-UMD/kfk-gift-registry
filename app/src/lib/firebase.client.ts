@@ -1,7 +1,12 @@
 import { initializeApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
+import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider,
+} from "firebase/app-check";
 import { createClientOnlyFn } from "@tanstack/react-start";
 import type { Auth } from "firebase/auth";
+import type { AppCheck } from "firebase/app-check";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -20,6 +25,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 let auth: Auth | null = null;
+let appCheck: AppCheck | null = null;
 
 export const getClientAuth = createClientOnlyFn(async () => {
   if (auth) return auth;
@@ -31,4 +37,45 @@ export const getClientAuth = createClientOnlyFn(async () => {
 
   await auth.authStateReady();
   return auth;
+});
+
+export const getClientAppCheck = createClientOnlyFn(async () => {
+  if (appCheck) return appCheck;
+
+  // Initialize App Check with reCAPTCHA Enterprise
+  // TODO: we need a recaptcha key (TLs should have access to initialize through google cloud)
+  const reCaptchaPublicKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_KEY;
+  if (!reCaptchaPublicKey) {
+    console.warn(
+      "AppCheck reCAPTCHA Enterprise key not configured. Public endpoints may be vulnerable.",
+    );
+    return null;
+  }
+
+  try {
+    appCheck = initializeAppCheck(app, {
+      provider: new ReCaptchaEnterpriseProvider(reCaptchaPublicKey),
+      isTokenAutoRefreshEnabled: true,
+    });
+
+    console.log("AppCheck initialized successfully");
+    return appCheck;
+  } catch (error) {
+    console.error("Failed to initialize AppCheck:", error);
+    return null;
+  }
+});
+
+export const getAppCheckToken = createClientOnlyFn(async () => {
+  const ac = await getClientAppCheck();
+  if (!ac) return null;
+
+  try {
+    // Use getToken to retrieve the AppCheck token
+    const { token } = await (ac as any).getToken();
+    return token;
+  } catch (error) {
+    console.error("Failed to get AppCheck token:", error);
+    return null;
+  }
 });
