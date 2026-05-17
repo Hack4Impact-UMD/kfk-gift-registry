@@ -5,7 +5,13 @@ interface StatusSummaryCardProps {
   label: string;
   count: number;
   icon: ReactNode;
-  variant: "all" | "pending" | "approved" | "holdfile";
+  variant:
+    | "all"
+    | "pending"
+    | "approved"
+    | "holdfile"
+    | "published"
+    | "unpublished";
   onClick?: () => void;
   isActive?: boolean;
 }
@@ -46,6 +52,30 @@ const variantStyles = {
     activeIconBg: "bg-white",
     activeIconColor: "text-kfk-green",
     lineColor: "bg-kfk-green",
+  },
+  published: {
+    bg: "bg-green-100",
+    text: "text-green-800",
+    iconBg: "bg-kfk-green",
+    iconColor: "text-white",
+    hoverBg: "hover:bg-green-200",
+    activeBg: "bg-kfk-green",
+    activeText: "text-white",
+    activeIconBg: "bg-white",
+    activeIconColor: "text-kfk-green",
+    lineColor: "bg-kfk-green",
+  },
+  unpublished: {
+    bg: "bg-red-100",
+    text: "text-red-800",
+    iconBg: "bg-kfk-red",
+    iconColor: "text-white",
+    hoverBg: "hover:bg-red-200",
+    activeBg: "bg-kfk-red",
+    activeText: "text-white",
+    activeIconBg: "bg-white",
+    activeIconColor: "text-kfk-red",
+    lineColor: "bg-kfk-red",
   },
   holdfile: {
     bg: "bg-red-100",

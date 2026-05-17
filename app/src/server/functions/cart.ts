@@ -32,9 +32,8 @@ export const getCartGiftsGroupedByFamily = createServerFn({ method: "GET" })
     );
 
     const gifts = giftDocs.flatMap((doc) => {
-      if (!doc.exists) return [];
-      const gift = doc.data()!;
-      if (!gift.active) return [];
+      const gift = doc.data();
+      if (!gift?.active) return [];
       return [
         {
           id: gift.id,
@@ -56,8 +55,8 @@ export const getCartGiftsGroupedByFamily = createServerFn({ method: "GET" })
 
     const familyById: Record<string, StorefrontFamily> = {};
     for (const doc of familyDocs) {
-      if (!doc.exists) continue;
-      const family = doc.data()!;
+      const family = doc.data();
+      if (!family) continue;
       familyById[family.id] = {
         id: family.id,
         contactName: family.contactName,

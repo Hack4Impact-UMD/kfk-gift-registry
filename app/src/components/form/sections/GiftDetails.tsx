@@ -3,6 +3,14 @@ import type { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { CardDescription } from "@/components/ui/card";
 import { useState, useRef } from "react";
 import { fetchProductDetails } from "@/server/functions/giftLinks";
+import {
+  GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
+  GIFT_TITLE_REQUIRED_MESSAGE,
+  GIFT_TITLE_TOO_LONG_MESSAGE,
+  MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
+  MAX_GIFT_TITLE_LENGTH,
+  getGiftTitleTooLongCounterMessage,
+} from "common";
 
 type GiftDetailsFormProps = {
   form: ReturnType<typeof useGiftsForm>;
@@ -10,8 +18,6 @@ type GiftDetailsFormProps = {
   childName: string;
   disabled?: boolean;
 };
-
-const GIFT_NAME_MAX_CHARS = 50;
 
 export function GiftDetailsForm({
   form,
@@ -165,9 +171,12 @@ export function GiftDetailsForm({
                   : {
                       onChange: ({ value }) => {
                         if (i !== 0 && !value) return undefined;
-                        if (!value) return "Gift name is required";
-                        if (value.length > GIFT_NAME_MAX_CHARS)
-                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                        if (!value) return GIFT_TITLE_REQUIRED_MESSAGE;
+                        if (value.length > MAX_GIFT_TITLE_LENGTH) {
+                          return getGiftTitleTooLongCounterMessage(
+                            value.length,
+                          );
+                        }
                         return undefined;
                       },
                     }
@@ -181,7 +190,10 @@ export function GiftDetailsForm({
                       Icon={GiftIcon}
                       label={`Gift #${i + 1} Name${i !== 0 ? " (Optional)" : ""}`}
                       placeholder="e.g. Monopoly"
+                      characterLimit={MAX_GIFT_TITLE_LENGTH}
                       required={i === 0}
+                      maxCharactersErrorMessage={GIFT_TITLE_TOO_LONG_MESSAGE}
+                      showMaxCharactersError
                       disabled={disabled}
                     />
                   </div>
@@ -191,12 +203,26 @@ export function GiftDetailsForm({
 
             <form.AppField
               name={`giftSelections[${childIndex}].gifts[${i}].familyPublicNotes`}
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value) return undefined;
+                  if (value.length > MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH) {
+                    return GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE;
+                  }
+                  return undefined;
+                },
+              }}
             >
               {(field) => (
                 <field.FormTextarea
                   className="mt-2"
                   label={`Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
+                  maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
+                  maxCharactersErrorMessage={
+                    GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE
+                  }
+                  showMaxCharactersErrorImmediately
                   disabled={disabled}
                 />
               )}
@@ -272,9 +298,12 @@ export function GiftDetailsForm({
                   : {
                       onChange: ({ value }) => {
                         const str = value;
-                        if (!str) return "Gift name is required";
-                        if (str.length > GIFT_NAME_MAX_CHARS)
-                          return `Gift name is too long: ${value.length}/${GIFT_NAME_MAX_CHARS} characters`;
+                        if (!str) return GIFT_TITLE_REQUIRED_MESSAGE;
+                        if (str.length > MAX_GIFT_TITLE_LENGTH) {
+                          return getGiftTitleTooLongCounterMessage(
+                            value.length,
+                          );
+                        }
                         return undefined;
                       },
                     }
@@ -288,7 +317,10 @@ export function GiftDetailsForm({
                       Icon={GiftIcon}
                       label={`Backup Gift #${i + 1} Name`}
                       placeholder="e.g. Monopoly"
+                      characterLimit={MAX_GIFT_TITLE_LENGTH}
                       required
+                      maxCharactersErrorMessage={GIFT_TITLE_TOO_LONG_MESSAGE}
+                      showMaxCharactersError
                       disabled={disabled}
                     />
                   </div>
@@ -298,12 +330,26 @@ export function GiftDetailsForm({
 
             <form.AppField
               name={`giftSelections[${childIndex}].backupGifts[${i}].familyPublicNotes`}
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value) return undefined;
+                  if (value.length > MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH) {
+                    return GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE;
+                  }
+                  return undefined;
+                },
+              }}
             >
               {(field) => (
                 <field.FormTextarea
                   className="mt-2"
                   label={`Backup Gift #${i + 1} Public Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
+                  maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
+                  maxCharactersErrorMessage={
+                    GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE
+                  }
+                  showMaxCharactersErrorImmediately
                   disabled={disabled}
                 />
               )}

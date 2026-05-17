@@ -70,14 +70,40 @@ export const columns = [
     },
   }),
 
-  helper.accessor("numberOfChildren", {
+  // helper.accessor("numberOfChildren", {
+  //   enableGlobalFilter: false,
+  //   header: ({ column }) => (
+  //     <ColumnSortButton column={column}># of Children</ColumnSortButton>
+  //   ),
+  //   cell: ({ getValue }) => (
+  //     <span className="text-center block">{getValue()}</span>
+  //   ),
+  // }),
+
+  helper.accessor("publishedChildren", {
     enableGlobalFilter: false,
     header: ({ column }) => (
-      <ColumnSortButton column={column}># of Children</ColumnSortButton>
+      <ColumnSortButton column={column}>Published Children</ColumnSortButton>
     ),
-    cell: ({ getValue }) => (
-      <span className="text-center block">{getValue()}</span>
-    ),
+    cell: ({ getValue, row }) => {
+      const publishedChildren = getValue();
+      const totalChildren = row.original.numberOfChildren;
+      const dotColor =
+        publishedChildren === 0
+          ? "bg-red-300"
+          : publishedChildren === totalChildren
+            ? "bg-green-300"
+            : "bg-yellow-300";
+
+      return (
+        <div className="flex items-center gap-2">
+          <div className={`h-3 w-3 rounded-full ${dotColor}`}></div>
+          <div>
+            {publishedChildren}/{totalChildren} Published
+          </div>
+        </div>
+      );
+    },
   }),
 
   helper.accessor("status", {

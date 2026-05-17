@@ -1,25 +1,30 @@
 import { cn } from "@/lib/utils";
+import type { GiftStatus } from "common";
 
 interface GiftStatusBadgeProps {
-  status: string;
+  status: GiftStatus;
   className?: string;
 }
 
-const statusConfig: Record<string, { label: string; color: string }> = {
-  unclaimed: {
+const statusConfig: Record<GiftStatus, { label: string; color: string }> = {
+  AVAILABLE: {
     label: "Unclaimed",
     color: "bg-red-300",
   },
-  claimed: {
+  CLAIMED: {
     label: "Claimed",
     color: "bg-yellow-300",
   },
-  purchased: {
+  PURCHASED: {
     label: "Purchased",
     color: "bg-orange-300",
   },
-  delivered: {
+  DELIVERED: {
     label: "Delivered",
+    color: "bg-green-300",
+  },
+  RECEIVED: {
+    label: "Received",
     color: "bg-green-300",
   },
 };

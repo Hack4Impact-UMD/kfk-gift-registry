@@ -24,6 +24,7 @@ interface EditableFieldProps extends Omit<
   editable?: boolean;
   children?: React.ReactNode;
   fieldType?: "input" | "textarea" | "select" | "phone";
+  characterLimit?: number;
   selectOptions?: Array<string>;
   onChange?: EditableFieldChangeHandler;
 }
@@ -34,6 +35,7 @@ export function EditableField({
   editable = false,
   className,
   fieldType,
+  characterLimit,
   selectOptions,
   children,
   ...props
@@ -53,14 +55,10 @@ export function EditableField({
 
   if (!editable) {
     return (
-      <p
-        className={cn(
-          `py-1 ${!children && "flex h-9"} items-center break-all`,
-          className,
-        )}
-      >
-        <b>{children}</b> {value}
-      </p>
+      <div className={cn("flex items-center gap-2 min-w-0 py-1")}>
+        {children && <b className="whitespace-nowrap shrink-0">{children}</b>}
+        <span className="min-w-0 break-words">{value}</span>
+      </div>
     );
   }
 
@@ -71,7 +69,7 @@ export function EditableField({
         value={value?.toString()}
         onValueChange={selectOnChange}
       >
-        <SelectTrigger className="w-full max-w-48 border-1 border-black">
+        <SelectTrigger className="w-full min-w-0 border border-black">
           <SelectValue placeholder="Select a level" />
         </SelectTrigger>
         <SelectContent>
@@ -88,7 +86,7 @@ export function EditableField({
 
   if (fieldType === "textarea") {
     const text = typeof value === "string" ? value : (value?.toString() ?? "");
-    const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+    const charCount = text.length;
 
     return (
       <>
@@ -100,11 +98,17 @@ export function EditableField({
           className={cn("border-foreground", className)}
           {...(props as React.ComponentProps<typeof Textarea>)}
         />
-        <p
-          className={`self-end ${wordCount <= 25 ? "text-muted-foreground" : "text-destructive"}`}
-        >
-          {wordCount}/25 words
-        </p>
+        {characterLimit !== undefined && (
+          <p
+            className={`self-end ${
+              charCount <= characterLimit
+                ? "text-muted-foreground"
+                : "text-destructive"
+            }`}
+          >
+            {charCount}/{characterLimit} characters
+          </p>
+        )}
       </>
     );
   }
@@ -127,15 +131,28 @@ export function EditableField({
   }
 
   return (
-    <>
-      {children && <b className="whitespace-nowrap my-auto mr-2">{children}</b>}
-      <Input
-        ref={inputRef as React.RefObject<HTMLInputElement>}
-        value={value}
-        onChange={inputOnChange}
-        className={cn("border-foreground", className)}
-        {...props}
-      />
-    </>
+    <div className={cn("flex w-full flex-col gap-1", className)}>
+      <div className="flex w-full items-center gap-2">
+        {children && <b className="whitespace-nowrap">{children}</b>}
+        <Input
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          value={value}
+          onChange={inputOnChange}
+          className="w-full min-w-0 border-foreground"
+          {...props}
+        />
+      </div>
+      {characterLimit !== undefined && (
+        <p
+          className={`self-end text-xs ${
+            String(value ?? "").length <= characterLimit
+              ? "text-muted-foreground"
+              : "text-destructive"
+          }`}
+        >
+          {String(value ?? "").length}/{characterLimit} characters
+        </p>
+      )}
+    </div>
   );
 }
