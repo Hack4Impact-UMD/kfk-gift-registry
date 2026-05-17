@@ -8,6 +8,15 @@ import { useDrive } from "@/context/DriveContext";
 import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/_authenticated/staff/family-approval")({
+  head: () => ({
+    meta: [
+      { title: "Family Approval - Staff" },
+      {
+        name: "description",
+        content: "Review and approve family applications",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 

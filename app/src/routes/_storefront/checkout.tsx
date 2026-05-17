@@ -12,6 +12,15 @@ import { CheckoutAuthModal } from "@/components/storefront/CheckoutAuthModal";
 import { useCheckoutFlow } from "@/hooks/useCheckoutFlow";
 
 export const Route = createFileRoute("/_storefront/checkout")({
+  head: () => ({
+    meta: [
+      { title: "Checkout - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Review and confirm your gift selections",
+      },
+    ],
+  }),
   component: CheckoutComponent,
   ssr: false,
 });

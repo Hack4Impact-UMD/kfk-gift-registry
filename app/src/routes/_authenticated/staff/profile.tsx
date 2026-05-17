@@ -7,6 +7,15 @@ import { Button } from "@/components/ui/button";
 import { useLogout } from "@/hooks/mutations/logoutMutation";
 
 export const Route = createFileRoute("/_authenticated/staff/profile")({
+  head: () => ({
+    meta: [
+      { title: "My Profile - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Manage your profile and account settings",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 

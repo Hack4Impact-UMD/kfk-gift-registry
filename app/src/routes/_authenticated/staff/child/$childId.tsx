@@ -42,6 +42,15 @@ export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
       ),
     ]);
   },
+  head: () => ({
+    meta: [
+      { title: "Child Profile - Staff" },
+      {
+        name: "description",
+        content: "View and manage child profile information",
+      },
+    ],
+  }),
 });
 
 function ChildProfilePage() {

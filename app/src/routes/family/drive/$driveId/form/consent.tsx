@@ -6,6 +6,15 @@ import KFKLogo from "@/assets/kisses-for-kyle-logo.png";
 import { ConsentForm } from "@/components/form/sections/Consent";
 
 export const Route = createFileRoute("/family/drive/$driveId/form/consent")({
+  head: () => ({
+    meta: [
+      { title: "Consent - Family Registration" },
+      {
+        name: "description",
+        content: "Review and accept our terms and conditions",
+      },
+    ],
+  }),
   component: ConsentPageComponent,
 });
 

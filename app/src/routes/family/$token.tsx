@@ -16,6 +16,15 @@ export const Route = createFileRoute("/family/$token")({
       children: data.children,
     };
   },
+  head: () => ({
+    meta: [
+      { title: "Family Dashboard - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Manage your family's gift drive participation",
+      },
+    ],
+  }),
   component: FamilyRoute,
   errorComponent: FamilyError,
 });

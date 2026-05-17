@@ -37,6 +37,15 @@ export const Route = createFileRoute("/signup/admin/$inviteId")({
       });
     }
   },
+  head: () => ({
+    meta: [
+      { title: "Staff Registration - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Register as a staff member for Kisses for Kyle",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 

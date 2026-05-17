@@ -8,6 +8,15 @@ const ThankYouSchema = z.object({
 
 export const Route = createFileRoute("/family/drive/$driveId/form/thank-you")({
   validateSearch: ThankYouSchema,
+  head: () => ({
+    meta: [
+      { title: "Thank You - Registration Complete" },
+      {
+        name: "description",
+        content: "Your registration has been successfully submitted",
+      },
+    ],
+  }),
   component: ThankYouComponent,
 });
 

@@ -45,6 +45,15 @@ export const Route = createFileRoute("/login")({
     }
   },
   validateSearch: searchSchema,
+  head: () => ({
+    meta: [
+      { title: "Login - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Login to your Kisses for Kyle account",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 

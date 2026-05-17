@@ -26,6 +26,15 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
       ),
     ]);
   },
+  head: () => ({
+    meta: [
+      { title: "Family Review - Staff" },
+      {
+        name: "description",
+        content: "Review and process family application",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 

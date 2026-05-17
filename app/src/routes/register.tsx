@@ -2,6 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 export const Route = createFileRoute("/register")({
+  head: () => ({
+    meta: [
+      { title: "Family Registration - Kisses for Kyle" },
+      {
+        name: "description",
+        content:
+          "Register your family for the Kisses for Kyle gift drive program",
+      },
+    ],
+  }),
   component: RegisterRoute,
 });
 

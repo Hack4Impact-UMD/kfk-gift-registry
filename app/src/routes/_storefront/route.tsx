@@ -5,6 +5,15 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
 
 export const Route = createFileRoute("/_storefront")({
+  head: () => ({
+    meta: [
+      { title: "Gift Storefront - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Browse and claim gifts from our gift storefront",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 

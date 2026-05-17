@@ -6,6 +6,15 @@ import publishedGiftsQueries from "@/queries/publishedGifts";
 import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/_authenticated/staff/gifts")({
+  head: () => ({
+    meta: [
+      { title: "Gifts - Staff" },
+      {
+        name: "description",
+        content: "Manage and track gift fulfillment",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 
