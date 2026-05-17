@@ -72,7 +72,9 @@ export const getAppCheckToken = createClientOnlyFn(async () => {
 
   try {
     // Use getToken to retrieve the AppCheck token
-    const { token } = await (ac as any).getToken();
+    const { token } = await (
+      ac as unknown as { getToken(): Promise<{ token: string }> }
+    ).getToken();
     return token;
   } catch (error) {
     console.error("Failed to get AppCheck token:", error);

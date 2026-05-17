@@ -16,9 +16,7 @@ export const appCheckMiddleware = createMiddleware({ type: "function" }).server(
     }
 
     try {
-      const appCheckClaims = await admin
-        .appCheck()
-        .verifyToken(appCheckToken);
+      const appCheckClaims = await admin.appCheck().verifyToken(appCheckToken);
 
       return next({
         context: {

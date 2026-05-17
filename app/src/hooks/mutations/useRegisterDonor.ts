@@ -13,7 +13,9 @@ interface RegisterDonorWithAppCheckInput {
 
 export function useRegisterDonor() {
   return useMutation({
-    mutationFn: async (input: Omit<RegisterDonorWithAppCheckInput, "appCheckToken">) => {
+    mutationFn: async (
+      input: Omit<RegisterDonorWithAppCheckInput, "appCheckToken">,
+    ) => {
       const appCheckToken = await getAppCheckToken();
       if (!appCheckToken) {
         throw new Error(
