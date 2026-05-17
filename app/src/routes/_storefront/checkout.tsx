@@ -5,11 +5,12 @@ import {
   useLocalCartData,
 } from "@/hooks/queries/useCartGifts";
 import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup.tsx";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { cartCollection } from "@/local/cartCollection";
 import { CheckoutAuthModal } from "@/components/storefront/CheckoutAuthModal";
 import { useCheckoutFlow } from "@/hooks/useCheckoutFlow";
+import { getClientAppCheck } from "@/lib/firebase.client";
 
 export const Route = createFileRoute("/_storefront/checkout")({
   head: () => ({
@@ -34,6 +35,12 @@ function CheckoutComponent() {
   } = useGroupedCartGifts(localCart ?? []);
   const { auth } = Route.useRouteContext();
   const flow = useCheckoutFlow(auth);
+
+  useEffect(() => {
+    getClientAppCheck().catch((error) => {
+      console.warn("AppCheck initialization warning:", error);
+    });
+  }, []);
 
   const handleRemoveGift = (giftId: string) => {
     cartCollection.delete(giftId);
