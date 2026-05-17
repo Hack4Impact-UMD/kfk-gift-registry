@@ -3,6 +3,7 @@ import type { FamilyFormState } from "@/components/providers/FormProvider";
 import type { GiftsFormData } from "@/lib/formSchemas";
 import type { FamilyFormInput } from "@/server/functions/familyForm";
 import { submitFamilyForm } from "@/server/functions/familyForm";
+import { getAppCheckToken } from "@/lib/firebase.client";
 
 export function buildFamilyFormSubmitPayload(
   driveId: string,
@@ -60,7 +61,16 @@ function cleanGiftsObjects(
 
 export function useSubmitFamilyForm() {
   return useMutation({
-    mutationFn: (payload: FamilyFormInput) =>
-      submitFamilyForm({ data: payload }),
+    mutationFn: async (payload: FamilyFormInput) => {
+      const appCheckToken = await getAppCheckToken();
+      if (!appCheckToken) {
+        throw new Error(
+          "Failed to get AppCheck token. Please refresh the page and try again.",
+        );
+      }
+      return submitFamilyForm({
+        data: { ...payload, appCheckToken },
+      });
+    },
   });
 }
