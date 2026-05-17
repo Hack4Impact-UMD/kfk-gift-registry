@@ -6,6 +6,7 @@ import {
   authMiddleware,
   requireRolesMiddleware,
 } from "@/server/middleware/authMiddleware";
+import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { getServerAuth, getServerDB } from "@/lib/firebase.server";
 
 const uidSchema = z.object({ uid: z.string().min(1) });
@@ -298,8 +299,13 @@ const donorRegistrationSchema = z.object({
     .optional(),
 });
 
+const donorRegistrationWithAppCheckSchema = donorRegistrationSchema.extend({
+  appCheckToken: z.string().min(1, "AppCheck token is required"),
+});
+
 export const registerDonor = createServerFn({ method: "POST" })
-  .inputValidator(donorRegistrationSchema)
+  .middleware([appCheckMiddleware])
+  .inputValidator(donorRegistrationWithAppCheckSchema)
   .handler(async ({ data }) => {
     const db = getServerDB();
     const auth = getServerAuth();
