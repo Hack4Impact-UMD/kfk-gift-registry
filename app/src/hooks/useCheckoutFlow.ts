@@ -104,7 +104,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
 
   const submitRegister = async (data: RegisterDonorInput) => {
     try {
-      await registerMutation.mutateAsync({ data });
+      await registerMutation.mutateAsync(data);
       loginMutation.mutate(
         {
           email: data.email,
