@@ -37,7 +37,8 @@ export const Route = createFileRoute("/_authenticated/staff")({
       { title: "Staff Dashboard - Kisses for Kyle" },
       {
         name: "description",
-        content: "Access your staff dashboard and manage the gift drive program",
+        content:
+          "Access your staff dashboard and manage the gift drive program",
       },
     ],
   }),

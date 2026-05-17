@@ -33,7 +33,8 @@ export const Route = createFileRoute("/_storefront/")({
       { title: "Kisses for Kyle Gift Storefront" },
       {
         name: "description",
-        content: "Browse and claim gifts for children in our gift drive program",
+        content:
+          "Browse and claim gifts for children in our gift drive program",
       },
     ],
   }),

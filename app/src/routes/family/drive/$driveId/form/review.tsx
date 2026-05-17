@@ -21,7 +21,8 @@ export const Route = createFileRoute("/family/drive/$driveId/form/review")({
       { title: "Review Information - Family Registration" },
       {
         name: "description",
-        content: "Review your family registration information before submitting",
+        content:
+          "Review your family registration information before submitting",
       },
     ],
   }),

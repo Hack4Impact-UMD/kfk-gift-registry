@@ -7,7 +7,8 @@ export const Route = createFileRoute("/register")({
       { title: "Family Registration - Kisses for Kyle" },
       {
         name: "description",
-        content: "Register your family for the Kisses for Kyle gift drive program",
+        content:
+          "Register your family for the Kisses for Kyle gift drive program",
       },
     ],
   }),
