@@ -1,5 +1,6 @@
 import { Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
 import { FormProvider } from "@/components/providers/FormProvider";
+import { getClientAppCheck } from "@/lib/firebase.client";
 import {
   Card,
   CardContent,
@@ -7,6 +8,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { FormProgressBar } from "@/components/form/FormProgressBar";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/family/drive/$driveId/form")({
   head: () => ({
@@ -31,6 +33,12 @@ function FormLayoutComponent() {
 
   const showProgressBar = !isConsentRoute && !isThankYouRoute;
   const hideFormHeader = isThankYouRoute;
+
+  useEffect(() => {
+    getClientAppCheck().catch((error) => {
+      console.warn("AppCheck initialization warning:", error);
+    });
+  }, []);
 
   return (
     <FormProvider key={driveId} driveId={driveId}>
