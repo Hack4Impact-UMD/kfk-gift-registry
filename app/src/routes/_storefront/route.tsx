@@ -4,6 +4,15 @@ import { StorefrontMobileSidebar } from "@/components/storefront/StorefrontMobil
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 export const Route = createFileRoute("/_storefront")({
+  head: () => ({
+    meta: [
+      { title: "Gift Storefront - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Browse and claim gifts from our gift storefront",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 

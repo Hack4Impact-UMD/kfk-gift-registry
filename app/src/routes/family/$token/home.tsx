@@ -7,6 +7,15 @@ import RedGift from "@/assets/red-gift.png";
 import type { Child } from "common";
 
 export const Route = createFileRoute("/family/$token/home")({
+  head: () => ({
+    meta: [
+      { title: "Family Home - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "View your family's gift drive information",
+      },
+    ],
+  }),
   component: FamilyHome,
 });
 
