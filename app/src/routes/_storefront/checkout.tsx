@@ -23,7 +23,8 @@ function CheckoutComponent() {
     isPending,
     isError,
   } = useGroupedCartGifts(localCart ?? []);
-  const flow = useCheckoutFlow();
+  const { auth } = Route.useRouteContext();
+  const flow = useCheckoutFlow(auth);
 
   const handleRemoveGift = (giftId: string) => {
     cartCollection.delete(giftId);

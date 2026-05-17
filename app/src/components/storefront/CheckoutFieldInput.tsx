@@ -3,6 +3,7 @@ import type { AnyFieldApi } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
+import { PhoneInput } from "../ui/phone-input";
 
 type CheckoutFieldInputProps = {
   type?: string;
@@ -26,7 +27,10 @@ export function CheckoutFieldInput({
     typeof rawError === "string" ? rawError : rawError?.message;
 
   const isPassword = type === "password";
+  const isPhone = type === "phone";
   const inputType = isPassword && showPassword ? "text" : type;
+
+  const Comp = isPhone ? PhoneInput : Input;
   return (
     <>
       <div className="relative w-full">
@@ -36,7 +40,7 @@ export function CheckoutFieldInput({
           {startIcon}
         </div>
 
-        <Input
+        <Comp
           type={inputType}
           name={field.name}
           id={field.name}

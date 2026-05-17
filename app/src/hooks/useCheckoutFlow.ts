@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useRouteContext } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { UserRole } from "common";
 import { useClaimGifts } from "@/hooks/mutations/useClaimGifts";
 import { useLogin } from "@/hooks/mutations/loginMutation";
@@ -8,9 +7,8 @@ import { useRegisterDonor } from "@/hooks/mutations/useRegisterDonor";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
 import { cartCollection } from "@/local/cartCollection";
 import type { CartItem } from "@/local/cartCollection";
-import type { AuthUser } from "@/server/functions/auth";
+import type { AuthContext } from "@/server/functions/auth";
 import { toast } from "@/lib/toast";
-import { queries } from "@/queries";
 
 export interface RegisterDonorInput {
   name: string;
@@ -33,16 +31,13 @@ export interface CheckoutFlowState {
   setAuthMode: (mode: "login" | "register") => void;
 }
 
-export function useCheckoutFlow(): CheckoutFlowState {
+export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [disabledMessage, setDisabledMessage] = useState<string | null>(null);
 
-  const { auth } = useRouteContext({ from: "/_storefront/checkout" });
-
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const { data: localCart } = useLocalCartData();
 
@@ -76,55 +71,66 @@ export function useCheckoutFlow(): CheckoutFlowState {
   };
 
   const submitLogin = async (email: string, password: string) => {
-    try {
-      await loginMutation.mutateAsync({ email, password });
+    loginMutation.mutate(
+      { email, password },
+      {
+        onSuccess: async (session) => {
+          if (!session || session.role !== UserRole.DONOR) {
+            setAuthModalOpen(false);
+            setDisabledMessage(
+              "Only donors can claim gifts. Please log in with a donor account.",
+            );
+            return;
+          }
 
-      // Get fresh session data to verify role
-      const session = queryClient.getQueryData<AuthUser | null>(
-        queries.session.verify.queryKey,
-      );
-      if (!session || session.role !== UserRole.DONOR) {
-        setAuthModalOpen(false);
-        setDisabledMessage(
-          "Only donors can claim gifts. Please log in with a donor account.",
-        );
-        return;
-      }
-
-      setAuthModalOpen(false);
-      await confirmClaim();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to login";
-      toast.error(message);
-    }
+          setAuthModalOpen(false);
+          await confirmClaim();
+        },
+        onError: (error) => {
+          const message =
+            error instanceof Error ? error.message : "Failed to login";
+          console.log(message);
+          toast.error("Failed to login. Check your username and password.");
+        },
+      },
+    );
   };
 
   const submitRegister = async (data: RegisterDonorInput) => {
     try {
       await registerMutation.mutateAsync({ data });
-      await loginMutation.mutateAsync({
-        email: data.email,
-        password: data.password,
-      });
+      loginMutation.mutate(
+        {
+          email: data.email,
+          password: data.password,
+        },
+        {
+          onSuccess: async (session) => {
+            if (!session || session.role !== UserRole.DONOR) {
+              setAuthModalOpen(false);
+              setDisabledMessage(
+                "Only donors can claim gifts. Please log in with a donor account.",
+              );
+              return;
+            }
 
-      // Get fresh session data to verify role
-      const session = queryClient.getQueryData<AuthUser | null>(
-        queries.session.verify.queryKey,
+            await confirmClaim();
+          },
+          onError: (error) => {
+            const message =
+              error instanceof Error
+                ? error.message
+                : "Failed to register or login";
+            console.error(message);
+            toast.error("Failed to login");
+          },
+        },
       );
-      if (!session || session.role !== UserRole.DONOR) {
-        setAuthModalOpen(false);
-        setDisabledMessage(
-          "Only donors can claim gifts. Please log in with a donor account.",
-        );
-        return;
-      }
-
-      await confirmClaim();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to register or login";
-      toast.error(message);
+      console.error(message);
+      toast.error("Failed to register or login");
     }
   };
 

@@ -14,6 +14,7 @@ import type {
   CheckoutFlowState,
   RegisterDonorInput,
 } from "@/hooks/useCheckoutFlow";
+import { formatToE164 } from "../ui/phone-input";
 
 export function CheckoutCreateAccountModal({
   flow,
@@ -39,7 +40,7 @@ export function CheckoutCreateAccountModal({
     onSubmit: async ({ value }) => {
       const registrationData: RegisterDonorInput = {
         name: value.fullName,
-        phone: value.phoneNumber,
+        phone: formatToE164(value.phoneNumber),
         email: value.email,
         password: value.password,
       };
@@ -91,8 +92,8 @@ export function CheckoutCreateAccountModal({
           validators={{
             onChange: ({ value }) => {
               if (!value || value === "") return "This field is required";
-              if (!/^\+[1-9]\d{1,14}$/.test(value))
-                return "Phone must be in E.164 format (e.g. +12223334444)";
+              if (!/^\(\d{3}\)-\d{3}-\d{4}$/.test(value))
+                return "Format must be (555)-555-5555";
               return undefined;
             },
           }}
@@ -101,6 +102,7 @@ export function CheckoutCreateAccountModal({
               field={field}
               placeholder="e.g. +12223334444"
               startIcon={<PhoneIcon className="size-5 fill-current" />}
+              type="phone"
             />
           )}
         />
