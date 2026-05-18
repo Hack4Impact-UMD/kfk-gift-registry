@@ -1,7 +1,6 @@
 import { registerDonor } from "@/server/functions/profile";
 import { useMutation } from "@tanstack/react-query";
 
-// Type for the donor registration input with AppCheck token
 interface RegisterDonorInput {
   name: string;
   email: string;
@@ -11,10 +10,9 @@ interface RegisterDonorInput {
 
 export function useRegisterDonor() {
   return useMutation({
-    mutationFn: async (input: RegisterDonorInput) => {
-      return registerDonor({
+    mutationFn: async (input: RegisterDonorInput) =>
+      registerDonor({
         data: input,
-      });
-    },
+      }),
   });
 }

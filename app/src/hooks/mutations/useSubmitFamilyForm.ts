@@ -60,10 +60,9 @@ function cleanGiftsObjects(
 
 export function useSubmitFamilyForm() {
   return useMutation({
-    mutationFn: async (payload: FamilyFormInput) => {
-      return submitFamilyForm({
+    mutationFn: async (payload: FamilyFormInput) =>
+      submitFamilyForm({
         data: payload,
-      });
-    },
+      }),
   });
 }
