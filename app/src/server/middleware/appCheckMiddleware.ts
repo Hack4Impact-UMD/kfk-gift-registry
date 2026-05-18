@@ -1,15 +1,25 @@
+import { getClientAppCheck } from "@/lib/firebase.client";
 import { createMiddleware } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import admin from "firebase-admin";
+import { getToken } from "firebase/app-check";
 
-export const appCheckMiddleware = createMiddleware({ type: "function" }).server(
-  async ({ next, data }) => {
-    let appCheckToken: string | undefined;
+const APPCHECK_TOKEN_HEADER = "X-APPCHECK";
 
-    if (typeof data === "object" && data !== null) {
-      appCheckToken = (data as Record<string, unknown>).appCheckToken as
-        | string
-        | undefined;
-    }
+export const appCheckMiddleware = createMiddleware({ type: "function" })
+  .client(async ({ next }) => {
+    const appcheck = await getClientAppCheck();
+    return next({
+      headers: {
+        [APPCHECK_TOKEN_HEADER]: appcheck
+          ? (await getToken(appcheck)).token
+          : "",
+      },
+    });
+  })
+  .server(async ({ next }) => {
+    const req = getRequest();
+    const appCheckToken = req.headers.get(APPCHECK_TOKEN_HEADER);
 
     if (!appCheckToken) {
       throw new Error("[appcheck middleware]: Missing AppCheck token");
@@ -30,5 +40,4 @@ export const appCheckMiddleware = createMiddleware({ type: "function" }).server(
         `[appcheck middleware]: Token verification failed - ${errorMessage}`,
       );
     }
-  },
-);
+  });
