@@ -47,7 +47,11 @@ export const columns = [
       return (
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
-            <AvatarImage src={profilePictureUrl} alt={name} />
+            <AvatarImage
+              className="object-contain"
+              src={profilePictureUrl}
+              alt={name}
+            />
             <AvatarFallback className="bg-blue-100 text-blue-600 text-sm font-medium">
               {initials}
             </AvatarFallback>
