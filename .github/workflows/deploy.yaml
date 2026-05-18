@@ -39,6 +39,7 @@ jobs:
       - name: Write apphosting.yaml
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          RECAPTCHA_ENTERPRISE_KEY: ${{ secrets.RECAPTCHA_ENTERPRISE_KEY }}
         run: |
           cat > apphosting.yaml << HEREDOC
           runConfig:
@@ -52,6 +53,11 @@ jobs:
                 - BUILD
             - variable: VITE_FIREBASE_API_KEY
               value: "$FIREBASE_API_KEY"
+              availability:
+                - BUILD
+                - RUNTIME
+            - variable: VITE_RECAPTCHA_ENTERPRISE_KEY
+              value: "$RECAPTCHA_ENTERPRISE_KEY"
               availability:
                 - BUILD
                 - RUNTIME
