@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
 import {
+  getToken,
   initializeAppCheck,
   ReCaptchaEnterpriseProvider,
 } from "firebase/app-check";
@@ -22,6 +23,16 @@ const firebaseConfig = {
   appId: "1:1061530360755:web:8d972140ad02140e1149c6",
   measurementId: "G-5W4T36409S",
 };
+
+declare global {
+  var FIREBASE_APPCHECK_DEBUG_TOKEN: boolean | string | undefined;
+}
+
+if (import.meta.env.DEV) {
+  console.log("===USING APPCHECK DEBUG TOKEN===");
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN =
+    import.meta.env.VITE_APPCHECK_DEBUG_TOKEN ?? true;
+}
 
 const app = initializeApp(firebaseConfig);
 let auth: Auth | null = null;
@@ -72,10 +83,7 @@ export const getAppCheckToken = createClientOnlyFn(async () => {
 
   try {
     // Use getToken to retrieve the AppCheck token
-    const { token } = await (
-      ac as unknown as { getToken(): Promise<{ token: string }> }
-    ).getToken();
-    return token;
+    return (await getToken(ac)).token;
   } catch (error) {
     console.error("Failed to get AppCheck token:", error);
     return null;
