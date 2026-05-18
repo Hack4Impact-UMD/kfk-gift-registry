@@ -121,7 +121,7 @@ export function ChildCard({ child, color, className = "" }: Props) {
         <img
           src={photoUrl || ProfilePhoto}
           alt={name}
-          className="w-full h-32 sm:h-40 object-cover"
+          className="h-40 w-full object-cover sm:h-52 lg:h-56"
         />
       </div>
 
