@@ -14,6 +14,9 @@ import {
   NormalizedGiftTitleSchema,
 } from "common";
 
+const DUPLICATE_FAMILY_EMAIL_MESSAGE =
+  "An account with this email already exists. If you need to modify or resubmit, contact KFK directly.";
+
 // --- Photo upload constants ---
 const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_PHOTO_MIME_TYPES = [
@@ -84,6 +87,22 @@ const familyFormStateSchema = z.object({
 
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
 
+function normalizeFamilyEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+async function assertFamilyEmailAvailable(email: string) {
+  const db = getServerDB();
+  const existingFamily = await db.families
+    .where("email", "==", email)
+    .limit(1)
+    .get();
+
+  if (!existingFamily.empty) {
+    throw new Error(DUPLICATE_FAMILY_EMAIL_MESSAGE);
+  }
+}
+
 // --- Photo upload ---
 // Uploads a data URL to GCS via the Admin SDK and returns a permanent public URL.
 // Write access is admin-SDK-only; the object is made publicly readable for display.
@@ -134,6 +153,9 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
 
     const db = getServerDB();
     const now = DateTime.now().toISO();
+    const normalizedEmail = normalizeFamilyEmail(data.generalInfo.email);
+
+    await assertFamilyEmailAvailable(normalizedEmail);
 
     // Pre-generate IDs so photos can be stored under the correct child path
     // before the Firestore transaction runs.
@@ -157,7 +179,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       id: familyId,
       contactName: data.generalInfo.parentName,
       guardianRelationship: "",
-      email: data.generalInfo.email,
+      email: normalizedEmail,
       phone: data.generalInfo.phoneNumber,
       address: data.generalInfo.address,
       privateNotes: data.children.additionalNotes,
