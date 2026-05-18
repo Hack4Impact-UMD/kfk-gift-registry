@@ -948,7 +948,10 @@ export const uploadChildPictureStaff = createServerFn({ method: "POST" })
       try {
         await deleteChildPhoto(childId);
       } catch (deleteErr) {
-        console.error("Failed to delete orphaned photo after Firestore update failure:", deleteErr);
+        console.error(
+          "Failed to delete orphaned photo after Firestore update failure:",
+          deleteErr,
+        );
       }
       throw updateErr;
     }
@@ -979,7 +982,10 @@ export const uploadChildPictureAppCheck = createServerFn({ method: "POST" })
       try {
         await deleteChildPhoto(childId);
       } catch (deleteErr) {
-        console.error("Failed to delete orphaned photo after Firestore update failure:", deleteErr);
+        console.error(
+          "Failed to delete orphaned photo after Firestore update failure:",
+          deleteErr,
+        );
       }
       throw updateErr;
     }
