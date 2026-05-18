@@ -3,12 +3,6 @@ packages:
   - common
   - functions
 
-allowBuilds:
-  "@firebase/util": true
-  esbuild: true
-  protobufjs: true
-  unrs-resolver: true
-
 onlyBuiltDependencies:
   - esbuild
   - "@firebase/util"

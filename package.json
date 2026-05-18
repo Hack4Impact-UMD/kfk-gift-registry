@@ -19,7 +19,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@11.1.2",
+  "packageManager": "pnpm@10.33.0",
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",
     "@types/node": "^22.19.9",
