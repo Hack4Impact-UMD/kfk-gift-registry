@@ -123,6 +123,7 @@ export function generateChild({
   createdAfter,
   createdBefore,
 }: GenerateChildOptions): Child {
+  const sex = faker.person.sexType();
   const category = faker.helpers.weightedArrayElement([
     { value: "warrior" as const, weight: 4 },
     { value: "super_sib" as const, weight: 1 },
@@ -139,13 +140,17 @@ export function generateChild({
   const published =
     allowPublishing && faker.datatype.boolean({ probability: 0.75 });
   const lifecycleFields = getLifecycleFields(status);
-  const firstName = faker.person.firstName();
-  const lastName = faker.person.lastName();
+  const firstName = faker.person.firstName(sex);
+  const lastName = faker.person.lastName(sex);
+  const photoUrl = faker.datatype.boolean({ probability: 0.85 })
+    ? faker.image.personPortrait({ sex, size: 512 })
+    : undefined;
 
   return {
     id: uuidv7(),
     name: `${firstName} ${lastName}`,
     status,
+    photoUrl,
     category,
     treatmentLevel:
       category === "warrior" && faker.datatype.boolean({ probability: 0.55 })
@@ -166,7 +171,7 @@ export function generateChild({
       : undefined,
     createdAt,
     hospital: faker.helpers.arrayElement(hospitals),
-    age: faker.number.int({ min: 3, max: 16 }),
+    age: faker.number.int({ min: 1, max: 18 }),
     childSocialWorker: faker.person.fullName(),
     giftDrive: giftDriveId,
     staffPrivateNotes: published
