@@ -52,7 +52,7 @@ function SectionHeader({ title, onEdit }: SectionHeaderProps) {
 }
 
 function RouteComponent() {
-  const { formState } = useFormContext();
+  const { formState, resetForm } = useFormContext();
   const navigate = useNavigate();
   const { driveId } = Route.useParams();
 
@@ -132,14 +132,16 @@ function RouteComponent() {
             try {
               const payload = buildFamilyFormSubmitPayload(driveId, formState);
               submitMutation.mutate(payload, {
-                onSuccess: (link) =>
+                onSuccess: (link) => {
+                  resetForm();
                   navigate({
                     to: "/family/drive/$driveId/form/thank-you",
                     params: { driveId },
                     search: {
                       linkId: link.id,
                     },
-                  }),
+                  });
+                },
               });
             } catch (e) {
               alert(e instanceof Error ? e.message : String(e));

@@ -89,6 +89,11 @@ export function FormProvider({
 
   useEffect(() => {
     const ref = setTimeout(() => {
+      if (Object.keys(formState).length === 0) {
+        localStorage.removeItem(formLocalStorageKey(driveId));
+        return;
+      }
+
       // Strip photoUrl before persisting — base64 data URLs can be several MB
       // each and will blow past localStorage's ~5 MB quota. The in-memory state
       // retains the image for live previews; photos are re-selected if the user
