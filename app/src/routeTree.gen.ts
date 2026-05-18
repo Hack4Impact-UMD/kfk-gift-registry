@@ -48,6 +48,7 @@ import { Route as FamilyDriveDriveIdFormGiftDetailsRouteImport } from './routes/
 import { Route as FamilyDriveDriveIdFormGeneralInfoRouteImport } from './routes/family/drive/$driveId/form/general-info'
 import { Route as FamilyDriveDriveIdFormConsentRouteImport } from './routes/family/drive/$driveId/form/consent'
 import { Route as FamilyDriveDriveIdFormChildrenRouteImport } from './routes/family/drive/$driveId/form/children'
+import { Route as FamilyDriveDriveIdFormSplatRouteImport } from './routes/family/drive/$driveId/form/$'
 
 const ResetSuccessRoute = ResetSuccessRouteImport.update({
   id: '/resetSuccess',
@@ -258,6 +259,12 @@ const FamilyDriveDriveIdFormChildrenRoute =
     path: '/children',
     getParentRoute: () => FamilyDriveDriveIdFormRoute,
   } as any)
+const FamilyDriveDriveIdFormSplatRoute =
+  FamilyDriveDriveIdFormSplatRouteImport.update({
+    id: '/$',
+    path: '/$',
+    getParentRoute: () => FamilyDriveDriveIdFormRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof StorefrontIndexRoute
@@ -290,6 +297,7 @@ export interface FileRoutesByFullPath {
   '/staff/review/$familyId': typeof AuthenticatedStaffReviewFamilyIdRoute
   '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
   '/family/drive/$driveId/form': typeof FamilyDriveDriveIdFormRouteWithChildren
+  '/family/drive/$driveId/form/$': typeof FamilyDriveDriveIdFormSplatRoute
   '/family/drive/$driveId/form/children': typeof FamilyDriveDriveIdFormChildrenRoute
   '/family/drive/$driveId/form/consent': typeof FamilyDriveDriveIdFormConsentRoute
   '/family/drive/$driveId/form/general-info': typeof FamilyDriveDriveIdFormGeneralInfoRoute
@@ -327,6 +335,7 @@ export interface FileRoutesByTo {
   '/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
   '/staff/review/$familyId': typeof AuthenticatedStaffReviewFamilyIdRoute
   '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
+  '/family/drive/$driveId/form/$': typeof FamilyDriveDriveIdFormSplatRoute
   '/family/drive/$driveId/form/children': typeof FamilyDriveDriveIdFormChildrenRoute
   '/family/drive/$driveId/form/consent': typeof FamilyDriveDriveIdFormConsentRoute
   '/family/drive/$driveId/form/general-info': typeof FamilyDriveDriveIdFormGeneralInfoRoute
@@ -369,6 +378,7 @@ export interface FileRoutesById {
   '/_authenticated/staff/review/$familyId': typeof AuthenticatedStaffReviewFamilyIdRoute
   '/family/$token/child/$childId': typeof FamilyTokenChildChildIdRoute
   '/family/drive/$driveId/form': typeof FamilyDriveDriveIdFormRouteWithChildren
+  '/family/drive/$driveId/form/$': typeof FamilyDriveDriveIdFormSplatRoute
   '/family/drive/$driveId/form/children': typeof FamilyDriveDriveIdFormChildrenRoute
   '/family/drive/$driveId/form/consent': typeof FamilyDriveDriveIdFormConsentRoute
   '/family/drive/$driveId/form/general-info': typeof FamilyDriveDriveIdFormGeneralInfoRoute
@@ -410,6 +420,7 @@ export interface FileRouteTypes {
     | '/staff/review/$familyId'
     | '/family/$token/child/$childId'
     | '/family/drive/$driveId/form'
+    | '/family/drive/$driveId/form/$'
     | '/family/drive/$driveId/form/children'
     | '/family/drive/$driveId/form/consent'
     | '/family/drive/$driveId/form/general-info'
@@ -447,6 +458,7 @@ export interface FileRouteTypes {
     | '/staff/child/$childId'
     | '/staff/review/$familyId'
     | '/family/$token/child/$childId'
+    | '/family/drive/$driveId/form/$'
     | '/family/drive/$driveId/form/children'
     | '/family/drive/$driveId/form/consent'
     | '/family/drive/$driveId/form/general-info'
@@ -488,6 +500,7 @@ export interface FileRouteTypes {
     | '/_authenticated/staff/review/$familyId'
     | '/family/$token/child/$childId'
     | '/family/drive/$driveId/form'
+    | '/family/drive/$driveId/form/$'
     | '/family/drive/$driveId/form/children'
     | '/family/drive/$driveId/form/consent'
     | '/family/drive/$driveId/form/general-info'
@@ -786,6 +799,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FamilyDriveDriveIdFormChildrenRouteImport
       parentRoute: typeof FamilyDriveDriveIdFormRoute
     }
+    '/family/drive/$driveId/form/$': {
+      id: '/family/drive/$driveId/form/$'
+      path: '/$'
+      fullPath: '/family/drive/$driveId/form/$'
+      preLoaderRoute: typeof FamilyDriveDriveIdFormSplatRouteImport
+      parentRoute: typeof FamilyDriveDriveIdFormRoute
+    }
   }
 }
 
@@ -900,6 +920,7 @@ const FamilyTokenRouteWithChildren = FamilyTokenRoute._addFileChildren(
 )
 
 interface FamilyDriveDriveIdFormRouteChildren {
+  FamilyDriveDriveIdFormSplatRoute: typeof FamilyDriveDriveIdFormSplatRoute
   FamilyDriveDriveIdFormChildrenRoute: typeof FamilyDriveDriveIdFormChildrenRoute
   FamilyDriveDriveIdFormConsentRoute: typeof FamilyDriveDriveIdFormConsentRoute
   FamilyDriveDriveIdFormGeneralInfoRoute: typeof FamilyDriveDriveIdFormGeneralInfoRoute
@@ -911,6 +932,7 @@ interface FamilyDriveDriveIdFormRouteChildren {
 
 const FamilyDriveDriveIdFormRouteChildren: FamilyDriveDriveIdFormRouteChildren =
   {
+    FamilyDriveDriveIdFormSplatRoute: FamilyDriveDriveIdFormSplatRoute,
     FamilyDriveDriveIdFormChildrenRoute: FamilyDriveDriveIdFormChildrenRoute,
     FamilyDriveDriveIdFormConsentRoute: FamilyDriveDriveIdFormConsentRoute,
     FamilyDriveDriveIdFormGeneralInfoRoute:
