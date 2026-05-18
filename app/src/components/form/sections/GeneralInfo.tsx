@@ -33,9 +33,13 @@ async function validateUniqueFamilyEmail(email: string) {
     });
     return undefined;
   } catch (error) {
-    return error instanceof Error
-      ? error.message
-      : DUPLICATE_FAMILY_EMAIL_MESSAGE;
+    if (
+      error instanceof Error &&
+      error.message === DUPLICATE_FAMILY_EMAIL_MESSAGE
+    ) {
+      return DUPLICATE_FAMILY_EMAIL_MESSAGE;
+    }
+    return "We couldn't verify this email right now. Please try again.";
   }
 }
 
