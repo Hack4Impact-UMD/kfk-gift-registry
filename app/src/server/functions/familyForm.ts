@@ -14,7 +14,7 @@ import {
   NormalizedGiftTitleSchema,
 } from "common";
 
-const DUPLICATE_FAMILY_EMAIL_MESSAGE =
+export const DUPLICATE_FAMILY_EMAIL_MESSAGE =
   "An account with this email already exists. If you need to modify or resubmit, contact KFK directly.";
 
 // --- Photo upload constants ---
@@ -84,6 +84,9 @@ const familyFormStateSchema = z.object({
   gifts: giftsFormSchema.optional(),
   consentScreen: z.boolean().optional(),
 });
+const familyEmailSchema = z.object({
+  email: z.email(),
+});
 
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
 
@@ -102,6 +105,14 @@ async function assertFamilyEmailAvailable(email: string) {
     throw new Error(DUPLICATE_FAMILY_EMAIL_MESSAGE);
   }
 }
+
+export const checkFamilyEmailAvailability = createServerFn({ method: "POST" })
+  .middleware([appCheckMiddleware])
+  .inputValidator(familyEmailSchema)
+  .handler(async ({ data }) => {
+    await assertFamilyEmailAvailable(normalizeFamilyEmail(data.email));
+    return { available: true };
+  });
 
 // --- Photo upload ---
 // Uploads a data URL to GCS via the Admin SDK and returns a permanent public URL.

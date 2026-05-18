@@ -6,11 +6,38 @@ import {
 } from "@heroicons/react/24/solid";
 import type { useGeneralInfoForm } from "@/hooks/family-form/formHooks";
 import { US_STATES } from "@/lib/formSchemas";
+import {
+  checkFamilyEmailAvailability,
+  DUPLICATE_FAMILY_EMAIL_MESSAGE,
+} from "@/server/functions/familyForm";
 
 type GeneralInfoFormProps = {
   disabled?: boolean;
   form: ReturnType<typeof useGeneralInfoForm>;
 };
+
+async function validateUniqueFamilyEmail(email: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (!normalizedEmail) {
+    return undefined;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    return undefined;
+  }
+
+  try {
+    await checkFamilyEmailAvailability({
+      data: { email: normalizedEmail },
+    });
+    return undefined;
+  } catch (error) {
+    return error instanceof Error
+      ? error.message
+      : DUPLICATE_FAMILY_EMAIL_MESSAGE;
+  }
+}
 
 export function GeneralInfoForm({
   form,
@@ -56,6 +83,11 @@ export function GeneralInfoForm({
                 return "Please enter a valid email address";
               return undefined;
             },
+            onChangeAsyncDebounceMs: 400,
+            onChangeAsync: async ({ value }) =>
+              validateUniqueFamilyEmail(value),
+            onSubmitAsync: async ({ value }) =>
+              validateUniqueFamilyEmail(value),
           }}
         >
           {(field) => (
