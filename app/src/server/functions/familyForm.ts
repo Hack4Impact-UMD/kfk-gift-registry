@@ -121,14 +121,10 @@ async function uploadChildPhoto(
   return file.publicUrl();
 }
 
-const submitFamilyFormSchema = familyFormStateSchema.extend({
-  appCheckToken: z.string().min(1, "AppCheck token is required"),
-});
-
 //TODO: rate limit
 export const submitFamilyForm = createServerFn({ method: "POST" })
   .middleware([appCheckMiddleware])
-  .inputValidator(submitFamilyFormSchema)
+  .inputValidator(familyFormStateSchema)
   .handler(async ({ data }) => {
     if (!data.generalInfo) throw new Error("General information is required");
     if (!data.children?.children.length)

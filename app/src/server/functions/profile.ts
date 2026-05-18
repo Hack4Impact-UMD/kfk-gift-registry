@@ -299,13 +299,9 @@ const donorRegistrationSchema = z.object({
     .optional(),
 });
 
-const donorRegistrationWithAppCheckSchema = donorRegistrationSchema.extend({
-  appCheckToken: z.string().min(1, "AppCheck token is required"),
-});
-
 export const registerDonor = createServerFn({ method: "POST" })
   .middleware([appCheckMiddleware])
-  .inputValidator(donorRegistrationWithAppCheckSchema)
+  .inputValidator(donorRegistrationSchema)
   .handler(async ({ data }) => {
     const db = getServerDB();
     const auth = getServerAuth();

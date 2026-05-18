@@ -54,7 +54,6 @@ export const getClientAppCheck = createClientOnlyFn(async () => {
   if (appCheck) return appCheck;
 
   // Initialize App Check with reCAPTCHA Enterprise
-  // TODO: we need a recaptcha key (TLs should have access to initialize through google cloud)
   const reCaptchaPublicKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_KEY;
   if (!reCaptchaPublicKey) {
     console.warn(

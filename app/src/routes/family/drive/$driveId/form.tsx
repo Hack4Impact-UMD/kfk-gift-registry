@@ -34,12 +34,6 @@ function FormLayoutComponent() {
   const showProgressBar = !isConsentRoute && !isThankYouRoute;
   const hideFormHeader = isThankYouRoute;
 
-  useEffect(() => {
-    getClientAppCheck().catch((error) => {
-      console.warn("AppCheck initialization warning:", error);
-    });
-  }, []);
-
   return (
     <FormProvider key={driveId} driveId={driveId}>
       <div className="min-h-screen p-4 bg-gray-50 flex flex-col items-center">
