@@ -6,6 +6,7 @@ import {
   authMiddleware,
   requireRolesMiddleware,
 } from "@/server/middleware/authMiddleware";
+import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { getServerAuth, getServerDB } from "@/lib/firebase.server";
 
 const uidSchema = z.object({ uid: z.string().min(1) });
@@ -299,6 +300,7 @@ const donorRegistrationSchema = z.object({
 });
 
 export const registerDonor = createServerFn({ method: "POST" })
+  .middleware([appCheckMiddleware])
   .inputValidator(donorRegistrationSchema)
   .handler(async ({ data }) => {
     const db = getServerDB();

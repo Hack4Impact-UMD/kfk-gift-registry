@@ -4,6 +4,7 @@ import { v7 as uuidv7 } from "uuid";
 import { getServerDB } from "@/lib/firebase.server";
 import { createFamilyLink } from "@/server/services/familyLinkService.server";
 import { uploadChildPhoto } from "@/server/services/childPhotoService.server";
+import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
 import {
@@ -71,6 +72,7 @@ export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
 
 //TODO: rate limit
 export const submitFamilyForm = createServerFn({ method: "POST" })
+  .middleware([appCheckMiddleware])
   .inputValidator(familyFormStateSchema)
   .handler(async ({ data }) => {
     if (!data.generalInfo) throw new Error("General information is required");
