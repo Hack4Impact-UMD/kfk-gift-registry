@@ -35,7 +35,6 @@ function CheckoutComponent() {
   const { auth } = Route.useRouteContext();
   const flow = useCheckoutFlow(auth);
 
-
   const handleRemoveGift = (giftId: string) => {
     cartCollection.delete(giftId);
   };

@@ -1,6 +1,5 @@
 import { Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
 import { FormProvider } from "@/components/providers/FormProvider";
-import { getClientAppCheck } from "@/lib/firebase.client";
 import {
   Card,
   CardContent,
@@ -8,7 +7,6 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { FormProgressBar } from "@/components/form/FormProgressBar";
-import { useEffect } from "react";
 
 export const Route = createFileRoute("/family/drive/$driveId/form")({
   head: () => ({
