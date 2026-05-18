@@ -13,6 +13,7 @@ import {
 import { getFamilyLinkById } from "../services/familyLinkService.server";
 import {
   childPhotoExists,
+  deleteChildPhoto,
   uploadChildPhoto,
 } from "../services/childPhotoService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
@@ -941,7 +942,16 @@ export const uploadChildPictureStaff = createServerFn({ method: "POST" })
     if (!childDoc.exists) throw new Error("Child not found");
 
     const photoUrl = await uploadChildPhoto(childId, dataUrl);
-    await db.children.doc(childId).update({ photoUrl });
+    try {
+      await db.children.doc(childId).update({ photoUrl });
+    } catch (updateErr) {
+      try {
+        await deleteChildPhoto(childId);
+      } catch (deleteErr) {
+        console.error("Failed to delete orphaned photo after Firestore update failure:", deleteErr);
+      }
+      throw updateErr;
+    }
 
     const updatedChild = await db.children.doc(childId).get();
     const updatedChildData = updatedChild.data();
@@ -963,7 +973,16 @@ export const uploadChildPictureAppCheck = createServerFn({ method: "POST" })
       throw new Error("Child already has a profile picture uploaded!");
 
     const photoUrl = await uploadChildPhoto(childId, dataUrl);
-    await db.children.doc(childId).update({ photoUrl });
+    try {
+      await db.children.doc(childId).update({ photoUrl });
+    } catch (updateErr) {
+      try {
+        await deleteChildPhoto(childId);
+      } catch (deleteErr) {
+        console.error("Failed to delete orphaned photo after Firestore update failure:", deleteErr);
+      }
+      throw updateErr;
+    }
 
     const updatedChild = await db.children.doc(childId).get();
     const updatedChildData = updatedChild.data();

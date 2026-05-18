@@ -4,10 +4,10 @@ packages:
   - functions
 
 allowBuilds:
-  "@firebase/util": false
-  esbuild: false
-  protobufjs: false
-  unrs-resolver: false
+  "@firebase/util": true
+  esbuild: true
+  protobufjs: true
+  unrs-resolver: true
 
 onlyBuiltDependencies:
   - esbuild

@@ -5,6 +5,7 @@ import type { FamilyFormInput } from "@/server/functions/familyForm";
 import { submitFamilyForm } from "@/server/functions/familyForm";
 import Compressor from "compressorjs";
 import { uploadChildPictureAppCheck } from "@/server/functions/child";
+import { toast } from "@/lib/toast";
 
 export function buildFamilyFormSubmitPayload(
   driveId: string,
@@ -47,7 +48,6 @@ function cleanChildrenObjects(
       diagnosis: child.diagnosis?.trim() ?? "",
       hospitalTreatedAt: child.hospitalTreatedAt?.trim() ?? "",
       socialWorkerName: child.socialWorkerName?.trim() ?? "",
-      // photoUrl: (await compressImage(child.photoUrl)) ?? "",
       treatmentLength: child.treatmentLength?.trim() ?? "",
       blurb: child.blurb?.trim() ?? "",
     })),
@@ -91,7 +91,7 @@ export function useSubmitFamilyForm() {
         data: payload,
       });
       //NOTE: Image data is base64 encoded data URLs. Images are at most 5mb. In order to avoid possible HTTP request body size limits, we need to split up uploads over multiple requests (one per image)
-      await Promise.all(
+      const uploadResults = await Promise.allSettled(
         photos.map(async (p, i) => {
           const id = res.childIds[i];
           const compressedImage = await compressImage(p);
@@ -106,6 +106,15 @@ export function useSubmitFamilyForm() {
           }
         }),
       );
+
+      const failedUploads = uploadResults.filter(
+        (r) => r.status === "rejected",
+      );
+      if (failedUploads.length > 0) {
+        toast.error(
+          `Your form was submitted, but ${failedUploads.length} photo(s) failed to upload. Please contact us to resolve the issue.`,
+        );
+      }
 
       return res;
     },
