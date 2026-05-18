@@ -11,11 +11,15 @@ import {
   RequiredGiftTitleSchema,
 } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
-import { uploadChildPhoto } from "../services/childPhotoService.server";
+import {
+  childPhotoExists,
+  uploadChildPhoto,
+} from "../services/childPhotoService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 import type { Family, Gift, Child } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
+import { appCheckMiddleware } from "../middleware/appCheckMiddleware";
 
 export type FamilyGiftClaim = {
   giftId: string;
@@ -920,7 +924,7 @@ export const updateChild = createServerFn({ method: "POST" })
     return updatedChildData;
   });
 
-export const uploadChildPicture = createServerFn({ method: "POST" })
+export const uploadChildPictureStaff = createServerFn({ method: "POST" })
   .middleware([
     requireRolesMiddleware([
       UserRole.ADMIN,
@@ -935,6 +939,28 @@ export const uploadChildPicture = createServerFn({ method: "POST" })
 
     const childDoc = await db.children.doc(childId).get();
     if (!childDoc.exists) throw new Error("Child not found");
+
+    const photoUrl = await uploadChildPhoto(childId, dataUrl);
+    await db.children.doc(childId).update({ photoUrl });
+
+    const updatedChild = await db.children.doc(childId).get();
+    const updatedChildData = updatedChild.data();
+    if (!updatedChildData) throw new Error("Child not found");
+    return updatedChildData;
+  });
+
+export const uploadChildPictureAppCheck = createServerFn({ method: "POST" })
+  .middleware([appCheckMiddleware])
+  .inputValidator(uploadChildPictureSchema)
+  .handler(async ({ data }) => {
+    const { childId, dataUrl } = data;
+    const db = getServerDB();
+
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) throw new Error("Child not found");
+
+    if (await childPhotoExists(childId))
+      throw new Error("Child already has a profile picture uploaded!");
 
     const photoUrl = await uploadChildPhoto(childId, dataUrl);
     await db.children.doc(childId).update({ photoUrl });

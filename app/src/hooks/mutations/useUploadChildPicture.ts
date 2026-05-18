@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { uploadChildPicture } from "@/server/functions/child";
+import { uploadChildPictureStaff } from "@/server/functions/child";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
 
@@ -8,7 +8,7 @@ export function useUploadChildPicture() {
 
   return useMutation({
     mutationFn: (params: { childId: string; dataUrl: string }) =>
-      uploadChildPicture({ data: params }),
+      uploadChildPictureStaff({ data: params }),
 
     onError: (error) => {
       toast.error(`Failed to upload photo: ${error.message}`);

@@ -3,7 +3,6 @@ import z from "zod";
 import { v7 as uuidv7 } from "uuid";
 import { getServerDB } from "@/lib/firebase.server";
 import { createFamilyLink } from "@/server/services/familyLinkService.server";
-import { uploadChildPhoto } from "@/server/services/childPhotoService.server";
 import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
@@ -89,18 +88,6 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
     const familyId = uuidv7();
     const childIds = data.children.children.map(() => uuidv7());
 
-    // Upload photos outside the Firestore transaction — GCS operations can't
-    // participate in a Firestore transaction.
-    const childPhotoUrls = new Map<number, string>();
-    for (let i = 0; i < data.children.children.length; i++) {
-      const photoUrl = data.children.children[i].photoUrl;
-      if (photoUrl?.startsWith("data:")) {
-        childPhotoUrls.set(i, await uploadChildPhoto(childIds[i], photoUrl));
-      } else if (photoUrl) {
-        childPhotoUrls.set(i, photoUrl);
-      }
-    }
-
     // Build documents
     const family: Family = {
       id: familyId,
@@ -128,7 +115,6 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
         diagnosis: childForm.diagnosis ?? "",
         hospital: childForm.hospitalTreatedAt ?? "",
         childSocialWorker: childForm.socialWorkerName ?? "",
-        photoUrl: childPhotoUrls.get(i),
         giftDrive: data.giftDriveId,
         livesAtHome: true,
         publicBlurb: childForm.blurb,
@@ -198,7 +184,12 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       giftDocs.forEach((gift) => tx.set(db.gifts.doc(gift.id), gift));
     });
 
-    return createFamilyLink({ familyId, active: true });
+    const link = await createFamilyLink({ familyId, active: true });
+
+    return {
+      link,
+      childIds,
+    };
   });
 
 export default submitFamilyForm;

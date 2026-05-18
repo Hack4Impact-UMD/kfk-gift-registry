@@ -4,11 +4,12 @@ import type { GiftsFormData } from "@/lib/formSchemas";
 import type { FamilyFormInput } from "@/server/functions/familyForm";
 import { submitFamilyForm } from "@/server/functions/familyForm";
 import Compressor from "compressorjs";
+import { uploadChildPictureAppCheck } from "@/server/functions/child";
 
-export async function buildFamilyFormSubmitPayload(
+export function buildFamilyFormSubmitPayload(
   driveId: string,
   formState: FamilyFormState,
-): Promise<FamilyFormInput> {
+): FamilyFormInput {
   const gi = formState.generalInfo;
   const children = formState.children;
   const gifts = formState.gifts;
@@ -30,28 +31,26 @@ export async function buildFamilyFormSubmitPayload(
         addressLine2: gi.addressLine2?.trim() ?? "",
       },
     },
-    children: await cleanChildrenObjects(children),
+    children: cleanChildrenObjects(children),
     gifts: cleanGiftsObjects(gifts),
   };
 }
 
-async function cleanChildrenObjects(
+function cleanChildrenObjects(
   children: NonNullable<FamilyFormState["children"]>,
-): Promise<NonNullable<FamilyFormInput["children"]>> {
+): NonNullable<FamilyFormInput["children"]> {
   return {
     ...children,
     additionalNotes: children.additionalNotes?.trim() ?? "",
-    children: await Promise.all(
-      children.children.map(async (child) => ({
-        ...child,
-        diagnosis: child.diagnosis?.trim() ?? "",
-        hospitalTreatedAt: child.hospitalTreatedAt?.trim() ?? "",
-        socialWorkerName: child.socialWorkerName?.trim() ?? "",
-        photoUrl: (await compressImage(child.photoUrl)) ?? "",
-        treatmentLength: child.treatmentLength?.trim() ?? "",
-        blurb: child.blurb?.trim() ?? "",
-      })),
-    ),
+    children: children.children.map((child) => ({
+      ...child,
+      diagnosis: child.diagnosis?.trim() ?? "",
+      hospitalTreatedAt: child.hospitalTreatedAt?.trim() ?? "",
+      socialWorkerName: child.socialWorkerName?.trim() ?? "",
+      // photoUrl: (await compressImage(child.photoUrl)) ?? "",
+      treatmentLength: child.treatmentLength?.trim() ?? "",
+      blurb: child.blurb?.trim() ?? "",
+    })),
   };
 }
 
@@ -81,9 +80,34 @@ function cleanGiftsObjects(
 
 export function useSubmitFamilyForm() {
   return useMutation({
-    mutationFn: async (payload: FamilyFormInput) =>
-      submitFamilyForm({
+    mutationFn: async ({
+      payload,
+      photos,
+    }: {
+      payload: FamilyFormInput;
+      photos: Array<string | undefined>;
+    }) => {
+      const res = await submitFamilyForm({
         data: payload,
-      }),
+      });
+      //NOTE: Image data is base64 encoded data URLs. Images are at most 5mb. In order to avoid possible HTTP request body size limits, we need to split up uploads over multiple requests (one per image)
+      await Promise.all(
+        photos.map(async (p, i) => {
+          const id = res.childIds[i];
+          const compressedImage = await compressImage(p);
+
+          if (id && compressedImage) {
+            await uploadChildPictureAppCheck({
+              data: {
+                childId: id,
+                dataUrl: compressedImage,
+              },
+            });
+          }
+        }),
+      );
+
+      return res;
+    },
   });
 }
