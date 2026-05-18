@@ -128,9 +128,12 @@ function RouteComponent() {
           size="lg"
           disabled={submitMutation.isPending}
           className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg disabled:opacity-60"
-          onClick={() => {
+          onClick={async () => {
             try {
-              const payload = buildFamilyFormSubmitPayload(driveId, formState);
+              const payload = await buildFamilyFormSubmitPayload(
+                driveId,
+                formState,
+              );
               submitMutation.mutate(payload, {
                 onSuccess: (link) =>
                   navigate({

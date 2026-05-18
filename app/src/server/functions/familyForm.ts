@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 import { v7 as uuidv7 } from "uuid";
-import admin from "firebase-admin";
 import { getServerDB } from "@/lib/firebase.server";
 import { createFamilyLink } from "@/server/services/familyLinkService.server";
+import { uploadChildPhoto } from "@/server/services/childPhotoService.server";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
 import {
@@ -12,20 +12,6 @@ import {
   GiftFamilyPublicNotesSchema,
   NormalizedGiftTitleSchema,
 } from "common";
-
-// --- Photo upload constants ---
-const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
-const ALLOWED_PHOTO_MIME_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-] as const;
-type AllowedMimeType = (typeof ALLOWED_PHOTO_MIME_TYPES)[number];
-const MIME_TO_EXT: Record<AllowedMimeType, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-};
 
 // --- Zod schemas ---
 
@@ -82,43 +68,6 @@ const familyFormStateSchema = z.object({
 });
 
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
-
-// --- Photo upload ---
-// Uploads a data URL to GCS via the Admin SDK and returns a permanent public URL.
-// Write access is admin-SDK-only; the object is made publicly readable for display.
-
-async function uploadChildPhoto(
-  childId: string,
-  dataUrl: string,
-): Promise<string> {
-  const commaIdx = dataUrl.indexOf(",");
-  if (commaIdx === -1) throw new Error("Invalid photo data URL");
-
-  const header = dataUrl.slice(0, commaIdx);
-  const base64Data = dataUrl.slice(commaIdx + 1);
-  const mimeType = header.match(/data:([^;]+);/)?.[1];
-
-  if (
-    !mimeType ||
-    !(ALLOWED_PHOTO_MIME_TYPES as ReadonlyArray<string>).includes(mimeType)
-  ) {
-    throw new Error(`Unsupported photo type: ${mimeType ?? "unknown"}`);
-  }
-
-  const buffer = Buffer.from(base64Data, "base64");
-  if (buffer.byteLength > MAX_PHOTO_SIZE_BYTES) {
-    throw new Error(`Photo exceeds the 5 MB size limit`);
-  }
-
-  const ext = MIME_TO_EXT[mimeType as AllowedMimeType];
-  const bucket = admin.storage().bucket();
-  const file = bucket.file(`children/pfps/${childId}.${ext}`);
-
-  await file.save(buffer, { metadata: { contentType: mimeType } });
-  await file.makePublic();
-
-  return file.publicUrl();
-}
 
 //TODO: rate limit
 export const submitFamilyForm = createServerFn({ method: "POST" })

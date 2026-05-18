@@ -11,6 +11,7 @@ import {
   RequiredGiftTitleSchema,
 } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
+import { uploadChildPhoto } from "../services/childPhotoService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 import type { Family, Gift, Child } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
@@ -70,6 +71,11 @@ const tokenGiftThankYouNoteSchema = z.object({
   childId: z.string().min(1),
   giftId: z.string().min(1),
   note: z.string().trim().min(1).max(1000),
+});
+
+const uploadChildPictureSchema = z.object({
+  childId: z.string().min(1),
+  dataUrl: z.string().startsWith("data:"),
 });
 
 const updateChildSchema = z.object({
@@ -887,6 +893,12 @@ export const updateChild = createServerFn({ method: "POST" })
     const { childId, updates } = data;
     const db = getServerDB();
 
+    if (updates.photoUrl?.startsWith("data:")) {
+      throw new Error(
+        "photoUrl data URLs must be uploaded via uploadChildPicture",
+      );
+    }
+
     const childDoc = await db.children.doc(childId).get();
     if (!childDoc.exists) {
       throw new Error("Child not found");
@@ -901,6 +913,31 @@ export const updateChild = createServerFn({ method: "POST" })
         : updates;
 
     await db.children.doc(childId).update(normalizedUpdates);
+
+    const updatedChild = await db.children.doc(childId).get();
+    const updatedChildData = updatedChild.data();
+    if (!updatedChildData) throw new Error("Child not found");
+    return updatedChildData;
+  });
+
+export const uploadChildPicture = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(uploadChildPictureSchema)
+  .handler(async ({ data }) => {
+    const { childId, dataUrl } = data;
+    const db = getServerDB();
+
+    const childDoc = await db.children.doc(childId).get();
+    if (!childDoc.exists) throw new Error("Child not found");
+
+    const photoUrl = await uploadChildPhoto(childId, dataUrl);
+    await db.children.doc(childId).update({ photoUrl });
 
     const updatedChild = await db.children.doc(childId).get();
     const updatedChildData = updatedChild.data();
