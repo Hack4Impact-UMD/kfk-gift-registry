@@ -38,6 +38,7 @@ export function GiftInformationCard({
 }) {
   const [undoMode, setUndoMode] = useState(false);
   const [orderConfirmOpen, setOrderConfirmOpen] = useState(false);
+  const [deliveryConfirmOpen, setDeliveryConfirmOpen] = useState(false);
 
   // Keeps track of the most recent saved states
   const [trackingNum, setTrackingNum] = useState(state.tracking);
@@ -50,6 +51,15 @@ export function GiftInformationCard({
   const handleConfirmOrdered = () => {
     onOrdered();
     setOrderConfirmOpen(false);
+  };
+
+  const handleConfirmDelivered = () => {
+    onDelivered();
+    if (!undoMode) {
+      setIsDelivered(true);
+      onSave();
+    }
+    setDeliveryConfirmOpen(false);
   };
 
   if (state.receivedByFamily || state.unclaimed) return null;
@@ -104,13 +114,7 @@ export function GiftInformationCard({
                   <Button
                     type="button"
                     className="h-12 w-[92%] max-w-md rounded-xl bg-kfk-blue font-gaegu text-[20px] font-bold text-white hover:bg-kfk-blue/80"
-                    onClick={() => {
-                      onDelivered();
-                      if (!undoMode) {
-                        setIsDelivered(true);
-                        onSave();
-                      }
-                    }}
+                    onClick={() => setDeliveryConfirmOpen(true)}
                   >
                     Yes, it was delivered!
                   </Button>
@@ -291,6 +295,13 @@ export function GiftInformationCard({
         isLoading={isOrdering}
         title="Are you sure you ordered this gift?"
         confirmLabel="Yes, I ordered it!"
+      />
+      <ConfirmGiftsModal
+        isOpen={deliveryConfirmOpen}
+        onClose={() => setDeliveryConfirmOpen(false)}
+        onConfirm={handleConfirmDelivered}
+        title="Are you sure this gift was delivered?"
+        confirmLabel="Yes, it was delivered!"
       />
     </div>
   );
