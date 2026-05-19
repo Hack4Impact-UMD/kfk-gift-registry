@@ -10,6 +10,7 @@ export function ChildDetailSection({
   isOrdering = false,
   isDelivering = false,
   isUploadingReceipt = false,
+  isUploadingDeliveryReceipt = false,
   onOrdered,
   onDelivered,
   onUndoDelivery,
@@ -24,11 +25,12 @@ export function ChildDetailSection({
   isOrdering?: boolean;
   isDelivering?: boolean;
   isUploadingReceipt?: boolean;
+  isUploadingDeliveryReceipt?: boolean;
   onOrdered: (id: string) => void;
   onDelivered: (id: string) => void;
   onUndoDelivery: (id: string) => void;
   onReceipt: (id: string, f: File | string | null) => void;
-  onDeliveryReceipt: (id: string, f: string | null) => void;
+  onDeliveryReceipt: (id: string, f: File | string | null) => void;
   onTrackingChange: (id: string, v: string) => void;
   onUnclaimRequest: (id: string) => void;
   onSave: (id: string) => void;
@@ -72,6 +74,7 @@ export function ChildDetailSection({
               isOrdering={isOrdering}
               isDelivering={isDelivering}
               isUploadingReceipt={isUploadingReceipt}
+              isUploadingDeliveryReceipt={isUploadingDeliveryReceipt}
               onOrdered={() => onOrdered(gift.id)}
               onDelivered={() => onDelivered(gift.id)}
               onUndoDelivery={() => onUndoDelivery(gift.id)}

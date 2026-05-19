@@ -12,6 +12,7 @@ import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
 import {
   useMarkGiftDelivered,
   useMarkGiftPurchased,
+  useUploadDeliveryReceipt,
   useUploadPurchaseReceipt,
 } from "@/hooks/mutations/useClaimGifts";
 
@@ -33,6 +34,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
   const markGiftPurchased = useMarkGiftPurchased();
   const markGiftDelivered = useMarkGiftDelivered();
   const uploadPurchaseReceipt = useUploadPurchaseReceipt();
+  const uploadDeliveryReceipt = useUploadDeliveryReceipt();
 
   // Single definition of set — marks dirty on every state change
   const set = useCallback((id: string, patch: Partial<GiftFormState>) => {
@@ -119,8 +121,40 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
     [giftStates, set, uploadPurchaseReceipt],
   );
   const handleDeliveryReceipt = useCallback(
-    (id: string, f: string | null) => set(id, { deliveryReceiptFileName: f }),
-    [set],
+    async (id: string, file: File | string | null) => {
+      if (!file) {
+        set(id, { deliveryReceiptFileName: null, deliveryReceiptUrl: null });
+        return;
+      }
+
+      if (typeof file === "string") {
+        set(id, { deliveryReceiptFileName: file });
+        return;
+      }
+
+      const dataUrl = await readFileAsDataUrl(file);
+      uploadDeliveryReceipt.mutate(
+        {
+          giftId: id,
+          fileName: file.name,
+          dataUrl,
+        },
+        {
+          onSuccess: (data) => {
+            setGiftStates((p) => ({
+              ...p,
+              [id]: {
+                ...p[id],
+                deliveryReceiptFileName: file.name,
+                deliveryReceiptUrl: data.documentationUrl,
+                changesSaved: true,
+              },
+            }));
+          },
+        },
+      );
+    },
+    [set, uploadDeliveryReceipt],
   );
   const handleTrackingChange = useCallback(
     (id: string, v: string) => set(id, { tracking: v }),
@@ -243,6 +277,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
           isOrdering={markGiftPurchased.isPending}
           isDelivering={markGiftDelivered.isPending}
           isUploadingReceipt={uploadPurchaseReceipt.isPending}
+          isUploadingDeliveryReceipt={uploadDeliveryReceipt.isPending}
           onOrdered={handleOrdered}
           onDelivered={handleDelivered}
           onUndoDelivery={handleUndoDelivery}

@@ -26,6 +26,12 @@ const purchaseReceiptUploadSchema = z.object({
   trackingNumber: z.string().optional(),
 });
 
+const deliveryReceiptUploadSchema = z.object({
+  giftId: z.string().min(1),
+  fileName: z.string().min(1),
+  dataUrl: z.string().min(1),
+});
+
 async function loadGifts(
   tx: FirebaseFirestore.Transaction,
   db: ReturnType<typeof getServerDB>,
@@ -160,7 +166,12 @@ export const getCommittedChildrenForDonor = createServerFn({ method: "GET" })
         purchaseReceiptFileName: getUploadedFileName(
           claim.purchaseConfirmation?.documentationUrl,
         ),
-        purchaseReceiptUrl: claim.purchaseConfirmation?.documentationUrl ?? null,
+        purchaseReceiptUrl:
+          claim.purchaseConfirmation?.documentationUrl ?? null,
+        deliveryReceiptFileName: getUploadedFileName(
+          claim.deliveryConfirmed?.documentationUrl,
+        ),
+        deliveryReceiptUrl: claim.deliveryConfirmed?.documentationUrl ?? null,
         trackingNumber: claim.purchaseConfirmation?.trackingNumber ?? "",
       });
     }
@@ -379,6 +390,62 @@ export const markGiftDelivered = createServerFn({ method: "POST" })
     return {
       ...gift,
       status: "DELIVERED" as const,
+    };
+  });
+
+export const uploadDeliveryReceipt = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.DONOR])])
+  .inputValidator(deliveryReceiptUploadSchema)
+  .handler(async ({ data, context }) => {
+    const donorId = context.authUser.uid;
+    const db = getServerDB();
+    const giftDoc = await db.gifts.doc(data.giftId).get();
+    const gift = giftDoc.data();
+
+    if (!gift) {
+      throw new Error("Gift not found");
+    }
+
+    if (gift.claimedByDonorId !== donorId) {
+      throw new Error("Gift is not claimed by this donor");
+    }
+
+    if (!["DELIVERED", "RECEIVED"].includes(gift.status)) {
+      throw new Error(
+        `Gift cannot accept a delivery receipt (status: ${gift.status})`,
+      );
+    }
+
+    const claimSnapshot = await db.claims
+      .where("giftId", "==", gift.id)
+      .where("donorId", "==", donorId)
+      .where("active", "==", true)
+      .get();
+    const claimDoc = claimSnapshot.docs[0];
+    const claim = claimDoc?.data();
+
+    if (!claimDoc || !claim) {
+      throw new Error("Active donor claim not found for this gift");
+    }
+
+    const documentationUrl = await uploadClaimDocument(
+      claim.id,
+      data.fileName,
+      data.dataUrl,
+    );
+
+    await claimDoc.ref.update({
+      deliveryConfirmed: {
+        date: claim.deliveryConfirmed?.date ?? new Date().toISOString(),
+        documentationUrl,
+        verified: claim.deliveryConfirmed?.verified ?? false,
+      },
+    });
+
+    return {
+      giftId: gift.id,
+      documentationUrl,
+      fileName: data.fileName,
     };
   });
 
