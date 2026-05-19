@@ -90,7 +90,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
         </h3>
         <img
           src={child.photoUrl}
-          className="h-20 w-30 rounded-2xl border-3 border-white object-cover"
+          className="h-40 w-40 rounded-2xl border-3 border-white object-cover"
           alt={`${child.firstName} ${child.lastName}`}
         />
         <h2 className="font-gaegu text-2xl font-bold">
