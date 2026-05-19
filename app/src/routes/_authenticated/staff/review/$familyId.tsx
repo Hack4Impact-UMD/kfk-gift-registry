@@ -11,6 +11,7 @@ import { useFamily } from "@/hooks/queries/useFamily";
 import { useChildProfilesForFamily } from "@/hooks/queries/useChildProfilesForFamily";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
 import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
+import { useUploadChildPicture } from "@/hooks/mutations/useUploadChildPicture";
 import { useQuery } from "@tanstack/react-query";
 import { queries } from "@/queries";
 import { Spinner } from "@/components/ui/spinner";
@@ -89,6 +90,7 @@ function RouteComponent() {
   const { data: children } = useChildProfilesForFamily(familyId);
   const { mutate: updateFamily } = useUpdateFamily();
   const { mutateAsync: updateChild } = useUpdateChild();
+  const { mutateAsync: uploadChildPicture } = useUploadChildPicture();
 
   if (!family || !children) {
     throw new Error("Family not found");
@@ -121,6 +123,14 @@ function RouteComponent() {
   };
 
   const handleChildUpdate = async (updatedChild: Child) => {
+    const isNewPhoto = updatedChild.photoUrl?.startsWith("data:");
+    if (isNewPhoto && updatedChild.photoUrl) {
+      await uploadChildPicture({
+        childId: updatedChild.id,
+        dataUrl: updatedChild.photoUrl,
+      });
+    }
+
     const childUpdates = omitUndefined({
       diagnosisLengthYears: updatedChild.diagnosisLengthYears,
       diagnosis: updatedChild.diagnosis,
@@ -129,15 +139,17 @@ function RouteComponent() {
       publicBlurb: updatedChild.publicBlurb,
       childSocialWorker: updatedChild.childSocialWorker,
       hospital: updatedChild.hospital,
-      photoUrl: updatedChild.photoUrl,
+      photoUrl: isNewPhoto ? undefined : updatedChild.photoUrl,
       staffPrivateNotes: updatedChild.staffPrivateNotes,
       offTreatmentDurationYears: updatedChild.offTreatmentDurationYears,
     });
 
-    await updateChild({
-      childId: updatedChild.id,
-      updates: childUpdates,
-    });
+    if (Object.keys(childUpdates).length > 0) {
+      await updateChild({
+        childId: updatedChild.id,
+        updates: childUpdates,
+      });
+    }
   };
 
   const handleFamilyNavigation = (targetFamilyId: string) => {

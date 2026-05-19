@@ -15,6 +15,7 @@ import type { Child, Family, Gift } from "common";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
 import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
 import { useCreateGift } from "@/hooks/mutations/useCreateGift";
+import { useUploadChildPicture } from "@/hooks/mutations/useUploadChildPicture";
 import { useFamilyLinkByFamilyId } from "@/hooks/queries/useFamilyLinkByFamilyId";
 import { queries } from "@/queries";
 import { Spinner } from "@/components/ui/spinner";
@@ -69,6 +70,7 @@ function ChildProfilePage() {
   const updateFamilyMutation = useUpdateFamily();
   const updateGiftMutation = useUpdateGift();
   const createGiftMutation = useCreateGift();
+  const uploadChildPictureMutation = useUploadChildPicture();
 
   const {
     data: child,
@@ -122,6 +124,7 @@ function ChildProfilePage() {
   };
 
   const handleSaveAll = async () => {
+    //TODO: refactor with tanstackdb
     if (
       editedChild.publicBlurb !== undefined &&
       isChildPublicBlurbTooLong(editedChild.publicBlurb ?? "")
@@ -130,19 +133,30 @@ function ChildProfilePage() {
       return;
     }
 
-    const childUpdates = Object.fromEntries(
+    const childUpdates: Partial<Child> = Object.fromEntries(
       Object.entries(editedChild).filter(
         ([key, value]) => value !== child[key as keyof typeof child],
       ),
     );
 
-    const familyUpdates = Object.fromEntries(
+    const familyUpdates: Partial<Family> = Object.fromEntries(
       Object.entries(editedFamily).filter(
         ([key, value]) => value !== family[key as keyof typeof family],
       ),
     );
 
     const promises: Array<Promise<unknown>> = [];
+
+    const pendingPhotoUrl = childUpdates.photoUrl;
+    if (pendingPhotoUrl?.startsWith("data:")) {
+      delete childUpdates.photoUrl;
+      promises.push(
+        uploadChildPictureMutation.mutateAsync({
+          childId: child.id,
+          dataUrl: pendingPhotoUrl,
+        }),
+      );
+    }
 
     if (Object.keys(childUpdates).length > 0) {
       promises.push(
