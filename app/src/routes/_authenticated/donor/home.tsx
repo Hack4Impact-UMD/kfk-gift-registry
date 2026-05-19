@@ -33,7 +33,7 @@ function RouteComponent() {
 
   if (isPending) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center px-4">
         <Spinner />
       </div>
     );
@@ -41,13 +41,15 @@ function RouteComponent() {
 
   if (isError) {
     return (
-      <div className="flex flex-col gap-10 overflow-x-hidden p-5 items-center">
-        <HomeHeaderCard
-          displayName={auth.authUser.displayName ?? "Unnamed User"}
-        />
-        <Card className="w-full max-w-150 p-8 text-center">
-          Unable to load your committed gifts. Please try again.
-        </Card>
+      <div className="bg-muted/20 px-4 py-6 md:px-6 md:py-8">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+          <HomeHeaderCard
+            displayName={auth.authUser.displayName ?? "Unnamed User"}
+          />
+          <Card className="w-full p-8 text-center">
+            Unable to load your committed gifts. Please try again.
+          </Card>
+        </div>
       </div>
     );
   }
@@ -58,20 +60,22 @@ function RouteComponent() {
   }));
 
   return (
-    <div className="flex flex-col gap-10 overflow-x-hidden p-5 items-center">
-      <HomeHeaderCard
-        displayName={auth.authUser.displayName ?? "Unnamed User"}
-      />
-      <div className="w-full min-w-0 max-w-150 flex flex-col gap-6 items-center">
-        {childrenWithFallbackPhotos.length > 0 ? (
-          childrenWithFallbackPhotos.map((child) => (
-            <ChildBlock key={child.id} child={child} />
-          ))
-        ) : (
-          <Card className="w-full p-8 text-center">
-            You have not claimed any gifts yet.
-          </Card>
-        )}
+    <div className="bg-muted/20 px-4 py-6 md:px-6 md:py-8">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 overflow-x-hidden">
+        <HomeHeaderCard
+          displayName={auth.authUser.displayName ?? "Unnamed User"}
+        />
+        <div className="flex w-full min-w-0 flex-col gap-6">
+          {childrenWithFallbackPhotos.length > 0 ? (
+            childrenWithFallbackPhotos.map((child) => (
+              <ChildBlock key={child.id} child={child} />
+            ))
+          ) : (
+            <Card className="w-full p-8 text-center">
+              You have not claimed any gifts yet.
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );

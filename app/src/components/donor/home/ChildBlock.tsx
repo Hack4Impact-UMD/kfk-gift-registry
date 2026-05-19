@@ -82,15 +82,15 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
   return (
     <>
       <Card
-        className="flex w-full flex-col gap-2 px-10 py-6 text-center text-white shadow-lg items-center"
+        className="flex w-full flex-col items-center gap-3 px-6 py-7 text-center text-white shadow-lg md:px-8"
         style={getBlueBackground()}
       >
-        <h3 className="mb-2 font-bold">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-white/80">
           Gifts you committed for {child.firstName}:
         </h3>
         <img
           src={child.photoUrl}
-          className="h-40 w-40 rounded-2xl border-3 border-white object-cover"
+          className="h-32 w-32 rounded-2xl border-3 border-white object-cover shadow-md md:h-36 md:w-36"
           alt={`${child.firstName} ${child.lastName}`}
         />
         <h2 className="font-gaegu text-2xl font-bold">
@@ -106,25 +106,33 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
         >
           {child.category}
         </h3>
+        <p className="rounded-full bg-white/12 px-4 py-1 text-sm text-white/90">
+          {visibleGifts.length} active {visibleGifts.length === 1 ? "gift" : "gifts"}
+        </p>
 
-        <div className="my-3 flex w-full flex-col gap-2">
+        <div className="my-2 flex w-full flex-col gap-2">
           {visibleGifts.map((g) => {
             const purchased = giftStates[g.id]?.ordered ?? false;
             return (
-              <Card key={g.id} className="flex flex-col gap-2 rounded-lg p-2">
-                <h3
-                  className={cn(
-                    "my-0 rounded-full text-center font-semibold",
+              <Card
+                key={g.id}
+                className="flex flex-col gap-2 rounded-xl border-0 p-3 text-left shadow-sm"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="line-clamp-1 font-gaegu text-lg text-primary">
+                    {g.title}
+                  </span>
+                  <h3
+                    className={cn(
+                      "shrink-0 rounded-full px-3 py-1 text-xs font-semibold",
                     purchased
                       ? "bg-green-100 text-green-800"
                       : "bg-red-100 text-kfk-red",
-                  )}
-                >
-                  {purchased ? "Purchased" : "Not Purchased"}
-                </h3>
-                <span className="p-0 font-gaegu text-primary line-clamp-1">
-                  {g.title}
-                </span>
+                    )}
+                  >
+                    {purchased ? "Purchased" : "Not Purchased"}
+                  </h3>
+                </div>
               </Card>
             );
           })}
@@ -133,7 +141,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
         <Button
           type="button"
           aria-expanded={detailsOpen}
-          className="flex items-center gap-1 rounded-full bg-white px-6 font-gaegu text-lg font-bold text-kfk-blue hover:bg-white/90"
+          className="flex items-center gap-1 rounded-full bg-white px-6 font-gaegu text-lg font-bold text-kfk-blue shadow-sm hover:bg-white/90"
           onClick={() => setDetailsOpen((o) => !o)}
         >
           {detailsOpen ? (

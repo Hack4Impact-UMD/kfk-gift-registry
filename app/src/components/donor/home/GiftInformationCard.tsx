@@ -48,35 +48,35 @@ export function GiftInformationCard({
   return (
     <div
       className={cn(
-        "w-full overflow-hidden rounded-xl bg-white text-left transition-all",
-        "shadow-[0_0_24px_rgba(15,23,42,0.12)]",
+        "w-full overflow-hidden rounded-2xl border border-slate-200 bg-white text-left transition-all",
         "text-gray-900",
-        // Highlight entire card in orange/yellow when undo mode is active
         undoMode && "ring-4 ring-amber-400 ring-offset-1",
       )}
     >
       <div className="space-y-4 p-4 md:p-5">
-        <dl className="grid grid-cols-[minmax(7.5rem,auto)_1fr] gap-x-4 gap-y-3 text-sm">
-          <dt className="shrink-0 font-bold">Gift Name</dt>
-          <dd className="min-w-0">
-            <a
-              href={gift.productUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex max-w-full items-center gap-1.5 font-medium text-kfk-blue hover:underline"
-            >
-              <span className="break-words">{gift.title}</span>
-              <ExternalLink
-                className="size-4 shrink-0 translate-y-px"
-                aria-hidden
-              />
-            </a>
-          </dd>
-          <dt className="shrink-0 font-bold">Price</dt>
-          <dd>{formatUsd(gift.listedPrice)}</dd>
-          <dt className="shrink-0 font-bold">Additional Information</dt>
-          <dd className="text-gray-800">{gift.additionalInfo}</dd>
-        </dl>
+        <div className="rounded-xl bg-slate-50 p-4">
+          <dl className="grid gap-x-4 gap-y-3 text-sm">
+            <dt className="shrink-0 font-bold">Gift Name</dt>
+            <dd className="min-w-0">
+              <a
+                href={gift.productUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex max-w-full items-center gap-1.5 font-medium text-kfk-blue hover:underline"
+              >
+                <span className="break-words">{gift.title}</span>
+                <ExternalLink
+                  className="size-4 shrink-0 translate-y-px"
+                  aria-hidden
+                />
+              </a>
+            </dd>
+            <dt className="shrink-0 font-bold">Price</dt>
+            <dd>{formatUsd(gift.listedPrice)}</dd>
+            <dt className="shrink-0 font-bold">Additional Information</dt>
+            <dd className="text-gray-800">{gift.additionalInfo}</dd>
+          </dl>
+        </div>
 
         {undoMode && (
           <p className="text-center text-sm font-medium text-gray-700">

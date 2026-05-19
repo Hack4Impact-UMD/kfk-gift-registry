@@ -38,7 +38,7 @@ export function ChildDetailSection({
     <div className="mt-2 flex flex-col gap-4 text-left">
       <div
         id={`${child.id}-gift`}
-        className="relative left-1/2 flex w-screen max-w-[100vw] -translate-x-1/2 items-center justify-center gap-2 bg-kfk-blue py-3 px-4 text-white"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-kfk-blue px-4 py-3 text-white shadow-md"
       >
         <Gift className="size-5 shrink-0" strokeWidth={1.75} />
         <span className="text-sm font-semibold md:text-base">
