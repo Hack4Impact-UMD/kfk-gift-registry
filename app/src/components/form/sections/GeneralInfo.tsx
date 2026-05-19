@@ -82,8 +82,9 @@ export function GeneralInfoForm({
           name="email"
           validators={{
             onChange: ({ value }) => {
-              if (!value) return "Email is required";
-              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+              const normalizedValue = value.trim().toLowerCase();
+              if (!normalizedValue) return "Email is required";
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedValue))
                 return "Please enter a valid email address";
               return undefined;
             },
@@ -113,11 +114,16 @@ export function GeneralInfoForm({
           validators={{
             onChangeListenTo: ["email"],
             onChange: ({ value, fieldApi }) => {
-              if (!value) return "Please confirm your email";
-              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+              const normalizedValue = value.trim().toLowerCase();
+              const normalizedEmail = fieldApi.form
+                .getFieldValue("email")
+                .trim()
+                .toLowerCase();
+              if (!normalizedValue) return "Please confirm your email";
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedValue))
                 return "Please enter a valid email address";
-              const email = fieldApi.form.getFieldValue("email");
-              if (value !== email) return "Emails do not match";
+              if (normalizedValue !== normalizedEmail)
+                return "Emails do not match";
               return undefined;
             },
           }}
