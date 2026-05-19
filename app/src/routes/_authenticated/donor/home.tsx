@@ -9,7 +9,7 @@ import { queries } from "@/queries";
 
 export const Route = createFileRoute("/_authenticated/donor/home")({
   beforeLoad: async ({ context }) => {
-    await context.queryClient.ensureQueryData(queries.donor.home);
+    await context.queryClient.prefetchQuery(queries.donor.home);
   },
   head: () => ({
     meta: [
