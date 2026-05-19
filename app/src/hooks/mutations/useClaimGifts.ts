@@ -3,6 +3,7 @@ import {
   claimGifts,
   markGiftDelivered,
   markGiftPurchased,
+  uploadPurchaseReceipt,
   unclaimGifts,
 } from "@/server/functions/donor";
 import { queries } from "@/queries";
@@ -72,6 +73,30 @@ export function useMarkGiftDelivered() {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to mark gift as delivered");
+    },
+  });
+}
+
+export function useUploadPurchaseReceipt() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: {
+      giftId: string;
+      fileName: string;
+      dataUrl: string;
+      trackingNumber?: string;
+    }) => uploadPurchaseReceipt({ data: params }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queries.donor._def });
+      await queryClient.invalidateQueries({
+        queryKey: queries.storefront._def,
+      });
+      await queryClient.invalidateQueries({ queryKey: queries.gifts._def });
+      toast.success("Receipt uploaded");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to upload receipt");
     },
   });
 }

@@ -7,6 +7,8 @@ export type CommittedGift = {
   listedPrice: number;
   additionalInfo: string;
   status: GiftStatus;
+  purchaseReceiptFileName: string | null;
+  trackingNumber: string;
 };
 
 export type ChildStatus = "Warrior" | "Supersib";

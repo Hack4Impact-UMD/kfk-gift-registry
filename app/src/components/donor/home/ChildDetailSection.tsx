@@ -9,6 +9,7 @@ export function ChildDetailSection({
   giftStates,
   isOrdering = false,
   isDelivering = false,
+  isUploadingReceipt = false,
   onOrdered,
   onDelivered,
   onUndoDelivery,
@@ -22,10 +23,11 @@ export function ChildDetailSection({
   giftStates: Record<string, GiftFormState>;
   isOrdering?: boolean;
   isDelivering?: boolean;
+  isUploadingReceipt?: boolean;
   onOrdered: (id: string) => void;
   onDelivered: (id: string) => void;
   onUndoDelivery: (id: string) => void;
-  onReceipt: (id: string, f: string | null) => void;
+  onReceipt: (id: string, f: File | string | null) => void;
   onDeliveryReceipt: (id: string, f: string | null) => void;
   onTrackingChange: (id: string, v: string) => void;
   onUnclaimRequest: (id: string) => void;
@@ -69,6 +71,7 @@ export function ChildDetailSection({
               state={giftStates[gift.id]}
               isOrdering={isOrdering}
               isDelivering={isDelivering}
+              isUploadingReceipt={isUploadingReceipt}
               onOrdered={() => onOrdered(gift.id)}
               onDelivered={() => onDelivered(gift.id)}
               onUndoDelivery={() => onUndoDelivery(gift.id)}

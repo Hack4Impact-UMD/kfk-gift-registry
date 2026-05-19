@@ -9,6 +9,7 @@ import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
 import { assertGiftDriveActive } from "@/server/services/giftDriveService.server";
 import type { CommittedChild } from "@/components/donor/home/types";
+import { uploadClaimDocument } from "@/server/services/claimDocumentService.server";
 
 const giftIdsSchema = z.object({
   giftIds: z.array(z.string().min(1)).min(1),
@@ -16,6 +17,13 @@ const giftIdsSchema = z.object({
 
 const giftIdSchema = z.object({
   giftId: z.string().min(1),
+});
+
+const purchaseReceiptUploadSchema = z.object({
+  giftId: z.string().min(1),
+  fileName: z.string().min(1),
+  dataUrl: z.string().min(1),
+  trackingNumber: z.string().optional(),
 });
 
 async function loadGifts(
@@ -56,6 +64,18 @@ function toCommittedCategory(
   category: Child["category"],
 ): CommittedChild["category"] {
   return category === "warrior" ? "Warrior" : "Supersib";
+}
+
+function getUploadedFileName(url?: string) {
+  if (!url) return null;
+
+  try {
+    const pathname = new URL(url).pathname;
+    const lastSegment = pathname.split("/").pop();
+    return lastSegment ? decodeURIComponent(lastSegment) : "Receipt uploaded";
+  } catch {
+    return "Receipt uploaded";
+  }
 }
 
 export const getCommittedChildrenForDonor = createServerFn({ method: "GET" })
@@ -135,6 +155,10 @@ export const getCommittedChildrenForDonor = createServerFn({ method: "GET" })
         listedPrice: gift.listedPrice ?? 0,
         additionalInfo: gift.familyPublicNotes ?? "",
         status: gift.status,
+        purchaseReceiptFileName: getUploadedFileName(
+          claim.purchaseConfirmation?.documentationUrl,
+        ),
+        trackingNumber: claim.purchaseConfirmation?.trackingNumber ?? "",
       });
     }
 
@@ -235,6 +259,66 @@ export const markGiftPurchased = createServerFn({ method: "POST" })
     return {
       ...gift,
       status: "PURCHASED" as const,
+    };
+  });
+
+export const uploadPurchaseReceipt = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.DONOR])])
+  .inputValidator(purchaseReceiptUploadSchema)
+  .handler(async ({ data, context }) => {
+    const donorId = context.authUser.uid;
+    const db = getServerDB();
+    const giftDoc = await db.gifts.doc(data.giftId).get();
+    const gift = giftDoc.data();
+
+    if (!gift) {
+      throw new Error("Gift not found");
+    }
+
+    if (gift.claimedByDonorId !== donorId) {
+      throw new Error("Gift is not claimed by this donor");
+    }
+
+    if (!["PURCHASED", "DELIVERED", "RECEIVED"].includes(gift.status)) {
+      throw new Error(
+        `Gift cannot accept a purchase receipt (status: ${gift.status})`,
+      );
+    }
+
+    const claimSnapshot = await db.claims
+      .where("giftId", "==", gift.id)
+      .where("donorId", "==", donorId)
+      .where("active", "==", true)
+      .get();
+    const claimDoc = claimSnapshot.docs[0];
+    const claim = claimDoc?.data();
+
+    if (!claimDoc || !claim) {
+      throw new Error("Active donor claim not found for this gift");
+    }
+
+    const documentationUrl = await uploadClaimDocument(
+      claim.id,
+      data.fileName,
+      data.dataUrl,
+    );
+    const nextTrackingNumber =
+      data.trackingNumber?.trim() || claim.purchaseConfirmation?.trackingNumber;
+
+    await claimDoc.ref.update({
+      purchaseConfirmation: {
+        date: claim.purchaseConfirmation?.date ?? new Date().toISOString(),
+        documentationUrl,
+        verified: claim.purchaseConfirmation?.verified ?? false,
+        ...(nextTrackingNumber ? { trackingNumber: nextTrackingNumber } : {}),
+      },
+    });
+
+    return {
+      giftId: gift.id,
+      documentationUrl,
+      fileName: data.fileName,
+      trackingNumber: nextTrackingNumber ?? "",
     };
   });
 

@@ -12,7 +12,17 @@ import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
 import {
   useMarkGiftDelivered,
   useMarkGiftPurchased,
+  useUploadPurchaseReceipt,
 } from "@/hooks/mutations/useClaimGifts";
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+}
 
 export function ChildBlock({ child }: { child: CommittedChild }) {
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -22,6 +32,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
   const [unclaimTargetId, setUnclaimTargetId] = useState<string | null>(null);
   const markGiftPurchased = useMarkGiftPurchased();
   const markGiftDelivered = useMarkGiftDelivered();
+  const uploadPurchaseReceipt = useUploadPurchaseReceipt();
 
   // Single definition of set — marks dirty on every state change
   const set = useCallback((id: string, patch: Partial<GiftFormState>) => {
@@ -71,8 +82,40 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
     [set],
   );
   const handleReceipt = useCallback(
-    (id: string, f: string | null) => set(id, { receiptFileName: f }),
-    [set],
+    async (id: string, file: File | string | null) => {
+      if (!file) {
+        set(id, { receiptFileName: null });
+        return;
+      }
+
+      if (typeof file === "string") {
+        set(id, { receiptFileName: file });
+        return;
+      }
+
+      const dataUrl = await readFileAsDataUrl(file);
+      uploadPurchaseReceipt.mutate(
+        {
+          giftId: id,
+          fileName: file.name,
+          dataUrl,
+          trackingNumber: giftStates[id]?.tracking,
+        },
+        {
+          onSuccess: () => {
+            setGiftStates((p) => ({
+              ...p,
+              [id]: {
+                ...p[id],
+                receiptFileName: file.name,
+                changesSaved: true,
+              },
+            }));
+          },
+        },
+      );
+    },
+    [giftStates, set, uploadPurchaseReceipt],
   );
   const handleDeliveryReceipt = useCallback(
     (id: string, f: string | null) => set(id, { deliveryReceiptFileName: f }),
@@ -198,6 +241,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
           giftStates={giftStates}
           isOrdering={markGiftPurchased.isPending}
           isDelivering={markGiftDelivered.isPending}
+          isUploadingReceipt={uploadPurchaseReceipt.isPending}
           onOrdered={handleOrdered}
           onDelivered={handleDelivered}
           onUndoDelivery={handleUndoDelivery}

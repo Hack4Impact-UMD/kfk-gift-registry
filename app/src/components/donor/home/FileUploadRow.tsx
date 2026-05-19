@@ -6,11 +6,13 @@ export function FileUploadRow({
   onFile,
   onClear,
   showClear = false,
+  isUploading = false,
 }: {
   fileName: string | null;
-  onFile: (name: string) => void;
+  onFile: (file: File) => void;
   onClear: () => void;
   showClear?: boolean;
+  isUploading?: boolean;
 }) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -33,17 +35,18 @@ export function FileUploadRow({
           className="sr-only"
           onChange={(e) => {
             const f = e.target.files?.[0];
-            if (f) onFile(f.name);
+            if (f) onFile(f);
             e.target.value = "";
           }}
         />
         <div className="flex items-center gap-2 w-full justify-end">
           <button
             type="button"
-            className="inline-flex min-h-10 items-center justify-center rounded-xl bg-kfk-blue px-8 py-2 font-gaegu text-[18px] font-bold text-white transition-colors hover:bg-kfk-blue/80"
+            disabled={isUploading}
+            className="inline-flex min-h-10 items-center justify-center rounded-xl bg-kfk-blue px-8 py-2 font-gaegu text-[18px] font-bold text-white transition-colors hover:bg-kfk-blue/80 disabled:cursor-not-allowed disabled:opacity-70"
             onClick={() => inputRef.current?.click()}
           >
-            Upload
+            {isUploading ? "Uploading..." : "Upload"}
           </button>
           {showClear && fileName && (
             <button

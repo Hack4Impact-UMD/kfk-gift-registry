@@ -16,6 +16,7 @@ export function GiftInformationCard({
   state,
   isOrdering = false,
   isDelivering = false,
+  isUploadingReceipt = false,
   onOrdered,
   onDelivered,
   onUndoDelivery,
@@ -29,10 +30,11 @@ export function GiftInformationCard({
   state: GiftFormState;
   isOrdering?: boolean;
   isDelivering?: boolean;
+  isUploadingReceipt?: boolean;
   onOrdered: () => void;
   onDelivered: () => void;
   onUndoDelivery: () => void;
-  onReceipt: (f: string | null) => void;
+  onReceipt: (f: File | string | null) => void;
   onDeliveryReceipt: (f: string | null) => void;
   onTrackingChange: (v: string) => void;
   onUnclaimRequest: () => void;
@@ -148,10 +150,10 @@ export function GiftInformationCard({
             <FileUploadRow
               fileName={state.deliveryReceiptFileName}
               onFile={(n) => {
-                onDeliveryReceipt(n);
+                onDeliveryReceipt(n.name);
                 if (!undoMode) {
                   onSave();
-                  setOrderDeliveryReceipt(n);
+                  setOrderDeliveryReceipt(n.name);
                 }
               }}
               onClear={() => onDeliveryReceipt(null)}
@@ -198,12 +200,10 @@ export function GiftInformationCard({
           </p>
           <FileUploadRow
             fileName={state.receiptFileName}
+            isUploading={isUploadingReceipt}
             onFile={(n) => {
               onReceipt(n);
-              if (!undoMode) {
-                onSave();
-                setOrderReceipt(n);
-              }
+              setOrderReceipt(n.name);
             }}
             onClear={() => onReceipt(null)}
             showClear={undoMode}
