@@ -9,6 +9,7 @@ import { ConfirmedBanner } from "./ConfirmedBanner";
 import { FileUploadRow } from "./FileUploadRow";
 import type { CommittedGift, GiftFormState } from "./types";
 import { formatUsd } from "./utils";
+import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup";
 
 export function GiftInformationCard({
   gift,
@@ -34,6 +35,7 @@ export function GiftInformationCard({
   onSave: () => void;
 }) {
   const [undoMode, setUndoMode] = useState(false);
+  const [orderConfirmOpen, setOrderConfirmOpen] = useState(false);
 
   // Keeps track of the most recent saved states
   const [trackingNum, setTrackingNum] = useState(state.tracking);
@@ -42,6 +44,15 @@ export function GiftInformationCard({
   const [orderDeliveryReceipt, setOrderDeliveryReceipt] = useState(
     state.deliveryReceiptFileName,
   );
+
+  const handleConfirmOrdered = () => {
+    onOrdered();
+    if (!undoMode) {
+      setTrackingNum(state.tracking);
+      onSave();
+    }
+    setOrderConfirmOpen(false);
+  };
 
   if (state.receivedByFamily || state.unclaimed) return null;
 
@@ -159,13 +170,7 @@ export function GiftInformationCard({
                 <Button
                   type="button"
                   className="h-12 w-[92%] max-w-md rounded-xl bg-kfk-blue font-gaegu text-[20px] font-bold text-white hover:bg-kfk-blue/80"
-                  onClick={() => {
-                    onOrdered();
-                    if (!undoMode) {
-                      setTrackingNum(state.tracking);
-                      onSave();
-                    }
-                  }}
+                  onClick={() => setOrderConfirmOpen(true)}
                 >
                   Yes, I ordered the gift!
                 </Button>
@@ -280,6 +285,14 @@ export function GiftInformationCard({
           </div>
         )}
       </div>
+
+      <ConfirmGiftsModal
+        isOpen={orderConfirmOpen}
+        onClose={() => setOrderConfirmOpen(false)}
+        onConfirm={handleConfirmOrdered}
+        title="Are you sure you ordered this gift?"
+        confirmLabel="Yes, I ordered it!"
+      />
     </div>
   );
 }
