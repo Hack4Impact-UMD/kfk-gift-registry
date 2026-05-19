@@ -238,6 +238,63 @@ export const markGiftPurchased = createServerFn({ method: "POST" })
     };
   });
 
+export const markGiftDelivered = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.DONOR])])
+  .inputValidator(giftIdSchema)
+  .handler(async ({ data, context }) => {
+    const donorId = context.authUser.uid;
+    const db = getServerDB();
+    const giftDoc = await db.gifts.doc(data.giftId).get();
+    const gift = giftDoc.data();
+
+    if (!gift) {
+      throw new Error("Gift not found");
+    }
+
+    if (gift.claimedByDonorId !== donorId) {
+      throw new Error("Gift is not claimed by this donor");
+    }
+
+    if (gift.status === "DELIVERED" || gift.status === "RECEIVED") {
+      return gift;
+    }
+
+    if (gift.status !== "PURCHASED") {
+      throw new Error(
+        `Gift cannot be marked delivered (status: ${gift.status})`,
+      );
+    }
+
+    const deliveredAt = new Date().toISOString();
+    const claimSnapshot = await db.claims
+      .where("giftId", "==", gift.id)
+      .where("donorId", "==", donorId)
+      .where("active", "==", true)
+      .get();
+
+    const batch = db._instance.batch();
+    batch.update(db.gifts.doc(gift.id), {
+      status: "DELIVERED",
+    });
+
+    for (const claimDoc of claimSnapshot.docs) {
+      batch.update(claimDoc.ref, {
+        deliveryConfirmed: {
+          date: deliveredAt,
+          documentationUrl: "",
+          verified: false,
+        },
+      });
+    }
+
+    await batch.commit();
+
+    return {
+      ...gift,
+      status: "DELIVERED" as const,
+    };
+  });
+
 export const unclaimGifts = createServerFn({ method: "POST" })
   .middleware([requireRolesMiddleware([UserRole.DONOR])])
   .inputValidator(giftIdsSchema)

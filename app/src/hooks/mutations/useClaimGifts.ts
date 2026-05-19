@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   claimGifts,
+  markGiftDelivered,
   markGiftPurchased,
   unclaimGifts,
 } from "@/server/functions/donor";
@@ -52,6 +53,25 @@ export function useMarkGiftPurchased() {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to mark gift as purchased");
+    },
+  });
+}
+
+export function useMarkGiftDelivered() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (giftId: string) => markGiftDelivered({ data: { giftId } }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queries.donor._def });
+      await queryClient.invalidateQueries({
+        queryKey: queries.storefront._def,
+      });
+      await queryClient.invalidateQueries({ queryKey: queries.gifts._def });
+      toast.success("Gift marked as delivered");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to mark gift as delivered");
     },
   });
 }

@@ -15,6 +15,7 @@ export function GiftInformationCard({
   gift,
   state,
   isOrdering = false,
+  isDelivering = false,
   onOrdered,
   onDelivered,
   onUndoDelivery,
@@ -27,6 +28,7 @@ export function GiftInformationCard({
   gift: CommittedGift;
   state: GiftFormState;
   isOrdering?: boolean;
+  isDelivering?: boolean;
   onOrdered: () => void;
   onDelivered: () => void;
   onUndoDelivery: () => void;
@@ -55,10 +57,6 @@ export function GiftInformationCard({
 
   const handleConfirmDelivered = () => {
     onDelivered();
-    if (!undoMode) {
-      setIsDelivered(true);
-      onSave();
-    }
     setDeliveryConfirmOpen(false);
   };
 
@@ -300,6 +298,7 @@ export function GiftInformationCard({
         isOpen={deliveryConfirmOpen}
         onClose={() => setDeliveryConfirmOpen(false)}
         onConfirm={handleConfirmDelivered}
+        isLoading={isDelivering}
         title="Are you sure this gift was delivered?"
         confirmLabel="Yes, it was delivered!"
       />

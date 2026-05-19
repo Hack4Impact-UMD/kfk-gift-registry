@@ -9,7 +9,10 @@ import { createInitialGiftStates, getBlueBackground } from "./utils";
 import { ChildDetailSection } from "./ChildDetailSection";
 import { UnclaimDialog } from "./UnclaimDialog";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
-import { useMarkGiftPurchased } from "@/hooks/mutations/useClaimGifts";
+import {
+  useMarkGiftDelivered,
+  useMarkGiftPurchased,
+} from "@/hooks/mutations/useClaimGifts";
 
 export function ChildBlock({ child }: { child: CommittedChild }) {
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -18,6 +21,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
   );
   const [unclaimTargetId, setUnclaimTargetId] = useState<string | null>(null);
   const markGiftPurchased = useMarkGiftPurchased();
+  const markGiftDelivered = useMarkGiftDelivered();
 
   // Single definition of set — marks dirty on every state change
   const set = useCallback((id: string, patch: Partial<GiftFormState>) => {
@@ -45,8 +49,22 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
     [markGiftPurchased],
   );
   const handleDelivered = useCallback(
-    (id: string) => set(id, { delivered: true }),
-    [set],
+    (id: string) => {
+      markGiftDelivered.mutate(id, {
+        onSuccess: () => {
+          setGiftStates((p) => ({
+            ...p,
+            [id]: {
+              ...p[id],
+              ordered: true,
+              delivered: true,
+              changesSaved: true,
+            },
+          }));
+        },
+      });
+    },
+    [markGiftDelivered],
   );
   const handleUndoDelivery = useCallback(
     (id: string) => set(id, { delivered: false }),
@@ -179,6 +197,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
           child={child}
           giftStates={giftStates}
           isOrdering={markGiftPurchased.isPending}
+          isDelivering={markGiftDelivered.isPending}
           onOrdered={handleOrdered}
           onDelivered={handleDelivered}
           onUndoDelivery={handleUndoDelivery}

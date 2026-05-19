@@ -8,6 +8,7 @@ export function ChildDetailSection({
   child,
   giftStates,
   isOrdering = false,
+  isDelivering = false,
   onOrdered,
   onDelivered,
   onUndoDelivery,
@@ -20,6 +21,7 @@ export function ChildDetailSection({
   child: CommittedChild;
   giftStates: Record<string, GiftFormState>;
   isOrdering?: boolean;
+  isDelivering?: boolean;
   onOrdered: (id: string) => void;
   onDelivered: (id: string) => void;
   onUndoDelivery: (id: string) => void;
@@ -66,6 +68,7 @@ export function ChildDetailSection({
               gift={gift}
               state={giftStates[gift.id]}
               isOrdering={isOrdering}
+              isDelivering={isDelivering}
               onOrdered={() => onOrdered(gift.id)}
               onDelivered={() => onDelivered(gift.id)}
               onUndoDelivery={() => onUndoDelivery(gift.id)}
