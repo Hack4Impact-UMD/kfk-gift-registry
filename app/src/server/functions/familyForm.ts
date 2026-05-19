@@ -166,8 +166,6 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
     const now = DateTime.now().toISO();
     const normalizedEmail = normalizeFamilyEmail(data.generalInfo.email);
 
-    await assertFamilyEmailAvailable(normalizedEmail);
-
     // Pre-generate IDs so photos can be stored under the correct child path
     // before the Firestore transaction runs.
     const familyId = uuidv7();
@@ -277,6 +275,14 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
 
     // Single atomic Firestore transaction — all documents created together.
     await db._instance.runTransaction(async (tx) => {
+      const existingFamily = await tx.get(
+        db.families.where("email", "==", normalizedEmail).limit(1),
+      );
+
+      if (!existingFamily.empty) {
+        throw new Error(DUPLICATE_FAMILY_EMAIL_MESSAGE);
+      }
+
       tx.set(db.families.doc(familyId), family);
       childDocs.forEach((child) => tx.set(db.children.doc(child.id), child));
       giftDocs.forEach((gift) => tx.set(db.gifts.doc(gift.id), gift));
