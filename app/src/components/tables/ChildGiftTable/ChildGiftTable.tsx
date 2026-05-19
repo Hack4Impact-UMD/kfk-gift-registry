@@ -22,7 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import type { StorefrontGift } from "@/types/storefront";
 import { cartCollection } from "@/local/cartCollection";
-import { useLiveQuery } from "@tanstack/react-db";
+import { useLocalCartData } from "@/hooks/queries/useCartGifts";
 
 function isGiftAlreadyClaimed(gift: StorefrontGift) {
   return gift.status !== "AVAILABLE";
@@ -30,9 +30,7 @@ function isGiftAlreadyClaimed(gift: StorefrontGift) {
 
 export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const { data: cartGifts } = useLiveQuery((q) =>
-    q.from({ perf: cartCollection }),
-  );
+  const { data: cartGifts } = useLocalCartData();
 
   const isGiftLocallyClaimed = (giftId: string) =>
     cartGifts.some((g) => g.id === giftId);
