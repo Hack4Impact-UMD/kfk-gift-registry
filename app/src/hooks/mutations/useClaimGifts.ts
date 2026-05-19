@@ -12,6 +12,7 @@ export function useClaimGifts() {
         queryKey: queries.storefront._def,
       });
       await queryClient.invalidateQueries({ queryKey: queries.gifts._def });
+      await queryClient.invalidateQueries({ queryKey: queries.donor._def });
     },
   });
 }
@@ -26,6 +27,7 @@ export function useUnclaimGifts() {
         queryKey: queries.storefront._def,
       });
       await queryClient.invalidateQueries({ queryKey: queries.gifts._def });
+      await queryClient.invalidateQueries({ queryKey: queries.donor._def });
     },
   });
 }
