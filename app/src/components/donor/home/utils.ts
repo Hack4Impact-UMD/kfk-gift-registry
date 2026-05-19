@@ -12,6 +12,7 @@ export function createInitialGiftStates(
         delivered: ["DELIVERED", "RECEIVED"].includes(g.status),
         receivedByFamily: g.status === "RECEIVED",
         receiptFileName: g.purchaseReceiptFileName,
+        receiptUrl: g.purchaseReceiptUrl,
         deliveryReceiptFileName: null,
         tracking: g.trackingNumber,
         unclaimed: false,

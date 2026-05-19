@@ -72,7 +72,9 @@ function getUploadedFileName(url?: string) {
   try {
     const pathname = new URL(url).pathname;
     const lastSegment = pathname.split("/").pop();
-    return lastSegment ? decodeURIComponent(lastSegment) : "Receipt uploaded";
+    if (!lastSegment) return "Receipt uploaded";
+    const decoded = decodeURIComponent(lastSegment);
+    return decoded.replace(/^\d+-/, "");
   } catch {
     return "Receipt uploaded";
   }
@@ -158,6 +160,7 @@ export const getCommittedChildrenForDonor = createServerFn({ method: "GET" })
         purchaseReceiptFileName: getUploadedFileName(
           claim.purchaseConfirmation?.documentationUrl,
         ),
+        purchaseReceiptUrl: claim.purchaseConfirmation?.documentationUrl ?? null,
         trackingNumber: claim.purchaseConfirmation?.trackingNumber ?? "",
       });
     }

@@ -3,12 +3,14 @@ import { Label } from "@/components/ui/label";
 
 export function FileUploadRow({
   fileName,
+  fileUrl,
   onFile,
   onClear,
   showClear = false,
   isUploading = false,
 }: {
   fileName: string | null;
+  fileUrl?: string | null;
   onFile: (file: File) => void;
   onClear: () => void;
   showClear?: boolean;
@@ -48,6 +50,16 @@ export function FileUploadRow({
           >
             {isUploading ? "Uploading..." : "Upload"}
           </button>
+          {fileUrl && (
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-9 items-center justify-center rounded-lg border border-kfk-blue px-3 py-1 text-xs font-semibold text-kfk-blue transition-colors hover:bg-kfk-blue/5"
+            >
+              View
+            </a>
+          )}
           {showClear && fileName && (
             <button
               type="button"

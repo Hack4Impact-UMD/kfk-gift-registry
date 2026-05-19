@@ -8,6 +8,7 @@ export type CommittedGift = {
   additionalInfo: string;
   status: GiftStatus;
   purchaseReceiptFileName: string | null;
+  purchaseReceiptUrl: string | null;
   trackingNumber: string;
 };
 
@@ -27,6 +28,7 @@ export type GiftFormState = {
   delivered: boolean;
   receivedByFamily: boolean;
   receiptFileName: string | null;
+  receiptUrl: string | null;
   deliveryReceiptFileName: string | null;
   tracking: string;
   unclaimed: boolean;

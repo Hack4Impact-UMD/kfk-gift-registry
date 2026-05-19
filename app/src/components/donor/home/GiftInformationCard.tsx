@@ -200,6 +200,7 @@ export function GiftInformationCard({
           </p>
           <FileUploadRow
             fileName={state.receiptFileName}
+            fileUrl={state.receiptUrl}
             isUploading={isUploadingReceipt}
             onFile={(n) => {
               onReceipt(n);
@@ -216,19 +217,13 @@ export function GiftInformationCard({
             >
               Tracking #
             </Label>
-            {!state.ordered || undoMode ? (
-              <Input
-                id={`${gift.id}-tracking`}
-                value={state.tracking}
-                onChange={(e) => onTrackingChange(e.target.value)}
-                placeholder="Enter tracking number"
-                className="rounded-lg border-gray-300"
-              />
-            ) : (
-              <Label className="justify-self-end text-primary">
-                {state.tracking}
-              </Label>
-            )}
+            <Input
+              id={`${gift.id}-tracking`}
+              value={state.tracking}
+              onChange={(e) => onTrackingChange(e.target.value)}
+              placeholder="Enter tracking number"
+              className="rounded-lg border-gray-300"
+            />
           </div>
 
           {/* Changes Saved */}

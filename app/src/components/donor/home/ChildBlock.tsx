@@ -84,7 +84,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
   const handleReceipt = useCallback(
     async (id: string, file: File | string | null) => {
       if (!file) {
-        set(id, { receiptFileName: null });
+        set(id, { receiptFileName: null, receiptUrl: null });
         return;
       }
 
@@ -102,12 +102,13 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
           trackingNumber: giftStates[id]?.tracking,
         },
         {
-          onSuccess: () => {
+          onSuccess: (data) => {
             setGiftStates((p) => ({
               ...p,
               [id]: {
                 ...p[id],
                 receiptFileName: file.name,
+                receiptUrl: data.documentationUrl,
                 changesSaved: true,
               },
             }));
