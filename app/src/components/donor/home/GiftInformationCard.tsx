@@ -14,6 +14,7 @@ import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup";
 export function GiftInformationCard({
   gift,
   state,
+  isOrdering = false,
   onOrdered,
   onDelivered,
   onUndoDelivery,
@@ -25,6 +26,7 @@ export function GiftInformationCard({
 }: {
   gift: CommittedGift;
   state: GiftFormState;
+  isOrdering?: boolean;
   onOrdered: () => void;
   onDelivered: () => void;
   onUndoDelivery: () => void;
@@ -47,10 +49,6 @@ export function GiftInformationCard({
 
   const handleConfirmOrdered = () => {
     onOrdered();
-    if (!undoMode) {
-      setTrackingNum(state.tracking);
-      onSave();
-    }
     setOrderConfirmOpen(false);
   };
 
@@ -290,6 +288,7 @@ export function GiftInformationCard({
         isOpen={orderConfirmOpen}
         onClose={() => setOrderConfirmOpen(false)}
         onConfirm={handleConfirmOrdered}
+        isLoading={isOrdering}
         title="Are you sure you ordered this gift?"
         confirmLabel="Yes, I ordered it!"
       />

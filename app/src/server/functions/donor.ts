@@ -14,6 +14,10 @@ const giftIdsSchema = z.object({
   giftIds: z.array(z.string().min(1)).min(1),
 });
 
+const giftIdSchema = z.object({
+  giftId: z.string().min(1),
+});
+
 async function loadGifts(
   tx: FirebaseFirestore.Transaction,
   db: ReturnType<typeof getServerDB>,
@@ -130,6 +134,7 @@ export const getCommittedChildrenForDonor = createServerFn({ method: "GET" })
         productUrl: gift.productUrl,
         listedPrice: gift.listedPrice ?? 0,
         additionalInfo: gift.familyPublicNotes ?? "",
+        status: gift.status,
       });
     }
 
@@ -190,6 +195,47 @@ export const claimGifts = createServerFn({ method: "POST" })
 
       return { claims };
     });
+  });
+
+export const markGiftPurchased = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.DONOR])])
+  .inputValidator(giftIdSchema)
+  .handler(async ({ data, context }) => {
+    const donorId = context.authUser.uid;
+    const db = getServerDB();
+    const giftDoc = await db.gifts.doc(data.giftId).get();
+    const gift = giftDoc.data();
+
+    if (!gift) {
+      throw new Error("Gift not found");
+    }
+
+    if (gift.claimedByDonorId !== donorId) {
+      throw new Error("Gift is not claimed by this donor");
+    }
+
+    if (
+      gift.status === "PURCHASED" ||
+      gift.status === "DELIVERED" ||
+      gift.status === "RECEIVED"
+    ) {
+      return gift;
+    }
+
+    if (gift.status !== "CLAIMED") {
+      throw new Error(
+        `Gift cannot be marked purchased (status: ${gift.status})`,
+      );
+    }
+
+    await db.gifts.doc(gift.id).update({
+      status: "PURCHASED",
+    });
+
+    return {
+      ...gift,
+      status: "PURCHASED" as const,
+    };
   });
 
 export const unclaimGifts = createServerFn({ method: "POST" })

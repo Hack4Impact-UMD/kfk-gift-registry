@@ -7,6 +7,7 @@ import { ReceivedGiftsCard } from "./ReceivedGiftsCard";
 export function ChildDetailSection({
   child,
   giftStates,
+  isOrdering = false,
   onOrdered,
   onDelivered,
   onUndoDelivery,
@@ -18,6 +19,7 @@ export function ChildDetailSection({
 }: {
   child: CommittedChild;
   giftStates: Record<string, GiftFormState>;
+  isOrdering?: boolean;
   onOrdered: (id: string) => void;
   onDelivered: (id: string) => void;
   onUndoDelivery: (id: string) => void;
@@ -63,6 +65,7 @@ export function ChildDetailSection({
               key={gift.id}
               gift={gift}
               state={giftStates[gift.id]}
+              isOrdering={isOrdering}
               onOrdered={() => onOrdered(gift.id)}
               onDelivered={() => onDelivered(gift.id)}
               onUndoDelivery={() => onUndoDelivery(gift.id)}

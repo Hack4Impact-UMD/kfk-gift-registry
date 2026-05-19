@@ -8,9 +8,9 @@ export function createInitialGiftStates(
     gifts.map((g) => [
       g.id,
       {
-        ordered: false,
-        delivered: false,
-        receivedByFamily: false,
+        ordered: ["PURCHASED", "DELIVERED", "RECEIVED"].includes(g.status),
+        delivered: ["DELIVERED", "RECEIVED"].includes(g.status),
+        receivedByFamily: g.status === "RECEIVED",
         receiptFileName: null,
         deliveryReceiptFileName: null,
         tracking: "",

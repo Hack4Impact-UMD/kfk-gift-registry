@@ -9,6 +9,7 @@ import { createInitialGiftStates, getBlueBackground } from "./utils";
 import { ChildDetailSection } from "./ChildDetailSection";
 import { UnclaimDialog } from "./UnclaimDialog";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
+import { useMarkGiftPurchased } from "@/hooks/mutations/useClaimGifts";
 
 export function ChildBlock({ child }: { child: CommittedChild }) {
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -16,6 +17,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
     createInitialGiftStates(child.gifts),
   );
   const [unclaimTargetId, setUnclaimTargetId] = useState<string | null>(null);
+  const markGiftPurchased = useMarkGiftPurchased();
 
   // Single definition of set — marks dirty on every state change
   const set = useCallback((id: string, patch: Partial<GiftFormState>) => {
@@ -26,8 +28,21 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
   }, []);
 
   const handleOrdered = useCallback(
-    (id: string) => set(id, { ordered: true }),
-    [set],
+    (id: string) => {
+      markGiftPurchased.mutate(id, {
+        onSuccess: () => {
+          setGiftStates((p) => ({
+            ...p,
+            [id]: {
+              ...p[id],
+              ordered: true,
+              changesSaved: true,
+            },
+          }));
+        },
+      });
+    },
+    [markGiftPurchased],
   );
   const handleDelivered = useCallback(
     (id: string) => set(id, { delivered: true }),
@@ -107,7 +122,8 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
           {child.category}
         </h3>
         <p className="rounded-full bg-white/12 px-4 py-1 text-sm text-white/90">
-          {visibleGifts.length} active {visibleGifts.length === 1 ? "gift" : "gifts"}
+          {visibleGifts.length} active{" "}
+          {visibleGifts.length === 1 ? "gift" : "gifts"}
         </p>
 
         <div className="my-2 flex w-full flex-col gap-2">
@@ -125,9 +141,9 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
                   <h3
                     className={cn(
                       "shrink-0 rounded-full px-3 py-1 text-xs font-semibold",
-                    purchased
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-kfk-red",
+                      purchased
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-kfk-red",
                     )}
                   >
                     {purchased ? "Purchased" : "Not Purchased"}
@@ -162,6 +178,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
         <ChildDetailSection
           child={child}
           giftStates={giftStates}
+          isOrdering={markGiftPurchased.isPending}
           onOrdered={handleOrdered}
           onDelivered={handleDelivered}
           onUndoDelivery={handleUndoDelivery}

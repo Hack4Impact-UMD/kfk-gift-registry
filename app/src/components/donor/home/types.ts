@@ -1,9 +1,12 @@
+import type { GiftStatus } from "common";
+
 export type CommittedGift = {
   id: string;
   title: string;
   productUrl: string;
   listedPrice: number;
   additionalInfo: string;
+  status: GiftStatus;
 };
 
 export type ChildStatus = "Warrior" | "Supersib";
