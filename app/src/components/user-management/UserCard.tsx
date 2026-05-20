@@ -57,7 +57,9 @@ export function UserCard({ user, currentUser }: UserCardProps) {
     <>
       <div className="flex items-center gap-4 rounded-lg border bg-card px-5 py-4 shadow-sm h-24">
         <Avatar size="lg" className="shrink-0">
-          <AvatarFallback className="bg-blue-100 text-blue-600 text-sm font-medium">{getInitials(user.name)}</AvatarFallback>
+          <AvatarFallback className="bg-blue-100 text-blue-600 text-sm font-medium">
+            {getInitials(user.name)}
+          </AvatarFallback>
         </Avatar>
 
         <div className="min-w-0 flex-1">
@@ -85,7 +87,9 @@ export function UserCard({ user, currentUser }: UserCardProps) {
             )}
             <span className="flex items-center gap-1.5">
               <CalendarIcon className="size-3.5 shrink-0" />
-              {DateTime.fromISO(user.createdAt).toLocaleString(DateTime.DATE_MED)}
+              {DateTime.fromISO(user.createdAt).toLocaleString(
+                DateTime.DATE_MED,
+              )}
             </span>
           </div>
         </div>

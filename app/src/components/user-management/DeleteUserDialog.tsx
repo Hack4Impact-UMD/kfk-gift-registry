@@ -24,10 +24,7 @@ export function DeleteUserDialog({
   const { mutate: deleteUser, isPending } = useDeleteUserProfile();
 
   function handleConfirm() {
-    deleteUser(
-      { userId: user.id },
-      { onSuccess: () => onOpenChange(false) },
-    );
+    deleteUser({ userId: user.id }, { onSuccess: () => onOpenChange(false) });
   }
 
   return (

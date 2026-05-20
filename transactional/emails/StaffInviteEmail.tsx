@@ -14,7 +14,10 @@ import {
   Text,
 } from "react-email";
 
-const ROLE_LABELS: Record<UserRole.DIRECTOR | UserRole.ADMIN | UserRole.VOLUNTEER, string> = {
+const ROLE_LABELS: Record<
+  UserRole.DIRECTOR | UserRole.ADMIN | UserRole.VOLUNTEER,
+  string
+> = {
   [UserRole.DIRECTOR]: "Director",
   [UserRole.ADMIN]: "Admin",
   [UserRole.VOLUNTEER]: "Volunteer",
@@ -68,14 +71,13 @@ export default function StaffInviteEmail({
 
             {/* Body */}
             <Section className="rounded-b-lg border border-t-0 border-gray-200 bg-white px-8 py-8">
-              <Text className="my-0 text-base text-gray-500">
-                Hi {name},
-              </Text>
+              <Text className="my-0 text-base text-gray-500">Hi {name},</Text>
               <Heading className="m-0 mb-2 text-2xl font-bold text-gray-900">
                 You&apos;ve been invited!
               </Heading>
               <Text className="mt-0 text-base text-gray-500">
-                You have been invited to join the Kisses for Kyle Gift Registry team.
+                You have been invited to join the Kisses for Kyle Gift Registry
+                team.
               </Text>
 
               <Hr className="my-6 border-gray-200" />
@@ -125,8 +127,8 @@ export default function StaffInviteEmail({
 
             {/* Footer */}
             <Text className="mt-6 text-center text-xs text-gray-400">
-              &copy; {new Date().getFullYear()} Kisses for Kyle Foundation. All rights
-              reserved.
+              &copy; {new Date().getFullYear()} Kisses for Kyle Foundation. All
+              rights reserved.
             </Text>
           </Container>
         </Body>

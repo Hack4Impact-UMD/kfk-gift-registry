@@ -17,8 +17,14 @@ export function UserTabHeader({
   donorCount,
   onTabChange,
 }: UserTabHeaderProps) {
-  const handleStaffClick = useCallback(() => onTabChange("staff"), [onTabChange]);
-  const handleDonorClick = useCallback(() => onTabChange("donors"), [onTabChange]);
+  const handleStaffClick = useCallback(
+    () => onTabChange("staff"),
+    [onTabChange],
+  );
+  const handleDonorClick = useCallback(
+    () => onTabChange("donors"),
+    [onTabChange],
+  );
 
   return (
     <div className="grid grid-cols-2 gap-4">

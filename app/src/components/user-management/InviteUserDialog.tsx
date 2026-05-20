@@ -57,7 +57,11 @@ export function InviteUserDialog({
       role: "" as InvitableRole | "",
     },
     onSubmit: async ({ value }) => {
-      await sendInvite({ name: value.name, email: value.email, role: value.role as InvitableRole });
+      await sendInvite({
+        name: value.name,
+        email: value.email,
+        role: value.role as InvitableRole,
+      });
       handleClose();
     },
   });
@@ -68,7 +72,13 @@ export function InviteUserDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (!next) handleClose(); else onOpenChange(true); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) handleClose();
+        else onOpenChange(true);
+      }}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Invite staff member</DialogTitle>
@@ -104,7 +114,11 @@ export function InviteUserDialog({
                   onChange={(e) => field.handleChange(e.target.value)}
                   aria-invalid={field.state.meta.errors.length > 0}
                 />
-                <FieldError errors={field.state.meta.errors.map((e) => ({ message: String(e) }))} />
+                <FieldError
+                  errors={field.state.meta.errors.map((e) => ({
+                    message: String(e),
+                  }))}
+                />
               </div>
             )}
           </form.Field>
@@ -132,7 +146,11 @@ export function InviteUserDialog({
                   onChange={(e) => field.handleChange(e.target.value)}
                   aria-invalid={field.state.meta.errors.length > 0}
                 />
-                <FieldError errors={field.state.meta.errors.map((e) => ({ message: String(e) }))} />
+                <FieldError
+                  errors={field.state.meta.errors.map((e) => ({
+                    message: String(e),
+                  }))}
+                />
               </div>
             )}
           </form.Field>
@@ -152,7 +170,11 @@ export function InviteUserDialog({
                   value={field.state.value}
                   onValueChange={(v) => field.handleChange(v as InvitableRole)}
                 >
-                  <SelectTrigger id={field.name} className="w-full border" onBlur={field.handleBlur}>
+                  <SelectTrigger
+                    id={field.name}
+                    className="w-full border"
+                    onBlur={field.handleBlur}
+                  >
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -163,7 +185,11 @@ export function InviteUserDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                <FieldError errors={field.state.meta.errors.map((e) => ({ message: String(e) }))} />
+                <FieldError
+                  errors={field.state.meta.errors.map((e) => ({
+                    message: String(e),
+                  }))}
+                />
               </div>
             )}
           </form.Field>

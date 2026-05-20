@@ -40,8 +40,8 @@ export function UpdateRoleDialog({
     UserRole.DIRECTOR | UserRole.ADMIN | UserRole.VOLUNTEER
   >(
     user.role === UserRole.DIRECTOR ||
-    user.role === UserRole.ADMIN ||
-    user.role === UserRole.VOLUNTEER
+      user.role === UserRole.ADMIN ||
+      user.role === UserRole.VOLUNTEER
       ? user.role
       : UserRole.VOLUNTEER,
   );
@@ -71,7 +71,9 @@ export function UpdateRoleDialog({
           <Select
             value={selectedRole}
             onValueChange={(v) =>
-              setSelectedRole(v as UserRole.DIRECTOR | UserRole.ADMIN | UserRole.VOLUNTEER)
+              setSelectedRole(
+                v as UserRole.DIRECTOR | UserRole.ADMIN | UserRole.VOLUNTEER,
+              )
             }
           >
             <SelectTrigger id="role-select" className="w-full border">

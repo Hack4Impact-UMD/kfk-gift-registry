@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { UserRole } from 'common';
-import type { UserProfile } from 'common';
+import { UserRole } from "common";
+import type { UserProfile } from "common";
 import { MagnifyingGlassIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,8 +15,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAllUserProfiles } from "@/hooks/queries/useAllUserProfiles";
 import { useCurrentUserProfile } from "@/hooks/queries/useCurrentUserProfile";
-import { UserTabHeader } from '@/components/user-management/UserTabHeader';
-import type { UserTab } from '@/components/user-management/UserTabHeader';
+import { UserTabHeader } from "@/components/user-management/UserTabHeader";
+import type { UserTab } from "@/components/user-management/UserTabHeader";
 import { UserCard } from "@/components/user-management/UserCard";
 import { InviteUserDialog } from "@/components/user-management/InviteUserDialog";
 import { queries } from "@/queries";
@@ -32,12 +32,16 @@ export const Route = createFileRoute("/_authenticated/staff/admin/users")({
     ],
   }),
   beforeLoad: async ({ context }) => {
-    await context.queryClient.ensureQueryData(queries.users.all)
+    await context.queryClient.ensureQueryData(queries.users.all);
   },
   component: RouteComponent,
 });
 
-type RoleFilter = UserRole.DIRECTOR | UserRole.ADMIN | UserRole.VOLUNTEER | "all";
+type RoleFilter =
+  | UserRole.DIRECTOR
+  | UserRole.ADMIN
+  | UserRole.VOLUNTEER
+  | "all";
 
 const STAFF_ROLES = new Set<UserRole>([
   UserRole.DIRECTOR,
@@ -96,7 +100,9 @@ function RouteComponent() {
           <h1 className="text-2xl font-bold">User Management</h1>
         </div>
         {canInvite && (
-          <Button onClick={() => setInviteOpen(true)}>+ Invite staff member</Button>
+          <Button onClick={() => setInviteOpen(true)}>
+            + Invite staff member
+          </Button>
         )}
       </div>
 
