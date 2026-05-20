@@ -319,8 +319,18 @@ export const updateUserRole = createServerFn({ method: "POST" })
       throw new Error("Cannot change a director's role");
     }
 
-    await auth.setCustomUserClaims(userId, { role });
-    await db.users.doc(userId).update({ role });
+    const previousRole = user.role;
+    try {
+      await auth.setCustomUserClaims(userId, { role });
+      await db.users.doc(userId).update({ role });
+    } catch (error) {
+      try {
+        await auth.setCustomUserClaims(userId, { role: previousRole });
+      } catch (rollbackError) {
+        console.error("Failed to rollback Auth claims:", rollbackError);
+      }
+      throw error;
+    }
 
     return (await db.users.doc(userId).get()).data();
   });

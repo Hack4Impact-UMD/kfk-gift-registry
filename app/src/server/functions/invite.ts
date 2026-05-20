@@ -78,12 +78,20 @@ export const createStaffInvite = createServerFn({ method: "POST" })
     const inviteLink = `${baseUrl}/signup/admin/${inviteRef.id}`;
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: "Kisses for Kyle Gift Registry <noreply@gifts.kissesforkyle.org>",
       to: email,
       subject: "You've been invited to join KFK Gift Registry",
       react: StaffInviteEmail({ name, role, inviteLink, baseUrl }),
     });
+
+    if (error) {
+      await inviteRef.delete();
+      console.error(
+        `Invite email failed to send: $${error.name} - ${error.message}`,
+      );
+      throw new Error(`${error.name} - ${error.message}`);
+    }
 
     return invite;
   });

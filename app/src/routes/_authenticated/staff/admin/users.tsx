@@ -64,8 +64,16 @@ function matchesSearch(user: UserProfile, query: string): boolean {
 }
 
 function RouteComponent() {
-  const { data: allUsers, isLoading } = useAllUserProfiles();
-  const { data: currentUser } = useCurrentUserProfile();
+  const {
+    data: allUsers,
+    isPending: usersPending,
+    error: usersError,
+  } = useAllUserProfiles();
+  const {
+    data: currentUser,
+    isPending: currentUserPending,
+    error: currentUserError,
+  } = useCurrentUserProfile();
 
   const [activeTab, setActiveTab] = useState<UserTab>("staff");
   const [search, setSearch] = useState("");
@@ -146,7 +154,7 @@ function RouteComponent() {
         )}
       </div>
 
-      {isLoading ? (
+      {currentUserPending || usersPending ? (
         <div className="flex flex-col gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-lg" />
@@ -156,13 +164,21 @@ function RouteComponent() {
         <p className="py-12 text-center text-sm text-muted-foreground">
           No users found.
         </p>
-      ) : currentUser ? (
+      ) : usersError ? (
+        <p className="py-12 text-center text-sm text-red-500">
+          Failed to fetch users: {usersError.message}
+        </p>
+      ) : currentUserError ? (
+        <p className="py-12 text-center text-sm text-red-500">
+          Failed to fetch current user: {currentUserError.message}
+        </p>
+      ) : (
         <div className="flex flex-col gap-3">
           {filteredUsers.map((user) => (
             <UserCard key={user.id} user={user} currentUser={currentUser} />
           ))}
         </div>
-      ) : null}
+      )}
 
       {canInvite && currentUser && (
         <InviteUserDialog

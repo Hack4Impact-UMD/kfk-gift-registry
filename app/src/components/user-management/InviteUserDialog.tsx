@@ -58,8 +58,8 @@ export function InviteUserDialog({
     },
     onSubmit: async ({ value }) => {
       await sendInvite({
-        name: value.name,
-        email: value.email,
+        name: value.name.trim(),
+        email: value.email.trim(),
         role: value.role as InvitableRole,
       });
       handleClose();
