@@ -21,6 +21,9 @@ importers:
       '@types/node':
         specifier: ^22.19.9
         version: 22.19.17
+      firebase-admin:
+        specifier: ^13.10.0
+        version: 13.10.0
       oxfmt:
         specifier: ^0.41.0
         version: 0.41.0
@@ -51,6 +54,9 @@ importers:
       '@lukemorales/query-key-factory':
         specifier: ^1.3.4
         version: 1.3.4(@tanstack/query-core@5.99.1)(@tanstack/react-query@5.99.1(react@19.2.5))
+      '@react-email/render':
+        specifier: ^2.0.8
+        version: 2.0.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tailwindcss/vite':
         specifier: ^4.0.6
         version: 4.2.2(vite@7.3.2(@types/node@22.19.17)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0))
@@ -168,6 +174,9 @@ importers:
       tough-cookie:
         specifier: ^6.0.0
         version: 6.0.1
+      transactional:
+        specifier: workspace:*
+        version: link:../transactional
       tw-animate-css:
         specifier: ^1.3.6
         version: 1.4.0
@@ -276,6 +285,9 @@ importers:
 
   transactional:
     dependencies:
+      common:
+        specifier: workspace:*
+        version: link:../common
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -4794,6 +4806,10 @@ packages:
         optional: true
       puppeteer:
         optional: true
+
+  firebase-admin@13.10.0:
+    resolution: {integrity: sha512-rbuCrJvYRwqBqvbccMS8fj/x2zsaMisdf5RQbRzQzr14Rbq9r2UlpuBHqWAwrO6c9dIRF56xF/xoepXsD5yDuQ==}
+    engines: {node: '>=18'}
 
   firebase-admin@13.8.0:
     resolution: {integrity: sha512-iawoQkmZbsA+2DY5UEuB8f6jSlskzzySoye0D2F6e3zlDZX9DUcXf0HhZqLUn/P6WhLGvTf6ZtCmshZvhAgTYg==}
@@ -12180,6 +12196,23 @@ snapshots:
     dependencies:
       fingerprint-generator: 2.1.82
       tslib: 2.8.1
+
+  firebase-admin@13.10.0:
+    dependencies:
+      '@fastify/busboy': 3.2.0
+      '@firebase/database-compat': 2.1.3
+      '@firebase/database-types': 1.0.19
+      farmhash-modern: 1.1.0
+      fast-deep-equal: 3.1.3
+      google-auth-library: 10.6.2
+      jsonwebtoken: 9.0.3
+      jwks-rsa: 3.2.2
+    optionalDependencies:
+      '@google-cloud/firestore': 7.11.6
+      '@google-cloud/storage': 7.19.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
 
   firebase-admin@13.8.0:
     dependencies:

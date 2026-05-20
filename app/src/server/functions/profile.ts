@@ -287,6 +287,44 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
     }
   });
 
+const updateUserRoleSchema = z.object({
+  userId: z.string().min(1),
+  role: z.enum([UserRole.DIRECTOR, UserRole.ADMIN, UserRole.VOLUNTEER]),
+});
+
+/**
+ * Updates a user's role (ADMIN ↔ VOLUNTEER). DIRECTOR only.
+ * Cannot change the role of another DIRECTOR or yourself.
+ * Updates both Firestore and Firebase Auth custom claims.
+ */
+export const updateUserRole = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.DIRECTOR])])
+  .inputValidator(updateUserRoleSchema)
+  .handler(async ({ data, context }) => {
+    const { userId, role } = data;
+
+    if (context.authUser.uid === userId) {
+      throw new Error("Cannot update your own role");
+    }
+
+    const db = getServerDB();
+    const auth = getServerAuth();
+
+    const userSnap = await db.users.doc(userId).get();
+    if (!userSnap.exists) throw new Error("User not found");
+    const user = userSnap.data();
+    if (!user) throw new Error("User not found");
+
+    if (user.role === UserRole.DIRECTOR) {
+      throw new Error("Cannot change a director's role");
+    }
+
+    await auth.setCustomUserClaims(userId, { role });
+    await db.users.doc(userId).update({ role });
+
+    return (await db.users.doc(userId).get()).data();
+  });
+
 const donorRegistrationSchema = z.object({
   name: z.string().trim().min(1),
   email: z.email(),
