@@ -18,11 +18,12 @@ This repository contains the source code for the Kisses for Kyle Gift registry p
 
 ```
 kfk-gift-registry/
-├── app/          # TanStack Start web application (React, Vite)
-├── common/       # Shared TypeScript types and utilities
-├── functions/    # Firebase Cloud Functions
-├── firebase.json # Firebase project and emulator configuration
-└── package.json  # Root package.json with workspace-level scripts
+├── app/            # TanStack Start web application (React, Vite)
+├── common/         # Shared TypeScript types and utilities
+├── functions/      # Firebase Cloud Functions
+├── transactional/  # Transactional Email Templates (React Email)
+├── firebase.json   # Firebase project and emulator configuration
+└── package.json    # Root package.json with workspace-level scripts
 ```
 
 ## Running Locally

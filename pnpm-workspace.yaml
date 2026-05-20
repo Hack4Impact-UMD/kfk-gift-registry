@@ -2,6 +2,7 @@ packages:
   - app
   - common
   - functions
+  - transactional
 
 onlyBuiltDependencies:
   - esbuild
