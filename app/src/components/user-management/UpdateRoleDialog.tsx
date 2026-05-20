@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { UserRole, type UserProfile } from "common";
+import { UserRole } from "common";
+import type { UserProfile } from "common";
 import {
   Dialog,
   DialogContent,

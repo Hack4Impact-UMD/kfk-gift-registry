@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { UserRole } from "common";
+import type { UserRole } from "common";
 import { createStaffInvite } from "@/server/functions/invite";
 import { toast } from "@/lib/toast";
 

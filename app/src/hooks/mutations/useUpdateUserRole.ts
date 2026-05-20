@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { UserRole } from "common";
+import type { UserRole } from "common";
 import { updateUserRole } from "@/server/functions/profile";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
