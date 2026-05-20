@@ -22,7 +22,7 @@ export function buildFamilyFormSubmitPayload(
     giftDriveId: driveId,
     generalInfo: {
       parentName: gi.parentName,
-      email: gi.email,
+      email: gi.email.trim().toLowerCase(),
       phoneNumber: gi.phoneNumber ?? "",
       address: {
         street: gi.streetAddress,

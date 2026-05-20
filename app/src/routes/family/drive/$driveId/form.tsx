@@ -1,4 +1,9 @@
-import { Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
+import {
+  Outlet,
+  createFileRoute,
+  redirect,
+  useLocation,
+} from "@tanstack/react-router";
 import { FormProvider } from "@/components/providers/FormProvider";
 import {
   Card,
@@ -18,6 +23,14 @@ export const Route = createFileRoute("/family/drive/$driveId/form")({
       },
     ],
   }),
+  beforeLoad: ({ location, params }) => {
+    if (location.pathname === `/family/drive/${params.driveId}/form`) {
+      throw redirect({
+        to: "/family/drive/$driveId/form/consent",
+        params: { driveId: params.driveId },
+      });
+    }
+  },
   component: FormLayoutComponent,
   ssr: false,
 });
