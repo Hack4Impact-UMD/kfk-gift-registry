@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from "react";
 import { Clock, CheckCircle, XCircle } from "lucide-react";
 import { UsersIcon } from "@/components/icons";
-import { StatusSummaryCard } from "./StatusSummaryCard";
 import type { ApplicationStatus, PendingProfileTableRow } from "./types";
+import { StatusSummaryCard } from "@/components/StatusSummaryCard";
 
 interface StatusSummaryHeaderProps {
   data: Array<PendingProfileTableRow>;
