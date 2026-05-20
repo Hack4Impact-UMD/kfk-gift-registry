@@ -88,7 +88,7 @@ export const createStaffInvite = createServerFn({ method: "POST" })
     if (error) {
       await inviteRef.delete();
       console.error(
-        `Invite email failed to send: $${error.name} - ${error.message}`,
+        `Invite email failed to send: ${error.name} - ${error.message}`,
       );
       throw new Error(`${error.name} - ${error.message}`);
     }

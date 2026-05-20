@@ -160,10 +160,6 @@ function RouteComponent() {
             <Skeleton key={i} className="h-24 rounded-lg" />
           ))}
         </div>
-      ) : filteredUsers.length === 0 ? (
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          No users found.
-        </p>
       ) : usersError ? (
         <p className="py-12 text-center text-sm text-red-500">
           Failed to fetch users: {usersError.message}
@@ -171,6 +167,10 @@ function RouteComponent() {
       ) : currentUserError ? (
         <p className="py-12 text-center text-sm text-red-500">
           Failed to fetch current user: {currentUserError.message}
+        </p>
+      ) : filteredUsers.length === 0 ? (
+        <p className="py-12 text-center text-sm text-muted-foreground">
+          No users found.
         </p>
       ) : (
         <div className="flex flex-col gap-3">
