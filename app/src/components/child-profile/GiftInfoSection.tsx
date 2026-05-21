@@ -13,6 +13,7 @@ export type GiftDetails = {
   dateDelivered: string;
   dateReceived: string;
   proofOfPurchaseUrl?: string;
+  proofOfDeliveryUrl?: string;
 };
 
 interface GiftInfoSectionProps {
@@ -64,6 +65,9 @@ export function GiftInfoSection({
                 proofOfPurchaseUrl={
                   giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl
                 }
+                proofOfDeliveryUrl={
+                  giftDetailsByGiftId[gift.id]?.proofOfDeliveryUrl
+                }
                 onUpdate={onUpdateGift}
                 onUpdateDetails={onUpdateGiftDetails}
               />
@@ -91,6 +95,9 @@ export function GiftInfoSection({
                 dateReceived={giftDetailsByGiftId[gift.id]?.dateReceived}
                 proofOfPurchaseUrl={
                   giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl
+                }
+                proofOfDeliveryUrl={
+                  giftDetailsByGiftId[gift.id]?.proofOfDeliveryUrl
                 }
                 onUpdate={onUpdateGift}
                 onUpdateDetails={onUpdateGiftDetails}

@@ -2,6 +2,7 @@ import { createQueryKeys } from "@lukemorales/query-key-factory";
 import {
   getChildProfileTableRows,
   getChildById,
+  getChildGiftDetailsByChildId,
   getChildGiftsByChildId,
   getChildProfilesForFamily,
   getFamilyChildDataByToken,
@@ -23,6 +24,10 @@ export const childQueries = createQueryKeys("children", {
   gifts: (childId: string) => ({
     queryKey: ["gifts", childId],
     queryFn: () => getChildGiftsByChildId({ data: { childId } }),
+  }),
+  giftDetails: (childId: string) => ({
+    queryKey: ["giftDetails", childId],
+    queryFn: () => getChildGiftDetailsByChildId({ data: { childId } }),
   }),
   familyDetailsByToken: (token: string, childId: string) => ({
     queryKey: ["familyDetailsByToken", token, childId],

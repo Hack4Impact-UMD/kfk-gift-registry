@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { useChild } from "@/hooks/queries/useChild";
 import { useFamily } from "@/hooks/queries/useFamily";
 import { useChildGifts } from "@/hooks/queries/useChildGifts";
+import { useChildGiftDetails } from "@/hooks/queries/useChildGiftDetails";
 import { ChildHeader } from "@/components/child-profile/ChildHeader";
 import { ChildInfo } from "@/components/child-profile/ChildInfo";
 import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
@@ -9,7 +11,6 @@ import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
 import { GiftInfoSection } from "@/components/child-profile/GiftInfoSection";
 import type { GiftDetails } from "@/components/child-profile/GiftInfoSection";
 import { AddGiftForm } from "@/components/child-profile/AddGiftForm";
-import { useState } from "react";
 import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
 import type { Child, Family, Gift } from "common";
 import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
@@ -41,6 +42,9 @@ export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
       context.queryClient.ensureQueryData(
         queries.children.gifts(params.childId),
       ),
+      context.queryClient.ensureQueryData(
+        queries.children.giftDetails(params.childId),
+      ),
     ]);
   },
   head: () => ({
@@ -61,7 +65,7 @@ function ChildProfilePage() {
   const [editedChild, setEditedChild] = useState<Partial<Child>>({});
   const [editedFamily, setEditedFamily] = useState<Partial<Family>>({});
   const [editedGifts, setEditedGifts] = useState<Array<Gift>>([]);
-  const [giftDetailsByGiftId, setGiftDetailsByGiftId] = useState<
+  const [editedGiftDetailsByGiftId, setEditedGiftDetailsByGiftId] = useState<
     Record<string, GiftDetails>
   >({});
   const [addGiftOpen, setAddGiftOpen] = useState(false);
@@ -94,6 +98,11 @@ function ChildProfilePage() {
     isPending: giftsLoading,
     error: giftsError,
   } = useChildGifts(childId);
+  const {
+    data: serverGiftDetailsByGiftId,
+    isPending: giftDetailsLoading,
+    error: giftDetailsError,
+  } = useChildGiftDetails(childId);
 
   if (childLoading) return <div>Loading...</div>;
   if (childError) return <div>Something went wrong</div>;
@@ -107,6 +116,13 @@ function ChildProfilePage() {
   if (giftsError) return <div>Gifts error</div>;
   if (!gifts) return <div>No gifts found</div>;
 
+  if (giftDetailsLoading) return <div>Loading gift details...</div>;
+  if (giftDetailsError) return <div>Gift details error</div>;
+
+  const giftDetailsByGiftId = {
+    ...(serverGiftDetailsByGiftId ?? {}),
+    ...editedGiftDetailsByGiftId,
+  };
   const activeGiftCount = gifts.filter((gift) => gift.active).length;
 
   const handleStartEditing = () => {
@@ -332,7 +348,10 @@ function ChildProfilePage() {
           familyToken={familyLink?.id}
           giftDetailsByGiftId={giftDetailsByGiftId}
           onUpdateGiftDetails={(giftId, details) => {
-            setGiftDetailsByGiftId((prev) => ({ ...prev, [giftId]: details }));
+            setEditedGiftDetailsByGiftId((prev) => ({
+              ...prev,
+              [giftId]: details,
+            }));
           }}
           onUpdateGift={handleUpdateGift}
           onSaveAdminComments={handleSaveAdminComments}

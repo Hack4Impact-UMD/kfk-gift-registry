@@ -102,6 +102,7 @@ interface GiftInfoCardProps {
   dateDelivered?: string;
   dateReceived?: string;
   proofOfPurchaseUrl?: string;
+  proofOfDeliveryUrl?: string;
   onUpdate?: (giftId: string, updates: Partial<Gift>) => void | Promise<void>;
   onUpdateDetails?: (
     giftId: string,
@@ -113,8 +114,27 @@ interface GiftInfoCardProps {
       dateDelivered: string;
       dateReceived: string;
       proofOfPurchaseUrl?: string;
+      proofOfDeliveryUrl?: string;
     },
   ) => void;
+}
+
+function formatDate(value?: string) {
+  const normalizedValue = value?.trim();
+  if (!normalizedValue) return "N/A";
+
+  const date = new Date(normalizedValue);
+  if (Number.isNaN(date.getTime())) {
+    return "N/A";
+  }
+
+  return date.toLocaleDateString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 export function GiftInfoCard({
@@ -126,11 +146,15 @@ export function GiftInfoCard({
   dateDelivered,
   dateReceived,
   proofOfPurchaseUrl,
+  proofOfDeliveryUrl,
   onUpdate,
   onUpdateDetails,
 }: GiftInfoCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [proofOpen, setProofOpen] = useState(false);
+  const [proofType, setProofType] = useState<"purchase" | "delivery">(
+    "purchase",
+  );
 
   const [editedGift, setEditedGift] = useState<Partial<Gift>>({});
 
@@ -173,6 +197,7 @@ export function GiftInfoCard({
         onUpdateDetails(gift.id, {
           ...localFields,
           proofOfPurchaseUrl,
+          proofOfDeliveryUrl,
         });
       }
 
@@ -197,9 +222,14 @@ export function GiftInfoCard({
   };
 
   const hasProof = !!proofOfPurchaseUrl;
+  const hasDeliveryProof = !!proofOfDeliveryUrl;
 
   const displayLocal = (val?: string) =>
     isEditing ? (val ?? "") : val?.trim() ? val : "N/A";
+  const displayDate = (val?: string) =>
+    isEditing ? (val ?? "") : formatDate(val ?? "");
+  const previewUrl =
+    proofType === "purchase" ? proofOfPurchaseUrl : proofOfDeliveryUrl;
 
   return (
     <div className="px-6 py-5 space-y-4 text-sm">
@@ -335,7 +365,7 @@ export function GiftInfoCard({
 
         <div className="bg-white px-6 py-5 space-y-3">
           <EditableField
-            value={displayLocal(localFields.dateOrdered)}
+            value={displayDate(localFields.dateOrdered)}
             editable={isEditing}
             onChange={(event: ChangeEvent<HTMLInputElement>) =>
               handleLocalChange("dateOrdered", event.target.value)
@@ -351,15 +381,21 @@ export function GiftInfoCard({
                 : "bg-gray-300 text-gray-600 hover:bg-gray-300"
             }`}
             disabled={!hasProof}
-            onClick={() => hasProof && setProofOpen(true)}
+            onClick={() => {
+              if (!hasProof) return;
+              setProofType("purchase");
+              setProofOpen(true);
+            }}
           >
-            Donor Proof of Purchase
+            {hasProof
+              ? "Donor Proof of Purchase"
+              : "Donor Proof of Purchase: N/A"}
           </Button>
         </div>
 
         <div className="px-6 py-5 space-y-3 bg-[#F6F9FC]">
           <EditableField
-            value={displayLocal(localFields.dateDelivered)}
+            value={displayDate(localFields.dateDelivered)}
             editable={isEditing}
             onChange={(event: ChangeEvent<HTMLInputElement>) =>
               handleLocalChange("dateDelivered", event.target.value)
@@ -369,7 +405,7 @@ export function GiftInfoCard({
           </EditableField>
 
           <EditableField
-            value={displayLocal(localFields.dateReceived)}
+            value={displayDate(localFields.dateReceived)}
             editable={isEditing}
             onChange={(event: ChangeEvent<HTMLInputElement>) =>
               handleLocalChange("dateReceived", event.target.value)
@@ -377,17 +413,39 @@ export function GiftInfoCard({
           >
             Date Received (Confirmed by Family):
           </EditableField>
+
+          <Button
+            className={`w-full h-11 font-gaegu font-bold ${
+              hasDeliveryProof
+                ? "bg-kfk-blue text-white hover:bg-kfk-blue/80"
+                : "bg-gray-300 text-gray-600 hover:bg-gray-300"
+            }`}
+            disabled={!hasDeliveryProof}
+            onClick={() => {
+              if (!hasDeliveryProof) return;
+              setProofType("delivery");
+              setProofOpen(true);
+            }}
+          >
+            {hasDeliveryProof
+              ? "Donor Delivery Confirmation"
+              : "Donor Delivery Confirmation: N/A"}
+          </Button>
         </div>
       </div>
 
       <Dialog open={proofOpen} onOpenChange={setProofOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Proof of Purchase</DialogTitle>
+            <DialogTitle>
+              {proofType === "purchase"
+                ? "Proof of Purchase"
+                : "Delivery Confirmation"}
+            </DialogTitle>
           </DialogHeader>
 
-          {hasProof ? (
-            <img src={proofOfPurchaseUrl} className="w-full" />
+          {previewUrl ? (
+            <img src={previewUrl} className="w-full" />
           ) : (
             <div className="h-40 bg-gray-200 flex items-center justify-center">
               No image
