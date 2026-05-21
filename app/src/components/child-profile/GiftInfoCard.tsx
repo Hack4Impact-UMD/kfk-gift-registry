@@ -1,14 +1,10 @@
-import { useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import type { ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
 import { EditableField } from "@/components/review/EditableField";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { createTransaction } from "@tanstack/react-db";
+import type { Transaction } from "@tanstack/react-db";
+import { useCollections } from "@/collections/context";
 import type { Gift, GiftStatus } from "common";
 import { toast } from "@/lib/toast";
 import {
@@ -95,111 +91,61 @@ function GiftProgressBar({ status }: { status: GiftStatus }) {
 interface GiftInfoCardProps {
   gift: Gift;
   isBackupGift?: boolean;
-  donorName?: string;
-  donorEmail?: string;
-  trackingId?: string;
-  dateOrdered?: string;
-  dateDelivered?: string;
-  dateReceived?: string;
-  proofOfPurchaseUrl?: string;
-  onUpdate?: (giftId: string, updates: Partial<Gift>) => void | Promise<void>;
-  onUpdateDetails?: (
-    giftId: string,
-    details: {
-      donorName: string;
-      donorEmail: string;
-      trackingId: string;
-      dateOrdered: string;
-      dateDelivered: string;
-      dateReceived: string;
-      proofOfPurchaseUrl?: string;
-    },
-  ) => void;
 }
 
-export function GiftInfoCard({
-  gift,
-  donorName,
-  donorEmail,
-  trackingId,
-  dateOrdered,
-  dateDelivered,
-  dateReceived,
-  proofOfPurchaseUrl,
-  onUpdate,
-  onUpdateDetails,
-}: GiftInfoCardProps) {
+export function GiftInfoCard({ gift }: GiftInfoCardProps) {
+  const collections = useCollections();
   const [isEditing, setIsEditing] = useState(false);
-  const [proofOpen, setProofOpen] = useState(false);
+  const [isSaving, startSaveTransition] = useTransition();
+  const txRef = useRef<Transaction | null>(null);
 
-  const [editedGift, setEditedGift] = useState<Partial<Gift>>({});
-
-  const [localFields, setLocalFields] = useState({
-    donorName: donorName ?? "",
-    donorEmail: donorEmail ?? "",
-    trackingId: trackingId ?? "",
-    dateOrdered: dateOrdered ?? "",
-    dateDelivered: dateDelivered ?? "",
-    dateReceived: dateReceived ?? "",
-  });
-
-  const getValue = <K extends keyof Gift>(key: K) =>
-    (key in editedGift ? editedGift[key] : gift[key]) as Gift[K];
-
-  const handleChange = <K extends keyof Gift>(key: K, value: Gift[K]) => {
-    setEditedGift((prev) => ({ ...prev, [key]: value }));
+  const editField = <K extends keyof Gift>(key: K, value: Gift[K]) => {
+    if (!txRef.current) {
+      txRef.current = createTransaction({
+        autoCommit: false,
+        mutationFn: async ({ transaction }) => {
+          await collections.persistBatchMutation(transaction);
+        },
+      });
+    }
+    txRef.current.mutate(() => {
+      collections.gifts.update(gift.id, (draft) => {
+        (draft as Gift)[key] = value;
+      });
+    });
   };
 
-  const handleLocalChange = (key: keyof typeof localFields, value: string) => {
-    setLocalFields((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleSave = async () => {
-    const giftUpdates = Object.fromEntries(
-      Object.entries(editedGift).filter(([, value]) => value !== undefined),
-    ) as Partial<Gift>;
-
-    if (isGiftTitleTooLong(getValue("title") ?? "")) {
+  const handleSave = () => {
+    if (isGiftTitleTooLong(gift.title)) {
       toast.error(GIFT_TITLE_TOO_LONG_MESSAGE);
       return;
     }
 
-    try {
-      if (onUpdate && Object.keys(giftUpdates).length > 0) {
-        await onUpdate(gift.id, giftUpdates);
-      }
-
-      if (onUpdateDetails) {
-        onUpdateDetails(gift.id, {
-          ...localFields,
-          proofOfPurchaseUrl,
-        });
-      }
-
-      setEditedGift({});
+    const tx = txRef.current;
+    if (!tx || tx.mutations.length === 0) {
+      txRef.current = null;
       setIsEditing(false);
-    } catch (error) {
-      console.error("Gift info save failed", error);
+      return;
     }
+
+    startSaveTransition(async () => {
+      try {
+        await tx.commit();
+        txRef.current = null;
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Gift info save failed", error);
+      }
+    });
   };
 
   const handleCancel = () => {
-    setEditedGift({});
-    setLocalFields({
-      donorName: donorName ?? "",
-      donorEmail: donorEmail ?? "",
-      trackingId: trackingId ?? "",
-      dateOrdered: dateOrdered ?? "",
-      dateDelivered: dateDelivered ?? "",
-      dateReceived: dateReceived ?? "",
-    });
+    if (txRef.current && txRef.current.state === "pending") {
+      txRef.current.rollback();
+    }
+    txRef.current = null;
     setIsEditing(false);
   };
-
-  const hasProof = !!proofOfPurchaseUrl;
-
-  const displayLocal = (val?: string) =>
-    isEditing ? (val ?? "") : val?.trim() ? val : "N/A";
 
   return (
     <div className="px-6 py-5 space-y-4 text-sm">
@@ -207,11 +153,11 @@ export function GiftInfoCard({
         <div className="flex flex-col gap-4 bg-[#F6F9FC] px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-1">
             <EditableField
-              value={getValue("title") ?? ""}
+              value={gift.title}
               editable={isEditing}
               characterLimit={MAX_GIFT_TITLE_LENGTH}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                handleChange("title", event.target.value)
+                editField("title", event.target.value)
               }
               className="text-lg font-medium"
             >
@@ -221,7 +167,7 @@ export function GiftInfoCard({
             <EditableField
               value={
                 isEditing
-                  ? (getValue("listedPrice") ?? "")
+                  ? (gift.listedPrice ?? "")
                   : gift.listedPrice != null
                     ? `$${gift.listedPrice.toFixed(2)}`
                     : "N/A"
@@ -233,7 +179,7 @@ export function GiftInfoCard({
                     ? undefined
                     : Number(event.target.value);
 
-                handleChange("listedPrice", nextValue);
+                editField("listedPrice", nextValue);
               }}
             >
               Price:
@@ -254,16 +200,16 @@ export function GiftInfoCard({
                 <Button
                   className="w-full sm:w-auto"
                   size="sm"
-                  onClick={() => {
-                    void handleSave();
-                  }}
+                  disabled={isSaving}
+                  onClick={handleSave}
                 >
-                  Save
+                  {isSaving ? "Saving..." : "Save"}
                 </Button>
                 <Button
                   className="w-full sm:w-auto"
                   size="sm"
                   variant="destructive"
+                  disabled={isSaving}
                   onClick={handleCancel}
                 >
                   Cancel
@@ -273,7 +219,7 @@ export function GiftInfoCard({
 
             {isEditing && (
               <EditableField
-                value={getValue("status")}
+                value={gift.status}
                 editable
                 fieldType="select"
                 selectOptions={GIFT_STATUS_ORDER}
@@ -283,7 +229,7 @@ export function GiftInfoCard({
                   );
 
                   if (nextStatus) {
-                    handleChange("status", nextStatus);
+                    editField("status", nextStatus);
                   }
                 }}
               >
@@ -296,105 +242,7 @@ export function GiftInfoCard({
         <div className="bg-white px-6 py-6">
           {!isEditing && <GiftProgressBar status={gift.status} />}
         </div>
-
-        <div className="px-6 py-5 space-y-4 bg-[#F6F9FC]">
-          <div className="grid gap-4 md:grid-cols-2">
-            <EditableField
-              className="w-full"
-              value={displayLocal(localFields.donorName)}
-              editable={isEditing}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                handleLocalChange("donorName", event.target.value)
-              }
-            >
-              Donor:
-            </EditableField>
-
-            <EditableField
-              className="w-full"
-              value={displayLocal(localFields.donorEmail)}
-              editable={isEditing}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                handleLocalChange("donorEmail", event.target.value)
-              }
-            >
-              Donor Email:
-            </EditableField>
-          </div>
-
-          <EditableField
-            value={displayLocal(localFields.trackingId)}
-            editable={isEditing}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("trackingId", event.target.value)
-            }
-          >
-            Tracking ID:
-          </EditableField>
-        </div>
-
-        <div className="bg-white px-6 py-5 space-y-3">
-          <EditableField
-            value={displayLocal(localFields.dateOrdered)}
-            editable={isEditing}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("dateOrdered", event.target.value)
-            }
-          >
-            Date Ordered (Confirmed by Donor):
-          </EditableField>
-
-          <Button
-            className={`w-full h-11 font-gaegu font-bold ${
-              hasProof
-                ? "bg-kfk-blue text-white hover:bg-kfk-blue/80"
-                : "bg-gray-300 text-gray-600 hover:bg-gray-300"
-            }`}
-            disabled={!hasProof}
-            onClick={() => hasProof && setProofOpen(true)}
-          >
-            Donor Proof of Purchase
-          </Button>
-        </div>
-
-        <div className="px-6 py-5 space-y-3 bg-[#F6F9FC]">
-          <EditableField
-            value={displayLocal(localFields.dateDelivered)}
-            editable={isEditing}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("dateDelivered", event.target.value)
-            }
-          >
-            Date Delivered (Confirmed by Donor):
-          </EditableField>
-
-          <EditableField
-            value={displayLocal(localFields.dateReceived)}
-            editable={isEditing}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("dateReceived", event.target.value)
-            }
-          >
-            Date Received (Confirmed by Family):
-          </EditableField>
-        </div>
       </div>
-
-      <Dialog open={proofOpen} onOpenChange={setProofOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Proof of Purchase</DialogTitle>
-          </DialogHeader>
-
-          {hasProof ? (
-            <img src={proofOfPurchaseUrl} className="w-full" />
-          ) : (
-            <div className="h-40 bg-gray-200 flex items-center justify-center">
-              No image
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

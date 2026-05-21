@@ -5,24 +5,11 @@ import { AdminComments } from "./AdminComments";
 import { FamilyAccountLink } from "./FamilyAccountLink";
 import type { Gift } from "common";
 
-export type GiftDetails = {
-  donorName: string;
-  donorEmail: string;
-  trackingId: string;
-  dateOrdered: string;
-  dateDelivered: string;
-  dateReceived: string;
-  proofOfPurchaseUrl?: string;
-};
-
 interface GiftInfoSectionProps {
-  gifts: Array<Gift>;
+  gifts: ReadonlyArray<Gift>;
   parentComments?: string;
   adminComments?: string;
   familyToken?: string;
-  giftDetailsByGiftId?: Record<string, GiftDetails>;
-  onUpdateGiftDetails?: (giftId: string, details: GiftDetails) => void;
-  onUpdateGift?: (giftId: string, updates: Partial<Gift>) => void;
   onSaveAdminComments?: (comments: string) => void | Promise<void>;
 }
 
@@ -31,9 +18,6 @@ export function GiftInfoSection({
   parentComments,
   adminComments,
   familyToken,
-  giftDetailsByGiftId = {},
-  onUpdateGiftDetails,
-  onUpdateGift,
   onSaveAdminComments,
 }: GiftInfoSectionProps) {
   const activeGifts = gifts.filter((g) => g.active);
@@ -55,17 +39,6 @@ export function GiftInfoSection({
                 key={gift.id}
                 gift={gift}
                 isBackupGift={false}
-                donorName={giftDetailsByGiftId[gift.id]?.donorName}
-                donorEmail={giftDetailsByGiftId[gift.id]?.donorEmail}
-                trackingId={giftDetailsByGiftId[gift.id]?.trackingId}
-                dateOrdered={giftDetailsByGiftId[gift.id]?.dateOrdered}
-                dateDelivered={giftDetailsByGiftId[gift.id]?.dateDelivered}
-                dateReceived={giftDetailsByGiftId[gift.id]?.dateReceived}
-                proofOfPurchaseUrl={
-                  giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl
-                }
-                onUpdate={onUpdateGift}
-                onUpdateDetails={onUpdateGiftDetails}
               />
             ))
           )}
@@ -79,28 +52,12 @@ export function GiftInfoSection({
               <span className="leading-none">Backup Gift Information</span>
             </h2>
             {backupGifts.map((gift) => (
-              <GiftInfoCard
-                key={gift.id}
-                gift={gift}
-                isBackupGift
-                donorName={giftDetailsByGiftId[gift.id]?.donorName}
-                donorEmail={giftDetailsByGiftId[gift.id]?.donorEmail}
-                trackingId={giftDetailsByGiftId[gift.id]?.trackingId}
-                dateOrdered={giftDetailsByGiftId[gift.id]?.dateOrdered}
-                dateDelivered={giftDetailsByGiftId[gift.id]?.dateDelivered}
-                dateReceived={giftDetailsByGiftId[gift.id]?.dateReceived}
-                proofOfPurchaseUrl={
-                  giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl
-                }
-                onUpdate={onUpdateGift}
-                onUpdateDetails={onUpdateGiftDetails}
-              />
+              <GiftInfoCard key={gift.id} gift={gift} isBackupGift />
             ))}
           </div>
         )}
       </div>
 
-      {/* Right column: comments + family link */}
       <div className="flex w-full flex-col gap-6 lg:sticky lg:top-4 lg:max-w-[420px]">
         <div className="bg-transparent flex flex-col gap-6">
           <ParentComments comments={parentComments} />

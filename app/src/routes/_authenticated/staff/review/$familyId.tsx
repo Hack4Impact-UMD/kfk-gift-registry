@@ -1,29 +1,28 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useLiveQuery } from "@tanstack/react-db";
+import { eq } from "@tanstack/react-db";
+import { useCollections } from "@/collections/context";
+import {
+  childrenByFamilyIdQueryOptions,
+  familyByIdQueryOptions,
+} from "@/collections/preload";
 import { GuardianInfoCard } from "@/components/review/GuardianInfoCard";
 import { ChildCard } from "@/components/review/ChildCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
-import type { Child, Family } from "common";
+import type { Child } from "common";
 import { useDrive } from "@/context/DriveContext";
 import { useReviewOrder } from "@/context/ReviewOrderContext";
 import { usePendingProfileTableRows } from "@/hooks/queries/usePendingProfileTableRows";
-import { useFamily } from "@/hooks/queries/useFamily";
-import { useChildProfilesForFamily } from "@/hooks/queries/useChildProfilesForFamily";
-import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
-import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
-import { useUploadChildPicture } from "@/hooks/mutations/useUploadChildPicture";
-import { useQuery } from "@tanstack/react-query";
-import { queries } from "@/queries";
-import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   beforeLoad: async ({ params, context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        queries.families.byId(params.familyId),
+        familyByIdQueryOptions(params.familyId),
       ),
       context.queryClient.ensureQueryData(
-        queries.children.byFamilyId(params.familyId),
+        childrenByFamilyIdQueryOptions(params.familyId),
       ),
     ]);
   },
@@ -39,60 +38,28 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   component: RouteComponent,
 });
 
-interface ChildCardWithGiftsProps {
-  child: Child;
-  onSave: (updatedChild: Child) => Promise<void>;
-}
-
-function omitUndefined<T extends Record<string, unknown>>(
-  value: T,
-): Partial<T> {
-  return Object.fromEntries(
-    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined),
-  ) as Partial<T>;
-}
-
-function ChildCardWithGifts({ child, onSave }: ChildCardWithGiftsProps) {
-  const {
-    data: fetchedGifts,
-    isPending: isLoadingGifts,
-    isError,
-  } = useQuery(queries.children.gifts(child.id));
-
-  if (isLoadingGifts) {
-    return (
-      <div className="w-full bg-muted border border-black rounded-lg min-h-32 flex items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div role="alert" className="text-kfk-red">
-        Unable to load gifts for {child.name}.
-      </div>
-    );
-  }
-
-  return (
-    <ChildCard child={child} fetchedGifts={fetchedGifts} onSave={onSave} />
-  );
-}
-
 function RouteComponent() {
   const { familyId } = Route.useParams();
   const navigate = useNavigate();
+  const collections = useCollections();
   const { activeDriveId } = useDrive();
   const { reviewOrder } = useReviewOrder();
   const { data: familyRows } = usePendingProfileTableRows(activeDriveId);
-  const { data: family } = useFamily(familyId);
-  const { data: children } = useChildProfilesForFamily(familyId);
-  const { mutate: updateFamily } = useUpdateFamily();
-  const { mutateAsync: updateChild } = useUpdateChild();
-  const { mutateAsync: uploadChildPicture } = useUploadChildPicture();
 
-  if (!family || !children) {
+  const { data: familyData = [] } = useLiveQuery((q) =>
+    q
+      .from({ f: collections.families })
+      .where(({ f }) => eq(f.id, familyId)),
+  );
+  const family = familyData[0];
+
+  const { data: children = [] } = useLiveQuery((q) =>
+    q
+      .from({ c: collections.children })
+      .where(({ c }) => eq(c.familyId, familyId)),
+  );
+
+  if (!family) {
     throw new Error("Family not found");
   }
 
@@ -108,49 +75,6 @@ function RouteComponent() {
       : undefined;
 
   const lastName = family.contactName.trim().split(/\s+/).pop() ?? "";
-
-  const handleFamilyUpdate = (updatedFamily: Family) => {
-    updateFamily({
-      familyId: familyId,
-      updates: {
-        contactName: updatedFamily.contactName,
-        guardianRelationship: updatedFamily.guardianRelationship ?? "",
-        email: updatedFamily.email,
-        phone: updatedFamily.phone,
-        privateNotes: updatedFamily.privateNotes ?? "",
-      },
-    });
-  };
-
-  const handleChildUpdate = async (updatedChild: Child) => {
-    const isNewPhoto = updatedChild.photoUrl?.startsWith("data:");
-    if (isNewPhoto && updatedChild.photoUrl) {
-      await uploadChildPicture({
-        childId: updatedChild.id,
-        dataUrl: updatedChild.photoUrl,
-      });
-    }
-
-    const childUpdates = omitUndefined({
-      diagnosisLengthYears: updatedChild.diagnosisLengthYears,
-      diagnosis: updatedChild.diagnosis,
-      age: updatedChild.age,
-      treatmentLevel: updatedChild.treatmentLevel,
-      publicBlurb: updatedChild.publicBlurb,
-      childSocialWorker: updatedChild.childSocialWorker,
-      hospital: updatedChild.hospital,
-      photoUrl: isNewPhoto ? undefined : updatedChild.photoUrl,
-      staffPrivateNotes: updatedChild.staffPrivateNotes,
-      offTreatmentDurationYears: updatedChild.offTreatmentDurationYears,
-    });
-
-    if (Object.keys(childUpdates).length > 0) {
-      await updateChild({
-        childId: updatedChild.id,
-        updates: childUpdates,
-      });
-    }
-  };
 
   const handleFamilyNavigation = (targetFamilyId: string) => {
     navigate({
@@ -175,13 +99,9 @@ function RouteComponent() {
           <h1 className="text-4xl font-bold mb-2">{lastName}'s Family</h1>
           <ScrollArea className="h-full min-h-[40rem] w-full rounded-md border p-4 shadow-xl">
             <div className="flex flex-col gap-7 pr-4">
-              <GuardianInfoCard family={family} onSave={handleFamilyUpdate} />
+              <GuardianInfoCard family={family} />
               {sortedChildren.map((childData) => (
-                <ChildCardWithGifts
-                  key={childData.id}
-                  child={childData}
-                  onSave={handleChildUpdate}
-                />
+                <ChildCard key={childData.id} child={childData} />
               ))}
             </div>
           </ScrollArea>

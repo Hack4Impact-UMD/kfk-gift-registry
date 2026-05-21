@@ -1,23 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useChild } from "@/hooks/queries/useChild";
-import { useFamily } from "@/hooks/queries/useFamily";
-import { useChildGifts } from "@/hooks/queries/useChildGifts";
+import { useRef, useState, useTransition } from "react";
+import { useLiveQuery } from "@tanstack/react-db";
+import { eq, createTransaction } from "@tanstack/react-db";
+import type { Transaction } from "@tanstack/react-db";
+import { v7 as uuidv7 } from "uuid";
+import { useCollections } from "@/collections/context";
+import {
+  childByIdQueryOptions,
+  familyByIdQueryOptions,
+  giftsByChildIdQueryOptions,
+} from "@/collections/preload";
 import { ChildHeader } from "@/components/child-profile/ChildHeader";
 import { ChildInfo } from "@/components/child-profile/ChildInfo";
 import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
 import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
 import { GiftInfoSection } from "@/components/child-profile/GiftInfoSection";
-import type { GiftDetails } from "@/components/child-profile/GiftInfoSection";
 import { AddGiftForm } from "@/components/child-profile/AddGiftForm";
-import { useState } from "react";
-import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
-import type { Child, Family, Gift } from "common";
-import { useUpdateFamily } from "@/hooks/mutations/useUpdateFamily";
-import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
-import { useCreateGift } from "@/hooks/mutations/useCreateGift";
-import { useUploadChildPicture } from "@/hooks/mutations/useUploadChildPicture";
 import { useFamilyLinkByFamilyId } from "@/hooks/queries/useFamilyLinkByFamilyId";
-import { queries } from "@/queries";
 import { Spinner } from "@/components/ui/spinner";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -26,20 +25,22 @@ import {
   CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE,
   isChildPublicBlurbTooLong,
 } from "common";
-
-function cloneGifts(gifts: ReadonlyArray<Gift>): Array<Gift> {
-  return gifts.map((gift) => ({ ...gift }));
-}
+import type { Address, Child, Family, Gift } from "common";
 
 export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
   component: ChildProfilePage,
   beforeLoad: async ({ context, params }) => {
+    const children = await context.queryClient.ensureQueryData(
+      childByIdQueryOptions(params.childId),
+    );
+    const child = children[0];
+    if (!child) return;
     await Promise.all([
       context.queryClient.ensureQueryData(
-        queries.children.byId(params.childId),
+        familyByIdQueryOptions(child.familyId),
       ),
       context.queryClient.ensureQueryData(
-        queries.children.gifts(params.childId),
+        giftsByChildIdQueryOptions(params.childId),
       ),
     ]);
   },
@@ -56,186 +57,214 @@ export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
 
 function ChildProfilePage() {
   const { childId } = Route.useParams();
-
+  const collections = useCollections();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedChild, setEditedChild] = useState<Partial<Child>>({});
-  const [editedFamily, setEditedFamily] = useState<Partial<Family>>({});
-  const [editedGifts, setEditedGifts] = useState<Array<Gift>>([]);
-  const [giftDetailsByGiftId, setGiftDetailsByGiftId] = useState<
-    Record<string, GiftDetails>
-  >({});
-  const [addGiftOpen, setAddGiftOpen] = useState(false);
+  const [isAddGiftOpen, setAddGiftOpen] = useState(false);
+  const [isAddingGift, startAddGift] = useTransition();
+  const txRef = useRef<Transaction | null>(null);
 
-  const updateChildMutation = useUpdateChild();
-  const updateFamilyMutation = useUpdateFamily();
-  const updateGiftMutation = useUpdateGift();
-  const createGiftMutation = useCreateGift();
-  const uploadChildPictureMutation = useUploadChildPicture();
+  const { data: childData = [], isLoading: childLoading } = useLiveQuery((q) =>
+    q
+      .from({ c: collections.children })
+      .where(({ c }) => eq(c.id, childId)),
+  );
+  const child = childData[0];
 
-  const {
-    data: child,
-    isPending: childLoading,
-    error: childError,
-  } = useChild(childId);
+  const { data: giftsData = [], isLoading: giftsLoading } = useLiveQuery((q) =>
+    q
+      .from({ g: collections.gifts })
+      .where(({ g }) => eq(g.childId, childId)),
+  );
 
-  const {
-    data: family,
-    isPending: familyLoading,
-    error: familyError,
-  } = useFamily(child?.familyId ?? "");
+  const { data: familyData = [], isLoading: familyLoading } = useLiveQuery(
+    (q) =>
+      child
+        ? q
+            .from({ f: collections.families })
+            .where(({ f }) => eq(f.id, child.familyId))
+        : undefined,
+    [child?.familyId],
+  );
+  const family = familyData[0];
+
   const {
     data: familyLink,
     isPending: familyLinkPending,
     error: familyLinkError,
   } = useFamilyLinkByFamilyId(child?.familyId ?? "");
 
-  const {
-    data: gifts,
-    isPending: giftsLoading,
-    error: giftsError,
-  } = useChildGifts(childId);
-
   if (childLoading) return <div>Loading...</div>;
-  if (childError) return <div>Something went wrong</div>;
   if (!child) return <div>No child found</div>;
-
   if (familyLoading) return <div>Loading family...</div>;
-  if (familyError) return <div>Family error</div>;
   if (!family) return <div>No family found</div>;
-
   if (giftsLoading) return <div>Loading gifts...</div>;
-  if (giftsError) return <div>Gifts error</div>;
-  if (!gifts) return <div>No gifts found</div>;
 
-  const activeGiftCount = gifts.filter((gift) => gift.active).length;
+  const activeGiftCount = giftsData.filter((gift) => gift.active).length;
+
+  const ensureTransaction = () => {
+    if (!txRef.current) {
+      txRef.current = createTransaction({
+        autoCommit: false,
+        mutationFn: async ({ transaction }) => {
+          await collections.persistBatchMutation(transaction);
+        },
+      });
+    }
+    return txRef.current;
+  };
+
+  const editChild = (mutate: (draft: Child) => void) => {
+    const tx = ensureTransaction();
+    tx.mutate(() => {
+      collections.children.update(childId, (draft) => mutate(draft as Child));
+    });
+  };
+
+  const editFamily = (mutate: (draft: Family) => void) => {
+    const tx = ensureTransaction();
+    tx.mutate(() => {
+      collections.families.update(family.id, (draft) =>
+        mutate(draft as Family),
+      );
+    });
+  };
+
+  const editGift = (giftId: string, mutate: (draft: Gift) => void) => {
+    const tx = ensureTransaction();
+    tx.mutate(() => {
+      collections.gifts.update(giftId, (draft) => mutate(draft as Gift));
+    });
+  };
 
   const handleStartEditing = () => {
-    setEditedChild({});
-    setEditedFamily({});
-    setEditedGifts(cloneGifts(gifts));
+    txRef.current = null;
     setIsEditing(true);
   };
 
   const handleCancel = () => {
+    if (txRef.current && txRef.current.state === "pending") {
+      txRef.current.rollback();
+    }
+    txRef.current = null;
     setIsEditing(false);
-    setEditedChild({});
-    setEditedFamily({});
-    setEditedGifts([]);
   };
 
   const handleSaveAll = async () => {
-    //TODO: refactor with tanstackdb
     if (
-      editedChild.publicBlurb !== undefined &&
-      isChildPublicBlurbTooLong(editedChild.publicBlurb ?? "")
+      child.publicBlurb !== undefined &&
+      isChildPublicBlurbTooLong(child.publicBlurb)
     ) {
       toast.error(CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE);
       return;
     }
 
-    const childUpdates: Partial<Child> = Object.fromEntries(
-      Object.entries(editedChild).filter(
-        ([key, value]) => value !== child[key as keyof typeof child],
-      ),
-    );
-
-    const familyUpdates: Partial<Family> = Object.fromEntries(
-      Object.entries(editedFamily).filter(
-        ([key, value]) => value !== family[key as keyof typeof family],
-      ),
-    );
-
-    const promises: Array<Promise<unknown>> = [];
-
-    const pendingPhotoUrl = childUpdates.photoUrl;
-    if (pendingPhotoUrl?.startsWith("data:")) {
-      delete childUpdates.photoUrl;
-      promises.push(
-        uploadChildPictureMutation.mutateAsync({
-          childId: child.id,
-          dataUrl: pendingPhotoUrl,
-        }),
-      );
-    }
-
-    if (Object.keys(childUpdates).length > 0) {
-      promises.push(
-        updateChildMutation.mutateAsync({
-          childId: child.id,
-          updates: childUpdates,
-        }),
-      );
-    }
-
-    if (Object.keys(familyUpdates).length > 0) {
-      promises.push(
-        updateFamilyMutation.mutateAsync({
-          familyId: family.id,
-          updates: familyUpdates,
-        }),
-      );
+    const tx = txRef.current;
+    if (!tx || tx.mutations.length === 0) {
+      txRef.current = null;
+      setIsEditing(false);
+      return;
     }
 
     try {
-      await Promise.all([
-        ...promises,
-        ...editedGifts.map((gift) => {
-          const original = gifts.find((g) => g.id === gift.id);
-          if (!original) return Promise.resolve();
-          if (
-            gift.active !== original.active ||
-            gift.backup !== original.backup
-          ) {
-            return updateGiftMutation.mutateAsync({
-              giftId: gift.id,
-              updates: { active: gift.active, backup: gift.backup },
-            });
-          }
-          return Promise.resolve();
-        }),
-      ]);
-
-      setEditedChild({});
-      setEditedFamily({});
-      setEditedGifts([]);
+      await tx.commit();
+      txRef.current = null;
       setIsEditing(false);
     } catch (err) {
       console.error("Save failed", err);
     }
   };
 
-  const handleUpdateGift = async (giftId: string, updates: Partial<Gift>) => {
-    try {
-      await updateGiftMutation.mutateAsync({ giftId, updates });
-    } catch (err) {
-      console.error("Gift update failed", err);
-      throw err;
-    }
+  const handlePublishedChange = async (published: boolean) => {
+    const result = collections.children.update(childId, (draft) => {
+      draft.published = published;
+    });
+    await result.isPersisted.promise;
   };
 
   const handleSaveAdminComments = async (comments: string) => {
-    try {
-      await updateChildMutation.mutateAsync({
-        childId: child.id,
-        updates: { staffPrivateNotes: comments },
-      });
-    } catch (err) {
-      console.error("Admin comments save failed", err);
-      throw err;
-    }
+    const result = collections.children.update(childId, (draft) => {
+      draft.staffPrivateNotes = comments;
+    });
+    await result.isPersisted.promise;
   };
 
-  const handleAddGift = async (gift: {
+  const handleAddGift = (gift: {
     title: string;
     productUrl: string;
     listedPrice?: number;
     active: boolean;
   }) => {
-    await createGiftMutation.mutateAsync({
-      childId: child.id,
-      ...gift,
+    let resolve!: () => void;
+    let reject!: (err: unknown) => void;
+    const promise = new Promise<void>((res, rej) => {
+      resolve = res;
+      reject = rej;
     });
-    setAddGiftOpen(false);
+    startAddGift(async () => {
+      const placeholder: Gift = {
+        id: uuidv7(),
+        childId: child.id,
+        familyId: child.familyId,
+        giftDrive: child.giftDrive,
+        title: gift.title,
+        productUrl: gift.productUrl,
+        listedPrice: gift.listedPrice,
+        status: "AVAILABLE",
+        createdAt: new Date().toISOString(),
+        active: gift.active,
+        backup: !gift.active,
+      };
+      try {
+        const result = collections.gifts.insert(placeholder);
+        await result.isPersisted.promise;
+        setAddGiftOpen(false);
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    });
+    return promise;
+  };
+
+  const handleChildFieldChange = <K extends keyof Child>(
+    key: K,
+    value: Child[K],
+  ) => {
+    editChild((draft) => {
+      draft[key] = value;
+    });
+  };
+
+  const handleFamilyFieldChange = <K extends keyof Family>(
+    key: K,
+    value: Family[K],
+  ) => {
+    editFamily((draft) => {
+      draft[key] = value;
+    });
+  };
+
+  const handleAddressFieldChange = <K extends keyof Address>(
+    key: K,
+    value: Address[K],
+  ) => {
+    editFamily((draft) => {
+      draft.address[key] = value;
+    });
+  };
+
+  const handleGiftToggle = (giftId: string) => {
+    const gift = giftsData.find((g) => g.id === giftId);
+    if (!gift) return;
+    if (!gift.active) {
+      const liveActiveCount = giftsData.filter((g) => g.active).length;
+      if (liveActiveCount >= 3) return;
+    }
+    const nextActive = !gift.active;
+    editGift(giftId, (draft) => {
+      draft.active = nextActive;
+      draft.backup = !nextActive;
+    });
   };
 
   return (
@@ -251,18 +280,17 @@ function ChildProfilePage() {
             child={child}
             family={family}
             isEditing={isEditing}
-            editedChild={editedChild}
-            setEditedChild={setEditedChild}
+            onChildFieldChange={handleChildFieldChange}
           />
 
           <div className="flex min-w-0 flex-1 flex-col">
             <ChildHeader
               child={child}
-              editedChild={editedChild}
               isEditing={isEditing}
               onStartEditing={handleStartEditing}
               onSave={handleSaveAll}
               onCancel={handleCancel}
+              onPublishedChange={handlePublishedChange}
             />
 
             <div className="my-5 h-px w-full bg-border/70" />
@@ -273,20 +301,21 @@ function ChildProfilePage() {
                   child={child}
                   family={family}
                   isEditing={isEditing}
-                  editedChild={editedChild}
-                  setEditedChild={setEditedChild}
-                  editedFamily={editedFamily}
-                  setEditedFamily={setEditedFamily}
+                  onChildFieldChange={handleChildFieldChange}
+                  onFamilyFieldChange={handleFamilyFieldChange}
+                  onAddressFieldChange={handleAddressFieldChange}
                 />
               </div>
               <div className="space-y-6">
                 <SelectedGifts
-                  gifts={gifts}
+                  gifts={giftsData}
                   isEditing={isEditing}
-                  editedGifts={editedGifts}
-                  setEditedGifts={setEditedGifts}
+                  onGiftToggle={handleGiftToggle}
                   headerAction={
-                    <Dialog open={addGiftOpen} onOpenChange={setAddGiftOpen}>
+                    <Dialog
+                      open={isAddGiftOpen}
+                      onOpenChange={setAddGiftOpen}
+                    >
                       <DialogTrigger asChild>
                         <Button
                           size="sm"
@@ -299,7 +328,7 @@ function ChildProfilePage() {
                       <AddGiftForm
                         canAddToStorefront={activeGiftCount < 3}
                         disabled={false}
-                        isSubmitting={createGiftMutation.isPending}
+                        isSubmitting={isAddingGift}
                         onSubmit={handleAddGift}
                       />
                     </Dialog>
@@ -311,9 +340,7 @@ function ChildProfilePage() {
         </div>
       </div>
 
-      {/* ── Gift Information Section ── */}
       <div className="my-6 h-px w-full bg-border/70" />
-      {/*TODO: This should not be handling the family link/admin comments too. Separate into a different component.*/}
       {familyLinkPending ? (
         <div className="p-2 w-full">
           <Spinner />
@@ -326,15 +353,10 @@ function ChildProfilePage() {
         </div>
       ) : (
         <GiftInfoSection
-          gifts={gifts}
+          gifts={giftsData}
           parentComments={family.privateNotes}
           adminComments={child.staffPrivateNotes ?? ""}
           familyToken={familyLink?.id}
-          giftDetailsByGiftId={giftDetailsByGiftId}
-          onUpdateGiftDetails={(giftId, details) => {
-            setGiftDetailsByGiftId((prev) => ({ ...prev, [giftId]: details }));
-          }}
-          onUpdateGift={handleUpdateGift}
           onSaveAdminComments={handleSaveAdminComments}
         />
       )}

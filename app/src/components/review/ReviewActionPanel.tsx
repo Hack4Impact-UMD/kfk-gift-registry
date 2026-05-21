@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeftIcon } from "@/components/icons/ArrowLeftIcon";
 import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { CheckCircleOutlineIcon } from "@/components/icons/CheckCircleOutlineIcon";
-import { useUpdateFamilyReviewStatus } from "@/hooks/mutations/useUpdateFamilyReviewStatus";
+import { useCollections } from "@/collections/context";
 import type { Family } from "common";
 import { StatusBadge } from "@/components/tables/PendingProfilesTable/StatusBadge";
 import type { ApplicationStatus } from "@/components/tables/PendingProfilesTable/types";
@@ -32,9 +32,8 @@ export function ReviewActionPanel({
   onPreviousFamily,
   onNextFamily,
 }: ReviewActionPanelProps) {
-  const { mutate: updateFamilyReviewStatus, isPending: isStatusPending } =
-    useUpdateFamilyReviewStatus();
-
+  const collections = useCollections();
+  const [isPending, startStatusTransition] = useTransition();
   const savedAdminComments = family.reviewStatus.held
     ? (family.reviewStatus.holdNotes ?? "")
     : (family.reviewStatus.reviewNotes ?? "");
@@ -48,51 +47,41 @@ export function ReviewActionPanel({
   const normalizedAdminComments = adminComments.trim();
   const hasUnsavedComments = adminComments !== savedAdminComments;
 
-  const persistReviewUpdate = (
-    reviewStatus: Family["reviewStatus"],
-    options?: {
-      onSuccess?: (updatedFamily: Family) => void;
-    },
+  const runReviewUpdate = (
+    nextStatus: Family["reviewStatus"],
+    onComplete?: () => void,
   ) => {
-    updateFamilyReviewStatus(
-      {
-        familyId: family.id,
-        updates: {
-          reviewStatus: {
-            approved: reviewStatus.approved,
-            held: reviewStatus.held,
-            reviewNotes: reviewStatus.held
-              ? (family.reviewStatus.reviewNotes ?? "")
-              : normalizedAdminComments,
-            holdNotes: reviewStatus.held
-              ? normalizedAdminComments
-              : (family.reviewStatus.holdNotes ?? ""),
-          },
-        },
-      },
-      {
-        onSuccess: (updatedFamily) => {
-          options?.onSuccess?.(updatedFamily);
-        },
-      },
-    );
+    startStatusTransition(async () => {
+      try {
+        const tx = collections.families.update(family.id, (draft) => {
+          draft.reviewStatus.approved = nextStatus.approved;
+          draft.reviewStatus.held = nextStatus.held;
+          if (nextStatus.held) {
+            draft.reviewStatus.reviewNotes =
+              family.reviewStatus.reviewNotes ?? "";
+            draft.reviewStatus.holdNotes = normalizedAdminComments;
+          } else {
+            draft.reviewStatus.reviewNotes = normalizedAdminComments;
+            draft.reviewStatus.holdNotes =
+              family.reviewStatus.holdNotes ?? "";
+          }
+        });
+        await tx.isPersisted.promise;
+        onComplete?.();
+      } catch {
+        // toast handled by collection handler
+      }
+    });
   };
 
   const handleFamilyNavigation = (navigateToFamily?: () => void) => {
-    if (!navigateToFamily || isStatusPending) {
-      return;
-    }
+    if (!navigateToFamily || isPending) return;
 
     if (hasUnsavedComments) {
-      persistReviewUpdate(family.reviewStatus, {
-        onSuccess: () => {
-          navigateToFamily();
-        },
-      });
-      return;
+      runReviewUpdate(family.reviewStatus, navigateToFamily);
+    } else {
+      navigateToFamily();
     }
-
-    navigateToFamily();
   };
 
   return (
@@ -143,10 +132,8 @@ export function ReviewActionPanel({
               <Button
                 type="button"
                 variant="outline"
-                disabled={isStatusPending || !hasUnsavedComments}
-                onClick={() => {
-                  persistReviewUpdate(family.reviewStatus);
-                }}
+                disabled={isPending || !hasUnsavedComments}
+                onClick={() => runReviewUpdate(family.reviewStatus)}
               >
                 Save Comments
               </Button>
@@ -158,28 +145,28 @@ export function ReviewActionPanel({
       <div className="flex flex-col gap-3">
         <Button
           type="button"
-          disabled={isStatusPending || family.reviewStatus.approved}
-          onClick={() => {
-            persistReviewUpdate({
+          disabled={isPending || family.reviewStatus.approved}
+          onClick={() =>
+            runReviewUpdate({
               ...family.reviewStatus,
               approved: true,
               held: false,
-            });
-          }}
+            })
+          }
           className="h-11 w-full rounded-md bg-green-600 text-base font-medium text-white hover:bg-green-700"
         >
           Move to Approved
         </Button>
         <Button
           type="button"
-          disabled={isStatusPending || family.reviewStatus.held}
-          onClick={() => {
-            persistReviewUpdate({
+          disabled={isPending || family.reviewStatus.held}
+          onClick={() =>
+            runReviewUpdate({
               ...family.reviewStatus,
               approved: false,
               held: true,
-            });
-          }}
+            })
+          }
           className="h-11 w-full rounded-md bg-red-600 text-base font-medium text-white hover:bg-red-700"
         >
           Move to Holdfile
@@ -190,10 +177,8 @@ export function ReviewActionPanel({
         <Button
           type="button"
           variant="default"
-          disabled={isStatusPending || !onPreviousFamily}
-          onClick={() => {
-            handleFamilyNavigation(onPreviousFamily);
-          }}
+          disabled={isPending || !onPreviousFamily}
+          onClick={() => handleFamilyNavigation(onPreviousFamily)}
           className="h-10 w-full rounded-md bg-kfk-blue text-white hover:bg-kfk-blue/90"
         >
           <ArrowLeftIcon className="size-4" aria-hidden />
@@ -202,10 +187,8 @@ export function ReviewActionPanel({
         <Button
           type="button"
           variant="default"
-          disabled={isStatusPending || !onNextFamily}
-          onClick={() => {
-            handleFamilyNavigation(onNextFamily);
-          }}
+          disabled={isPending || !onNextFamily}
+          onClick={() => handleFamilyNavigation(onNextFamily)}
           className="h-10 w-full rounded-md bg-kfk-blue text-white hover:bg-kfk-blue/90"
         >
           Next

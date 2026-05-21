@@ -2,13 +2,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { EditableField } from "./EditableField";
 import { ReviewGift } from "./ReviewGift";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
-import { useUpdateGift } from "@/hooks/mutations/useUpdateGift";
+import { useLiveQuery } from "@tanstack/react-db";
+import { createTransaction, eq } from "@tanstack/react-db";
+import type { Transaction } from "@tanstack/react-db";
+import { useCollections } from "@/collections/context";
 import { cn } from "@/lib/utils";
 import { toast } from "@/lib/toast";
 import {
@@ -21,22 +24,8 @@ import {
   isGiftTitleTooLong,
 } from "common";
 
-interface ChildInfoCardProps {
+interface ChildCardProps {
   child: Child;
-  fetchedGifts: Array<Gift> | undefined;
-  onSave?: (updatedChild: Child) => void | Promise<void>;
-}
-
-export interface ChildFormState {
-  treatmentLength: TimePeriod | undefined;
-  diagnosis: string;
-  age: number;
-  level: number | undefined;
-  blurb: string | undefined;
-  socialWorkerName: string;
-  hospitalName: string;
-  photoUrl: string | undefined;
-  gifts: Array<Gift>; // This is the crucial part
 }
 
 const levelOptions: Array<"1" | "2" | "3"> = ["1", "2", "3"];
@@ -63,105 +52,54 @@ function hasValidListedPrice(
   return listedPrice !== undefined && Number.isFinite(listedPrice);
 }
 
-function getGiftUpdatePayload(
-  originalGift: Gift | undefined,
-  editedGift: Gift,
-): Partial<Gift> {
-  if (!originalGift) {
-    return {
-      title: editedGift.title,
-      status: editedGift.status,
-      familyPublicNotes: editedGift.familyPublicNotes,
-      ...(hasValidListedPrice(editedGift.listedPrice)
-        ? { listedPrice: editedGift.listedPrice }
-        : {}),
-    };
-  }
-
-  return {
-    ...(editedGift.title !== originalGift.title
-      ? { title: editedGift.title }
-      : {}),
-    ...(editedGift.status !== originalGift.status
-      ? { status: editedGift.status }
-      : {}),
-    ...(editedGift.familyPublicNotes !== originalGift.familyPublicNotes
-      ? { familyPublicNotes: editedGift.familyPublicNotes }
-      : {}),
-    ...(editedGift.listedPrice !== originalGift.listedPrice &&
-    hasValidListedPrice(editedGift.listedPrice)
-      ? { listedPrice: editedGift.listedPrice }
-      : {}),
-  };
-}
-
-export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
+export function ChildCard({ child }: ChildCardProps) {
+  const collections = useCollections();
   const [editing, setEditing] = useState(false);
+  const [isSaving, startSaveTransition] = useTransition();
   const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const photoReadIdRef = useRef(0);
   const photoReaderRef = useRef<FileReader | null>(null);
-  const isEditingRef = useRef(false);
-  const giftUpdateTimeoutsRef = useRef<
-    Map<string, ReturnType<typeof setTimeout>>
-  >(new Map());
-  const [formState, setFormState] = useState<ChildFormState>({
-    treatmentLength: child.diagnosisLengthYears,
-    diagnosis: child.diagnosis,
-    age: child.age,
-    level: child.treatmentLevel,
-    blurb: child.publicBlurb,
-    socialWorkerName: child.childSocialWorker,
-    hospitalName: child.hospital,
-    photoUrl: child.photoUrl,
-    gifts: fetchedGifts || [],
-  });
-  const { mutate: updateGift, mutateAsync: updateGiftAsync } = useUpdateGift();
+  const txRef = useRef<Transaction | null>(null);
 
-  const cancelPendingGiftUpdate = () => {
-    giftUpdateTimeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
-    giftUpdateTimeoutsRef.current.clear();
-  };
+  const { data: gifts = [] } = useLiveQuery((q) =>
+    q
+      .from({ g: collections.gifts })
+      .where(({ g }) => eq(g.childId, child.id)),
+  );
 
-  useEffect(() => cancelPendingGiftUpdate, []);
+  useEffect(() => {
+    return () => {
+      photoReaderRef.current?.abort();
+    };
+  }, []);
 
-  const queueGiftPriceUpdate = (giftId: string, price: number) => {
-    const existing = giftUpdateTimeoutsRef.current.get(giftId);
-    if (existing) clearTimeout(existing);
-    giftUpdateTimeoutsRef.current.set(
-      giftId,
-      setTimeout(() => {
-        updateGift({
-          giftId,
-          updates: {
-            listedPrice: price,
-          },
-        });
-        giftUpdateTimeoutsRef.current.delete(giftId);
-      }, 500),
-    );
-  };
-
-  const updatePrice = (giftId: string, price: number | undefined) => {
-    setFormState((prev) => ({
-      ...prev,
-      gifts: prev.gifts.map((g) =>
-        g.id === giftId ? { ...g, listedPrice: price } : g,
-      ),
-    }));
-
-    if (hasValidListedPrice(price)) {
-      queueGiftPriceUpdate(giftId, price);
-    } else {
-      toast.warning("Invalid price!");
+  const ensureTransaction = () => {
+    if (!txRef.current) {
+      txRef.current = createTransaction({
+        autoCommit: false,
+        mutationFn: async ({ transaction }) => {
+          await collections.persistBatchMutation(transaction);
+        },
+      });
     }
+    return txRef.current;
   };
 
-  const updateLocalGift = (giftId: string, patch: Partial<Gift>) => {
-    setFormState((prev) => ({
-      ...prev,
-      gifts: prev.gifts.map((g) => (g.id === giftId ? { ...g, ...patch } : g)),
-    }));
+  const editChild = (mutate: (draft: Child) => void) => {
+    const tx = ensureTransaction();
+    tx.mutate(() => {
+      collections.children.update(child.id, (draft) =>
+        mutate(draft as Child),
+      );
+    });
+  };
+
+  const editGift = (giftId: string, mutate: (draft: Gift) => void) => {
+    const tx = ensureTransaction();
+    tx.mutate(() => {
+      collections.gifts.update(giftId, (draft) => mutate(draft as Gift));
+    });
   };
 
   const invalidatePhotoRead = () => {
@@ -177,27 +115,18 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
   };
 
   const handleCancelClick = () => {
-    cancelPendingGiftUpdate();
     invalidatePhotoRead();
     resetPhotoInput();
-    isEditingRef.current = false;
-    setFormState({
-      treatmentLength: child.diagnosisLengthYears,
-      diagnosis: child.diagnosis,
-      age: child.age,
-      level: child.treatmentLevel,
-      blurb: child.publicBlurb,
-      socialWorkerName: child.childSocialWorker,
-      hospitalName: child.hospital,
-      photoUrl: child.photoUrl,
-      gifts: fetchedGifts ?? [],
-    });
+    if (txRef.current && txRef.current.state === "pending") {
+      txRef.current.rollback();
+    }
+    txRef.current = null;
     setPhotoError(null);
     setEditing(false);
   };
 
   const handleEditClick = () => {
-    isEditingRef.current = true;
+    txRef.current = null;
     setPhotoError(null);
     setEditing(true);
   };
@@ -230,7 +159,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
     const reader = new FileReader();
     photoReaderRef.current = reader;
     reader.onload = (loadEvent) => {
-      if (readId !== photoReadIdRef.current || !isEditingRef.current) {
+      if (readId !== photoReadIdRef.current) {
         return;
       }
 
@@ -240,36 +169,34 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
         return;
       }
 
-      setFormState((prev) => ({
-        ...prev,
-        photoUrl: result,
-      }));
+      editChild((draft) => {
+        draft.photoUrl = result;
+      });
       photoReaderRef.current = null;
     };
     reader.onerror = () => {
-      if (readId !== photoReadIdRef.current || !isEditingRef.current) {
+      if (readId !== photoReadIdRef.current) {
         return;
       }
-
       setPhotoError("Failed to read file.");
       photoReaderRef.current = null;
     };
     reader.readAsDataURL(file);
   };
 
-  const handleSave = async () => {
-    if (isChildPublicBlurbTooLong(formState.blurb)) {
+  const handleSave = () => {
+    if (isChildPublicBlurbTooLong(child.publicBlurb)) {
       toast.error(CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE);
       return;
     }
 
-    if (formState.gifts.some((gift) => isGiftTitleTooLong(gift.title))) {
+    if (gifts.some((gift) => isGiftTitleTooLong(gift.title))) {
       toast.error(GIFT_TITLE_TOO_LONG_MESSAGE);
       return;
     }
 
     if (
-      formState.gifts.some((gift) =>
+      gifts.some((gift) =>
         isGiftFamilyPublicNotesTooLong(gift.familyPublicNotes),
       )
     ) {
@@ -277,53 +204,28 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
       return;
     }
 
-    const updatedChild: Child = {
-      ...child,
-      diagnosisLengthYears: formState.treatmentLength,
-      diagnosis: formState.diagnosis,
-      age: formState.age,
-      treatmentLevel: formState.level,
-      publicBlurb: formState.blurb,
-      childSocialWorker: formState.socialWorkerName,
-      hospital: formState.hospitalName,
-      photoUrl: formState.photoUrl,
-    };
-
-    try {
-      cancelPendingGiftUpdate();
-
-      if (onSave) {
-        await onSave(updatedChild);
-      }
-
-      await Promise.all(
-        formState.gifts.flatMap((gift) => {
-          const originalGift = fetchedGifts?.find(
-            (existingGift) => existingGift.id === gift.id,
-          );
-          const updates = getGiftUpdatePayload(originalGift, gift);
-
-          if (Object.keys(updates).length === 0) {
-            return [];
-          }
-
-          return [
-            updateGiftAsync({
-              giftId: gift.id,
-              updates,
-            }),
-          ];
-        }),
-      );
-
+    const tx = txRef.current;
+    if (!tx || tx.mutations.length === 0) {
+      txRef.current = null;
       invalidatePhotoRead();
       resetPhotoInput();
-      isEditingRef.current = false;
       setPhotoError(null);
       setEditing(false);
-    } catch (error) {
-      console.error("Child review save failed", error);
+      return;
     }
+
+    startSaveTransition(async () => {
+      try {
+        await tx.commit();
+        txRef.current = null;
+        invalidatePhotoRead();
+        resetPhotoInput();
+        setPhotoError(null);
+        setEditing(false);
+      } catch (error) {
+        console.error("Child review save failed", error);
+      }
+    });
   };
 
   return (
@@ -355,7 +257,7 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
                   }`}
                 >
                   <AvatarImage
-                    src={formState.photoUrl ?? ProfileHeader}
+                    src={child.photoUrl ?? ProfileHeader}
                   ></AvatarImage>
                   <AvatarFallback className="bg-kfk-light-blue text-kfk-blue">
                     <PhotoIcon className="size-6" />
@@ -414,16 +316,18 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
             <Button
               type="button"
               size="xs"
+              disabled={isSaving}
               onClick={editing ? handleSave : handleEditClick}
               className="rounded-sm px-6"
             >
-              {editing ? "Save" : "Edit"}
+              {editing ? (isSaving ? "Saving..." : "Save") : "Edit"}
             </Button>
             {editing && (
               <Button
                 type="button"
                 variant="destructive"
                 size="xs"
+                disabled={isSaving}
                 onClick={handleCancelClick}
                 className="rounded-sm px-4"
               >
@@ -445,15 +349,14 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
                 <p className="font-bold whitespace-nowrap">Treatment Length:</p>
                 <div className="min-w-0 flex-1">
                   <EditableField
-                    value={formState.treatmentLength}
+                    value={child.diagnosisLengthYears}
                     editable={editing}
                     fieldType="select"
                     selectOptions={timePeriodOptions}
                     onChange={(value: string) =>
-                      setFormState((prev) => ({
-                        ...prev,
-                        treatmentLength: value as TimePeriod,
-                      }))
+                      editChild((draft) => {
+                        draft.diagnosisLengthYears = value as TimePeriod;
+                      })
                     }
                   />
                 </div>
@@ -469,13 +372,12 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
                 <p className="font-bold whitespace-nowrap">Diagnosis:</p>
                 <div className="min-w-0 flex-1">
                   <EditableField
-                    value={formState.diagnosis}
+                    value={child.diagnosis}
                     editable={editing}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setFormState((prev) => ({
-                        ...prev,
-                        diagnosis: e.target.value,
-                      }))
+                      editChild((draft) => {
+                        draft.diagnosis = e.target.value;
+                      })
                     }
                   />
                 </div>
@@ -490,13 +392,12 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
               <p className="font-bold whitespace-nowrap">Age:</p>
               <div className="min-w-0 flex-1">
                 <EditableField
-                  value={formState.age}
+                  value={child.age}
                   editable={editing}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      age: Number(e.target.value),
-                    }))
+                    editChild((draft) => {
+                      draft.age = Number(e.target.value);
+                    })
                   }
                 />
               </div>
@@ -510,15 +411,14 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
               <p className="font-bold whitespace-nowrap">Level:</p>
               <div className="min-w-0 flex-1">
                 <EditableField
-                  value={formState.level}
+                  value={child.treatmentLevel}
                   editable={editing}
                   fieldType="select"
                   selectOptions={levelOptions}
                   onChange={(value: string) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      level: Number(value),
-                    }))
+                    editChild((draft) => {
+                      draft.treatmentLevel = Number(value);
+                    })
                   }
                 />
               </div>
@@ -526,39 +426,48 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
           </div>
           <div className="flex flex-col">
             <EditableField
-              value={formState.blurb}
+              value={child.publicBlurb}
               editable={editing}
               fieldType={"textarea"}
               characterLimit={MAX_CHILD_PUBLIC_BLURB_LENGTH}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                const nextBlurb = e.target.value;
-                setFormState((prev) => ({
-                  ...prev,
-                  blurb: nextBlurb,
-                }));
-              }}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                editChild((draft) => {
+                  draft.publicBlurb = e.target.value;
+                })
+              }
             >
               Personal Blurb:
             </EditableField>
           </div>
         </div>
 
-        {formState.gifts.length > 0 && (
+        {gifts.length > 0 && (
           <div className="w-full py-4">
             <div className="rounded-md bg-slate-100 py-1">
-              {formState.gifts.map((gift) => (
+              {gifts.map((gift) => (
                 <ReviewGift
                   key={gift.id}
                   gift={gift}
                   editable={editing}
                   onTitleChange={(value) =>
-                    updateLocalGift(gift.id, { title: value })
+                    editGift(gift.id, (draft) => {
+                      draft.title = value;
+                    })
                   }
-                  onPriceChange={(value) =>
-                    updatePrice(gift.id, parsePriceInput(value))
-                  }
+                  onPriceChange={(value) => {
+                    const price = parsePriceInput(value);
+                    if (hasValidListedPrice(price)) {
+                      editGift(gift.id, (draft) => {
+                        draft.listedPrice = price;
+                      });
+                    } else if (value.trim() !== "") {
+                      toast.warning("Invalid price!");
+                    }
+                  }}
                   onNotesChange={(value) =>
-                    updateLocalGift(gift.id, { familyPublicNotes: value })
+                    editGift(gift.id, (draft) => {
+                      draft.familyPublicNotes = value;
+                    })
                   }
                 />
               ))}
@@ -574,14 +483,13 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
               </span>
               <div className="min-w-0 flex-1">
                 <EditableField
-                  value={formState.socialWorkerName}
+                  value={child.childSocialWorker}
                   editable={editing}
                   size={15}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      socialWorkerName: e.target.value,
-                    }))
+                    editChild((draft) => {
+                      draft.childSocialWorker = e.target.value;
+                    })
                   }
                 />
               </div>
@@ -592,14 +500,13 @@ export function ChildCard({ child, fetchedGifts, onSave }: ChildInfoCardProps) {
               </span>
               <div className="min-w-0 flex-1">
                 <EditableField
-                  value={formState.hospitalName}
+                  value={child.hospital}
                   editable={editing}
                   size={20}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      hospitalName: e.target.value,
-                    }))
+                    editChild((draft) => {
+                      draft.hospital = e.target.value;
+                    })
                   }
                 />
               </div>

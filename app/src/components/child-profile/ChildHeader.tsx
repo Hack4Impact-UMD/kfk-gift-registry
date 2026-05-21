@@ -1,45 +1,47 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import type { Child } from "../../../../common/src/types/child";
 import { Button } from "../ui/button";
 import { ConfirmUnpublishModal } from "./ConfirmUnpublishModal";
-import { useUpdateChild } from "@/hooks/mutations/useUpdateChild";
 
 type ChildHeaderProps = {
   child: Child;
-  editedChild: Partial<Child>;
   isEditing: boolean;
   onStartEditing: () => void;
   onSave: () => void;
   onCancel: () => void;
+  onPublishedChange: (published: boolean) => Promise<void>;
 };
 
 export function ChildHeader({
   child,
-  editedChild,
   isEditing,
   onStartEditing,
   onSave,
   onCancel,
+  onPublishedChange,
 }: ChildHeaderProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const updateChildMutation = useUpdateChild();
-  const currentName = editedChild.name ?? child.name;
-  const currentCategory = editedChild.category ?? child.category;
+  const [isPending, startPublishTransition] = useTransition();
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const isPublished = child.published;
   const publishAction = isPublished ? "unpublish" : "publish";
 
   const handleConfirmOpenChange = (open: boolean) => {
     if (!open) {
-      updateChildMutation.reset();
+      setErrorMessage(undefined);
     }
     setConfirmOpen(open);
   };
 
-  const handlePublishedChange = async (published: boolean) => {
-    updateChildMutation.reset();
-    await updateChildMutation.mutateAsync({
-      childId: child.id,
-      updates: { published },
+  const handlePublishedChange = () => {
+    setErrorMessage(undefined);
+    startPublishTransition(async () => {
+      try {
+        await onPublishedChange(!isPublished);
+        setConfirmOpen(false);
+      } catch (err) {
+        setErrorMessage(err instanceof Error ? err.message : String(err));
+      }
     });
   };
 
@@ -47,16 +49,16 @@ export function ChildHeader({
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <h1 className="break-words text-[2rem] font-medium leading-none tracking-tight">
-          {currentName}
+          {child.name}
         </h1>
         <div
           className={
-            currentCategory === "warrior"
+            child.category === "warrior"
               ? "self-start rounded-full border border-kfk-brown bg-kfk-yellow/25 px-3 py-1 text-center text-xs font-medium text-kfk-brown"
               : "self-start rounded-full border border-kfk-blue bg-kfk-light-blue/25 px-3 py-1 text-center text-xs font-medium text-kfk-blue"
           }
         >
-          {currentCategory === "warrior" ? "Warrior" : "Super Sib"}
+          {child.category === "warrior" ? "Warrior" : "Super Sib"}
         </div>
       </div>
 
@@ -77,7 +79,7 @@ export function ChildHeader({
         <Button
           size="sm"
           className="min-w-24 px-4"
-          disabled={updateChildMutation.isPending}
+          disabled={isPending}
           variant={
             isEditing ? "destructive" : isPublished ? "destructive" : "default"
           }
@@ -85,14 +87,14 @@ export function ChildHeader({
             if (isEditing) {
               onCancel();
             } else {
-              updateChildMutation.reset();
+              setErrorMessage(undefined);
               setConfirmOpen(true);
             }
           }}
         >
           {isEditing
             ? "Cancel"
-            : updateChildMutation.isPending
+            : isPending
               ? isPublished
                 ? "Unpublishing..."
                 : "Publishing..."
@@ -105,10 +107,10 @@ export function ChildHeader({
       <ConfirmUnpublishModal
         open={confirmOpen}
         onOpenChange={handleConfirmOpenChange}
-        onConfirm={() => handlePublishedChange(!isPublished)}
+        onConfirm={handlePublishedChange}
         action={publishAction}
-        isPending={updateChildMutation.isPending}
-        errorMessage={updateChildMutation.error?.message}
+        isPending={isPending}
+        errorMessage={errorMessage}
       />
     </div>
   );
