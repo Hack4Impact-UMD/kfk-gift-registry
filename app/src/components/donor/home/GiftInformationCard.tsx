@@ -33,8 +33,8 @@ export function GiftInformationCard({
   isDelivering?: boolean;
   isUploadingReceipt?: boolean;
   isUploadingDeliveryReceipt?: boolean;
-  onOrdered: () => void;
-  onDelivered: () => void;
+  onOrdered: () => void | Promise<void>;
+  onDelivered: () => void | Promise<void>;
   onUndoDelivery: () => void;
   onReceipt: (f: File | string | null) => void;
   onDeliveryReceipt: (f: File | string | null) => void;
@@ -54,13 +54,13 @@ export function GiftInformationCard({
     state.deliveryReceiptFileName,
   );
 
-  const handleConfirmOrdered = () => {
-    onOrdered();
+  const handleConfirmOrdered = async () => {
+    await onOrdered();
     setOrderConfirmOpen(false);
   };
 
-  const handleConfirmDelivered = () => {
-    onDelivered();
+  const handleConfirmDelivered = async () => {
+    await onDelivered();
     setDeliveryConfirmOpen(false);
   };
 
