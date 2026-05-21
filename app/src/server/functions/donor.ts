@@ -241,39 +241,42 @@ export const markGiftPurchased = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const donorId = context.authUser.uid;
     const db = getServerDB();
-    const giftDoc = await db.gifts.doc(data.giftId).get();
-    const gift = giftDoc.data();
+    return await db._instance.runTransaction(async (transaction) => {
+      const giftRef = db.gifts.doc(data.giftId);
+      const giftDoc = await transaction.get(giftRef);
+      const gift = giftDoc.data();
 
-    if (!gift) {
-      throw new Error("Gift not found");
-    }
+      if (!gift) {
+        throw new Error("Gift not found");
+      }
 
-    if (gift.claimedByDonorId !== donorId) {
-      throw new Error("Gift is not claimed by this donor");
-    }
+      if (gift.claimedByDonorId !== donorId) {
+        throw new Error("Gift is not claimed by this donor");
+      }
 
-    if (
-      gift.status === "PURCHASED" ||
-      gift.status === "DELIVERED" ||
-      gift.status === "RECEIVED"
-    ) {
-      return gift;
-    }
+      if (
+        gift.status === "PURCHASED" ||
+        gift.status === "DELIVERED" ||
+        gift.status === "RECEIVED"
+      ) {
+        return gift;
+      }
 
-    if (gift.status !== "CLAIMED") {
-      throw new Error(
-        `Gift cannot be marked purchased (status: ${gift.status})`,
-      );
-    }
+      if (gift.status !== "CLAIMED") {
+        throw new Error(
+          `Gift cannot be marked purchased (status: ${gift.status})`,
+        );
+      }
 
-    await db.gifts.doc(gift.id).update({
-      status: "PURCHASED",
+      transaction.update(giftRef, {
+        status: "PURCHASED",
+      });
+
+      return {
+        ...gift,
+        status: "PURCHASED" as const,
+      };
     });
-
-    return {
-      ...gift,
-      status: "PURCHASED" as const,
-    };
   });
 
 export const uploadPurchaseReceipt = createServerFn({ method: "POST" })
@@ -342,55 +345,56 @@ export const markGiftDelivered = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const donorId = context.authUser.uid;
     const db = getServerDB();
-    const giftDoc = await db.gifts.doc(data.giftId).get();
-    const gift = giftDoc.data();
+    return await db._instance.runTransaction(async (transaction) => {
+      const giftRef = db.gifts.doc(data.giftId);
+      const giftDoc = await transaction.get(giftRef);
+      const gift = giftDoc.data();
 
-    if (!gift) {
-      throw new Error("Gift not found");
-    }
+      if (!gift) {
+        throw new Error("Gift not found");
+      }
 
-    if (gift.claimedByDonorId !== donorId) {
-      throw new Error("Gift is not claimed by this donor");
-    }
+      if (gift.claimedByDonorId !== donorId) {
+        throw new Error("Gift is not claimed by this donor");
+      }
 
-    if (gift.status === "DELIVERED" || gift.status === "RECEIVED") {
-      return gift;
-    }
+      if (gift.status === "DELIVERED" || gift.status === "RECEIVED") {
+        return gift;
+      }
 
-    if (gift.status !== "PURCHASED") {
-      throw new Error(
-        `Gift cannot be marked delivered (status: ${gift.status})`,
+      if (gift.status !== "PURCHASED") {
+        throw new Error(
+          `Gift cannot be marked delivered (status: ${gift.status})`,
+        );
+      }
+
+      const deliveredAt = new Date().toISOString();
+      const claimSnapshot = await transaction.get(
+        db.claims
+          .where("giftId", "==", gift.id)
+          .where("donorId", "==", donorId)
+          .where("active", "==", true),
       );
-    }
 
-    const deliveredAt = new Date().toISOString();
-    const claimSnapshot = await db.claims
-      .where("giftId", "==", gift.id)
-      .where("donorId", "==", donorId)
-      .where("active", "==", true)
-      .get();
-
-    const batch = db._instance.batch();
-    batch.update(db.gifts.doc(gift.id), {
-      status: "DELIVERED",
-    });
-
-    for (const claimDoc of claimSnapshot.docs) {
-      batch.update(claimDoc.ref, {
-        deliveryConfirmed: {
-          date: deliveredAt,
-          documentationUrl: "",
-          verified: false,
-        },
+      transaction.update(giftRef, {
+        status: "DELIVERED",
       });
-    }
 
-    await batch.commit();
+      for (const claimDoc of claimSnapshot.docs) {
+        transaction.update(claimDoc.ref, {
+          deliveryConfirmed: {
+            date: deliveredAt,
+            documentationUrl: "",
+            verified: false,
+          },
+        });
+      }
 
-    return {
-      ...gift,
-      status: "DELIVERED" as const,
-    };
+      return {
+        ...gift,
+        status: "DELIVERED" as const,
+      };
+    });
   });
 
 export const uploadDeliveryReceipt = createServerFn({ method: "POST" })
