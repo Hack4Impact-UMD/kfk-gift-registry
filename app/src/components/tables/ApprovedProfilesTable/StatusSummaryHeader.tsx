@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { UsersIcon } from "@/components/icons";
-import { StatusSummaryCard } from "../PendingProfilesTable/StatusSummaryCard";
+import { StatusSummaryCard } from "@/components/StatusSummaryCard";
 import type { ApprovedProfileTableRow, ChildProfileVisibility } from "./types";
 
 interface StatusSummaryHeaderProps {
