@@ -4,9 +4,11 @@ import { ParentComments } from "./ParentComments";
 import { AdminComments } from "./AdminComments";
 import { FamilyAccountLink } from "./FamilyAccountLink";
 import type { Gift } from "common";
+import type { GiftClaimDetails } from "@/server/functions/child";
 
 interface GiftInfoSectionProps {
   gifts: ReadonlyArray<Gift>;
+  claimsByGiftId?: Record<string, GiftClaimDetails>;
   parentComments?: string;
   adminComments?: string;
   familyToken?: string;
@@ -15,6 +17,7 @@ interface GiftInfoSectionProps {
 
 export function GiftInfoSection({
   gifts,
+  claimsByGiftId = {},
   parentComments,
   adminComments,
   familyToken,
@@ -39,12 +42,12 @@ export function GiftInfoSection({
                 key={gift.id}
                 gift={gift}
                 isBackupGift={false}
+                claim={claimsByGiftId[gift.id]}
               />
             ))
           )}
         </div>
 
-        {/* Backup gifts */}
         {backupGifts.length > 0 && (
           <div className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-4">
             <h2 className="flex flex-col items-start gap-3 pt-3 text-2xl font-bold leading-tight sm:flex-row sm:items-center sm:justify-center sm:text-3xl lg:text-4xl">
@@ -52,7 +55,12 @@ export function GiftInfoSection({
               <span className="leading-none">Backup Gift Information</span>
             </h2>
             {backupGifts.map((gift) => (
-              <GiftInfoCard key={gift.id} gift={gift} isBackupGift />
+              <GiftInfoCard
+                key={gift.id}
+                gift={gift}
+                isBackupGift
+                claim={claimsByGiftId[gift.id]}
+              />
             ))}
           </div>
         )}

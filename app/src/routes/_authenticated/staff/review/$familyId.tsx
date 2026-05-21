@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useLiveQuery } from "@tanstack/react-db";
-import { eq } from "@tanstack/react-db";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { useCollections } from "@/collections/context";
 import {
   childrenByFamilyIdQueryOptions,
@@ -10,6 +9,7 @@ import { GuardianInfoCard } from "@/components/review/GuardianInfoCard";
 import { ChildCard } from "@/components/review/ChildCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
+import { Spinner } from "@/components/ui/spinner";
 import type { Child } from "common";
 import { useDrive } from "@/context/DriveContext";
 import { useReviewOrder } from "@/context/ReviewOrderContext";
@@ -40,27 +40,59 @@ export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
 
 function RouteComponent() {
   const { familyId } = Route.useParams();
+  const { auth } = Route.useRouteContext();
   const navigate = useNavigate();
   const collections = useCollections();
   const { activeDriveId } = useDrive();
   const { reviewOrder } = useReviewOrder();
   const { data: familyRows } = usePendingProfileTableRows(activeDriveId);
 
-  const { data: familyData = [] } = useLiveQuery((q) =>
-    q
-      .from({ f: collections.families })
-      .where(({ f }) => eq(f.id, familyId)),
+  const {
+    data: familyData = [],
+    isLoading: familyLoading,
+    isError: familyIsError,
+  } = useLiveQuery(
+    (q) =>
+      q.from({ f: collections.families }).where(({ f }) => eq(f.id, familyId)),
+    [familyId],
   );
   const family = familyData[0];
 
-  const { data: children = [] } = useLiveQuery((q) =>
-    q
-      .from({ c: collections.children })
-      .where(({ c }) => eq(c.familyId, familyId)),
+  const {
+    data: children = [],
+    isLoading: childrenLoading,
+    isError: childrenIsError,
+  } = useLiveQuery(
+    (q) =>
+      q
+        .from({ c: collections.children })
+        .where(({ c }) => eq(c.familyId, familyId)),
+    [familyId],
   );
 
+  if (familyIsError || childrenIsError) {
+    return (
+      <div role="alert" className="p-4 text-kfk-red">
+        Failed to load family for review.
+      </div>
+    );
+  }
+
+  if (familyLoading || childrenLoading) {
+    return (
+      <div className="flex items-center gap-2 p-4 text-muted-foreground">
+        <Spinner />
+        <span>Loading family...</span>
+      </div>
+    );
+  }
+
   if (!family) {
-    throw new Error("Family not found");
+    return (
+      <div role="alert" className="p-4 text-kfk-red">
+        Family not found.
+      </div>
+    );
   }
 
   const familyOrder = reviewOrder.includes(familyId)
@@ -109,6 +141,7 @@ function RouteComponent() {
         <ReviewActionPanel
           key={family.id}
           family={family}
+          authUser={auth.authUser}
           onPreviousFamily={
             previousFamilyId
               ? () => handleFamilyNavigation(previousFamilyId)

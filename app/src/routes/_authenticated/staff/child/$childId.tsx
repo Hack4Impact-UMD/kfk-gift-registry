@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState, useTransition } from "react";
-import { useLiveQuery } from "@tanstack/react-db";
-import { eq, createTransaction } from "@tanstack/react-db";
+import { eq, createTransaction, useLiveQuery } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
 import { v7 as uuidv7 } from "uuid";
 import { useCollections } from "@/collections/context";
@@ -10,6 +9,8 @@ import {
   familyByIdQueryOptions,
   giftsByChildIdQueryOptions,
 } from "@/collections/preload";
+import { useQuery } from "@tanstack/react-query";
+import { queries } from "@/queries";
 import { ChildHeader } from "@/components/child-profile/ChildHeader";
 import { ChildInfo } from "@/components/child-profile/ChildInfo";
 import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
@@ -42,6 +43,9 @@ export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
       context.queryClient.ensureQueryData(
         giftsByChildIdQueryOptions(params.childId),
       ),
+      context.queryClient.ensureQueryData(
+        queries.claims.byChildId(params.childId),
+      ),
     ]);
   },
   head: () => ({
@@ -55,6 +59,23 @@ export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
   }),
 });
 
+function LoadingPanel({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-2 p-4 text-muted-foreground">
+      <Spinner />
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function ErrorPanel({ message }: { message: string }) {
+  return (
+    <div role="alert" className="p-4 text-kfk-red">
+      {message}
+    </div>
+  );
+}
+
 function ChildProfilePage() {
   const { childId } = Route.useParams();
   const collections = useCollections();
@@ -63,20 +84,32 @@ function ChildProfilePage() {
   const [isAddingGift, startAddGift] = useTransition();
   const txRef = useRef<Transaction | null>(null);
 
-  const { data: childData = [], isLoading: childLoading } = useLiveQuery((q) =>
-    q
-      .from({ c: collections.children })
-      .where(({ c }) => eq(c.id, childId)),
+  const {
+    data: childData = [],
+    isLoading: childLoading,
+    isError: childIsError,
+  } = useLiveQuery(
+    (q) =>
+      q.from({ c: collections.children }).where(({ c }) => eq(c.id, childId)),
+    [childId],
   );
   const child = childData[0];
 
-  const { data: giftsData = [], isLoading: giftsLoading } = useLiveQuery((q) =>
-    q
-      .from({ g: collections.gifts })
-      .where(({ g }) => eq(g.childId, childId)),
+  const {
+    data: giftsData = [],
+    isLoading: giftsLoading,
+    isError: giftsIsError,
+  } = useLiveQuery(
+    (q) =>
+      q.from({ g: collections.gifts }).where(({ g }) => eq(g.childId, childId)),
+    [childId],
   );
 
-  const { data: familyData = [], isLoading: familyLoading } = useLiveQuery(
+  const {
+    data: familyData = [],
+    isLoading: familyLoading,
+    isError: familyIsError,
+  } = useLiveQuery(
     (q) =>
       child
         ? q
@@ -93,11 +126,30 @@ function ChildProfilePage() {
     error: familyLinkError,
   } = useFamilyLinkByFamilyId(child?.familyId ?? "");
 
-  if (childLoading) return <div>Loading...</div>;
-  if (!child) return <div>No child found</div>;
-  if (familyLoading) return <div>Loading family...</div>;
-  if (!family) return <div>No family found</div>;
-  if (giftsLoading) return <div>Loading gifts...</div>;
+  const { data: claimsData = [] } = useQuery({
+    ...queries.claims.byChildId(childId),
+    enabled: !!child,
+  });
+  const claimsByGiftId = Object.fromEntries(
+    claimsData.map((c) => [c.giftId, c]),
+  );
+
+  if (childIsError) {
+    return <ErrorPanel message="Failed to load child profile" />;
+  }
+  if (childLoading) return <LoadingPanel label="Loading child profile..." />;
+  if (!child) return <ErrorPanel message="No child found" />;
+
+  if (familyIsError) {
+    return <ErrorPanel message="Failed to load family" />;
+  }
+  if (familyLoading) return <LoadingPanel label="Loading family..." />;
+  if (!family) return <ErrorPanel message="No family found" />;
+
+  if (giftsIsError) {
+    return <ErrorPanel message="Failed to load gifts" />;
+  }
+  if (giftsLoading) return <LoadingPanel label="Loading gifts..." />;
 
   const activeGiftCount = giftsData.filter((gift) => gift.active).length;
 
@@ -312,10 +364,7 @@ function ChildProfilePage() {
                   isEditing={isEditing}
                   onGiftToggle={handleGiftToggle}
                   headerAction={
-                    <Dialog
-                      open={isAddGiftOpen}
-                      onOpenChange={setAddGiftOpen}
-                    >
+                    <Dialog open={isAddGiftOpen} onOpenChange={setAddGiftOpen}>
                       <DialogTrigger asChild>
                         <Button
                           size="sm"
@@ -354,6 +403,7 @@ function ChildProfilePage() {
       ) : (
         <GiftInfoSection
           gifts={giftsData}
+          claimsByGiftId={claimsByGiftId}
           parentComments={family.privateNotes}
           adminComments={child.staffPrivateNotes ?? ""}
           familyToken={familyLink?.id}

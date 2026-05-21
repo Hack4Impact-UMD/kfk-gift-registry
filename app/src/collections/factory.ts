@@ -291,8 +291,7 @@ export function createCollections(queryClient: QueryClient) {
 
     const profileUpdates = buildFamilyProfileUpdates(original, modified);
     const reviewChanged = reviewStatusChanged(original, modified);
-    const privateNotesChanged =
-      modified.privateNotes !== original.privateNotes;
+    const privateNotesChanged = modified.privateNotes !== original.privateNotes;
 
     const tasks: Array<Promise<unknown>> = [];
 
@@ -328,9 +327,7 @@ export function createCollections(queryClient: QueryClient) {
     return { reviewChanged };
   }
 
-  async function persistGiftUpdate(
-    mutation: PendingMutation<Gift, "update">,
-  ) {
+  async function persistGiftUpdate(mutation: PendingMutation<Gift, "update">) {
     const giftId = mutation.key as string;
     const updates = diffGift(
       mutation.original as Gift,
@@ -340,9 +337,7 @@ export function createCollections(queryClient: QueryClient) {
     await updateGift({ data: { giftId, updates } });
   }
 
-  async function persistGiftInsert(
-    mutation: PendingMutation<Gift, "insert">,
-  ) {
+  async function persistGiftInsert(mutation: PendingMutation<Gift, "insert">) {
     const draft = mutation.modified as Gift;
     return createGift({
       data: {
@@ -485,8 +480,7 @@ export function createCollections(queryClient: QueryClient) {
         const childFilter = parsed.filters.find(
           (f) => f.field.join(".") === "childId" && f.operator === "eq",
         );
-        if (childFilter)
-          return ["gifts-coll", "child", childFilter.value];
+        if (childFilter) return ["gifts-coll", "child", childFilter.value];
         return ["gifts-coll", "all"];
       },
       queryFn: async ({ meta }) => {
@@ -614,17 +608,29 @@ export function createCollections(queryClient: QueryClient) {
         continue;
       }
 
-      throw new Error(
-        `Unsupported mutation: ${collectionId} / ${m.type}`,
-      );
+      throw new Error(`Unsupported mutation: ${collectionId} / ${m.type}`);
     }
 
     const invalidations: Array<Promise<unknown>> = [];
-    if (touchedChild) invalidations.push(invalidateChildDerivedCaches());
-    if (touchedGift || createdGift)
+    if (touchedChild) {
+      invalidations.push(invalidateChildDerivedCaches());
+      invalidations.push(
+        queryClient.invalidateQueries({ queryKey: ["children-coll"] }),
+      );
+    }
+    if (touchedGift || createdGift) {
       invalidations.push(invalidateGiftDerivedCaches());
+      invalidations.push(
+        queryClient.invalidateQueries({ queryKey: ["gifts-coll"] }),
+      );
+    }
     for (const familyId of familyIdsTouched) {
       invalidations.push(invalidateFamilyDerivedCaches(familyId));
+    }
+    if (familyIdsTouched.size > 0) {
+      invalidations.push(
+        queryClient.invalidateQueries({ queryKey: ["families-coll"] }),
+      );
     }
     await Promise.all(invalidations);
 

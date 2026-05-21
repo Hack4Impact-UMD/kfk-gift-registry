@@ -8,8 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
-import { useLiveQuery } from "@tanstack/react-db";
-import { createTransaction, eq } from "@tanstack/react-db";
+import { createTransaction, eq, useLiveQuery } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
 import { useCollections } from "@/collections/context";
 import { cn } from "@/lib/utils";
@@ -62,10 +61,16 @@ export function ChildCard({ child }: ChildCardProps) {
   const photoReaderRef = useRef<FileReader | null>(null);
   const txRef = useRef<Transaction | null>(null);
 
-  const { data: gifts = [] } = useLiveQuery((q) =>
-    q
-      .from({ g: collections.gifts })
-      .where(({ g }) => eq(g.childId, child.id)),
+  const {
+    data: gifts = [],
+    isLoading: giftsLoading,
+    isError: giftsIsError,
+  } = useLiveQuery(
+    (q) =>
+      q
+        .from({ g: collections.gifts })
+        .where(({ g }) => eq(g.childId, child.id)),
+    [child.id],
   );
 
   useEffect(() => {
@@ -89,9 +94,7 @@ export function ChildCard({ child }: ChildCardProps) {
   const editChild = (mutate: (draft: Child) => void) => {
     const tx = ensureTransaction();
     tx.mutate(() => {
-      collections.children.update(child.id, (draft) =>
-        mutate(draft as Child),
-      );
+      collections.children.update(child.id, (draft) => mutate(draft as Child));
     });
   };
 
@@ -231,7 +234,7 @@ export function ChildCard({ child }: ChildCardProps) {
   return (
     <Card className="w-full max-w-2xl bg-kfk-blue/5 border border-foreground pb-0">
       <CardContent className="flex flex-col py-0">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col items-start justify-between gap-2 mb-4">
           <div className="flex gap-5">
             <div className="relative">
               <input
@@ -441,7 +444,17 @@ export function ChildCard({ child }: ChildCardProps) {
           </div>
         </div>
 
-        {gifts.length > 0 && (
+        {giftsIsError && (
+          <div role="alert" className="px-4 py-3 text-sm text-kfk-red">
+            Failed to load gifts.
+          </div>
+        )}
+        {!giftsIsError && giftsLoading && (
+          <div className="px-4 py-3 text-sm text-muted-foreground">
+            Loading gifts...
+          </div>
+        )}
+        {!giftsIsError && !giftsLoading && gifts.length > 0 && (
           <div className="w-full py-4">
             <div className="rounded-md bg-slate-100 py-1">
               {gifts.map((gift) => (
@@ -454,12 +467,14 @@ export function ChildCard({ child }: ChildCardProps) {
                       draft.title = value;
                     })
                   }
-                  onPriceChange={(value) => {
+                  onPriceChange={async (value) => {
                     const price = parsePriceInput(value);
                     if (hasValidListedPrice(price)) {
                       editGift(gift.id, (draft) => {
                         draft.listedPrice = price;
                       });
+                      await txRef.current?.commit();
+                      txRef.current = null;
                     } else if (value.trim() !== "") {
                       toast.warning("Invalid price!");
                     }

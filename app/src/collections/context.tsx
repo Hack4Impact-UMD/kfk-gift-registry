@@ -1,8 +1,9 @@
-import * as React from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { createCollections, type Collections } from "./factory";
+import { createCollections } from "./factory";
+import type { Collections } from "./factory";
+import { createContext, useContext, useMemo } from "react";
 
-const CollectionsContext = React.createContext<Collections | null>(null);
+const CollectionsContext = createContext<Collections | null>(null);
 
 export function CollectionsProvider({
   children,
@@ -10,7 +11,7 @@ export function CollectionsProvider({
   children: React.ReactNode;
 }) {
   const queryClient = useQueryClient();
-  const collections = React.useMemo(
+  const collections = useMemo(
     () => createCollections(queryClient),
     [queryClient],
   );
@@ -22,11 +23,9 @@ export function CollectionsProvider({
 }
 
 export function useCollections(): Collections {
-  const ctx = React.useContext(CollectionsContext);
+  const ctx = useContext(CollectionsContext);
   if (!ctx) {
-    throw new Error(
-      "useCollections must be used within a CollectionsProvider",
-    );
+    throw new Error("useCollections must be used within a CollectionsProvider");
   }
   return ctx;
 }

@@ -17,10 +17,11 @@ import {
   uploadChildPhoto,
 } from "../services/childPhotoService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
-import type { Family, Gift, Child } from "common";
+import type { Claim, Family, Gift, Child, UserProfile } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 import { appCheckMiddleware } from "../middleware/appCheckMiddleware";
+import { chunk } from "@/lib/utils";
 
 export type FamilyGiftClaim = {
   giftId: string;
@@ -1069,4 +1070,98 @@ export const updateGift = createServerFn({ method: "POST" })
     const updatedGiftData = updatedGift.data();
     if (!updatedGiftData) throw new Error("Gift not found");
     return updatedGiftData;
+  });
+
+export type GiftClaimDetails = {
+  giftId: string;
+  claimId: string;
+  donorName: string | null;
+  donorEmail: string | null;
+  trackingNumber: string | null;
+  dateOrdered: string | null;
+  dateDelivered: string | null;
+  dateReceived: string | null;
+};
+
+function isDonorClaim(
+  claim: Claim,
+): claim is Extract<Claim, { claimType: "donor" }> {
+  return claim.claimType === "donor";
+}
+
+export const getClaimsWithDonorByChildId = createServerFn({ method: "GET" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(childIdSchema)
+  .handler(async ({ data }) => {
+    const { childId } = data;
+    const db = getServerDB();
+
+    const claimsSnap = await db.claims
+      .where("childId", "==", childId)
+      .where("active", "==", true)
+      .get();
+
+    if (claimsSnap.empty) return [] as Array<GiftClaimDetails>;
+
+    const claims = claimsSnap.docs.map((doc) => doc.data());
+
+    const donorIds = Array.from(
+      new Set(claims.filter(isDonorClaim).map((c) => c.donorId)),
+    );
+
+    const profileByDonorId = new Map<string, UserProfile>();
+    if (donorIds.length > 0) {
+      await Promise.all(
+        chunk(donorIds, 300).map(async (donorIdChunk) => {
+          const refs = donorIdChunk.map((id) => db.users.doc(id));
+          const snaps = await db._instance.getAll(...refs);
+          for (const snap of snaps) {
+            if (snap.exists) {
+              profileByDonorId.set(snap.id, snap.data() as UserProfile);
+            }
+          }
+        }),
+      );
+    }
+
+    return claims.map((claim): GiftClaimDetails => {
+      const donor = isDonorClaim(claim)
+        ? profileByDonorId.get(claim.donorId)
+        : undefined;
+      return {
+        giftId: claim.giftId,
+        claimId: claim.id,
+        donorName: donor?.name ?? null,
+        donorEmail: donor?.email ?? null,
+        trackingNumber: claim.purchaseConfirmation?.trackingNumber ?? null,
+        dateOrdered: claim.purchaseConfirmation?.date ?? null,
+        dateDelivered: claim.deliveryConfirmed?.date ?? null,
+        dateReceived: claim.receivedAt ?? null,
+      };
+    });
+  });
+
+export const updateClaimTrackingNumber = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(
+    z.object({ claimId: z.string().min(1), trackingNumber: z.string() }),
+  )
+  .handler(async ({ data }) => {
+    const { claimId, trackingNumber } = data;
+    const db = getServerDB();
+    await db.claims.doc(claimId).update({
+      "purchaseConfirmation.trackingNumber": trackingNumber,
+    });
   });

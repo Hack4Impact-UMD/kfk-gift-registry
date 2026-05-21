@@ -9,6 +9,16 @@ import { useCollections } from "@/collections/context";
 import type { Family } from "common";
 import { StatusBadge } from "@/components/tables/PendingProfilesTable/StatusBadge";
 import type { ApplicationStatus } from "@/components/tables/PendingProfilesTable/types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
+import { publishFamilies } from "@/server/functions/family";
+import { DateTime } from "luxon";
+import type { AuthUser } from "@/server/functions/auth";
 
 const CHECKLIST_ITEMS = [
   "No gift cards allowed",
@@ -23,12 +33,14 @@ const ADMIN_COMMENTS_PLACEHOLDER =
 
 interface ReviewActionPanelProps {
   family: Family;
+  authUser: AuthUser;
   onPreviousFamily?: () => void;
   onNextFamily?: () => void;
 }
 
 export function ReviewActionPanel({
   family,
+  authUser,
   onPreviousFamily,
   onNextFamily,
 }: ReviewActionPanelProps) {
@@ -49,11 +61,12 @@ export function ReviewActionPanel({
 
   const runReviewUpdate = (
     nextStatus: Family["reviewStatus"],
+    publish: boolean = false,
     onComplete?: () => void,
   ) => {
     startStatusTransition(async () => {
       try {
-        const tx = collections.families.update(family.id, (draft) => {
+        const familiesTx = collections.families.update(family.id, (draft) => {
           draft.reviewStatus.approved = nextStatus.approved;
           draft.reviewStatus.held = nextStatus.held;
           if (nextStatus.held) {
@@ -62,11 +75,14 @@ export function ReviewActionPanel({
             draft.reviewStatus.holdNotes = normalizedAdminComments;
           } else {
             draft.reviewStatus.reviewNotes = normalizedAdminComments;
-            draft.reviewStatus.holdNotes =
-              family.reviewStatus.holdNotes ?? "";
+            draft.reviewStatus.holdNotes = family.reviewStatus.holdNotes ?? "";
           }
         });
-        await tx.isPersisted.promise;
+        await familiesTx.isPersisted.promise;
+        if (publish) {
+          await publishFamilies({ data: [family.id] });
+          await collections.children.utils.refetch();
+        }
         onComplete?.();
       } catch {
         // toast handled by collection handler
@@ -78,7 +94,7 @@ export function ReviewActionPanel({
     if (!navigateToFamily || isPending) return;
 
     if (hasUnsavedComments) {
-      runReviewUpdate(family.reviewStatus, navigateToFamily);
+      runReviewUpdate(family.reviewStatus, false, navigateToFamily);
     } else {
       navigateToFamily();
     }
@@ -143,20 +159,54 @@ export function ReviewActionPanel({
       </section>
 
       <div className="flex flex-col gap-3">
-        <Button
-          type="button"
-          disabled={isPending || family.reviewStatus.approved}
-          onClick={() =>
-            runReviewUpdate({
-              ...family.reviewStatus,
-              approved: true,
-              held: false,
-            })
-          }
-          className="h-11 w-full rounded-md bg-green-600 text-base font-medium text-white hover:bg-green-700"
-        >
-          Move to Approved
-        </Button>
+        <div className="flex items-center">
+          <Button
+            type="button"
+            disabled={isPending || family.reviewStatus.approved}
+            onClick={() =>
+              runReviewUpdate(
+                {
+                  ...family.reviewStatus,
+                  approved: true,
+                  held: false,
+                  lastReviewedAt: DateTime.now().toISO(),
+                  reviewedBy: authUser.uid,
+                },
+                true,
+              )
+            }
+            className="h-11 grow rounded-r-none rounded-l-md bg-green-600 text-base font-medium text-white hover:bg-green-700"
+          >
+            Approve and Publish
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                disabled={isPending || family.reviewStatus.approved}
+                className={
+                  "rounded-l-none border-l-2 rounded-r-md h-11 px-2 bg-green-600 text-base font-medium text-white hover:bg-green-700"
+                }
+              >
+                <ChevronDownIcon />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="top">
+              <DropdownMenuItem
+                onClick={() => {
+                  runReviewUpdate({
+                    ...family.reviewStatus,
+                    approved: true,
+                    held: false,
+                    lastReviewedAt: DateTime.now().toISO(),
+                    reviewedBy: authUser.uid,
+                  });
+                }}
+              >
+                Approve without publishing
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <Button
           type="button"
           disabled={isPending || family.reviewStatus.held}
@@ -165,6 +215,8 @@ export function ReviewActionPanel({
               ...family.reviewStatus,
               approved: false,
               held: true,
+              lastReviewedAt: DateTime.now().toISO(),
+              reviewedBy: authUser.uid,
             })
           }
           className="h-11 w-full rounded-md bg-red-600 text-base font-medium text-white hover:bg-red-700"

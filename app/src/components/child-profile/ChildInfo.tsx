@@ -62,10 +62,7 @@ export function ChildInfo({
                   value={child.treatmentLevel}
                   editable={isEditing}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    onChildFieldChange(
-                      "treatmentLevel",
-                      Number(e.target.value),
-                    )
+                    onChildFieldChange("treatmentLevel", Number(e.target.value))
                   }
                 />
               </div>

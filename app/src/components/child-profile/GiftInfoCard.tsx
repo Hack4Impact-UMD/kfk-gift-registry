@@ -5,6 +5,8 @@ import { EditableField } from "@/components/review/EditableField";
 import { createTransaction } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
 import { useCollections } from "@/collections/context";
+import { useQueryClient } from "@tanstack/react-query";
+import { queries } from "@/queries";
 import type { Gift, GiftStatus } from "common";
 import { toast } from "@/lib/toast";
 import {
@@ -12,6 +14,8 @@ import {
   MAX_GIFT_TITLE_LENGTH,
   isGiftTitleTooLong,
 } from "common";
+import type { GiftClaimDetails } from "@/server/functions/child";
+import { updateClaimTrackingNumber } from "@/server/functions/child";
 
 const GIFT_STEPS = [
   "Available",
@@ -91,13 +95,17 @@ function GiftProgressBar({ status }: { status: GiftStatus }) {
 interface GiftInfoCardProps {
   gift: Gift;
   isBackupGift?: boolean;
+  claim?: GiftClaimDetails;
 }
 
-export function GiftInfoCard({ gift }: GiftInfoCardProps) {
+export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
   const collections = useCollections();
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, startSaveTransition] = useTransition();
   const txRef = useRef<Transaction | null>(null);
+  const [trackingId, setTrackingId] = useState(claim?.trackingNumber ?? "");
+  const trackingIdBeforeEdit = useRef(claim?.trackingNumber ?? "");
 
   const editField = <K extends keyof Gift>(key: K, value: Gift[K]) => {
     if (!txRef.current) {
@@ -115,6 +123,11 @@ export function GiftInfoCard({ gift }: GiftInfoCardProps) {
     });
   };
 
+  const handleEditStart = () => {
+    trackingIdBeforeEdit.current = trackingId;
+    setIsEditing(true);
+  };
+
   const handleSave = () => {
     if (isGiftTitleTooLong(gift.title)) {
       toast.error(GIFT_TITLE_TOO_LONG_MESSAGE);
@@ -122,7 +135,10 @@ export function GiftInfoCard({ gift }: GiftInfoCardProps) {
     }
 
     const tx = txRef.current;
-    if (!tx || tx.mutations.length === 0) {
+    const trackingChanged = trackingId !== trackingIdBeforeEdit.current;
+    const hasGiftMutations = tx && tx.mutations.length > 0;
+
+    if (!hasGiftMutations && !trackingChanged) {
       txRef.current = null;
       setIsEditing(false);
       return;
@@ -130,7 +146,20 @@ export function GiftInfoCard({ gift }: GiftInfoCardProps) {
 
     startSaveTransition(async () => {
       try {
-        await tx.commit();
+        const saves: Array<Promise<unknown>> = [];
+        if (hasGiftMutations) saves.push(tx.commit());
+        if (trackingChanged && claim?.claimId) {
+          saves.push(
+            updateClaimTrackingNumber({
+              data: { claimId: claim.claimId, trackingNumber: trackingId },
+            }).then(() => {
+              void queryClient.invalidateQueries(
+                queries.claims.byChildId(gift.childId),
+              );
+            }),
+          );
+        }
+        await Promise.all(saves);
         txRef.current = null;
         setIsEditing(false);
       } catch (error) {
@@ -144,7 +173,23 @@ export function GiftInfoCard({ gift }: GiftInfoCardProps) {
       txRef.current.rollback();
     }
     txRef.current = null;
+    setTrackingId(trackingIdBeforeEdit.current);
     setIsEditing(false);
+  };
+
+  const trackingEditable = isEditing && !!claim?.claimId;
+
+  const formatDate = (iso: string | null): string => {
+    if (!iso) return "N/A";
+    try {
+      return new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }).format(new Date(iso));
+    } catch {
+      return iso;
+    }
   };
 
   return (
@@ -190,7 +235,7 @@ export function GiftInfoCard({ gift }: GiftInfoCardProps) {
             {!isEditing ? (
               <Button
                 size="sm"
-                onClick={() => setIsEditing(true)}
+                onClick={handleEditStart}
                 className="w-full bg-kfk-blue text-white sm:w-auto"
               >
                 Edit
@@ -241,6 +286,61 @@ export function GiftInfoCard({ gift }: GiftInfoCardProps) {
 
         <div className="bg-white px-6 py-6">
           {!isEditing && <GiftProgressBar status={gift.status} />}
+        </div>
+
+        <div className="px-6 py-5 space-y-4 bg-[#F6F9FC]">
+          <div className="grid gap-4 md:grid-cols-2">
+            <EditableField
+              className="w-full"
+              value={claim?.donorName ?? "N/A"}
+              editable={false}
+            >
+              Donor:
+            </EditableField>
+
+            <EditableField
+              className="w-full"
+              value={claim?.donorEmail ?? "N/A"}
+              editable={false}
+            >
+              Donor Email:
+            </EditableField>
+          </div>
+
+          <EditableField
+            value={trackingEditable ? trackingId : trackingId.trim() || "N/A"}
+            editable={trackingEditable}
+            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+              setTrackingId(event.target.value)
+            }
+          >
+            Tracking ID:
+          </EditableField>
+        </div>
+
+        <div className="bg-white px-6 py-5 space-y-3">
+          <EditableField
+            value={formatDate(claim?.dateOrdered ?? null)}
+            editable={false}
+          >
+            Date Ordered (Confirmed by Donor):
+          </EditableField>
+        </div>
+
+        <div className="px-6 py-5 space-y-3 bg-[#F6F9FC]">
+          <EditableField
+            value={formatDate(claim?.dateDelivered ?? null)}
+            editable={false}
+          >
+            Date Delivered (Confirmed by Donor):
+          </EditableField>
+
+          <EditableField
+            value={formatDate(claim?.dateReceived ?? null)}
+            editable={false}
+          >
+            Date Received (Confirmed by Family):
+          </EditableField>
         </div>
       </div>
     </div>
