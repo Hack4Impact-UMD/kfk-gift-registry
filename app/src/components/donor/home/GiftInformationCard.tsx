@@ -16,6 +16,7 @@ export function GiftInformationCard({
   state,
   isOrdering = false,
   isDelivering = false,
+  isSavingTracking = false,
   isUploadingReceipt = false,
   isUploadingDeliveryReceipt = false,
   onOrdered,
@@ -31,6 +32,7 @@ export function GiftInformationCard({
   state: GiftFormState;
   isOrdering?: boolean;
   isDelivering?: boolean;
+  isSavingTracking?: boolean;
   isUploadingReceipt?: boolean;
   isUploadingDeliveryReceipt?: boolean;
   onOrdered: () => void | Promise<void>;
@@ -40,14 +42,13 @@ export function GiftInformationCard({
   onDeliveryReceipt: (f: File | string | null) => void;
   onTrackingChange: (v: string) => void;
   onUnclaimRequest: () => void;
-  onSave: () => void;
+  onSave: () => void | Promise<void>;
 }) {
   const [undoMode, setUndoMode] = useState(false);
   const [orderConfirmOpen, setOrderConfirmOpen] = useState(false);
   const [deliveryConfirmOpen, setDeliveryConfirmOpen] = useState(false);
 
   // Keeps track of the most recent saved states
-  const [trackingNum, setTrackingNum] = useState(state.tracking);
   const [isDelivered, setIsDelivered] = useState(state.delivered);
   const [orderReceipt, setOrderReceipt] = useState(state.receiptFileName);
   const [orderDeliveryReceipt, setOrderDeliveryReceipt] = useState(
@@ -222,17 +223,33 @@ export function GiftInformationCard({
               id={`${gift.id}-tracking`}
               value={state.tracking}
               onChange={(e) => onTrackingChange(e.target.value)}
+              disabled={!state.ordered || isSavingTracking}
               placeholder="Enter tracking number"
               className="rounded-lg border-gray-300"
             />
           </div>
 
-          {/* Changes Saved */}
-          {state.changesSaved && !undoMode && (
+          {state.ordered && state.tracking !== state.savedTracking && (
             <div className="flex justify-end">
-              <span className="text-xs text-gray-500">Changes Saved</span>
+              <Button
+                type="button"
+                className="bg-kfk-blue font-medium text-white hover:bg-kfk-blue/80"
+                disabled={isSavingTracking}
+                onClick={() => onSave()}
+              >
+                {isSavingTracking ? "Saving..." : "Save Tracking #"}
+              </Button>
             </div>
           )}
+
+          {/* Changes Saved */}
+          {state.changesSaved &&
+            state.tracking === state.savedTracking &&
+            !undoMode && (
+              <div className="flex justify-end">
+                <span className="text-xs text-gray-500">Changes Saved</span>
+              </div>
+            )}
         </div>
 
         {!undoMode ? (
@@ -255,7 +272,7 @@ export function GiftInformationCard({
               onClick={() => {
                 if (isDelivered) onDelivered();
                 else onUndoDelivery();
-                onTrackingChange(trackingNum);
+                onTrackingChange(state.savedTracking);
                 onReceipt(orderReceipt);
                 onDeliveryReceipt(orderDeliveryReceipt);
                 onSave();
@@ -267,11 +284,10 @@ export function GiftInformationCard({
             <Button
               type="button"
               className="bg-kfk-blue font-medium text-white hover:bg-kfk-blue/80"
-              onClick={() => {
-                onSave();
+              onClick={async () => {
+                await onSave();
                 setUndoMode(false);
                 setIsDelivered(state.delivered);
-                setTrackingNum(state.tracking);
                 setOrderReceipt(state.receiptFileName);
                 setOrderDeliveryReceipt(state.deliveryReceiptFileName);
               }}

@@ -3,6 +3,7 @@ import {
   claimGifts,
   markGiftDelivered,
   markGiftPurchased,
+  updateGiftTrackingNumber,
   uploadDeliveryReceipt,
   uploadPurchaseReceipt,
   unclaimGifts,
@@ -121,6 +122,26 @@ export function useUploadDeliveryReceipt() {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to upload delivery receipt");
+    },
+  });
+}
+
+export function useUpdateGiftTrackingNumber() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: { giftId: string; trackingNumber: string }) =>
+      updateGiftTrackingNumber({ data: params }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queries.donor._def });
+      await queryClient.invalidateQueries({
+        queryKey: queries.storefront._def,
+      });
+      await queryClient.invalidateQueries({ queryKey: queries.gifts._def });
+      toast.success("Tracking number saved");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to save tracking number");
     },
   });
 }

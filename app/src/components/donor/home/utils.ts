@@ -15,6 +15,7 @@ export function createInitialGiftStates(
         receiptUrl: g.purchaseReceiptUrl,
         deliveryReceiptFileName: g.deliveryReceiptFileName,
         deliveryReceiptUrl: g.deliveryReceiptUrl,
+        savedTracking: g.trackingNumber,
         tracking: g.trackingNumber,
         unclaimed: false,
         changesSaved: true,

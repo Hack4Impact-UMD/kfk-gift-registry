@@ -33,6 +33,7 @@ export type GiftFormState = {
   receiptUrl: string | null;
   deliveryReceiptFileName: string | null;
   deliveryReceiptUrl: string | null;
+  savedTracking: string;
   tracking: string;
   unclaimed: boolean;
   pendingUnclaim: boolean;

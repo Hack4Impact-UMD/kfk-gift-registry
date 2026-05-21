@@ -12,6 +12,7 @@ import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
 import {
   useMarkGiftDelivered,
   useMarkGiftPurchased,
+  useUpdateGiftTrackingNumber,
   useUploadDeliveryReceipt,
   useUploadPurchaseReceipt,
 } from "@/hooks/mutations/useClaimGifts";
@@ -33,6 +34,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
   const [unclaimTargetId, setUnclaimTargetId] = useState<string | null>(null);
   const markGiftPurchased = useMarkGiftPurchased();
   const markGiftDelivered = useMarkGiftDelivered();
+  const updateGiftTrackingNumber = useUpdateGiftTrackingNumber();
   const uploadPurchaseReceipt = useUploadPurchaseReceipt();
   const uploadDeliveryReceipt = useUploadDeliveryReceipt();
 
@@ -109,6 +111,8 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
               ...p,
               [id]: {
                 ...p[id],
+                tracking: data.trackingNumber,
+                savedTracking: data.trackingNumber,
                 receiptFileName: file.name,
                 receiptUrl: data.documentationUrl,
                 changesSaved: true,
@@ -161,17 +165,44 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
     [set],
   );
 
-  // Single definition of handleSave — promotes pendingUnclaim and clears dirty
-  const handleSave = useCallback((id: string) => {
-    setGiftStates((p) => ({
-      ...p,
-      [id]: {
-        ...p[id],
-        changesSaved: true,
-        unclaimed: p[id]?.pendingUnclaim, // promote pending to actual
-      },
-    }));
-  }, []);
+  const handleSave = useCallback(
+    async (id: string) => {
+      const currentState = giftStates[id];
+      if (!currentState) {
+        return;
+      }
+
+      const nextTracking = currentState.tracking.trim();
+      if (nextTracking !== currentState.savedTracking) {
+        const result = await updateGiftTrackingNumber.mutateAsync({
+          giftId: id,
+          trackingNumber: nextTracking,
+        });
+
+        setGiftStates((p) => ({
+          ...p,
+          [id]: {
+            ...p[id],
+            tracking: result.trackingNumber,
+            savedTracking: result.trackingNumber,
+            changesSaved: true,
+            unclaimed: p[id]?.pendingUnclaim,
+          },
+        }));
+        return;
+      }
+
+      setGiftStates((p) => ({
+        ...p,
+        [id]: {
+          ...p[id],
+          changesSaved: true,
+          unclaimed: p[id]?.pendingUnclaim,
+        },
+      }));
+    },
+    [giftStates, updateGiftTrackingNumber],
+  );
 
   const allSaved = Object.values(giftStates).every((gift) => gift.changesSaved);
 
@@ -276,6 +307,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
           giftStates={giftStates}
           isOrdering={markGiftPurchased.isPending}
           isDelivering={markGiftDelivered.isPending}
+          isSavingTracking={updateGiftTrackingNumber.isPending}
           isUploadingReceipt={uploadPurchaseReceipt.isPending}
           isUploadingDeliveryReceipt={uploadDeliveryReceipt.isPending}
           onOrdered={handleOrdered}

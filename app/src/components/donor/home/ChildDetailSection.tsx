@@ -9,6 +9,7 @@ export function ChildDetailSection({
   giftStates,
   isOrdering = false,
   isDelivering = false,
+  isSavingTracking = false,
   isUploadingReceipt = false,
   isUploadingDeliveryReceipt = false,
   onOrdered,
@@ -24,6 +25,7 @@ export function ChildDetailSection({
   giftStates: Record<string, GiftFormState>;
   isOrdering?: boolean;
   isDelivering?: boolean;
+  isSavingTracking?: boolean;
   isUploadingReceipt?: boolean;
   isUploadingDeliveryReceipt?: boolean;
   onOrdered: (id: string) => void;
@@ -33,7 +35,7 @@ export function ChildDetailSection({
   onDeliveryReceipt: (id: string, f: File | string | null) => void;
   onTrackingChange: (id: string, v: string) => void;
   onUnclaimRequest: (id: string) => void;
-  onSave: (id: string) => void;
+  onSave: (id: string) => void | Promise<void>;
 }) {
   useEffect(() => {
     const element = document.getElementById(`${child.id}-gift`);
@@ -73,6 +75,7 @@ export function ChildDetailSection({
               state={giftStates[gift.id]}
               isOrdering={isOrdering}
               isDelivering={isDelivering}
+              isSavingTracking={isSavingTracking}
               isUploadingReceipt={isUploadingReceipt}
               isUploadingDeliveryReceipt={isUploadingDeliveryReceipt}
               onOrdered={() => onOrdered(gift.id)}

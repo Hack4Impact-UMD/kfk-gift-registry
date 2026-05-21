@@ -19,6 +19,11 @@ const giftIdSchema = z.object({
   giftId: z.string().min(1),
 });
 
+const updateTrackingNumberSchema = z.object({
+  giftId: z.string().min(1),
+  trackingNumber: z.string(),
+});
+
 const purchaseReceiptUploadSchema = z.object({
   giftId: z.string().min(1),
   fileName: z.string().min(1),
@@ -337,6 +342,64 @@ export const uploadPurchaseReceipt = createServerFn({ method: "POST" })
       fileName: data.fileName,
       trackingNumber: nextTrackingNumber ?? "",
     };
+  });
+
+export const updateGiftTrackingNumber = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.DONOR])])
+  .inputValidator(updateTrackingNumberSchema)
+  .handler(async ({ data, context }) => {
+    const donorId = context.authUser.uid;
+    const db = getServerDB();
+    const trackingNumber = data.trackingNumber.trim();
+
+    return await db._instance.runTransaction(async (transaction) => {
+      const giftRef = db.gifts.doc(data.giftId);
+      const giftDoc = await transaction.get(giftRef);
+      const gift = giftDoc.data();
+
+      if (!gift) {
+        throw new Error("Gift not found");
+      }
+
+      if (gift.claimedByDonorId !== donorId) {
+        throw new Error("Gift is not claimed by this donor");
+      }
+
+      if (!["PURCHASED", "DELIVERED", "RECEIVED"].includes(gift.status)) {
+        throw new Error(
+          `Gift cannot accept a tracking number (status: ${gift.status})`,
+        );
+      }
+
+      const claimSnapshot = await transaction.get(
+        db.claims
+          .where("giftId", "==", gift.id)
+          .where("donorId", "==", donorId)
+          .where("active", "==", true),
+      );
+
+      if (claimSnapshot.empty) {
+        throw new Error("Active donor claim not found for this gift");
+      }
+
+      for (const claimDoc of claimSnapshot.docs) {
+        const claim = claimDoc.data() as Claim;
+        transaction.update(claimDoc.ref, {
+          purchaseConfirmation: {
+            date: claim.purchaseConfirmation?.date ?? new Date().toISOString(),
+            documentationUrl:
+              claim.purchaseConfirmation?.documentationUrl ?? "",
+            verified: claim.purchaseConfirmation?.verified ?? false,
+            ...(trackingNumber ? { trackingNumber } : {}),
+          },
+        });
+      }
+
+      return {
+        giftId: gift.id,
+        trackingNumber,
+      };
+    });
   });
 
 export const markGiftDelivered = createServerFn({ method: "POST" })
