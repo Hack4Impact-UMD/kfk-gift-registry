@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { ConfirmedBanner } from "./ConfirmedBanner";
-import { FileUploadRow } from "./FileUploadRow";
+import { ReceiptImageUploadRow } from "./ReceiptImageUploadRow";
 import type { CommittedGift, GiftFormState } from "./types";
 import { formatUsd } from "./utils";
 import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup";
@@ -150,7 +150,7 @@ export function GiftInformationCard({
             <p className="text-center text-base text-gray-700">
               Optional, but helpful for us!
             </p>
-            <FileUploadRow
+            <ReceiptImageUploadRow
               fileName={state.deliveryReceiptFileName}
               fileUrl={state.deliveryReceiptUrl}
               isUploading={isUploadingDeliveryReceipt}
@@ -200,7 +200,7 @@ export function GiftInformationCard({
           <p className="text-center text-base text-gray-700">
             Optional, but helpful for us!
           </p>
-          <FileUploadRow
+          <ReceiptImageUploadRow
             fileName={state.receiptFileName}
             fileUrl={state.receiptUrl}
             isUploading={isUploadingReceipt}
