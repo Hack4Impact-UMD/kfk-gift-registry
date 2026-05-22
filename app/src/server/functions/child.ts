@@ -17,9 +17,10 @@ import {
   uploadChildPhoto,
 } from "../services/childPhotoService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
-import type { Claim, Family, Gift, Child, UserProfile } from "common";
+import type { Family, Gift, Child, UserProfile } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
+import { isDonorClaim } from "@/lib/utils";
 import { appCheckMiddleware } from "../middleware/appCheckMiddleware";
 import { chunk } from "@/lib/utils";
 
@@ -1080,12 +1081,6 @@ export type GiftClaimDetails = {
   dateDelivered: string | null;
   dateReceived: string | null;
 };
-
-function isDonorClaim(
-  claim: Claim,
-): claim is Extract<Claim, { claimType: "donor" }> {
-  return claim.claimType === "donor";
-}
 
 export const getClaimsWithDonorByChildId = createServerFn({ method: "GET" })
   .middleware([

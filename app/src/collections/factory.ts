@@ -119,6 +119,10 @@ function getCreateGiftErrorMessage(error: Error) {
   );
 }
 
+function getUpdateFamilyErrorMessage(error: Error) {
+  return `Failed to update family: ${error.message}`;
+}
+
 function isUpdateMutation<T extends object>(
   m: PendingMutation<T>,
 ): m is PendingMutation<T, "update"> {
@@ -370,9 +374,7 @@ export function createCollections(queryClient: QueryClient) {
             await invalidateFamilyDerivedCaches(m.key as string);
           }
         } catch (error) {
-          const message =
-            error instanceof Error ? error.message : "Unknown error";
-          toast.error(`Failed to update family: ${message}`);
+          toast.error(getUpdateFamilyErrorMessage(error as Error));
           throw error;
         }
       },

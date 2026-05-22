@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { queries } from "@/queries";
 import type { Gift, GiftStatus } from "common";
 import { toast } from "@/lib/toast";
+import { formatISODate } from "@/lib/utils";
 import {
   GIFT_TITLE_TOO_LONG_MESSAGE,
   MAX_GIFT_TITLE_LENGTH,
@@ -173,19 +174,6 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
 
   const trackingEditable = isEditing && !!claim?.claimId;
 
-  const formatDate = (iso: string | null): string => {
-    if (!iso) return "N/A";
-    try {
-      return new Intl.DateTimeFormat("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }).format(new Date(iso));
-    } catch {
-      return iso;
-    }
-  };
-
   return (
     <div className="px-6 py-5 space-y-4 text-sm">
       <div className="rounded-xl border bg-white shadow-sm overflow-hidden w-full">
@@ -314,7 +302,7 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
 
         <div className="bg-white px-6 py-5 space-y-3">
           <EditableField
-            value={formatDate(claim?.dateOrdered ?? null)}
+            value={formatISODate(claim?.dateOrdered ?? null)}
             editable={false}
           >
             Date Ordered (Confirmed by Donor):
@@ -323,14 +311,14 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
 
         <div className="px-6 py-5 space-y-3 bg-[#F6F9FC]">
           <EditableField
-            value={formatDate(claim?.dateDelivered ?? null)}
+            value={formatISODate(claim?.dateDelivered ?? null)}
             editable={false}
           >
             Date Delivered (Confirmed by Donor):
           </EditableField>
 
           <EditableField
-            value={formatDate(claim?.dateReceived ?? null)}
+            value={formatISODate(claim?.dateReceived ?? null)}
             editable={false}
           >
             Date Received (Confirmed by Family):

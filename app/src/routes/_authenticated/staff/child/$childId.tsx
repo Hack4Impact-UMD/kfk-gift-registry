@@ -344,8 +344,7 @@ function ChildProfilePage() {
     const gift = giftsData.find((g) => g.id === giftId);
     if (!gift) return;
     if (!gift.active) {
-      const liveActiveCount = giftsData.filter((g) => g.active).length;
-      if (liveActiveCount >= 3) return;
+      if (activeGiftCount >= 3) return;
     }
     const nextActive = !gift.active;
     editGift(giftId, (draft) => {
