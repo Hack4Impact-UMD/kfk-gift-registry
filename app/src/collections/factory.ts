@@ -182,7 +182,7 @@ export function createCollections(queryClient: QueryClient) {
     mutation: PendingMutation<Child, "update">,
   ) {
     const childId = mutation.key as string;
-    const modified = mutation.modified as Child;
+    const modified = mutation.modified;
     const isDataUrl = !!modified.photoUrl?.startsWith("data:");
 
     if (isDataUrl && modified.photoUrl) {
