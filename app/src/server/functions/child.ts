@@ -20,9 +20,8 @@ import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfil
 import type { Family, Gift, Child, UserProfile } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
-import { isDonorClaim } from "@/lib/utils";
 import { appCheckMiddleware } from "../middleware/appCheckMiddleware";
-import { chunk } from "@/lib/utils";
+import { chunk, isDonorClaim } from "@/lib/utils";
 
 export type FamilyGiftClaim = {
   giftId: string;
