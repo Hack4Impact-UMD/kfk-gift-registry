@@ -43,7 +43,7 @@ function pathsEqual(left: ValidationPath, right: ValidationPath) {
 }
 
 export function getServerValidationIssues(
-  error: unknown,
+  error: Error,
 ): Array<ValidationIssue> {
   if (!(error instanceof Error)) {
     return [];
@@ -63,7 +63,7 @@ export function getServerValidationIssues(
 }
 
 export function getValidationMessage(
-  error: unknown,
+  error: Error,
   rules: Array<ValidationRule>,
 ) {
   const issues = getServerValidationIssues(error);

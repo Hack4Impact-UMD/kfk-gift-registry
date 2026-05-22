@@ -145,12 +145,12 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
           hasGiftMutations ? tx.commit() : undefined,
           trackingChanged && claim?.claimId
             ? updateClaimTrackingNumber({
-              data: { claimId: claim.claimId, trackingNumber: trackingId },
-            }).then(() => {
-              queryClient.invalidateQueries(
-                queries.claims.byChildId(gift.childId),
-              );
-            })
+                data: { claimId: claim.claimId, trackingNumber: trackingId },
+              }).then(() => {
+                queryClient.invalidateQueries(
+                  queries.claims.byChildId(gift.childId),
+                );
+              })
             : undefined,
         ]);
         txRef.current = null;

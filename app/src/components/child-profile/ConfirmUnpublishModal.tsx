@@ -1,4 +1,11 @@
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 type ConfirmUnpublishModalProps = {
@@ -22,7 +29,7 @@ export function ConfirmUnpublishModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent >
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>
             Are you sure you want to {action} this profile?
@@ -31,7 +38,6 @@ export function ConfirmUnpublishModal({
             This will remove the profile from the storefront.
           </DialogDescription>
         </DialogHeader>
-
 
         {errorMessage ? (
           <p className="mb-4 text-center text-sm text-kfk-red">

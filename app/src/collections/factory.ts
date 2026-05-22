@@ -151,7 +151,9 @@ export function createCollections(queryClient: QueryClient) {
 
   function invalidateFamilyDerivedCaches(familyId: string) {
     return Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["families-coll", "id", familyId] }),
+      queryClient.invalidateQueries({
+        queryKey: ["families-coll", "id", familyId],
+      }),
       queryClient.invalidateQueries({
         queryKey: queries.children.byFamilyId(familyId).queryKey,
       }),
@@ -183,17 +185,18 @@ export function createCollections(queryClient: QueryClient) {
     const modified = mutation.modified as Child;
     const isDataUrl = !!modified.photoUrl?.startsWith("data:");
 
-    if (isDataUrl) {
+    if (isDataUrl && modified.photoUrl) {
       const { photoUrl } = await uploadChildPictureStaff({
-        data: { childId, dataUrl: modified.photoUrl! },
+        data: { childId, dataUrl: modified.photoUrl },
       });
       mutation.collection.utils.writeUpdate({ id: childId, photoUrl });
     }
 
     const updates = Object.fromEntries(
-      UPDATABLE_CHILD_FIELDS
-        .filter((k): k is Exclude<UpdatableChildField, "photoUrl"> => !(isDataUrl && k === "photoUrl"))
-        .map((k) => [k, modified[k]]),
+      UPDATABLE_CHILD_FIELDS.filter(
+        (k): k is Exclude<UpdatableChildField, "photoUrl"> =>
+          !(isDataUrl && k === "photoUrl"),
+      ).map((k) => [k, modified[k]]),
     ) as Pick<Child, Exclude<UpdatableChildField, "photoUrl">>;
 
     await updateChild({ data: { childId, updates } });
@@ -285,7 +288,7 @@ export function createCollections(queryClient: QueryClient) {
         if (familyFilter)
           return ["children-coll", "family", familyFilter.value];
 
-        return ["children-coll", "all"];
+        return ["children-coll"];
       },
       queryFn: async ({ meta }) => {
         const parsed = parseLoadSubsetOptions(

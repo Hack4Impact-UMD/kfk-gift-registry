@@ -263,10 +263,11 @@ export function ChildCard({ child }: ChildCardProps) {
                 disabled={!editing}
               >
                 <Avatar
-                  className={`size-15 ${editing
-                    ? "ring-2 ring-kfk-blue/30 shadow-md hover:ring-kfk-blue"
-                    : ""
-                    }`}
+                  className={`size-15 ${
+                    editing
+                      ? "ring-2 ring-kfk-blue/30 shadow-md hover:ring-kfk-blue"
+                      : ""
+                  }`}
                 >
                   <AvatarImage
                     src={child.photoUrl ?? ProfileHeader}
@@ -293,10 +294,11 @@ export function ChildCard({ child }: ChildCardProps) {
                   {child.name}
                 </h2>
                 <span
-                  className={`my-auto rounded-full border border-gray-200 px-5 py-1 ${child.category == "warrior"
-                    ? "bg-[#FFF8C2] text-kfk-brown"
-                    : "bg-kfk-light-blue text-kfk-blue"
-                    }`}
+                  className={`my-auto rounded-full border border-gray-200 px-5 py-1 ${
+                    child.category == "warrior"
+                      ? "bg-[#FFF8C2] text-kfk-brown"
+                      : "bg-kfk-light-blue text-kfk-blue"
+                  }`}
                 >
                   {child.category == "warrior" ? "Warrior" : "SuperSib"}
                 </span>
@@ -479,8 +481,8 @@ export function ChildCard({ child }: ChildCardProps) {
                     const price = parsePriceInput(value);
                     if (hasValidListedPrice(price)) {
                       collections.gifts.update(gift.id, (draft) => {
-                        draft.listedPrice = price
-                      })
+                        draft.listedPrice = price;
+                      });
                     } else if (value.trim() !== "") {
                       toast.warning("Invalid price!");
                     }

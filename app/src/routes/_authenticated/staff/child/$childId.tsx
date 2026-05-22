@@ -116,8 +116,8 @@ function ChildProfilePage() {
     (q) =>
       child
         ? q
-          .from({ f: collections.families })
-          .where(({ f }) => eq(f.id, child.familyId))
+            .from({ f: collections.families })
+            .where(({ f }) => eq(f.id, child.familyId))
         : undefined,
     [child?.familyId],
   );
@@ -172,9 +172,7 @@ function ChildProfilePage() {
     }
     const tx = familyTxRef.current;
     tx.mutate(() => {
-      collections.families.update(family.id, (draft) =>
-        mutate(draft),
-      );
+      collections.families.update(family.id, (draft) => mutate(draft));
     });
   };
 
@@ -240,9 +238,15 @@ function ChildProfilePage() {
 
       try {
         await Promise.all([
-          childTx && childTx.mutations.length > 0 ? childTx.commit() : undefined,
-          familyTx && familyTx.mutations.length > 0 ? familyTx.commit() : undefined,
-          giftsTx && giftsTx.mutations.length > 0 ? giftsTx.commit() : undefined,
+          childTx && childTx.mutations.length > 0
+            ? childTx.commit()
+            : undefined,
+          familyTx && familyTx.mutations.length > 0
+            ? familyTx.commit()
+            : undefined,
+          giftsTx && giftsTx.mutations.length > 0
+            ? giftsTx.commit()
+            : undefined,
         ]);
         childTxRef.current = null;
         familyTxRef.current = null;
@@ -252,7 +256,7 @@ function ChildProfilePage() {
       } catch (err) {
         console.error("Save failed", err);
       }
-    })
+    });
   };
 
   const handlePublishedChange = async (published: boolean) => {
