@@ -22,7 +22,7 @@ import {
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
 import { getValidationMessage } from "@/lib/serverValidation";
-import type { Address, Child, Family, Gift } from "common";
+import type { Child, Family, Gift } from "common";
 import {
   CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE,
   GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
@@ -49,7 +49,6 @@ const UPDATABLE_CHILD_FIELDS = [
 ] as const satisfies ReadonlyArray<keyof Child>;
 
 type UpdatableChildField = (typeof UPDATABLE_CHILD_FIELDS)[number];
-type ChildUpdates = Partial<Pick<Child, UpdatableChildField>>;
 
 const UPDATABLE_GIFT_FIELDS = [
   "title",
@@ -63,82 +62,6 @@ const UPDATABLE_GIFT_FIELDS = [
 ] as const satisfies ReadonlyArray<keyof Gift>;
 
 type UpdatableGiftField = (typeof UPDATABLE_GIFT_FIELDS)[number];
-type GiftUpdates = Partial<Pick<Gift, UpdatableGiftField>>;
-
-const FAMILY_PROFILE_FIELDS = [
-  "contactName",
-  "guardianRelationship",
-  "email",
-  "phone",
-  "privateNotes",
-] as const satisfies ReadonlyArray<keyof Family>;
-
-type FamilyProfileUpdates = {
-  contactName?: string;
-  guardianRelationship?: string;
-  email?: string;
-  phone?: string;
-  address?: Partial<Address>;
-  privateNotes?: string;
-};
-
-type FamilyReviewUpdates = {
-  reviewStatus: {
-    approved: boolean;
-    held: boolean;
-    reviewNotes?: string;
-    holdNotes?: string;
-  };
-  privateNotes?: string;
-};
-
-function diffChild(original: Child, modified: Child): ChildUpdates {
-  const updates: ChildUpdates = {};
-  for (const key of UPDATABLE_CHILD_FIELDS) {
-    if (modified[key] !== original[key]) {
-      updates[key] = modified[key] as never;
-    }
-  }
-  return updates;
-}
-
-function diffGift(original: Gift, modified: Gift): GiftUpdates {
-  const updates: GiftUpdates = {};
-  for (const key of UPDATABLE_GIFT_FIELDS) {
-    if (modified[key] !== original[key]) {
-      updates[key] = modified[key] as never;
-    }
-  }
-  return updates;
-}
-
-function shallowAddressDiff(
-  original: Address,
-  modified: Address,
-): Partial<Address> | undefined {
-  const diff: Partial<Address> = {};
-  for (const key of Object.keys(modified) as Array<keyof Address>) {
-    if (modified[key] !== original[key]) {
-      diff[key] = modified[key];
-    }
-  }
-  return Object.keys(diff).length > 0 ? diff : undefined;
-}
-
-function buildFamilyProfileUpdates(
-  original: Family,
-  modified: Family,
-): FamilyProfileUpdates {
-  const updates: FamilyProfileUpdates = {};
-  for (const key of FAMILY_PROFILE_FIELDS) {
-    if (modified[key] !== original[key]) {
-      (updates as Record<string, unknown>)[key] = modified[key];
-    }
-  }
-  const addressDiff = shallowAddressDiff(original.address, modified.address);
-  if (addressDiff) updates.address = addressDiff;
-  return updates;
-}
 
 function reviewStatusChanged(original: Family, modified: Family) {
   const a = original.reviewStatus;
@@ -207,6 +130,7 @@ export type Collections = ReturnType<typeof createCollections>;
 export function createCollections(queryClient: QueryClient) {
   function invalidateChildDerivedCaches() {
     return Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["children-coll"] }),
       queryClient.invalidateQueries({
         queryKey: queries.children.approvedProfileTableRows._def,
       }),
@@ -227,6 +151,7 @@ export function createCollections(queryClient: QueryClient) {
 
   function invalidateFamilyDerivedCaches(familyId: string) {
     return Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["families-coll", "id", familyId] }),
       queryClient.invalidateQueries({
         queryKey: queries.children.byFamilyId(familyId).queryKey,
       }),
@@ -241,6 +166,7 @@ export function createCollections(queryClient: QueryClient) {
 
   function invalidateGiftDerivedCaches() {
     return Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["gifts-coll"] }),
       queryClient.invalidateQueries({
         queryKey: queries.children.approvedProfileTableRows._def,
       }),
@@ -254,92 +180,75 @@ export function createCollections(queryClient: QueryClient) {
     mutation: PendingMutation<Child, "update">,
   ) {
     const childId = mutation.key as string;
-    const original = mutation.original as Child;
     const modified = mutation.modified as Child;
+    const isDataUrl = !!modified.photoUrl?.startsWith("data:");
 
-    let effectiveModified = modified;
-    let uploadedPhotoUrl: string | undefined;
-
-    if (
-      modified.photoUrl &&
-      modified.photoUrl.startsWith("data:") &&
-      modified.photoUrl !== original.photoUrl
-    ) {
-      const uploaded = await uploadChildPictureStaff({
-        data: { childId, dataUrl: modified.photoUrl },
+    if (isDataUrl) {
+      const { photoUrl } = await uploadChildPictureStaff({
+        data: { childId, dataUrl: modified.photoUrl! },
       });
-      uploadedPhotoUrl = uploaded.photoUrl;
-      effectiveModified = { ...modified, photoUrl: uploaded.photoUrl };
+      mutation.collection.utils.writeUpdate({ id: childId, photoUrl });
     }
 
-    const updates = diffChild(original, effectiveModified);
-    if (uploadedPhotoUrl !== undefined) {
-      delete updates.photoUrl;
-    }
-    if (Object.keys(updates).length > 0) {
-      await updateChild({ data: { childId, updates } });
-    }
+    const updates = Object.fromEntries(
+      UPDATABLE_CHILD_FIELDS
+        .filter((k): k is Exclude<UpdatableChildField, "photoUrl"> => !(isDataUrl && k === "photoUrl"))
+        .map((k) => [k, modified[k]]),
+    ) as Pick<Child, Exclude<UpdatableChildField, "photoUrl">>;
 
-    if (uploadedPhotoUrl !== undefined) {
-      mutation.collection.utils.writeUpdate({
-        id: childId,
-        photoUrl: uploadedPhotoUrl,
-      });
-    }
+    await updateChild({ data: { childId, updates } });
   }
 
   async function persistFamilyUpdate(
     mutation: PendingMutation<Family, "update">,
   ) {
     const familyId = mutation.key as string;
-    const original = mutation.original as Family;
-    const modified = mutation.modified as Family;
+    const modified = mutation.modified;
+    const reviewChanged = reviewStatusChanged(mutation.original, modified);
 
-    const profileUpdates = buildFamilyProfileUpdates(original, modified);
-    const reviewChanged = reviewStatusChanged(original, modified);
-    const privateNotesChanged = modified.privateNotes !== original.privateNotes;
-
-    const tasks: Array<Promise<unknown>> = [];
-
-    if (Object.keys(profileUpdates).length > 0) {
-      tasks.push(
-        updateFamily({
-          data: { familyId, updates: profileUpdates },
-        }),
-      );
-    }
+    const tasks: Array<Promise<unknown>> = [
+      updateFamily({
+        data: {
+          familyId,
+          updates: {
+            contactName: modified.contactName,
+            guardianRelationship: modified.guardianRelationship,
+            email: modified.email,
+            phone: modified.phone,
+            address: modified.address,
+            privateNotes: modified.privateNotes,
+          },
+        },
+      }),
+    ];
 
     if (reviewChanged) {
-      const reviewUpdates: FamilyReviewUpdates = {
-        reviewStatus: {
-          approved: modified.reviewStatus.approved,
-          held: modified.reviewStatus.held,
-          reviewNotes: modified.reviewStatus.reviewNotes ?? "",
-          holdNotes: modified.reviewStatus.holdNotes ?? "",
-        },
-        ...(privateNotesChanged
-          ? { privateNotes: modified.privateNotes ?? "" }
-          : {}),
-      };
       tasks.push(
         updateFamilyReviewStatus({
-          data: { familyId, updates: reviewUpdates },
+          data: {
+            familyId,
+            updates: {
+              reviewStatus: {
+                approved: modified.reviewStatus.approved,
+                held: modified.reviewStatus.held,
+                reviewNotes: modified.reviewStatus.reviewNotes ?? "",
+                holdNotes: modified.reviewStatus.holdNotes ?? "",
+              },
+            },
+          },
         }),
       );
     }
 
-    if (tasks.length === 0) return { reviewChanged: false };
     await Promise.all(tasks);
     return { reviewChanged };
   }
 
   async function persistGiftUpdate(mutation: PendingMutation<Gift, "update">) {
     const giftId = mutation.key as string;
-    const updates = diffGift(
-      mutation.original,
-      mutation.modified,
-    );
-    if (Object.keys(updates).length === 0) return;
+    const updates = Object.fromEntries(
+      UPDATABLE_GIFT_FIELDS.map((k) => [k, mutation.modified[k]]),
+    ) as Pick<Gift, UpdatableGiftField>;
     await updateGift({ data: { giftId, updates } });
   }
 

@@ -8,6 +8,7 @@ type ChildHeaderProps = {
   isEditing: boolean;
   onStartEditing: () => void;
   onSave: () => void;
+  saving: boolean;
   onCancel: () => void;
   onPublishedChange: (published: boolean) => Promise<void>;
 };
@@ -17,6 +18,7 @@ export function ChildHeader({
   isEditing,
   onStartEditing,
   onSave,
+  saving,
   onCancel,
   onPublishedChange,
 }: ChildHeaderProps) {
@@ -66,6 +68,7 @@ export function ChildHeader({
         <Button
           size="sm"
           className="min-w-20 px-4"
+          disabled={saving}
           onClick={() => {
             if (isEditing) {
               onSave();

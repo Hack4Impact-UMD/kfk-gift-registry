@@ -82,6 +82,7 @@ function ChildProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isAddGiftOpen, setAddGiftOpen] = useState(false);
   const [isAddingGift, startAddGift] = useTransition();
+  const [isSavingAll, startSaveAll] = useTransition();
   const childTxRef = useRef<Transaction<Child> | null>(null);
   const familyTxRef = useRef<Transaction<Family> | null>(null);
   const giftsTxRef = useRef<Transaction<Gift> | null>(null);
@@ -115,8 +116,8 @@ function ChildProfilePage() {
     (q) =>
       child
         ? q
-            .from({ f: collections.families })
-            .where(({ f }) => eq(f.id, child.familyId))
+          .from({ f: collections.families })
+          .where(({ f }) => eq(f.id, child.familyId))
         : undefined,
     [child?.familyId],
   );
@@ -172,7 +173,7 @@ function ChildProfilePage() {
     const tx = familyTxRef.current;
     tx.mutate(() => {
       collections.families.update(family.id, (draft) =>
-        mutate(draft as Family),
+        mutate(draft),
       );
     });
   };
@@ -183,7 +184,7 @@ function ChildProfilePage() {
     }
     const tx = giftsTxRef.current;
     tx.mutate(() => {
-      collections.gifts.update(giftId, (draft) => mutate(draft as Gift));
+      collections.gifts.update(giftId, (draft) => mutate(draft));
     });
   };
 
@@ -210,46 +211,48 @@ function ChildProfilePage() {
     setIsEditing(false);
   };
 
-  const handleSaveAll = async () => {
-    if (
-      child.publicBlurb !== undefined &&
-      isChildPublicBlurbTooLong(child.publicBlurb)
-    ) {
-      toast.error(CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE);
-      return;
-    }
+  const handleSaveAll = () => {
+    startSaveAll(async () => {
+      if (
+        child.publicBlurb !== undefined &&
+        isChildPublicBlurbTooLong(child.publicBlurb)
+      ) {
+        toast.error(CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE);
+        return;
+      }
 
-    const childTx = childTxRef.current;
-    const familyTx = familyTxRef.current;
-    const giftsTx = giftsTxRef.current;
+      const childTx = childTxRef.current;
+      const familyTx = familyTxRef.current;
+      const giftsTx = giftsTxRef.current;
 
-    const hasMutations =
-      (childTx && childTx.mutations.length > 0) ||
-      (familyTx && familyTx.mutations.length > 0) ||
-      (giftsTx && giftsTx.mutations.length > 0);
+      const hasMutations =
+        (childTx && childTx.mutations.length > 0) ||
+        (familyTx && familyTx.mutations.length > 0) ||
+        (giftsTx && giftsTx.mutations.length > 0);
 
-    if (!hasMutations) {
-      childTxRef.current = null;
-      familyTxRef.current = null;
-      giftsTxRef.current = null;
-      setIsEditing(false);
-      return;
-    }
+      if (!hasMutations) {
+        childTxRef.current = null;
+        familyTxRef.current = null;
+        giftsTxRef.current = null;
+        setIsEditing(false);
+        return;
+      }
 
-    try {
-      await Promise.all([
-        childTx && childTx.mutations.length > 0 ? childTx.commit() : undefined,
-        familyTx && familyTx.mutations.length > 0 ? familyTx.commit() : undefined,
-        giftsTx && giftsTx.mutations.length > 0 ? giftsTx.commit() : undefined,
-      ]);
-      childTxRef.current = null;
-      familyTxRef.current = null;
-      giftsTxRef.current = null;
-      toast.success("Saved successfully");
-      setIsEditing(false);
-    } catch (err) {
-      console.error("Save failed", err);
-    }
+      try {
+        await Promise.all([
+          childTx && childTx.mutations.length > 0 ? childTx.commit() : undefined,
+          familyTx && familyTx.mutations.length > 0 ? familyTx.commit() : undefined,
+          giftsTx && giftsTx.mutations.length > 0 ? giftsTx.commit() : undefined,
+        ]);
+        childTxRef.current = null;
+        familyTxRef.current = null;
+        giftsTxRef.current = null;
+        toast.success("Saved successfully");
+        setIsEditing(false);
+      } catch (err) {
+        console.error("Save failed", err);
+      }
+    })
   };
 
   const handlePublishedChange = async (published: boolean) => {
@@ -366,6 +369,7 @@ function ChildProfilePage() {
           <div className="flex min-w-0 flex-1 flex-col">
             <ChildHeader
               child={child}
+              saving={isSavingAll}
               isEditing={isEditing}
               onStartEditing={handleStartEditing}
               onSave={handleSaveAll}
