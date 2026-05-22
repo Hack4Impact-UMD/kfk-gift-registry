@@ -1,4 +1,4 @@
-import { createCollection } from "@tanstack/react-db";
+import { createCollection, createTransaction } from "@tanstack/react-db";
 import {
   queryCollectionOptions,
   parseLoadSubsetOptions,
@@ -196,6 +196,12 @@ function getCreateGiftErrorMessage(error: Error) {
   );
 }
 
+function isUpdateMutation<T extends object>(
+  m: PendingMutation<T>,
+): m is PendingMutation<T, "update"> {
+  return m.type === "update";
+}
+
 export type Collections = ReturnType<typeof createCollections>;
 
 export function createCollections(queryClient: QueryClient) {
@@ -330,8 +336,8 @@ export function createCollections(queryClient: QueryClient) {
   async function persistGiftUpdate(mutation: PendingMutation<Gift, "update">) {
     const giftId = mutation.key as string;
     const updates = diffGift(
-      mutation.original as Gift,
-      mutation.modified as Gift,
+      mutation.original,
+      mutation.modified,
     );
     if (Object.keys(updates).length === 0) return;
     await updateGift({ data: { giftId, updates } });
@@ -406,7 +412,6 @@ export function createCollections(queryClient: QueryClient) {
             await persistChildUpdate(m);
           }
           await invalidateChildDerivedCaches();
-          toast.success("Child profile updated successfully");
         } catch (error) {
           toast.error(getUpdateChildErrorMessage(error as Error));
           throw error;
@@ -448,17 +453,10 @@ export function createCollections(queryClient: QueryClient) {
       },
       onUpdate: async ({ transaction }) => {
         try {
-          let lastReviewChanged = false;
           for (const m of transaction.mutations) {
-            const result = await persistFamilyUpdate(m);
-            if (result.reviewChanged) lastReviewChanged = true;
+            await persistFamilyUpdate(m);
             await invalidateFamilyDerivedCaches(m.key as string);
           }
-          toast.success(
-            lastReviewChanged
-              ? "Family review status updated"
-              : "Family information updated successfully",
-          );
         } catch (error) {
           const message =
             error instanceof Error ? error.message : "Unknown error";
@@ -505,7 +503,6 @@ export function createCollections(queryClient: QueryClient) {
             await persistGiftUpdate(m);
           }
           await invalidateGiftDerivedCaches();
-          toast.success("Gift updated successfully");
         } catch (error) {
           toast.error(getUpdateGiftErrorMessage(error as Error));
           throw error;
@@ -524,7 +521,6 @@ export function createCollections(queryClient: QueryClient) {
             }
           }
           await invalidateGiftDerivedCaches();
-          toast.success("Gift added successfully");
           return { refetch: false };
         } catch (error) {
           toast.error(getCreateGiftErrorMessage(error as Error));
@@ -534,123 +530,51 @@ export function createCollections(queryClient: QueryClient) {
     }),
   );
 
-  async function persistBatchMutation(transaction: {
-    mutations: ReadonlyArray<PendingMutation<Record<string, unknown>>>;
-  }) {
-    const familyIdsTouched = new Set<string>();
-    let touchedChild = false;
-    let touchedGift = false;
-    let createdGift = false;
-    let touchedFamilyReview = false;
-
-    for (const m of transaction.mutations) {
-      const collectionId = m.collection.id;
-
-      if (collectionId === "children" && m.type === "update") {
-        try {
-          await persistChildUpdate(
-            m as unknown as PendingMutation<Child, "update">,
-          );
-          touchedChild = true;
-        } catch (error) {
-          toast.error(getUpdateChildErrorMessage(error as Error));
-          throw error;
+  function createChildTransaction() {
+    return createTransaction<Child>({
+      autoCommit: false,
+      mutationFn: async ({ transaction }) => {
+        for (const m of transaction.mutations) {
+          if (!isUpdateMutation(m)) continue;
+          await persistChildUpdate(m);
         }
-        continue;
-      }
+        await invalidateChildDerivedCaches();
+      },
+    });
+  }
 
-      if (collectionId === "families" && m.type === "update") {
-        try {
-          const result = await persistFamilyUpdate(
-            m as unknown as PendingMutation<Family, "update">,
-          );
-          familyIdsTouched.add(m.key as string);
-          if (result.reviewChanged) touchedFamilyReview = true;
-        } catch (error) {
-          const message =
-            error instanceof Error ? error.message : "Unknown error";
-          toast.error(`Failed to update family: ${message}`);
-          throw error;
+  function createFamilyTransaction() {
+    return createTransaction<Family>({
+      autoCommit: false,
+      mutationFn: async ({ transaction }) => {
+        for (const m of transaction.mutations) {
+          if (!isUpdateMutation(m)) continue;
+          await persistFamilyUpdate(m);
+          await invalidateFamilyDerivedCaches(m.key as string);
         }
-        continue;
-      }
+      },
+    });
+  }
 
-      if (collectionId === "gifts" && m.type === "update") {
-        try {
-          await persistGiftUpdate(
-            m as unknown as PendingMutation<Gift, "update">,
-          );
-          touchedGift = true;
-        } catch (error) {
-          toast.error(getUpdateGiftErrorMessage(error as Error));
-          throw error;
+  function createGiftsTransaction() {
+    return createTransaction<Gift>({
+      autoCommit: false,
+      mutationFn: async ({ transaction }) => {
+        for (const m of transaction.mutations) {
+          if (!isUpdateMutation(m)) continue;
+          await persistGiftUpdate(m);
         }
-        continue;
-      }
-
-      if (collectionId === "gifts" && m.type === "insert") {
-        try {
-          const created = await persistGiftInsert(
-            m as unknown as PendingMutation<Gift, "insert">,
-          );
-          const draft = m.modified as Gift;
-          if (created.id !== draft.id) {
-            m.collection.utils.writeDelete(draft.id);
-            m.collection.utils.writeInsert(created);
-          } else {
-            m.collection.utils.writeUpdate(created);
-          }
-          createdGift = true;
-        } catch (error) {
-          toast.error(getCreateGiftErrorMessage(error as Error));
-          throw error;
-        }
-        continue;
-      }
-
-      throw new Error(`Unsupported mutation: ${collectionId} / ${m.type}`);
-    }
-
-    const invalidations: Array<Promise<unknown>> = [];
-    if (touchedChild) {
-      invalidations.push(invalidateChildDerivedCaches());
-      invalidations.push(
-        queryClient.invalidateQueries({ queryKey: ["children-coll"] }),
-      );
-    }
-    if (touchedGift || createdGift) {
-      invalidations.push(invalidateGiftDerivedCaches());
-      invalidations.push(
-        queryClient.invalidateQueries({ queryKey: ["gifts-coll"] }),
-      );
-    }
-    for (const familyId of familyIdsTouched) {
-      invalidations.push(invalidateFamilyDerivedCaches(familyId));
-    }
-    if (familyIdsTouched.size > 0) {
-      invalidations.push(
-        queryClient.invalidateQueries({ queryKey: ["families-coll"] }),
-      );
-    }
-    await Promise.all(invalidations);
-
-    if (touchedFamilyReview) {
-      toast.success("Family review status updated");
-    } else if (touchedChild) {
-      toast.success("Child profile updated successfully");
-    } else if (createdGift) {
-      toast.success("Gift added successfully");
-    } else if (touchedGift) {
-      toast.success("Gift updated successfully");
-    } else if (familyIdsTouched.size > 0) {
-      toast.success("Family information updated successfully");
-    }
+        await invalidateGiftDerivedCaches();
+      },
+    });
   }
 
   return {
     children: childrenCollection,
     families: familiesCollection,
     gifts: giftsCollection,
-    persistBatchMutation,
+    createChildTransaction,
+    createFamilyTransaction,
+    createGiftsTransaction,
   };
 }

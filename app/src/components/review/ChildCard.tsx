@@ -8,7 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
-import { createTransaction, eq, useLiveQuery } from "@tanstack/react-db";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
 import { useCollections } from "@/collections/context";
 import { cn } from "@/lib/utils";
@@ -59,7 +59,8 @@ export function ChildCard({ child }: ChildCardProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const photoReadIdRef = useRef(0);
   const photoReaderRef = useRef<FileReader | null>(null);
-  const txRef = useRef<Transaction | null>(null);
+  const childTxRef = useRef<Transaction<Child> | null>(null);
+  const giftsTxRef = useRef<Transaction<Gift> | null>(null);
 
   const {
     data: gifts = [],
@@ -79,29 +80,23 @@ export function ChildCard({ child }: ChildCardProps) {
     };
   }, []);
 
-  const ensureTransaction = () => {
-    if (!txRef.current) {
-      txRef.current = createTransaction({
-        autoCommit: false,
-        mutationFn: async ({ transaction }) => {
-          await collections.persistBatchMutation(transaction);
-        },
-      });
-    }
-    return txRef.current;
-  };
-
   const editChild = (mutate: (draft: Child) => void) => {
-    const tx = ensureTransaction();
+    if (!childTxRef.current) {
+      childTxRef.current = collections.createChildTransaction();
+    }
+    const tx = childTxRef.current;
     tx.mutate(() => {
       collections.children.update(child.id, (draft) => mutate(draft as Child));
     });
   };
 
   const editGift = (giftId: string, mutate: (draft: Gift) => void) => {
-    const tx = ensureTransaction();
+    if (!giftsTxRef.current) {
+      giftsTxRef.current = collections.createGiftsTransaction();
+    }
+    const tx = giftsTxRef.current;
     tx.mutate(() => {
-      collections.gifts.update(giftId, (draft) => mutate(draft as Gift));
+      collections.gifts.update(giftId, (draft) => mutate(draft));
     });
   };
 
@@ -120,16 +115,21 @@ export function ChildCard({ child }: ChildCardProps) {
   const handleCancelClick = () => {
     invalidatePhotoRead();
     resetPhotoInput();
-    if (txRef.current && txRef.current.state === "pending") {
-      txRef.current.rollback();
+    if (childTxRef.current && childTxRef.current.state === "pending") {
+      childTxRef.current.rollback();
     }
-    txRef.current = null;
+    if (giftsTxRef.current && giftsTxRef.current.state === "pending") {
+      giftsTxRef.current.rollback();
+    }
+    childTxRef.current = null;
+    giftsTxRef.current = null;
     setPhotoError(null);
     setEditing(false);
   };
 
   const handleEditClick = () => {
-    txRef.current = null;
+    childTxRef.current = null;
+    giftsTxRef.current = null;
     setPhotoError(null);
     setEditing(true);
   };
@@ -207,9 +207,14 @@ export function ChildCard({ child }: ChildCardProps) {
       return;
     }
 
-    const tx = txRef.current;
-    if (!tx || tx.mutations.length === 0) {
-      txRef.current = null;
+    const childTx = childTxRef.current;
+    const giftsTx = giftsTxRef.current;
+    const hasChildMutations = childTx && childTx.mutations.length > 0;
+    const hasGiftsMutations = giftsTx && giftsTx.mutations.length > 0;
+
+    if (!hasChildMutations && !hasGiftsMutations) {
+      childTxRef.current = null;
+      giftsTxRef.current = null;
       invalidatePhotoRead();
       resetPhotoInput();
       setPhotoError(null);
@@ -219,11 +224,16 @@ export function ChildCard({ child }: ChildCardProps) {
 
     startSaveTransition(async () => {
       try {
-        await tx.commit();
-        txRef.current = null;
+        await Promise.all([
+          hasChildMutations ? childTx.commit() : undefined,
+          hasGiftsMutations ? giftsTx.commit() : undefined,
+        ]);
+        childTxRef.current = null;
+        giftsTxRef.current = null;
         invalidatePhotoRead();
         resetPhotoInput();
         setPhotoError(null);
+        toast.success("Saved successfully");
         setEditing(false);
       } catch (error) {
         console.error("Child review save failed", error);
@@ -253,11 +263,10 @@ export function ChildCard({ child }: ChildCardProps) {
                 disabled={!editing}
               >
                 <Avatar
-                  className={`size-15 ${
-                    editing
-                      ? "ring-2 ring-kfk-blue/30 shadow-md hover:ring-kfk-blue"
-                      : ""
-                  }`}
+                  className={`size-15 ${editing
+                    ? "ring-2 ring-kfk-blue/30 shadow-md hover:ring-kfk-blue"
+                    : ""
+                    }`}
                 >
                   <AvatarImage
                     src={child.photoUrl ?? ProfileHeader}
@@ -284,11 +293,10 @@ export function ChildCard({ child }: ChildCardProps) {
                   {child.name}
                 </h2>
                 <span
-                  className={`my-auto rounded-full border border-gray-200 px-5 py-1 ${
-                    child.category == "warrior"
-                      ? "bg-[#FFF8C2] text-kfk-brown"
-                      : "bg-kfk-light-blue text-kfk-blue"
-                  }`}
+                  className={`my-auto rounded-full border border-gray-200 px-5 py-1 ${child.category == "warrior"
+                    ? "bg-[#FFF8C2] text-kfk-brown"
+                    : "bg-kfk-light-blue text-kfk-blue"
+                    }`}
                 >
                   {child.category == "warrior" ? "Warrior" : "SuperSib"}
                 </span>
@@ -470,11 +478,9 @@ export function ChildCard({ child }: ChildCardProps) {
                   onPriceChange={async (value) => {
                     const price = parsePriceInput(value);
                     if (hasValidListedPrice(price)) {
-                      editGift(gift.id, (draft) => {
-                        draft.listedPrice = price;
-                      });
-                      await txRef.current?.commit();
-                      txRef.current = null;
+                      collections.gifts.update(gift.id, (draft) => {
+                        draft.listedPrice = price
+                      })
                     } else if (value.trim() !== "") {
                       toast.warning("Invalid price!");
                     }

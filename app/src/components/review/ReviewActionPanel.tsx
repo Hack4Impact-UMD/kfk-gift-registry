@@ -17,6 +17,7 @@ import {
 } from "../ui/dropdown-menu";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { publishFamilies } from "@/server/functions/family";
+import { toast } from "@/lib/toast";
 import { DateTime } from "luxon";
 import type { AuthUser } from "@/server/functions/auth";
 
@@ -79,13 +80,14 @@ export function ReviewActionPanel({
           }
         });
         await familiesTx.isPersisted.promise;
+        toast.success("Saved");
         if (publish) {
           await publishFamilies({ data: [family.id] });
           await collections.children.utils.refetch();
         }
         onComplete?.();
       } catch {
-        // toast handled by collection handler
+        // toast handled by collection onUpdate handler
       }
     });
   };

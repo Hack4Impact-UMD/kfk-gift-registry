@@ -6,6 +6,7 @@ import * as React from "react";
 import { z } from "zod";
 import { generalInfoSchema } from "@/lib/formSchemas";
 import { useCollections } from "@/collections/context";
+import { toast } from "@/lib/toast";
 
 const guardianContactSchema = z.object({
   phone: generalInfoSchema.shape.phoneNumber,
@@ -90,6 +91,7 @@ function GuardianInfoCardInner({ family }: GuardianInfoCardProps) {
           draft.privateNotes = formState.privateNotes;
         });
         await tx.isPersisted.promise;
+        toast.success("Guardian information updated successfully");
         setEditing(false);
       } catch (error) {
         console.error("Failed to save guardian info", error);

@@ -2,7 +2,6 @@ import { useRef, useState, useTransition } from "react";
 import type { ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { EditableField } from "@/components/review/EditableField";
-import { createTransaction } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
 import { useCollections } from "@/collections/context";
 import { useQueryClient } from "@tanstack/react-query";
@@ -103,22 +102,18 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, startSaveTransition] = useTransition();
-  const txRef = useRef<Transaction | null>(null);
+  const txRef = useRef<Transaction<Gift> | null>(null);
   const [trackingId, setTrackingId] = useState(claim?.trackingNumber ?? "");
   const trackingIdBeforeEdit = useRef(claim?.trackingNumber ?? "");
 
   const editField = <K extends keyof Gift>(key: K, value: Gift[K]) => {
     if (!txRef.current) {
-      txRef.current = createTransaction({
-        autoCommit: false,
-        mutationFn: async ({ transaction }) => {
-          await collections.persistBatchMutation(transaction);
-        },
-      });
+      txRef.current = collections.createGiftsTransaction();
     }
-    txRef.current.mutate(() => {
+    const tx = txRef.current;
+    tx.mutate(() => {
       collections.gifts.update(gift.id, (draft) => {
-        (draft as Gift)[key] = value;
+        draft[key] = value;
       });
     });
   };
@@ -146,21 +141,20 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
 
     startSaveTransition(async () => {
       try {
-        const saves: Array<Promise<unknown>> = [];
-        if (hasGiftMutations) saves.push(tx.commit());
-        if (trackingChanged && claim?.claimId) {
-          saves.push(
-            updateClaimTrackingNumber({
+        await Promise.all([
+          hasGiftMutations ? tx.commit() : undefined,
+          trackingChanged && claim?.claimId
+            ? updateClaimTrackingNumber({
               data: { claimId: claim.claimId, trackingNumber: trackingId },
             }).then(() => {
-              void queryClient.invalidateQueries(
+              queryClient.invalidateQueries(
                 queries.claims.byChildId(gift.childId),
               );
-            }),
-          );
-        }
-        await Promise.all(saves);
+            })
+            : undefined,
+        ]);
         txRef.current = null;
+        toast.success("Gift updated successfully");
         setIsEditing(false);
       } catch (error) {
         console.error("Gift info save failed", error);

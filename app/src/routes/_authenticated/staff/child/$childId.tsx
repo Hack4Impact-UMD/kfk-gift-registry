@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState, useTransition } from "react";
-import { eq, createTransaction, useLiveQuery } from "@tanstack/react-db";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
 import { v7 as uuidv7 } from "uuid";
 import { useCollections } from "@/collections/context";
@@ -82,7 +82,9 @@ function ChildProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isAddGiftOpen, setAddGiftOpen] = useState(false);
   const [isAddingGift, startAddGift] = useTransition();
-  const txRef = useRef<Transaction | null>(null);
+  const childTxRef = useRef<Transaction<Child> | null>(null);
+  const familyTxRef = useRef<Transaction<Family> | null>(null);
+  const giftsTxRef = useRef<Transaction<Gift> | null>(null);
 
   const {
     data: childData = [],
@@ -153,27 +155,21 @@ function ChildProfilePage() {
 
   const activeGiftCount = giftsData.filter((gift) => gift.active).length;
 
-  const ensureTransaction = () => {
-    if (!txRef.current) {
-      txRef.current = createTransaction({
-        autoCommit: false,
-        mutationFn: async ({ transaction }) => {
-          await collections.persistBatchMutation(transaction);
-        },
-      });
-    }
-    return txRef.current;
-  };
-
   const editChild = (mutate: (draft: Child) => void) => {
-    const tx = ensureTransaction();
+    if (!childTxRef.current) {
+      childTxRef.current = collections.createChildTransaction();
+    }
+    const tx = childTxRef.current;
     tx.mutate(() => {
       collections.children.update(childId, (draft) => mutate(draft as Child));
     });
   };
 
   const editFamily = (mutate: (draft: Family) => void) => {
-    const tx = ensureTransaction();
+    if (!familyTxRef.current) {
+      familyTxRef.current = collections.createFamilyTransaction();
+    }
+    const tx = familyTxRef.current;
     tx.mutate(() => {
       collections.families.update(family.id, (draft) =>
         mutate(draft as Family),
@@ -182,22 +178,35 @@ function ChildProfilePage() {
   };
 
   const editGift = (giftId: string, mutate: (draft: Gift) => void) => {
-    const tx = ensureTransaction();
+    if (!giftsTxRef.current) {
+      giftsTxRef.current = collections.createGiftsTransaction();
+    }
+    const tx = giftsTxRef.current;
     tx.mutate(() => {
       collections.gifts.update(giftId, (draft) => mutate(draft as Gift));
     });
   };
 
   const handleStartEditing = () => {
-    txRef.current = null;
+    childTxRef.current = null;
+    familyTxRef.current = null;
+    giftsTxRef.current = null;
     setIsEditing(true);
   };
 
   const handleCancel = () => {
-    if (txRef.current && txRef.current.state === "pending") {
-      txRef.current.rollback();
+    if (childTxRef.current && childTxRef.current.state === "pending") {
+      childTxRef.current.rollback();
     }
-    txRef.current = null;
+    if (familyTxRef.current && familyTxRef.current.state === "pending") {
+      familyTxRef.current.rollback();
+    }
+    if (giftsTxRef.current && giftsTxRef.current.state === "pending") {
+      giftsTxRef.current.rollback();
+    }
+    childTxRef.current = null;
+    familyTxRef.current = null;
+    giftsTxRef.current = null;
     setIsEditing(false);
   };
 
@@ -210,16 +219,33 @@ function ChildProfilePage() {
       return;
     }
 
-    const tx = txRef.current;
-    if (!tx || tx.mutations.length === 0) {
-      txRef.current = null;
+    const childTx = childTxRef.current;
+    const familyTx = familyTxRef.current;
+    const giftsTx = giftsTxRef.current;
+
+    const hasMutations =
+      (childTx && childTx.mutations.length > 0) ||
+      (familyTx && familyTx.mutations.length > 0) ||
+      (giftsTx && giftsTx.mutations.length > 0);
+
+    if (!hasMutations) {
+      childTxRef.current = null;
+      familyTxRef.current = null;
+      giftsTxRef.current = null;
       setIsEditing(false);
       return;
     }
 
     try {
-      await tx.commit();
-      txRef.current = null;
+      await Promise.all([
+        childTx && childTx.mutations.length > 0 ? childTx.commit() : undefined,
+        familyTx && familyTx.mutations.length > 0 ? familyTx.commit() : undefined,
+        giftsTx && giftsTx.mutations.length > 0 ? giftsTx.commit() : undefined,
+      ]);
+      childTxRef.current = null;
+      familyTxRef.current = null;
+      giftsTxRef.current = null;
+      toast.success("Saved successfully");
       setIsEditing(false);
     } catch (err) {
       console.error("Save failed", err);
@@ -231,6 +257,7 @@ function ChildProfilePage() {
       draft.published = published;
     });
     await result.isPersisted.promise;
+    toast.success(published ? "Profile published" : "Profile unpublished");
   };
 
   const handleSaveAdminComments = async (comments: string) => {
@@ -238,6 +265,7 @@ function ChildProfilePage() {
       draft.staffPrivateNotes = comments;
     });
     await result.isPersisted.promise;
+    toast.success("Admin notes saved");
   };
 
   const handleAddGift = (gift: {
