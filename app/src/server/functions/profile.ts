@@ -78,8 +78,7 @@ const updateUserProfileSchema = z.object({
     .partial()
     .refine((u) => Object.keys(u).length > 0, {
       message: "At least one update field is required",
-    })
-    .strict(),
+    }),
 });
 
 /**

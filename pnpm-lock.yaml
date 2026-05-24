@@ -66,6 +66,9 @@ importers:
       '@tanstack/match-sorter-utils':
         specifier: ^8.19.4
         version: 8.19.4
+      '@tanstack/query-db-collection':
+        specifier: ^1.0.36
+        version: 1.0.36(@tanstack/query-core@5.99.1)(typescript@5.9.3)
       '@tanstack/react-db':
         specifier: ^0.1.83
         version: 0.1.83(react@19.2.5)(typescript@5.9.3)
@@ -3225,6 +3228,12 @@ packages:
 
   '@tanstack/query-core@5.99.1':
     resolution: {integrity: sha512-5E8xwxyWvr22yt7zvzP3KOZ5TUElOdVA45NP3/Ao1m9mvc9i18NLTDe9m3M00BH2DR5J20cv7xckMPlhKNs+vQ==}
+
+  '@tanstack/query-db-collection@1.0.36':
+    resolution: {integrity: sha512-WOHSZeqFOflWpMxp7ndu8x3M8GyLieWyUsS1fReG8wv6I/1MGOz1j3+XNlGoeoWolYF2hV4l324/dB9BxjAwxw==}
+    peerDependencies:
+      '@tanstack/query-core': ^5.0.0
+      typescript: '>=4.7'
 
   '@tanstack/query-devtools@5.99.1':
     resolution: {integrity: sha512-6BcpadvDYgJ578xWdqoxORcGd2wgRdEll/EkCjCb4Mge04kGUVqpES+wh04s/VgBVFuGSe4ab+AwmnfDWBmNZg==}
@@ -10374,6 +10383,13 @@ snapshots:
       '@tanstack/store': 0.11.0
 
   '@tanstack/query-core@5.99.1': {}
+
+  '@tanstack/query-db-collection@1.0.36(@tanstack/query-core@5.99.1)(typescript@5.9.3)':
+    dependencies:
+      '@standard-schema/spec': 1.1.0
+      '@tanstack/db': 0.6.5(typescript@5.9.3)
+      '@tanstack/query-core': 5.99.1
+      typescript: 5.9.3
 
   '@tanstack/query-devtools@5.99.1': {}
 

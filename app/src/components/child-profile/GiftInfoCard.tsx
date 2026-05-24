@@ -1,21 +1,21 @@
-import { useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import type { ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
 import { EditableField } from "@/components/review/EditableField";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import type { Transaction } from "@tanstack/react-db";
+import { useCollections } from "@/collections/context";
+import { useQueryClient } from "@tanstack/react-query";
+import { queries } from "@/queries";
 import type { Gift, GiftStatus } from "common";
 import { toast } from "@/lib/toast";
+import { formatISODate } from "@/lib/utils";
 import {
   GIFT_TITLE_TOO_LONG_MESSAGE,
   MAX_GIFT_TITLE_LENGTH,
   isGiftTitleTooLong,
 } from "common";
+import type { GiftClaimDetails } from "@/server/functions/child";
+import { updateClaimTrackingNumber } from "@/server/functions/child";
 
 const GIFT_STEPS = [
   "Available",
@@ -95,111 +95,84 @@ function GiftProgressBar({ status }: { status: GiftStatus }) {
 interface GiftInfoCardProps {
   gift: Gift;
   isBackupGift?: boolean;
-  donorName?: string;
-  donorEmail?: string;
-  trackingId?: string;
-  dateOrdered?: string;
-  dateDelivered?: string;
-  dateReceived?: string;
-  proofOfPurchaseUrl?: string;
-  onUpdate?: (giftId: string, updates: Partial<Gift>) => void | Promise<void>;
-  onUpdateDetails?: (
-    giftId: string,
-    details: {
-      donorName: string;
-      donorEmail: string;
-      trackingId: string;
-      dateOrdered: string;
-      dateDelivered: string;
-      dateReceived: string;
-      proofOfPurchaseUrl?: string;
-    },
-  ) => void;
+  claim?: GiftClaimDetails;
 }
 
-export function GiftInfoCard({
-  gift,
-  donorName,
-  donorEmail,
-  trackingId,
-  dateOrdered,
-  dateDelivered,
-  dateReceived,
-  proofOfPurchaseUrl,
-  onUpdate,
-  onUpdateDetails,
-}: GiftInfoCardProps) {
+export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
+  const collections = useCollections();
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [proofOpen, setProofOpen] = useState(false);
+  const [isSaving, startSaveTransition] = useTransition();
+  const txRef = useRef<Transaction<Gift> | null>(null);
+  const [trackingId, setTrackingId] = useState(claim?.trackingNumber ?? "");
+  const trackingIdBeforeEdit = useRef(claim?.trackingNumber ?? "");
 
-  const [editedGift, setEditedGift] = useState<Partial<Gift>>({});
-
-  const [localFields, setLocalFields] = useState({
-    donorName: donorName ?? "",
-    donorEmail: donorEmail ?? "",
-    trackingId: trackingId ?? "",
-    dateOrdered: dateOrdered ?? "",
-    dateDelivered: dateDelivered ?? "",
-    dateReceived: dateReceived ?? "",
-  });
-
-  const getValue = <K extends keyof Gift>(key: K) =>
-    (key in editedGift ? editedGift[key] : gift[key]) as Gift[K];
-
-  const handleChange = <K extends keyof Gift>(key: K, value: Gift[K]) => {
-    setEditedGift((prev) => ({ ...prev, [key]: value }));
+  const editField = <K extends keyof Gift>(key: K, value: Gift[K]) => {
+    if (!txRef.current) {
+      txRef.current = collections.createGiftsTransaction();
+    }
+    const tx = txRef.current;
+    tx.mutate(() => {
+      collections.gifts.update(gift.id, (draft) => {
+        draft[key] = value;
+      });
+    });
   };
 
-  const handleLocalChange = (key: keyof typeof localFields, value: string) => {
-    setLocalFields((prev) => ({ ...prev, [key]: value }));
+  const handleEditStart = () => {
+    trackingIdBeforeEdit.current = trackingId;
+    setIsEditing(true);
   };
 
-  const handleSave = async () => {
-    const giftUpdates = Object.fromEntries(
-      Object.entries(editedGift).filter(([, value]) => value !== undefined),
-    ) as Partial<Gift>;
-
-    if (isGiftTitleTooLong(getValue("title") ?? "")) {
+  const handleSave = () => {
+    if (isGiftTitleTooLong(gift.title)) {
       toast.error(GIFT_TITLE_TOO_LONG_MESSAGE);
       return;
     }
 
-    try {
-      if (onUpdate && Object.keys(giftUpdates).length > 0) {
-        await onUpdate(gift.id, giftUpdates);
-      }
+    const tx = txRef.current;
+    const trackingChanged = trackingId !== trackingIdBeforeEdit.current;
+    const hasGiftMutations = tx && tx.mutations.length > 0;
 
-      if (onUpdateDetails) {
-        onUpdateDetails(gift.id, {
-          ...localFields,
-          proofOfPurchaseUrl,
-        });
-      }
-
-      setEditedGift({});
+    if (!hasGiftMutations && !trackingChanged) {
+      txRef.current = null;
       setIsEditing(false);
-    } catch (error) {
-      console.error("Gift info save failed", error);
+      return;
     }
+
+    startSaveTransition(async () => {
+      try {
+        await Promise.all([
+          hasGiftMutations ? tx.commit() : undefined,
+          trackingChanged && claim?.claimId
+            ? updateClaimTrackingNumber({
+                data: { claimId: claim.claimId, trackingNumber: trackingId },
+              }).then(() => {
+                queryClient.invalidateQueries(
+                  queries.claims.byChildId(gift.childId),
+                );
+              })
+            : undefined,
+        ]);
+        txRef.current = null;
+        toast.success("Gift updated successfully");
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Gift info save failed", error);
+      }
+    });
   };
 
   const handleCancel = () => {
-    setEditedGift({});
-    setLocalFields({
-      donorName: donorName ?? "",
-      donorEmail: donorEmail ?? "",
-      trackingId: trackingId ?? "",
-      dateOrdered: dateOrdered ?? "",
-      dateDelivered: dateDelivered ?? "",
-      dateReceived: dateReceived ?? "",
-    });
+    if (txRef.current && txRef.current.state === "pending") {
+      txRef.current.rollback();
+    }
+    txRef.current = null;
+    setTrackingId(trackingIdBeforeEdit.current);
     setIsEditing(false);
   };
 
-  const hasProof = !!proofOfPurchaseUrl;
-
-  const displayLocal = (val?: string) =>
-    isEditing ? (val ?? "") : val?.trim() ? val : "N/A";
+  const trackingEditable = isEditing && !!claim?.claimId;
 
   return (
     <div className="px-6 py-5 space-y-4 text-sm">
@@ -207,11 +180,11 @@ export function GiftInfoCard({
         <div className="flex flex-col gap-4 bg-[#F6F9FC] px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-1">
             <EditableField
-              value={getValue("title") ?? ""}
+              value={gift.title}
               editable={isEditing}
               characterLimit={MAX_GIFT_TITLE_LENGTH}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                handleChange("title", event.target.value)
+                editField("title", event.target.value)
               }
               className="text-lg font-medium"
             >
@@ -221,7 +194,7 @@ export function GiftInfoCard({
             <EditableField
               value={
                 isEditing
-                  ? (getValue("listedPrice") ?? "")
+                  ? (gift.listedPrice ?? "")
                   : gift.listedPrice != null
                     ? `$${gift.listedPrice.toFixed(2)}`
                     : "N/A"
@@ -233,7 +206,7 @@ export function GiftInfoCard({
                     ? undefined
                     : Number(event.target.value);
 
-                handleChange("listedPrice", nextValue);
+                editField("listedPrice", nextValue);
               }}
             >
               Price:
@@ -244,7 +217,7 @@ export function GiftInfoCard({
             {!isEditing ? (
               <Button
                 size="sm"
-                onClick={() => setIsEditing(true)}
+                onClick={handleEditStart}
                 className="w-full bg-kfk-blue text-white sm:w-auto"
               >
                 Edit
@@ -254,16 +227,16 @@ export function GiftInfoCard({
                 <Button
                   className="w-full sm:w-auto"
                   size="sm"
-                  onClick={() => {
-                    void handleSave();
-                  }}
+                  disabled={isSaving}
+                  onClick={handleSave}
                 >
-                  Save
+                  {isSaving ? "Saving..." : "Save"}
                 </Button>
                 <Button
                   className="w-full sm:w-auto"
                   size="sm"
                   variant="destructive"
+                  disabled={isSaving}
                   onClick={handleCancel}
                 >
                   Cancel
@@ -273,7 +246,7 @@ export function GiftInfoCard({
 
             {isEditing && (
               <EditableField
-                value={getValue("status")}
+                value={gift.status}
                 editable
                 fieldType="select"
                 selectOptions={GIFT_STATUS_ORDER}
@@ -283,7 +256,7 @@ export function GiftInfoCard({
                   );
 
                   if (nextStatus) {
-                    handleChange("status", nextStatus);
+                    editField("status", nextStatus);
                   }
                 }}
               >
@@ -301,32 +274,26 @@ export function GiftInfoCard({
           <div className="grid gap-4 md:grid-cols-2">
             <EditableField
               className="w-full"
-              value={displayLocal(localFields.donorName)}
-              editable={isEditing}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                handleLocalChange("donorName", event.target.value)
-              }
+              value={claim?.donorName ?? "N/A"}
+              editable={false}
             >
               Donor:
             </EditableField>
 
             <EditableField
               className="w-full"
-              value={displayLocal(localFields.donorEmail)}
-              editable={isEditing}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                handleLocalChange("donorEmail", event.target.value)
-              }
+              value={claim?.donorEmail ?? "N/A"}
+              editable={false}
             >
               Donor Email:
             </EditableField>
           </div>
 
           <EditableField
-            value={displayLocal(localFields.trackingId)}
-            editable={isEditing}
+            value={trackingEditable ? trackingId : trackingId.trim() || "N/A"}
+            editable={trackingEditable}
             onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("trackingId", event.target.value)
+              setTrackingId(event.target.value)
             }
           >
             Tracking ID:
@@ -335,66 +302,29 @@ export function GiftInfoCard({
 
         <div className="bg-white px-6 py-5 space-y-3">
           <EditableField
-            value={displayLocal(localFields.dateOrdered)}
-            editable={isEditing}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("dateOrdered", event.target.value)
-            }
+            value={formatISODate(claim?.dateOrdered ?? null)}
+            editable={false}
           >
             Date Ordered (Confirmed by Donor):
           </EditableField>
-
-          <Button
-            className={`w-full h-11 font-gaegu font-bold ${
-              hasProof
-                ? "bg-kfk-blue text-white hover:bg-kfk-blue/80"
-                : "bg-gray-300 text-gray-600 hover:bg-gray-300"
-            }`}
-            disabled={!hasProof}
-            onClick={() => hasProof && setProofOpen(true)}
-          >
-            Donor Proof of Purchase
-          </Button>
         </div>
 
         <div className="px-6 py-5 space-y-3 bg-[#F6F9FC]">
           <EditableField
-            value={displayLocal(localFields.dateDelivered)}
-            editable={isEditing}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("dateDelivered", event.target.value)
-            }
+            value={formatISODate(claim?.dateDelivered ?? null)}
+            editable={false}
           >
             Date Delivered (Confirmed by Donor):
           </EditableField>
 
           <EditableField
-            value={displayLocal(localFields.dateReceived)}
-            editable={isEditing}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("dateReceived", event.target.value)
-            }
+            value={formatISODate(claim?.dateReceived ?? null)}
+            editable={false}
           >
             Date Received (Confirmed by Family):
           </EditableField>
         </div>
       </div>
-
-      <Dialog open={proofOpen} onOpenChange={setProofOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Proof of Purchase</DialogTitle>
-          </DialogHeader>
-
-          {hasProof ? (
-            <img src={proofOfPurchaseUrl} className="w-full" />
-          ) : (
-            <div className="h-40 bg-gray-200 flex items-center justify-center">
-              No image
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

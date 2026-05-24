@@ -39,7 +39,7 @@ export async function uploadChildPhoto(
   });
   await file.makePublic();
 
-  return file.publicUrl();
+  return `${file.publicUrl()}?v=${Date.now()}`;
 }
 
 export async function childPhotoExists(childId: string): Promise<boolean> {
