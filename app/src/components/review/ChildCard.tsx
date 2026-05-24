@@ -236,6 +236,7 @@ export function ChildCard({ child }: ChildCardProps) {
         toast.success("Saved successfully");
         setEditing(false);
       } catch (error) {
+        toast.error("Save failed");
         console.error("Child review save failed", error);
       }
     });

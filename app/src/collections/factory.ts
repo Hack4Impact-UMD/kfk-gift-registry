@@ -129,6 +129,12 @@ function isUpdateMutation<T extends object>(
   return m.type === "update";
 }
 
+function isInsertMutation<T extends object>(
+  m: PendingMutation<T>,
+): m is PendingMutation<T, "insert"> {
+  return m.type === "insert";
+}
+
 export type Collections = ReturnType<typeof createCollections>;
 
 export function createCollections(queryClient: QueryClient) {
@@ -475,8 +481,11 @@ export function createCollections(queryClient: QueryClient) {
       autoCommit: false,
       mutationFn: async ({ transaction }) => {
         for (const m of transaction.mutations) {
-          if (!isUpdateMutation(m)) continue;
-          await persistGiftUpdate(m);
+          if (isUpdateMutation(m)) {
+            await persistGiftUpdate(m);
+          } else if (isInsertMutation(m)) {
+            await persistGiftInsert(m);
+          }
         }
         await invalidateGiftDerivedCaches();
       },

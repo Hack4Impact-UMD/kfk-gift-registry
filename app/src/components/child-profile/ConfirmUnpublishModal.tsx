@@ -35,7 +35,9 @@ export function ConfirmUnpublishModal({
             Are you sure you want to {action} this profile?
           </DialogTitle>
           <DialogDescription>
-            This will remove the profile from the storefront.
+            {isUnpublishAction
+              ? "This will remove the profile from the storefront."
+              : "This will display the profile on the public storefront."}
           </DialogDescription>
         </DialogHeader>
 

@@ -95,6 +95,7 @@ function GuardianInfoCardInner({ family }: GuardianInfoCardProps) {
         setEditing(false);
       } catch (error) {
         console.error("Failed to save guardian info", error);
+        toast.error("Save failed");
       }
     });
   };

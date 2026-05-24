@@ -70,6 +70,13 @@ export function ReviewActionPanel({
         const familiesTx = collections.families.update(family.id, (draft) => {
           draft.reviewStatus.approved = nextStatus.approved;
           draft.reviewStatus.held = nextStatus.held;
+
+          if (nextStatus.lastReviewedAt !== undefined) {
+            draft.reviewStatus.lastReviewedAt = nextStatus.lastReviewedAt;
+          }
+          if (nextStatus.reviewedBy !== undefined) {
+            draft.reviewStatus.reviewedBy = nextStatus.reviewedBy;
+          }
           if (nextStatus.held) {
             draft.reviewStatus.reviewNotes =
               family.reviewStatus.reviewNotes ?? "";
