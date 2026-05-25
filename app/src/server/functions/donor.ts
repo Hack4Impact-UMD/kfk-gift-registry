@@ -8,6 +8,7 @@ import { UserRole } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
 import { assertGiftDriveActive } from "@/server/services/giftDriveService.server";
+import { publishNotification, createNotificationMessage } from "@/server/services/notificationService.server";
 
 const giftIdsSchema = z.object({
   giftIds: z.array(z.string().min(1)).min(1),
@@ -70,12 +71,38 @@ export const claimGifts = createServerFn({ method: "POST" })
         active: true,
       }));
 
+      // Get donor info for notification
+      const donorSnap = await tx.get(db.users.doc(donorId));
+      const donorName = donorSnap.exists ? (donorSnap.data() as any).name : "A donor";
+
       for (const gift of gifts) {
         tx.update(db.gifts.doc(gift.id), {
           claimedByDonorId: donorId,
           status: "CLAIMED",
         });
+
+        // Get child info for notification
+        const childSnap = await tx.get(db.children.doc(gift.childId));
+        if (childSnap.exists) {
+          const child = childSnap.data() as any;
+          const message = createNotificationMessage(
+            "GIFT_CLAIMED",
+            child.name,
+            donorName,
+          );
+
+          await publishNotification(tx, {
+            familyId: child.familyId,
+            childId: gift.childId,
+            type: "GIFT_CLAIMED",
+            message,
+            giftId: gift.id,
+            createdAt: claimedAt,
+            read: false,
+          });
+        }
       }
+
       for (const claim of claims) {
         tx.set(db.claims.doc(claim.id), claim);
       }
