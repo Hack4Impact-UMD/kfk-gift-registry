@@ -59,6 +59,17 @@ export const claimGifts = createServerFn({ method: "POST" })
         }
       }
 
+      const donorSnap = await tx.get(db.users.doc(donorId));
+      const donorName = donorSnap.exists ? (donorSnap.data() as any).name : "A donor";
+
+      const childSnapshots = new Map<string, any>();
+      for (const gift of gifts) {
+        const childSnap = await tx.get(db.children.doc(gift.childId));
+        if (childSnap.exists) {
+          childSnapshots.set(gift.childId, childSnap.data() as any);
+        }
+      }
+
       const claimedAt = DateTime.utc().toISO();
       const claims: Array<Claim> = gifts.map((gift) => ({
         id: uuidv7(),
@@ -71,18 +82,20 @@ export const claimGifts = createServerFn({ method: "POST" })
         active: true,
       }));
 
-      const donorSnap = await tx.get(db.users.doc(donorId));
-      const donorName = donorSnap.exists ? (donorSnap.data() as any).name : "A donor";
-
       for (const gift of gifts) {
         tx.update(db.gifts.doc(gift.id), {
           claimedByDonorId: donorId,
           status: "CLAIMED",
         });
+      }
 
-        const childSnap = await tx.get(db.children.doc(gift.childId));
-        if (childSnap.exists) {
-          const child = childSnap.data() as any;
+      for (const claim of claims) {
+        tx.set(db.claims.doc(claim.id), claim);
+      }
+
+      for (const gift of gifts) {
+        const child = childSnapshots.get(gift.childId);
+        if (child) {
           const message = createNotificationMessage(
             "GIFT_CLAIMED",
             child.name,
@@ -99,10 +112,6 @@ export const claimGifts = createServerFn({ method: "POST" })
             read: false,
           });
         }
-      }
-
-      for (const claim of claims) {
-        tx.set(db.claims.doc(claim.id), claim);
       }
 
       return { claims };
