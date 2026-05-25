@@ -8,6 +8,7 @@ import type {
   FamilyLink,
   Gift,
   GiftDrive,
+  Notification,
   StaffInvite,
   UserProfile,
 } from "common";
@@ -19,6 +20,7 @@ import {
   GIFT_COLLECTION,
   GIFT_DRIVE_COLLECTION,
   INVITE_COLLECTION,
+  NOTIFICATION_COLLECTION,
   PROFILE_UPDATE_COLLECTION,
   USER_COLLECTION,
 } from "@/data/collections";
@@ -44,6 +46,7 @@ type Database = {
   invites: Collection<StaffInvite>;
   familyLinks: Collection<FamilyLink>;
   profileUpdates: Collection<ChildProfileUpdate>;
+  notifications: Collection<Notification>;
   _instance: FirebaseFirestore.Firestore;
 };
 
@@ -80,6 +83,7 @@ export const getServerDB = createServerOnlyFn(() => {
     giftDrives: collection<GiftDrive>(GIFT_DRIVE_COLLECTION),
     invites: collection<StaffInvite>(INVITE_COLLECTION),
     profileUpdates: collection<ChildProfileUpdate>(PROFILE_UPDATE_COLLECTION),
+    notifications: collection<Notification>(NOTIFICATION_COLLECTION),
     _instance: firestore,
   };
   return db;
