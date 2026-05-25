@@ -23,7 +23,8 @@ export function NotificationCard({
   onDismiss,
 }: NotificationCardProps) {
   // hash function to determine color (persists as the same across all renders)
-  const colorIndex = (notification.childId.charCodeAt(0) || 0) % color_selections.length;
+  const colorIndex =
+    (notification.childId.charCodeAt(0) || 0) % color_selections.length;
   const colorClasses = color_selections[colorIndex];
 
   return (
@@ -36,7 +37,9 @@ export function NotificationCard({
           params={{ token, childId: notification.childId }}
           className="flex flex-1 items-center gap-4"
         >
-          <div className={`w-12 h-12 rounded-full ${colorClasses.ring} ring-2 flex items-center justify-center bg-muted`}>
+          <div
+            className={`w-12 h-12 rounded-full ${colorClasses.ring} ring-2 flex items-center justify-center bg-muted`}
+          >
             <span className="text-sm font-semibold text-center">
               {childName?.charAt(0) || "?"}
             </span>

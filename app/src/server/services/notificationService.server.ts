@@ -8,12 +8,12 @@ export async function publishNotification(
 ): Promise<string> {
   const db = getServerDB();
   const notificationId = uuidv7();
-  
+
   tx.set(db.notifications.doc(notificationId), {
     id: notificationId,
     ...notification,
   });
-  
+
   return notificationId;
 }
 
