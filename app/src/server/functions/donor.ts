@@ -71,7 +71,6 @@ export const claimGifts = createServerFn({ method: "POST" })
         active: true,
       }));
 
-      // Get donor info for notification
       const donorSnap = await tx.get(db.users.doc(donorId));
       const donorName = donorSnap.exists ? (donorSnap.data() as any).name : "A donor";
 
@@ -81,7 +80,6 @@ export const claimGifts = createServerFn({ method: "POST" })
           status: "CLAIMED",
         });
 
-        // Get child info for notification
         const childSnap = await tx.get(db.children.doc(gift.childId));
         if (childSnap.exists) {
           const child = childSnap.data() as any;

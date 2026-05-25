@@ -4,7 +4,8 @@ import { Route as FamilyTokenRoute } from "../$token";
 import { Button } from "@/components/ui/button";
 import { NotificationCard } from "@/components/family/NotificationCard";
 import RedGift from "@/assets/red-gift.png";
-import type { Child } from "common";
+import { useFamilyNotifications } from "@/hooks/queries/useFamilyNotifications";
+import { useClearAllNotifications } from "@/hooks/mutations/useNotificationMutations";
 
 export const Route = createFileRoute("/family/$token/home")({
   head: () => ({
@@ -22,14 +23,13 @@ export const Route = createFileRoute("/family/$token/home")({
 function FamilyHome() {
   const data = FamilyTokenRoute.useLoaderData();
   const family = data.family;
-  // const children = data.children || [];
-  const notifications: Array<{ id: string; child: Child; giftTitle: string }> =
-    [];
+  const { data: notificationsData } = useFamilyNotifications(family?.id);
+  const clearAllMutation = useClearAllNotifications();
 
-  // TODO: implement clear functionality (swap out local storage implementation)
-  const [visibleIds, setVisibleIds] = useState<Array<string>>(() =>
-    notifications.map((n) => n.id),
-  );
+  const notifications = notificationsData?.notifications ?? [];
+
+  // todo: need to implement clear functionality (swap out for read flag implementation)
+  const [dismissedIds, setDismissedIds] = useState<Array<string>>(() => []);
 
   if (!family) {
     return (
@@ -39,28 +39,22 @@ function FamilyHome() {
     );
   }
 
-  // TODO: Load notifications when gift data is available
-  // const notifications = children?.flatMap((child: any) =>
-  //   child.gifts
-  //     .filter((gift: any) => gift.status === "delivered")
-  //     .map((gift: any) => ({
-  //       id: gift.id,
-  //       child: child,
-  //       giftTitle: gift.name,
-  //     })),
-  // ) ?? [];
-
-  // TODO: implement clear functionality (swap out local storage implementation)
-
-  const visibleNotifications = notifications.filter((n) =>
-    visibleIds.includes(n.id),
-  );
+  const visibleNotifications = notifications.filter((n) => {
+    const unread = !n.read;
+    const notDismissed = !dismissedIds.includes(n.id);
+    return unread && notDismissed;
+  });
 
   const handleDismiss = (id: string) => {
-    setVisibleIds((prev) => prev.filter((i) => i !== id));
+    setDismissedIds((prev) => [...prev, id]);
   };
 
-  const handleClearAll = () => setVisibleIds([]);
+  const handleClearAll = async () => {
+    if (family?.id) {
+      await clearAllMutation.mutateAsync(family.id);
+      setDismissedIds([]);
+    }
+  };
 
   return (
     <div className="py-8 mt-2 flex flex-col overflow-x-hidden">
@@ -113,8 +107,7 @@ function FamilyHome() {
           {visibleNotifications.map((n) => (
             <NotificationCard
               key={n.id}
-              child={n.child}
-              giftTitle={n.giftTitle}
+              notification={n}
               token={data.token}
               onDismiss={() => handleDismiss(n.id)}
             />

@@ -1,13 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
-import type { Child } from "common";
+import type { Notification } from "common";
 import { Button } from "@/components/ui/button";
-import { ChildProfileCircle } from "@/components/family/ChildProfileCircle";
 
 type NotificationCardProps = {
-  child: Child;
-  giftTitle: string;
+  notification: Notification;
   token: string;
+  childName?: string;
   onDismiss?: () => void;
 };
 
@@ -18,13 +17,13 @@ const color_selections = [
 ] as const;
 
 export function NotificationCard({
-  child,
-  giftTitle,
+  notification,
   token,
+  childName,
   onDismiss,
 }: NotificationCardProps) {
   // hash function to determine color (persists as the same across all renders)
-  const colorIndex = (child.id.charCodeAt(0) || 0) % color_selections.length;
+  const colorIndex = (notification.childId.charCodeAt(0) || 0) % color_selections.length;
   const colorClasses = color_selections[colorIndex];
 
   return (
@@ -34,23 +33,20 @@ export function NotificationCard({
       <div className="flex flex-1 items-center gap-4 px-4 py-3">
         <Link
           to="/family/$token/child/$childId"
-          params={{ token, childId: child.id }}
+          params={{ token, childId: notification.childId }}
           className="flex flex-1 items-center gap-4"
         >
-          <ChildProfileCircle
-            child={child}
-            ringClass={colorClasses.ring}
-            token={token}
-            compact
-            disableLink
-          />
+          <div className={`w-12 h-12 rounded-full ${colorClasses.ring} ring-2 flex items-center justify-center bg-muted`}>
+            <span className="text-sm font-semibold text-center">
+              {childName?.charAt(0) || "?"}
+            </span>
+          </div>
 
           <div className="flex-1 min-w-0">
-            <p className="font-semibold">{child.name} Gift Delivered!</p>
+            <p className="font-semibold">{notification.message}</p>
 
-            <p className="text-sm text-foreground mt-1">
-              {giftTitle}... gift was delivered! Confirm if you received the
-              gift!
+            <p className="text-xs text-muted-foreground mt-1">
+              {new Date(notification.createdAt).toLocaleDateString()}
             </p>
           </div>
         </Link>
