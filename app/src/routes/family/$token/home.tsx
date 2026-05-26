@@ -4,8 +4,9 @@ import { Route as FamilyTokenRoute } from "../$token";
 import { Button } from "@/components/ui/button";
 import { NotificationCard } from "@/components/family/NotificationCard";
 import RedGift from "@/assets/red-gift.png";
+import { toast } from "@/lib/toast";
 import { useFamilyNotifications } from "@/hooks/queries/useFamilyNotifications";
-import { useClearAllNotifications } from "@/hooks/mutations/useNotificationMutations";
+import { useClearAllNotifications, useMarkNotificationAsRead } from "@/hooks/mutations/useNotificationMutations";
 
 export const Route = createFileRoute("/family/$token/home")({
   head: () => ({
@@ -25,10 +26,10 @@ function FamilyHome() {
   const family = data.family;
   const { data: notificationsData } = useFamilyNotifications(family?.id);
   const clearAllMutation = useClearAllNotifications();
+  const markAsReadMutation = useMarkNotificationAsRead();
 
   const notifications = notificationsData?.notifications ?? [];
 
-  // todo: need to implement clear functionality (swap out for read flag implementation)
   const [dismissedIds, setDismissedIds] = useState<Array<string>>(() => []);
 
   if (!family) {
@@ -45,14 +46,29 @@ function FamilyHome() {
     return unread && notDismissed;
   });
 
-  const handleDismiss = (id: string) => {
-    setDismissedIds((prev) => [...prev, id]);
+  const handleDismiss = async (id: string) => {
+    try {
+      setDismissedIds((prev) => [...prev, id]);
+      await markAsReadMutation.mutateAsync(id);
+    } catch (error) {
+      setDismissedIds((prev) => prev.filter((i) => i !== id));
+      const message =
+        error instanceof Error ? error.message : "Failed to dismiss notification";
+      toast.error(message);
+    }
   };
 
   const handleClearAll = async () => {
     if (family?.id) {
-      await clearAllMutation.mutateAsync(family.id);
-      setDismissedIds([]);
+      try {
+        await clearAllMutation.mutateAsync(family.id);
+        setDismissedIds([]);
+        toast.success("Notifications cleared");
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Failed to clear notifications";
+        toast.error(message);
+      }
     }
   };
 
