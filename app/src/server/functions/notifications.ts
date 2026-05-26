@@ -84,14 +84,22 @@ export const clearAllNotifications = createServerFn({ method: "POST" })
 
     const notificationsSnap = await db.notifications
       .where("familyId", "==", familyId)
+      .where("read", "==", false)
       .get();
 
-    const batch = db._instance.batch();
-    notificationsSnap.forEach((doc) => {
-      batch.update(doc.ref, { read: true });
-    });
-
-    await batch.commit();
+    const CHUNK_SIZE = 200;
+    const docs = notificationsSnap.docs;
+    
+    for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
+      const chunk = docs.slice(i, i + CHUNK_SIZE);
+      const batch = db._instance.batch();
+      
+      chunk.forEach((doc) => {
+        batch.update(doc.ref, { read: true });
+      });
+      
+      await batch.commit();
+    }
 
     return { success: true };
   });
