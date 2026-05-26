@@ -4,12 +4,13 @@ import {
   clearAllNotifications,
 } from "@/server/functions/notifications";
 
-export function useMarkNotificationAsRead() {
+export function useMarkNotificationAsRead(token: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (notificationId: string) => {
-      return await markNotificationAsRead({ data: { notificationId } });
+      if (!token) throw new Error("No family token available");
+      return await markNotificationAsRead({ data: { notificationId, token } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["familyNotifications"] });
@@ -17,12 +18,16 @@ export function useMarkNotificationAsRead() {
   });
 }
 
-export function useClearAllNotifications() {
+export function useClearAllNotifications(
+  familyId: string | undefined,
+  token: string | undefined,
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (familyId: string) => {
-      return await clearAllNotifications({ data: { familyId } });
+    mutationFn: async () => {
+      if (!familyId || !token) throw new Error("Missing family info");
+      return await clearAllNotifications({ data: { familyId, token } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["familyNotifications"] });

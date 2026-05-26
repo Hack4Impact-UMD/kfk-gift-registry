@@ -24,9 +24,12 @@ export const Route = createFileRoute("/family/$token/home")({
 function FamilyHome() {
   const data = FamilyTokenRoute.useLoaderData();
   const family = data.family;
-  const { data: notificationsData } = useFamilyNotifications(family?.id);
-  const clearAllMutation = useClearAllNotifications();
-  const markAsReadMutation = useMarkNotificationAsRead();
+  const { data: notificationsData } = useFamilyNotifications(
+    family?.id,
+    data.token,
+  );
+  const clearAllMutation = useClearAllNotifications(family?.id, data.token);
+  const markAsReadMutation = useMarkNotificationAsRead(data.token);
 
   const notifications = notificationsData?.notifications ?? [];
 
@@ -61,7 +64,7 @@ function FamilyHome() {
   const handleClearAll = async () => {
     if (family?.id) {
       try {
-        await clearAllMutation.mutateAsync(family.id);
+        await clearAllMutation.mutateAsync();
         setDismissedIds([]);
         toast.success("Notifications cleared");
       } catch (error) {
