@@ -6,7 +6,10 @@ import { NotificationCard } from "@/components/family/NotificationCard";
 import RedGift from "@/assets/red-gift.png";
 import { toast } from "@/lib/toast";
 import { useFamilyNotifications } from "@/hooks/queries/useFamilyNotifications";
-import { useClearAllNotifications, useMarkNotificationAsRead } from "@/hooks/mutations/useNotificationMutations";
+import {
+  useClearAllNotifications,
+  useMarkNotificationAsRead,
+} from "@/hooks/mutations/useNotificationMutations";
 
 export const Route = createFileRoute("/family/$token/home")({
   head: () => ({
@@ -56,7 +59,9 @@ function FamilyHome() {
     } catch (error) {
       setDismissedIds((prev) => prev.filter((i) => i !== id));
       const message =
-        error instanceof Error ? error.message : "Failed to dismiss notification";
+        error instanceof Error
+          ? error.message
+          : "Failed to dismiss notification";
       toast.error(message);
     }
   };
@@ -69,7 +74,9 @@ function FamilyHome() {
         toast.success("Notifications cleared");
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : "Failed to clear notifications";
+          error instanceof Error
+            ? error.message
+            : "Failed to clear notifications";
         toast.error(message);
       }
     }

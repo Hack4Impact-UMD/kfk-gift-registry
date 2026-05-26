@@ -56,7 +56,9 @@ export const markNotificationAsRead = createServerFn({ method: "POST" })
 
     const notification = notificationSnap.data() as Notification;
     if (notification.familyId !== link.familyId) {
-      throw new Error("Unauthorized: Notification does not belong to this family");
+      throw new Error(
+        "Unauthorized: Notification does not belong to this family",
+      );
     }
 
     await db.notifications.doc(notificationId).update({
@@ -89,15 +91,15 @@ export const clearAllNotifications = createServerFn({ method: "POST" })
 
     const CHUNK_SIZE = 200;
     const docs = notificationsSnap.docs;
-    
+
     for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
       const chunk = docs.slice(i, i + CHUNK_SIZE);
       const batch = db._instance.batch();
-      
+
       chunk.forEach((doc) => {
         batch.update(doc.ref, { read: true });
       });
-      
+
       await batch.commit();
     }
 
