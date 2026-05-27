@@ -1,4 +1,11 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 type ConfirmUnpublishModalProps = {
@@ -22,10 +29,17 @@ export function ConfirmUnpublishModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex flex-col items-center border-2 border-kfk-blue bg-card shadow-xl rounded-xl p-6 w-[313px]">
-        <p className="my-6 text-center">
-          Are you sure you want to {action} this profile?
-        </p>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            Are you sure you want to {action} this profile?
+          </DialogTitle>
+          <DialogDescription>
+            {isUnpublishAction
+              ? "This will remove the profile from the storefront."
+              : "This will display the profile on the public storefront."}
+          </DialogDescription>
+        </DialogHeader>
 
         {errorMessage ? (
           <p className="mb-4 text-center text-sm text-kfk-red">
@@ -33,9 +47,9 @@ export function ConfirmUnpublishModal({
           </p>
         ) : null}
 
-        <div className="flex gap-8">
+        <DialogFooter>
           <Button
-            className="px-4 py-2 rounded"
+            className="px-4 py-2"
             variant="default"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
@@ -44,7 +58,7 @@ export function ConfirmUnpublishModal({
           </Button>
 
           <Button
-            className="px-4 py-2 rounded"
+            className="px-4 py-2"
             variant={isUnpublishAction ? "destructive" : "default"}
             onClick={async () => {
               try {
@@ -58,7 +72,7 @@ export function ConfirmUnpublishModal({
           >
             Confirm
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

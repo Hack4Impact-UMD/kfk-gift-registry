@@ -1,21 +1,21 @@
-import { useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import type { ChangeEvent } from "react";
-import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-import { EditableField } from "@/components/review/EditableField";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import type { Transaction } from "@tanstack/react-db";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Gift, GiftStatus } from "common";
-import { toast } from "@/lib/toast";
 import {
   GIFT_TITLE_TOO_LONG_MESSAGE,
   MAX_GIFT_TITLE_LENGTH,
   isGiftTitleTooLong,
 } from "common";
+import { useCollections } from "@/collections/context";
+import { queries } from "@/queries";
+import type { GiftClaimDetails } from "@/server/functions/child";
+import { updateClaimTrackingNumber } from "@/server/functions/child";
+import { toast } from "@/lib/toast";
+import { formatISODate } from "@/lib/utils";
+import { EditableField } from "@/components/review/EditableField";
+import { Button } from "@/components/ui/button";
 
 const GIFT_STEPS = [
   "Available",
@@ -50,7 +50,7 @@ function GiftProgressBar({ status }: { status: GiftStatus }) {
   return (
     <div className="mb-3 mt-5 w-full overflow-x-auto font-bold font-gaegu">
       <div className="min-w-[480px]">
-        <div className="relative flex h-8 items-center w-full">
+        <div className="relative flex h-8 w-full items-center">
           <div
             className={`absolute h-[10px] rounded-full border-2 ${progressBorderColor}`}
             style={{ left: `${TRACK_START}%`, width: `${TRACK_WIDTH}%` }}
@@ -95,153 +95,103 @@ function GiftProgressBar({ status }: { status: GiftStatus }) {
 interface GiftInfoCardProps {
   gift: Gift;
   isBackupGift?: boolean;
-  donorName?: string;
-  donorEmail?: string;
-  trackingId?: string;
-  dateOrdered?: string;
-  dateDelivered?: string;
-  dateReceived?: string;
-  proofOfPurchaseUrl?: string;
-  proofOfDeliveryUrl?: string;
-  onUpdate?: (giftId: string, updates: Partial<Gift>) => void | Promise<void>;
-  onUpdateDetails?: (
-    giftId: string,
-    details: {
-      donorName: string;
-      donorEmail: string;
-      trackingId: string;
-      dateOrdered: string;
-      dateDelivered: string;
-      dateReceived: string;
-      proofOfPurchaseUrl?: string;
-      proofOfDeliveryUrl?: string;
-    },
-  ) => void;
+  claim?: GiftClaimDetails;
 }
 
-function formatDate(value?: string) {
-  const normalizedValue = value?.trim();
-  if (!normalizedValue) return "N/A";
-
-  const date = new Date(normalizedValue);
-  if (Number.isNaN(date.getTime())) {
-    return "N/A";
-  }
-
-  return date.toLocaleDateString("en-US", {
-    hour: "numeric",
-    minute: "numeric",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-export function GiftInfoCard({
-  gift,
-  donorName,
-  donorEmail,
-  trackingId,
-  dateOrdered,
-  dateDelivered,
-  dateReceived,
-  proofOfPurchaseUrl,
-  proofOfDeliveryUrl,
-  onUpdate,
-  onUpdateDetails,
-}: GiftInfoCardProps) {
+export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
+  const collections = useCollections();
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [proofOpen, setProofOpen] = useState(false);
-  const [proofType, setProofType] = useState<"purchase" | "delivery">(
-    "purchase",
-  );
+  const [isSaving, startSaveTransition] = useTransition();
+  const txRef = useRef<Transaction<Gift> | null>(null);
+  const [draftTrackingId, setDraftTrackingId] = useState("");
+  const trackingIdBeforeEdit = useRef(claim?.trackingNumber ?? "");
 
-  const [editedGift, setEditedGift] = useState<Partial<Gift>>({});
-
-  const [localFields, setLocalFields] = useState({
-    donorName: donorName ?? "",
-    donorEmail: donorEmail ?? "",
-    trackingId: trackingId ?? "",
-    dateOrdered: dateOrdered ?? "",
-    dateDelivered: dateDelivered ?? "",
-    dateReceived: dateReceived ?? "",
-  });
-
-  const getValue = <K extends keyof Gift>(key: K) =>
-    (key in editedGift ? editedGift[key] : gift[key]) as Gift[K];
-
-  const handleChange = <K extends keyof Gift>(key: K, value: Gift[K]) => {
-    setEditedGift((prev) => ({ ...prev, [key]: value }));
+  const editField = <K extends keyof Gift>(key: K, value: Gift[K]) => {
+    if (!txRef.current) {
+      txRef.current = collections.createGiftsTransaction();
+    }
+    const tx = txRef.current;
+    tx.mutate(() => {
+      collections.gifts.update(gift.id, (draft) => {
+        draft[key] = value;
+      });
+    });
   };
 
-  const handleLocalChange = (key: keyof typeof localFields, value: string) => {
-    setLocalFields((prev) => ({ ...prev, [key]: value }));
+  const handleEditStart = () => {
+    const currentTrackingId = claim?.trackingNumber ?? "";
+    trackingIdBeforeEdit.current = currentTrackingId;
+    setDraftTrackingId(currentTrackingId);
+    setIsEditing(true);
   };
 
-  const handleSave = async () => {
-    const giftUpdates = Object.fromEntries(
-      Object.entries(editedGift).filter(([, value]) => value !== undefined),
-    ) as Partial<Gift>;
-
-    if (isGiftTitleTooLong(getValue("title") ?? "")) {
+  const handleSave = () => {
+    if (isGiftTitleTooLong(gift.title)) {
       toast.error(GIFT_TITLE_TOO_LONG_MESSAGE);
       return;
     }
 
-    try {
-      if (onUpdate && Object.keys(giftUpdates).length > 0) {
-        await onUpdate(gift.id, giftUpdates);
-      }
+    const tx = txRef.current;
+    const trackingChanged = draftTrackingId !== trackingIdBeforeEdit.current;
+    const hasGiftMutations = !!tx && tx.mutations.length > 0;
 
-      if (onUpdateDetails) {
-        onUpdateDetails(gift.id, {
-          ...localFields,
-          proofOfPurchaseUrl,
-          proofOfDeliveryUrl,
-        });
-      }
-
-      setEditedGift({});
+    if (!hasGiftMutations && !trackingChanged) {
+      txRef.current = null;
       setIsEditing(false);
-    } catch (error) {
-      console.error("Gift info save failed", error);
+      return;
     }
+
+    startSaveTransition(async () => {
+      try {
+        await Promise.all([
+          hasGiftMutations && tx ? tx.commit() : undefined,
+          trackingChanged && claim?.claimId
+            ? updateClaimTrackingNumber({
+                data: {
+                  claimId: claim.claimId,
+                  trackingNumber: draftTrackingId,
+                },
+              }).then(() =>
+                queryClient.invalidateQueries({
+                  queryKey: queries.claims.byChildId(gift.childId).queryKey,
+                }),
+              )
+            : undefined,
+        ]);
+        txRef.current = null;
+        toast.success("Gift updated successfully");
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Gift info save failed", error);
+      }
+    });
   };
 
   const handleCancel = () => {
-    setEditedGift({});
-    setLocalFields({
-      donorName: donorName ?? "",
-      donorEmail: donorEmail ?? "",
-      trackingId: trackingId ?? "",
-      dateOrdered: dateOrdered ?? "",
-      dateDelivered: dateDelivered ?? "",
-      dateReceived: dateReceived ?? "",
-    });
+    if (txRef.current && txRef.current.state === "pending") {
+      txRef.current.rollback();
+    }
+    txRef.current = null;
+    setDraftTrackingId(trackingIdBeforeEdit.current);
     setIsEditing(false);
   };
 
-  const hasProof = !!proofOfPurchaseUrl;
-  const hasDeliveryProof = !!proofOfDeliveryUrl;
-
-  const displayLocal = (val?: string) =>
-    isEditing ? (val ?? "") : val?.trim() ? val : "N/A";
-  const displayDate = (val?: string) =>
-    isEditing ? (val ?? "") : formatDate(val ?? "");
-  const previewUrl =
-    proofType === "purchase" ? proofOfPurchaseUrl : proofOfDeliveryUrl;
+  const trackingEditable = isEditing && !!claim?.claimId;
+  const purchaseProofUrl = claim?.proofOfPurchaseUrl ?? null;
+  const deliveryProofUrl = claim?.proofOfDeliveryUrl ?? null;
 
   return (
-    <div className="px-6 py-5 space-y-4 text-sm">
-      <div className="rounded-xl border bg-white shadow-sm overflow-hidden w-full">
+    <div className="space-y-4 px-6 py-5 text-sm">
+      <div className="w-full overflow-hidden rounded-xl border bg-white shadow-sm">
         <div className="flex flex-col gap-4 bg-[#F6F9FC] px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-1">
             <EditableField
-              value={getValue("title") ?? ""}
+              value={gift.title}
               editable={isEditing}
               characterLimit={MAX_GIFT_TITLE_LENGTH}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                handleChange("title", event.target.value)
+                editField("title", event.target.value)
               }
               className="text-lg font-medium"
             >
@@ -251,7 +201,7 @@ export function GiftInfoCard({
             <EditableField
               value={
                 isEditing
-                  ? (getValue("listedPrice") ?? "")
+                  ? (gift.listedPrice ?? "")
                   : gift.listedPrice != null
                     ? `$${gift.listedPrice.toFixed(2)}`
                     : "N/A"
@@ -263,7 +213,7 @@ export function GiftInfoCard({
                     ? undefined
                     : Number(event.target.value);
 
-                handleChange("listedPrice", nextValue);
+                editField("listedPrice", nextValue);
               }}
             >
               Price:
@@ -274,7 +224,7 @@ export function GiftInfoCard({
             {!isEditing ? (
               <Button
                 size="sm"
-                onClick={() => setIsEditing(true)}
+                onClick={handleEditStart}
                 className="w-full bg-kfk-blue text-white sm:w-auto"
               >
                 Edit
@@ -284,16 +234,16 @@ export function GiftInfoCard({
                 <Button
                   className="w-full sm:w-auto"
                   size="sm"
-                  onClick={() => {
-                    void handleSave();
-                  }}
+                  disabled={isSaving}
+                  onClick={handleSave}
                 >
-                  Save
+                  {isSaving ? "Saving..." : "Save"}
                 </Button>
                 <Button
                   className="w-full sm:w-auto"
                   size="sm"
                   variant="destructive"
+                  disabled={isSaving}
                   onClick={handleCancel}
                 >
                   Cancel
@@ -303,7 +253,7 @@ export function GiftInfoCard({
 
             {isEditing && (
               <EditableField
-                value={getValue("status")}
+                value={gift.status}
                 editable
                 fieldType="select"
                 selectOptions={GIFT_STATUS_ORDER}
@@ -313,7 +263,7 @@ export function GiftInfoCard({
                   );
 
                   if (nextStatus) {
-                    handleChange("status", nextStatus);
+                    editField("status", nextStatus);
                   }
                 }}
               >
@@ -327,132 +277,103 @@ export function GiftInfoCard({
           {!isEditing && <GiftProgressBar status={gift.status} />}
         </div>
 
-        <div className="px-6 py-5 space-y-4 bg-[#F6F9FC]">
+        <div className="space-y-4 bg-[#F6F9FC] px-6 py-5">
           <div className="grid gap-4 md:grid-cols-2">
             <EditableField
               className="w-full"
-              value={displayLocal(localFields.donorName)}
-              editable={isEditing}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                handleLocalChange("donorName", event.target.value)
-              }
+              value={claim?.donorName ?? "N/A"}
+              editable={false}
             >
               Donor:
             </EditableField>
 
             <EditableField
               className="w-full"
-              value={displayLocal(localFields.donorEmail)}
-              editable={isEditing}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                handleLocalChange("donorEmail", event.target.value)
-              }
+              value={claim?.donorEmail ?? "N/A"}
+              editable={false}
             >
               Donor Email:
             </EditableField>
           </div>
 
           <EditableField
-            value={displayLocal(localFields.trackingId)}
-            editable={isEditing}
+            value={
+              trackingEditable
+                ? draftTrackingId
+                : claim?.trackingNumber?.trim() || "N/A"
+            }
+            editable={trackingEditable}
             onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("trackingId", event.target.value)
+              setDraftTrackingId(event.target.value)
             }
           >
             Tracking ID:
           </EditableField>
         </div>
 
-        <div className="bg-white px-6 py-5 space-y-3">
+        <div className="space-y-3 bg-white px-6 py-5">
           <EditableField
-            value={displayDate(localFields.dateOrdered)}
-            editable={isEditing}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("dateOrdered", event.target.value)
-            }
+            value={formatISODate(claim?.dateOrdered ?? null)}
+            editable={false}
           >
             Date Ordered (Confirmed by Donor):
           </EditableField>
 
-          <Button
-            className={`w-full h-11 font-gaegu font-bold ${
-              hasProof
-                ? "bg-kfk-blue text-white hover:bg-kfk-blue/80"
-                : "bg-gray-300 text-gray-600 hover:bg-gray-300"
-            }`}
-            disabled={!hasProof}
-            onClick={() => {
-              if (!hasProof) return;
-              setProofType("purchase");
-              setProofOpen(true);
-            }}
-          >
-            {hasProof
-              ? "Donor Proof of Purchase"
-              : "Donor Proof of Purchase: N/A"}
-          </Button>
+          {purchaseProofUrl ? (
+            <Button asChild className="h-11 w-full font-gaegu font-bold">
+              <a
+                href={purchaseProofUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Donor Proof of Purchase
+              </a>
+            </Button>
+          ) : (
+            <Button
+              className="h-11 w-full bg-gray-300 font-gaegu font-bold text-gray-600 hover:bg-gray-300"
+              disabled
+            >
+              Donor Proof of Purchase: N/A
+            </Button>
+          )}
         </div>
 
-        <div className="px-6 py-5 space-y-3 bg-[#F6F9FC]">
+        <div className="space-y-3 bg-[#F6F9FC] px-6 py-5">
           <EditableField
-            value={displayDate(localFields.dateDelivered)}
-            editable={isEditing}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("dateDelivered", event.target.value)
-            }
+            value={formatISODate(claim?.dateDelivered ?? null)}
+            editable={false}
           >
             Date Delivered (Confirmed by Donor):
           </EditableField>
 
           <EditableField
-            value={displayDate(localFields.dateReceived)}
-            editable={isEditing}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              handleLocalChange("dateReceived", event.target.value)
-            }
+            value={formatISODate(claim?.dateReceived ?? null)}
+            editable={false}
           >
             Date Received (Confirmed by Family):
           </EditableField>
 
-          <Button
-            className={`w-full h-11 font-gaegu font-bold ${
-              hasDeliveryProof
-                ? "bg-kfk-blue text-white hover:bg-kfk-blue/80"
-                : "bg-gray-300 text-gray-600 hover:bg-gray-300"
-            }`}
-            disabled={!hasDeliveryProof}
-            onClick={() => {
-              if (!hasDeliveryProof) return;
-              setProofType("delivery");
-              setProofOpen(true);
-            }}
-          >
-            {hasDeliveryProof
-              ? "Donor Delivery Confirmation"
-              : "Donor Delivery Confirmation: N/A"}
-          </Button>
+          {deliveryProofUrl ? (
+            <Button asChild className="h-11 w-full font-gaegu font-bold">
+              <a
+                href={deliveryProofUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Donor Delivery Confirmation
+              </a>
+            </Button>
+          ) : (
+            <Button
+              className="h-11 w-full bg-gray-300 font-gaegu font-bold text-gray-600 hover:bg-gray-300"
+              disabled
+            >
+              Donor Delivery Confirmation: N/A
+            </Button>
+          )}
         </div>
       </div>
-
-      <Dialog open={proofOpen} onOpenChange={setProofOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {proofType === "purchase"
-                ? "Proof of Purchase"
-                : "Delivery Confirmation"}
-            </DialogTitle>
-          </DialogHeader>
-
-          {previewUrl ? (
-            <img src={previewUrl} className="w-full" />
-          ) : (
-            <div className="h-40 bg-gray-200 flex items-center justify-center">
-              No image
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

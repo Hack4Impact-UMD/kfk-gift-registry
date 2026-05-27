@@ -1,40 +1,26 @@
 import { Gift as GiftIcon } from "lucide-react";
+import type { Gift } from "common";
+import type { GiftClaimDetails } from "@/server/functions/child";
 import { GiftInfoCard } from "./GiftInfoCard";
 import { ParentComments } from "./ParentComments";
 import { AdminComments } from "./AdminComments";
 import { FamilyAccountLink } from "./FamilyAccountLink";
-import type { Gift } from "common";
-
-export type GiftDetails = {
-  donorName: string;
-  donorEmail: string;
-  trackingId: string;
-  dateOrdered: string;
-  dateDelivered: string;
-  dateReceived: string;
-  proofOfPurchaseUrl?: string;
-  proofOfDeliveryUrl?: string;
-};
 
 interface GiftInfoSectionProps {
-  gifts: Array<Gift>;
+  gifts: ReadonlyArray<Gift>;
+  claimsByGiftId?: Record<string, GiftClaimDetails>;
   parentComments?: string;
   adminComments?: string;
   familyToken?: string;
-  giftDetailsByGiftId?: Record<string, GiftDetails>;
-  onUpdateGiftDetails?: (giftId: string, details: GiftDetails) => void;
-  onUpdateGift?: (giftId: string, updates: Partial<Gift>) => void;
   onSaveAdminComments?: (comments: string) => void | Promise<void>;
 }
 
 export function GiftInfoSection({
   gifts,
+  claimsByGiftId = {},
   parentComments,
   adminComments,
   familyToken,
-  giftDetailsByGiftId = {},
-  onUpdateGiftDetails,
-  onUpdateGift,
   onSaveAdminComments,
 }: GiftInfoSectionProps) {
   const activeGifts = gifts.filter((g) => g.active);
@@ -42,42 +28,28 @@ export function GiftInfoSection({
 
   return (
     <div className="mt-6 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,250px)]">
-      <div className="flex flex-col gap-6 min-w-164">
-        <div className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-4">
+      <div className="flex min-w-164 flex-col gap-6">
+        <div className="flex flex-col gap-4 rounded-xl border bg-white p-4 shadow-sm">
           <h2 className="flex flex-col items-start gap-3 pt-3 text-2xl font-bold leading-tight sm:flex-row sm:items-center sm:justify-center sm:text-3xl lg:text-4xl">
             <GiftIcon className="h-10 w-10 shrink-0" />
             <span className="leading-none">Main Gift Information</span>
           </h2>
           {activeGifts.length === 0 ? (
-            <p className="text-sm text-gray-400 italic">No active gifts.</p>
+            <p className="text-sm italic text-gray-400">No active gifts.</p>
           ) : (
             activeGifts.map((gift) => (
               <GiftInfoCard
                 key={gift.id}
                 gift={gift}
                 isBackupGift={false}
-                donorName={giftDetailsByGiftId[gift.id]?.donorName}
-                donorEmail={giftDetailsByGiftId[gift.id]?.donorEmail}
-                trackingId={giftDetailsByGiftId[gift.id]?.trackingId}
-                dateOrdered={giftDetailsByGiftId[gift.id]?.dateOrdered}
-                dateDelivered={giftDetailsByGiftId[gift.id]?.dateDelivered}
-                dateReceived={giftDetailsByGiftId[gift.id]?.dateReceived}
-                proofOfPurchaseUrl={
-                  giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl
-                }
-                proofOfDeliveryUrl={
-                  giftDetailsByGiftId[gift.id]?.proofOfDeliveryUrl
-                }
-                onUpdate={onUpdateGift}
-                onUpdateDetails={onUpdateGiftDetails}
+                claim={claimsByGiftId[gift.id]}
               />
             ))
           )}
         </div>
 
-        {/* Backup gifts */}
         {backupGifts.length > 0 && (
-          <div className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-4">
+          <div className="flex flex-col gap-4 rounded-xl border bg-white p-4 shadow-sm">
             <h2 className="flex flex-col items-start gap-3 pt-3 text-2xl font-bold leading-tight sm:flex-row sm:items-center sm:justify-center sm:text-3xl lg:text-4xl">
               <GiftIcon className="h-10 w-10 shrink-0" />
               <span className="leading-none">Backup Gift Information</span>
@@ -87,29 +59,15 @@ export function GiftInfoSection({
                 key={gift.id}
                 gift={gift}
                 isBackupGift
-                donorName={giftDetailsByGiftId[gift.id]?.donorName}
-                donorEmail={giftDetailsByGiftId[gift.id]?.donorEmail}
-                trackingId={giftDetailsByGiftId[gift.id]?.trackingId}
-                dateOrdered={giftDetailsByGiftId[gift.id]?.dateOrdered}
-                dateDelivered={giftDetailsByGiftId[gift.id]?.dateDelivered}
-                dateReceived={giftDetailsByGiftId[gift.id]?.dateReceived}
-                proofOfPurchaseUrl={
-                  giftDetailsByGiftId[gift.id]?.proofOfPurchaseUrl
-                }
-                proofOfDeliveryUrl={
-                  giftDetailsByGiftId[gift.id]?.proofOfDeliveryUrl
-                }
-                onUpdate={onUpdateGift}
-                onUpdateDetails={onUpdateGiftDetails}
+                claim={claimsByGiftId[gift.id]}
               />
             ))}
           </div>
         )}
       </div>
 
-      {/* Right column: comments + family link */}
       <div className="flex w-full flex-col gap-6 lg:sticky lg:top-4 lg:max-w-[420px]">
-        <div className="bg-transparent flex flex-col gap-6">
+        <div className="flex flex-col gap-6 bg-transparent">
           <ParentComments comments={parentComments} />
 
           <AdminComments

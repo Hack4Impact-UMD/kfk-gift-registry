@@ -9,18 +9,12 @@ import type {
   GiftClaimStatus,
   PublishedGiftsTableRow,
 } from "@/components/tables/PublishedGiftsTable/types";
-import { chunk } from "@/lib/utils";
+import { chunk, isDonorClaim } from "@/lib/utils";
 
 const driveIdSchema = z.object({
   // param for both functions
   driveId: z.string(),
 });
-
-function isDonorClaim(
-  claim: Claim,
-): claim is Extract<Claim, { claimType: "donor" }> {
-  return claim.claimType === "donor";
-}
 
 export const getPublishedGifts = createServerFn({ method: "GET" })
   .middleware([

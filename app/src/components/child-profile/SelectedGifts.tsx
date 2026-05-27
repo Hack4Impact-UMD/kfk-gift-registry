@@ -2,49 +2,24 @@ import type { Gift } from "common";
 import { Input } from "../ui/input";
 
 type SelectedGiftsProps = {
-  gifts: Array<Gift>;
+  gifts: ReadonlyArray<Gift>;
   isEditing: boolean;
-  editedGifts: Array<Gift>;
-  setEditedGifts: React.Dispatch<React.SetStateAction<Array<Gift>>>;
+  onGiftToggle: (giftId: string) => void;
   headerAction?: React.ReactNode;
 };
 
 export function SelectedGifts({
   gifts,
   isEditing,
-  editedGifts,
-  setEditedGifts,
+  onGiftToggle,
   headerAction,
 }: SelectedGiftsProps) {
-  const currentGifts = isEditing ? editedGifts : gifts;
-  const activeGifts = currentGifts.filter((g) => g.active);
-  const inactiveGifts = currentGifts.filter((g) => !g.active);
+  const activeGifts = gifts.filter((g) => g.active);
+  const inactiveGifts = gifts.filter((g) => !g.active);
 
   const visibleGifts = isEditing
     ? [...activeGifts, ...inactiveGifts]
     : activeGifts;
-
-  const toggleGift = (giftId: string) => {
-    setEditedGifts((prev) => {
-      const activeCount = prev.filter((g) => g.active).length;
-
-      return prev.map((g) => {
-        if (g.id !== giftId) return g;
-
-        if (!g.active && activeCount >= 3) {
-          return g;
-        }
-
-        const nextActive = !g.active;
-
-        return {
-          ...g,
-          active: nextActive,
-          backup: !nextActive,
-        };
-      });
-    });
-  };
 
   return (
     <div className="min-w-0 space-y-3">
@@ -75,7 +50,7 @@ export function SelectedGifts({
                   <Input
                     type="checkbox"
                     checked={gift.active}
-                    onChange={() => toggleGift(gift.id)}
+                    onChange={() => onGiftToggle(gift.id)}
                     disabled={!gift.active && activeGifts.length >= 3}
                     className="mt-1 size-5 shrink-0"
                   />

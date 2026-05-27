@@ -2,16 +2,20 @@ import type { Child } from "../../../../common/src/types/child";
 import type { Address, Family } from "../../../../common/src/types/family";
 import { EnvelopeIcon, HomeIcon, PhoneIcon } from "@/components/icons";
 import { EditableField } from "../review/EditableField";
-import type { Dispatch, SetStateAction } from "react";
 
 type ChildInfoProps = {
   child: Child;
   family: Family;
   isEditing?: boolean;
-  editedChild: Partial<Child>;
-  setEditedChild: Dispatch<SetStateAction<Partial<Child>>>;
-  editedFamily: Partial<Family>;
-  setEditedFamily: Dispatch<SetStateAction<Partial<Family>>>;
+  onChildFieldChange: <K extends keyof Child>(key: K, value: Child[K]) => void;
+  onFamilyFieldChange: <K extends keyof Family>(
+    key: K,
+    value: Family[K],
+  ) => void;
+  onAddressFieldChange: <K extends keyof Address>(
+    key: K,
+    value: Address[K],
+  ) => void;
 };
 
 function formatAddress(address: Address) {
@@ -28,41 +32,10 @@ export function ChildInfo({
   child,
   family,
   isEditing,
-  editedChild,
-  setEditedChild,
-  editedFamily,
-  setEditedFamily,
+  onChildFieldChange,
+  onFamilyFieldChange,
+  onAddressFieldChange,
 }: ChildInfoProps) {
-  const updateField = <K extends keyof Child>(key: K, value: Child[K]) => {
-    setEditedChild((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  const updateFamilyField = <K extends keyof Family>(
-    key: K,
-    value: Family[K],
-  ) => {
-    setEditedFamily((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  const updateAddressField = <K extends keyof Address>(
-    key: K,
-    value: Address[K],
-  ) => {
-    setEditedFamily((prev) => ({
-      ...prev,
-      address: {
-        ...(prev.address ?? family.address),
-        [key]: value,
-      },
-    }));
-  };
-
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-3">
@@ -74,10 +47,10 @@ export function ChildInfo({
             <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
               <span className="font-semibold">Age:</span>
               <EditableField
-                value={editedChild.age ?? child.age}
+                value={child.age}
                 editable={isEditing}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  updateField("age", Number(e.target.value))
+                  onChildFieldChange("age", Number(e.target.value))
                 }
               />
             </div>
@@ -86,10 +59,10 @@ export function ChildInfo({
               <div className="min-w-0 flex-1">
                 <EditableField
                   type="number"
-                  value={editedChild.treatmentLevel ?? child.treatmentLevel}
+                  value={child.treatmentLevel}
                   editable={isEditing}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    updateField("treatmentLevel", Number(e.target.value))
+                    onChildFieldChange("treatmentLevel", Number(e.target.value))
                   }
                 />
               </div>
@@ -98,30 +71,30 @@ export function ChildInfo({
           <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
             <span className="font-semibold">Diagnosis:</span>
             <EditableField
-              value={editedChild.diagnosis ?? child.diagnosis}
+              value={child.diagnosis}
               editable={isEditing}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                updateField("diagnosis", e.target.value)
+                onChildFieldChange("diagnosis", e.target.value)
               }
             />
           </div>
           <div className="min-w-0 truncate flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
             <span className="shrink-0 font-semibold">Social Worker Name:</span>
             <EditableField
-              value={editedChild.childSocialWorker ?? child.childSocialWorker}
+              value={child.childSocialWorker}
               editable={isEditing}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                updateField("childSocialWorker", e.target.value)
+                onChildFieldChange("childSocialWorker", e.target.value)
               }
             />
           </div>
           <div className="min-w-0 truncate flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
             <span className="font-semibold">Hospital:</span>
             <EditableField
-              value={editedChild.hospital ?? child.hospital}
+              value={child.hospital}
               editable={isEditing}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                updateField("hospital", e.target.value)
+                onChildFieldChange("hospital", e.target.value)
               }
             />
           </div>
@@ -135,22 +108,22 @@ export function ChildInfo({
           <div className="flex min-w-0 gap-2 items-start sm:items-center">
             <EnvelopeIcon className="size-5 shrink-0 text-muted-foreground" />
             <EditableField
-              value={editedFamily.email ?? family.email}
+              value={family.email}
               editable={isEditing}
               className="min-w-0"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                updateFamilyField("email", e.target.value)
+                onFamilyFieldChange("email", e.target.value)
               }
             />
           </div>
           <div className="flex min-w-0 gap-2 items-start sm:items-center">
             <PhoneIcon className="size-5 shrink-0 text-muted-foreground" />
             <EditableField
-              value={editedFamily.phone ?? family.phone}
+              value={family.phone}
               editable={isEditing}
               className="min-w-0"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                updateFamilyField("phone", e.target.value)
+                onFamilyFieldChange("phone", e.target.value)
               }
             />
           </div>
@@ -159,55 +132,53 @@ export function ChildInfo({
 
             {!isEditing ? (
               <p className="min-w-0 py-1 break-words">
-                {formatAddress(editedFamily.address ?? family.address)}
+                {formatAddress(family.address)}
               </p>
             ) : (
               <div className="flex w-full flex-col gap-2">
                 <EditableField
-                  value={(editedFamily.address ?? family.address).street}
+                  value={family.address.street}
                   editable={true}
                   placeholder="Street"
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    updateAddressField("street", e.target.value)
+                    onAddressFieldChange("street", e.target.value)
                   }
                 />
 
                 <EditableField
-                  value={
-                    (editedFamily.address ?? family.address).addressLine2 ?? ""
-                  }
+                  value={family.address.addressLine2 ?? ""}
                   editable={true}
                   placeholder="Address Line 2"
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    updateAddressField("addressLine2", e.target.value)
+                    onAddressFieldChange("addressLine2", e.target.value)
                   }
                 />
 
                 <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_96px_112px]">
                   <EditableField
-                    value={(editedFamily.address ?? family.address).city}
+                    value={family.address.city}
                     editable={true}
                     placeholder="City"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      updateAddressField("city", e.target.value)
+                      onAddressFieldChange("city", e.target.value)
                     }
                   />
 
                   <EditableField
-                    value={(editedFamily.address ?? family.address).state}
+                    value={family.address.state}
                     editable={true}
                     placeholder="State"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      updateAddressField("state", e.target.value)
+                      onAddressFieldChange("state", e.target.value)
                     }
                   />
 
                   <EditableField
-                    value={(editedFamily.address ?? family.address).zipCode}
+                    value={family.address.zipCode}
                     editable={true}
                     placeholder="Zip"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      updateAddressField("zipCode", e.target.value)
+                      onAddressFieldChange("zipCode", e.target.value)
                     }
                   />
                 </div>

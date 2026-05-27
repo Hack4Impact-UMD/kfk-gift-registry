@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import type { ChangeEvent, Dispatch, SetStateAction } from "react";
+import type { ChangeEvent } from "react";
 import type { Child } from "../../../../common/src/types/child";
 import type { Family } from "../../../../common/src/types/family";
 import { ExternalLink, X } from "lucide-react";
@@ -18,21 +18,19 @@ type ChildSidebarProps = {
   child: Child;
   family: Family;
   isEditing: boolean;
-  editedChild: Partial<Child>;
-  setEditedChild: Dispatch<SetStateAction<Partial<Child>>>;
+  onChildFieldChange: <K extends keyof Child>(key: K, value: Child[K]) => void;
 };
 
 export function ChildSidebar({
   child,
   family,
   isEditing,
-  editedChild,
-  setEditedChild,
+  onChildFieldChange,
 }: ChildSidebarProps) {
   const { data: children = [] } = useChildProfilesForFamily(family.id);
   const siblings = children.filter((c) => c.id !== child.id);
-  const currentPhotoUrl = editedChild.photoUrl ?? child.photoUrl;
-  const currentBlurb = editedChild.publicBlurb ?? child.publicBlurb ?? "";
+  const currentPhotoUrl = child.photoUrl;
+  const currentBlurb = child.publicBlurb ?? "";
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -58,7 +56,7 @@ export function ChildSidebar({
         return;
       }
 
-      setEditedChild((prev) => ({ ...prev, photoUrl: result }));
+      onChildFieldChange("photoUrl", result);
     };
     reader.onerror = () => {
       setPhotoError("Failed to read file");
@@ -75,7 +73,7 @@ export function ChildSidebar({
 
   const handleRemovePhoto = () => {
     setPhotoError(null);
-    setEditedChild((prev) => ({ ...prev, photoUrl: "" }));
+    onChildFieldChange("photoUrl", "");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -181,7 +179,7 @@ export function ChildSidebar({
           fieldType="textarea"
           characterLimit={MAX_CHILD_PUBLIC_BLURB_LENGTH}
           onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-            setEditedChild((prev) => ({ ...prev, publicBlurb: e.target.value }))
+            onChildFieldChange("publicBlurb", e.target.value)
           }
         />
       </div>
