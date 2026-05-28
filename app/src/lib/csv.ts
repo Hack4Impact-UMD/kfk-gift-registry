@@ -32,8 +32,11 @@ export function downloadCsv(filename: string, csv: string) {
 function serializeCsvCell(value: unknown): string {
   if (value === null || value === undefined) return "";
 
-  const stringValue =
-    value instanceof Date ? value.toISOString() : String(value);
+  let stringValue = value instanceof Date ? value.toISOString() : String(value);
+
+  if (/^[=+\-@]/.test(stringValue)) {
+    stringValue = `'${stringValue}`;
+  }
 
   if (/[",\r\n]/.test(stringValue)) {
     return `"${stringValue.replaceAll('"', '""')}"`;

@@ -72,7 +72,11 @@ export function PublishedGiftsTable({
         row.sponsorEmail,
         row.dateOfFulfillment,
         row.productUrl,
-      ].some((value) => value?.toLowerCase().includes(normalizedSearch)),
+      ].some((value) =>
+        String(value ?? "")
+          .toLowerCase()
+          .includes(normalizedSearch),
+      ),
     );
   }, [filteredData, globalSearch]);
 
