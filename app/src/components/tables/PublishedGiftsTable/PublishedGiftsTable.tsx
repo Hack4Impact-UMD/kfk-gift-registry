@@ -5,6 +5,7 @@ import { DataTable } from "../DataTable";
 import { columns } from "./columns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { downloadCsv, serializeCsv } from "@/lib/csv";
 import { cn } from "@/lib/utils";
 import { StatusSummaryHeader } from "./StatusSummaryHeader";
 import {
@@ -58,11 +59,40 @@ export function PublishedGiftsTable({
     return result;
   }, [activeFilter, giftStatusFilter, data]);
 
+  const exportData = useMemo(() => {
+    const normalizedSearch = globalSearch.trim().toLowerCase();
+    if (!normalizedSearch) return filteredData;
+
+    return filteredData.filter((row) =>
+      [
+        row.giftName,
+        row.giftStatus,
+        row.sponsorType,
+        row.sponsorName,
+        row.sponsorEmail,
+        row.dateOfFulfillment,
+        row.productUrl,
+      ].some((value) => value?.toLowerCase().includes(normalizedSearch)),
+    );
+  }, [filteredData, globalSearch]);
+
   const tableKey = `${activeFilter ?? "all"}-${giftStatusFilter ?? "all"}`;
 
   const handleExport = () => {
-    // TODO: Implement export functionality
-    console.log("Export clicked");
+    const csv = serializeCsv(exportData, [
+      { header: "Gift Name", value: (row) => row.giftName },
+      { header: "Gift Status", value: (row) => row.giftStatus },
+      { header: "Sponsor Type", value: (row) => row.sponsorType },
+      { header: "Sponsor Name", value: (row) => row.sponsorName },
+      { header: "Sponsor Email", value: (row) => row.sponsorEmail },
+      {
+        header: "Date of Fulfillment",
+        value: (row) => row.dateOfFulfillment,
+      },
+      { header: "Product URL", value: (row) => row.productUrl },
+    ]);
+
+    downloadCsv("published-gifts.csv", csv);
   };
 
   return (
