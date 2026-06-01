@@ -97,7 +97,7 @@ export const clearAllNotifications = createServerFn({ method: "POST" })
     const docs = notificationsSnap.docs;
     const chunks = chunk(docs, CHUNK_SIZE);
 
-    chunks.map(async (c) => {
+    for (const c of chunks) {
       const batch = db._instance.batch();
 
       c.forEach((doc) => {
@@ -105,7 +105,7 @@ export const clearAllNotifications = createServerFn({ method: "POST" })
       });
 
       await batch.commit();
-    });
+    }
 
     return { success: true };
   });

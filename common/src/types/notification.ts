@@ -18,7 +18,7 @@ export const FamilyNotificationSchema = z.object({
   message: z.string(),
   giftId: z.string(),
   driveId: z.string(),
-  createdAt: z.iso.date(),
+  createdAt: z.iso.datetime(),
   read: z.boolean(),
 });
 
