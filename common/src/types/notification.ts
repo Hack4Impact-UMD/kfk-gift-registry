@@ -1,22 +1,22 @@
 import { z } from "zod";
 
-export const NotificationTypeSchema = z.enum([
+export const FamilyNotificationTypeSchema = z.enum([
   "GIFT_CLAIMED",
   "GIFT_DELIVERED",
   "GIFT_UPDATED",
 ]);
 
-export type NotificationType = z.infer<typeof NotificationTypeSchema>;
+export type FamilyNotificationType = z.infer<typeof FamilyNotificationTypeSchema>;
 
-export const NotificationSchema = z.object({
+export const FamilyNotificationSchema = z.object({
   id: z.string(),
   familyId: z.string(),
   childId: z.string(),
-  type: NotificationTypeSchema,
+  type: FamilyNotificationTypeSchema,
   message: z.string(),
   giftId: z.string(),
   createdAt: z.string().datetime(),
   read: z.boolean(),
 });
 
-export type Notification = z.infer<typeof NotificationSchema>;
+export type FamilyNotification = z.infer<typeof FamilyNotificationSchema>;
