@@ -3,11 +3,15 @@ import z from "zod";
 import admin from "firebase-admin";
 import { DateTime } from "luxon";
 import { v7 as uuidv7 } from "uuid";
-import type { Claim, Gift } from "common";
+import type { Child, Claim, Gift } from "common";
 import { UserRole } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
 import { assertGiftDriveActive } from "@/server/services/giftDriveService.server";
+import {
+  publishNotification,
+  createNotificationMessage,
+} from "@/server/services/notificationService.server";
 
 const giftIdsSchema = z.object({
   giftIds: z.array(z.string().min(1)).min(1),
@@ -58,6 +62,19 @@ export const claimGifts = createServerFn({ method: "POST" })
         }
       }
 
+      const donorSnap = await tx.get(db.users.doc(donorId));
+      const donor = donorSnap.data();
+      const donorName = donor?.name ?? "Unknown Donor";
+
+      const childSnapshots = new Map<string, Child>();
+      for (const gift of gifts) {
+        const childSnap = await tx.get(db.children.doc(gift.childId));
+        const child = childSnap.data();
+        if (child) {
+          childSnapshots.set(gift.childId, child);
+        }
+      }
+
       const claimedAt = DateTime.utc().toISO();
       const claims: Array<Claim> = gifts.map((gift) => ({
         id: uuidv7(),
@@ -76,8 +93,31 @@ export const claimGifts = createServerFn({ method: "POST" })
           status: "CLAIMED",
         });
       }
+
       for (const claim of claims) {
         tx.set(db.claims.doc(claim.id), claim);
+      }
+
+      for (const gift of gifts) {
+        const child = childSnapshots.get(gift.childId);
+        if (!child) continue;
+
+        const message = createNotificationMessage(
+          "GIFT_CLAIMED",
+          child.name,
+          donorName,
+        );
+
+        await publishNotification(tx, {
+          familyId: child.familyId,
+          childId: gift.childId,
+          type: "GIFT_CLAIMED",
+          message,
+          giftId: gift.id,
+          createdAt: claimedAt,
+          driveId,
+          read: false,
+        });
       }
 
       return { claims };
