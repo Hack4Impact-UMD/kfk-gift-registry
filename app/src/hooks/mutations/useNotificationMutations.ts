@@ -18,16 +18,24 @@ export function useMarkNotificationAsRead(token: string | undefined) {
   });
 }
 
-export function useClearAllNotifications(
-  familyId: string | undefined,
-  token: string | undefined,
-) {
+export function useClearAllNotifications() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
-      if (!familyId || !token) throw new Error("Missing family info");
-      return await clearAllNotifications({ data: { familyId, token } });
+    mutationFn: async ({
+      familyId,
+      token,
+      driveId,
+    }: {
+      familyId: string | undefined;
+      token: string | undefined;
+      driveId: string | undefined;
+    }) => {
+      if (!familyId || !token || !driveId)
+        throw new Error("Missing family info");
+      return await clearAllNotifications({
+        data: { familyId, token, driveId },
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["familyNotifications"] });

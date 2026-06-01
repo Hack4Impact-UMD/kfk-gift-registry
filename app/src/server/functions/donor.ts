@@ -3,7 +3,7 @@ import z from "zod";
 import admin from "firebase-admin";
 import { DateTime } from "luxon";
 import { v7 as uuidv7 } from "uuid";
-import type { Claim, Gift } from "common";
+import type { Child, Claim, Gift } from "common";
 import { UserRole } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
@@ -63,22 +63,15 @@ export const claimGifts = createServerFn({ method: "POST" })
       }
 
       const donorSnap = await tx.get(db.users.doc(donorId));
-      let donorName = "A donor";
-      if (donorSnap.exists) {
-        const donorData = donorSnap.data() as unknown;
-        if (donorData && typeof donorData === "object" && "name" in donorData) {
-          donorName = String((donorData as Record<string, unknown>).name);
-        }
-      }
+      const donor = donorSnap.data();
+      const donorName = donor?.name ?? "Unknown Donor";
 
-      const childSnapshots = new Map<string, Record<string, unknown>>();
+      const childSnapshots = new Map<string, Child>();
       for (const gift of gifts) {
         const childSnap = await tx.get(db.children.doc(gift.childId));
-        if (childSnap.exists) {
-          childSnapshots.set(
-            gift.childId,
-            childSnap.data() as unknown as Record<string, unknown>,
-          );
+        const child = childSnap.data();
+        if (child) {
+          childSnapshots.set(gift.childId, child);
         }
       }
 
@@ -106,30 +99,25 @@ export const claimGifts = createServerFn({ method: "POST" })
       }
 
       for (const gift of gifts) {
-        const child = childSnapshots.get(gift.childId) as unknown;
-        if (
-          child &&
-          typeof child === "object" &&
-          "name" in child &&
-          "familyId" in child
-        ) {
-          const childData = child as Record<string, unknown>;
-          const message = createNotificationMessage(
-            "GIFT_CLAIMED",
-            String(childData.name),
-            String(donorName),
-          );
+        const child = childSnapshots.get(gift.childId);
+        if (!child) continue;
 
-          await publishNotification(tx, {
-            familyId: String(childData.familyId),
-            childId: gift.childId,
-            type: "GIFT_CLAIMED",
-            message,
-            giftId: gift.id,
-            createdAt: claimedAt,
-            read: false,
-          });
-        }
+        const message = createNotificationMessage(
+          "GIFT_CLAIMED",
+          child.name,
+          donorName,
+        );
+
+        await publishNotification(tx, {
+          familyId: child.familyId,
+          childId: gift.childId,
+          type: "GIFT_CLAIMED",
+          message,
+          giftId: gift.id,
+          createdAt: claimedAt,
+          driveId,
+          read: false,
+        });
       }
 
       return { claims };

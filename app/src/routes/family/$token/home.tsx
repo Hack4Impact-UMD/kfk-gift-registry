@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Route as FamilyTokenRoute } from "../$token";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { NotificationCard } from "@/components/family/NotificationCard";
 import RedGift from "@/assets/red-gift.png";
 import { toast } from "@/lib/toast";
@@ -27,30 +28,36 @@ export const Route = createFileRoute("/family/$token/home")({
 function FamilyHome() {
   const data = FamilyTokenRoute.useLoaderData();
   const family = data.family;
-  const { data: notificationsData } = useFamilyNotifications(
-    family?.id,
-    data.token,
-  );
-  const clearAllMutation = useClearAllNotifications(family?.id, data.token);
+  const { data: notificationsData, isPending: notificationsPending } =
+    useFamilyNotifications(family?.id, data.token, family.giftDrive);
+
+  const clearAllMutation = useClearAllNotifications();
   const markAsReadMutation = useMarkNotificationAsRead(data.token);
 
-  const notifications = notificationsData?.notifications ?? [];
+  const notifications = useMemo(
+    () => notificationsData?.notifications ?? [],
+    [notificationsData],
+  );
 
-  const [dismissedIds, setDismissedIds] = useState<Array<string>>(() => []);
+  const [dismissedIds, setDismissedIds] = useState<Array<string>>([]);
+
+  const visibleNotifications = useMemo(
+    () =>
+      notifications.filter((n) => {
+        const unread = !n.read;
+        const notDismissed = !dismissedIds.includes(n.id);
+        return unread && notDismissed;
+      }),
+    [notifications, dismissedIds],
+  );
 
   if (!family) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <p className="text-foreground">Family not found</p>
       </div>
     );
   }
-
-  const visibleNotifications = notifications.filter((n) => {
-    const unread = !n.read;
-    const notDismissed = !dismissedIds.includes(n.id);
-    return unread && notDismissed;
-  });
 
   const handleDismiss = async (id: string) => {
     try {
@@ -66,19 +73,28 @@ function FamilyHome() {
     }
   };
 
-  const handleClearAll = async () => {
+  const handleClearAll = () => {
     if (family?.id) {
-      try {
-        await clearAllMutation.mutateAsync();
-        setDismissedIds([]);
-        toast.success("Notifications cleared");
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Failed to clear notifications";
-        toast.error(message);
-      }
+      clearAllMutation.mutate(
+        {
+          familyId: family.id,
+          token: data.token,
+          driveId: family.giftDrive,
+        },
+        {
+          onSuccess: () => {
+            setDismissedIds([]);
+            toast.success("Notifications cleared");
+          },
+          onError: (error) => {
+            const message =
+              error instanceof Error
+                ? error.message
+                : "Failed to clear notifications";
+            toast.error(message);
+          },
+        },
+      );
     }
   };
 
@@ -117,7 +133,6 @@ function FamilyHome() {
           <Button
             variant="outline"
             className="rounded-full border-ring text-foreground"
-            // TODO: implement clear functionality (swap out local storage implementation)
             onClick={handleClearAll}
           >
             Clear All
@@ -125,11 +140,15 @@ function FamilyHome() {
         </div>
 
         <div className="flex flex-col gap-3">
-          {visibleNotifications.length === 0 && (
+          {notificationsPending ? (
+            <div className="flex justify-center py-4">
+              <Spinner className="size-5 text-muted-foreground" />
+            </div>
+          ) : visibleNotifications.length === 0 ? (
             <span className="w-full text-center text-sm text-muted-foreground">
               No notifications
             </span>
-          )}
+          ) : null}
           {visibleNotifications.map((n) => (
             <NotificationCard
               key={n.id}

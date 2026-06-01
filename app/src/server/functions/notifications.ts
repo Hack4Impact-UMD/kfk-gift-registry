@@ -1,11 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
-import type { Notification } from "common";
+import type { FamilyNotification } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { getFamilyLinkById } from "@/server/services/familyLinkService.server";
+import { chunk } from "@/lib/utils";
 
 const getFamilyNotificationsSchema = z.object({
   familyId: z.string().min(1),
+  driveId: z.string().min(1),
   token: z.string().min(1),
 });
 
@@ -13,7 +15,7 @@ export const getFamilyNotifications = createServerFn({ method: "POST" })
   .inputValidator(getFamilyNotificationsSchema)
   .handler(async ({ data }) => {
     const db = getServerDB();
-    const { familyId, token } = data;
+    const { familyId, token, driveId } = data;
 
     const link = await getFamilyLinkById(token);
     if (!link || link.familyId !== familyId) {
@@ -22,13 +24,13 @@ export const getFamilyNotifications = createServerFn({ method: "POST" })
 
     const notificationsSnap = await db.notifications
       .where("familyId", "==", familyId)
+      .where("driveId", "==", driveId)
       .orderBy("createdAt", "desc")
       .get();
 
-    const notifications: Array<Notification> = [];
-    notificationsSnap.forEach((doc) => {
-      notifications.push(doc.data() as Notification);
-    });
+    const notifications: Array<FamilyNotification> = notificationsSnap.docs.map(
+      (doc) => doc.data(),
+    );
 
     return { notifications };
   });
@@ -54,8 +56,8 @@ export const markNotificationAsRead = createServerFn({ method: "POST" })
       throw new Error("Notification not found");
     }
 
-    const notification = notificationSnap.data() as Notification;
-    if (notification.familyId !== link.familyId) {
+    const notification = notificationSnap.data();
+    if (notification?.familyId !== link.familyId) {
       throw new Error(
         "Unauthorized: Notification does not belong to this family",
       );
@@ -72,12 +74,13 @@ export const clearAllNotifications = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
       familyId: z.string().min(1),
+      driveId: z.string(),
       token: z.string().min(1),
     }),
   )
   .handler(async ({ data }) => {
     const db = getServerDB();
-    const { familyId, token } = data;
+    const { familyId, token, driveId } = data;
 
     const link = await getFamilyLinkById(token);
     if (!link || link.familyId !== familyId) {
@@ -86,22 +89,23 @@ export const clearAllNotifications = createServerFn({ method: "POST" })
 
     const notificationsSnap = await db.notifications
       .where("familyId", "==", familyId)
+      .where("driveId", "==", driveId)
       .where("read", "==", false)
       .get();
 
     const CHUNK_SIZE = 200;
     const docs = notificationsSnap.docs;
+    const chunks = chunk(docs, CHUNK_SIZE);
 
-    for (let i = 0; i < docs.length; i += CHUNK_SIZE) {
-      const chunk = docs.slice(i, i + CHUNK_SIZE);
+    chunks.map(async (c) => {
       const batch = db._instance.batch();
 
-      chunk.forEach((doc) => {
+      c.forEach((doc) => {
         batch.update(doc.ref, { read: true });
       });
 
       await batch.commit();
-    }
+    });
 
     return { success: true };
   });

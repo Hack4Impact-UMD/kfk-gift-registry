@@ -1,10 +1,10 @@
 import { v7 as uuidv7 } from "uuid";
-import type { Notification, NotificationType } from "common";
+import type { NoId, FamilyNotification, FamilyNotificationType } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 
 export async function publishNotification(
   tx: FirebaseFirestore.Transaction,
-  notification: Omit<Notification, "id">,
+  notification: NoId<FamilyNotification>,
 ): Promise<string> {
   const db = getServerDB();
   const notificationId = uuidv7();
@@ -18,7 +18,7 @@ export async function publishNotification(
 }
 
 export function createNotificationMessage(
-  type: NotificationType,
+  type: FamilyNotificationType,
   childName: string,
   donorName?: string,
 ): string {

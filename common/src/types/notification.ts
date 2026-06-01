@@ -6,7 +6,9 @@ export const FamilyNotificationTypeSchema = z.enum([
   "GIFT_UPDATED",
 ]);
 
-export type FamilyNotificationType = z.infer<typeof FamilyNotificationTypeSchema>;
+export type FamilyNotificationType = z.infer<
+  typeof FamilyNotificationTypeSchema
+>;
 
 export const FamilyNotificationSchema = z.object({
   id: z.string(),
@@ -15,7 +17,8 @@ export const FamilyNotificationSchema = z.object({
   type: FamilyNotificationTypeSchema,
   message: z.string(),
   giftId: z.string(),
-  createdAt: z.string().datetime(),
+  driveId: z.string(),
+  createdAt: z.iso.date(),
   read: z.boolean(),
 });
 
