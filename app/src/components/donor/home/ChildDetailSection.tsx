@@ -58,6 +58,8 @@ export function ChildDetailSection({
 
       <div className="flex w-full min-w-0 flex-col gap-6">
         <ReceivedGiftsCard gifts={child.gifts} giftStates={giftStates} />
+        {/*
+        - USE THIS IF WE WANT TO SORT GIFTS BY ORDERED STATUS AND THEN BY ORIGINAL ORDER
         {[...child.gifts]
           .sort((a, b) => {
             const aDone = giftStates[a.id]?.ordered ?? false;
@@ -69,25 +71,27 @@ export function ChildDetailSection({
             );
           })
           .map((gift) => (
-            <GiftInformationCard
-              key={gift.id}
-              gift={gift}
-              state={giftStates[gift.id]}
-              isOrdering={isOrdering}
-              isDelivering={isDelivering}
-              isSavingTracking={isSavingTracking}
-              isUploadingReceipt={isUploadingReceipt}
-              isUploadingDeliveryReceipt={isUploadingDeliveryReceipt}
-              onOrdered={() => onOrdered(gift.id)}
-              onDelivered={() => onDelivered(gift.id)}
-              onUndoDelivery={() => onUndoDelivery(gift.id)}
-              onReceipt={(f) => onReceipt(gift.id, f)}
-              onDeliveryReceipt={(f) => onDeliveryReceipt(gift.id, f)}
-              onTrackingChange={(v) => onTrackingChange(gift.id, v)}
-              onUnclaimRequest={() => onUnclaimRequest(gift.id)}
-              onSave={() => onSave(gift.id)}
-            />
-          ))}
+        */}
+        {child.gifts.map((gift) => (
+          <GiftInformationCard
+            key={gift.id}
+            gift={gift}
+            state={giftStates[gift.id]}
+            isOrdering={isOrdering}
+            isDelivering={isDelivering}
+            isSavingTracking={isSavingTracking}
+            isUploadingReceipt={isUploadingReceipt}
+            isUploadingDeliveryReceipt={isUploadingDeliveryReceipt}
+            onOrdered={() => onOrdered(gift.id)}
+            onDelivered={() => onDelivered(gift.id)}
+            onUndoDelivery={() => onUndoDelivery(gift.id)}
+            onReceipt={(f) => onReceipt(gift.id, f)}
+            onDeliveryReceipt={(f) => onDeliveryReceipt(gift.id, f)}
+            onTrackingChange={(v) => onTrackingChange(gift.id, v)}
+            onUnclaimRequest={() => onUnclaimRequest(gift.id)}
+            onSave={() => onSave(gift.id)}
+          />
+        ))}
       </div>
     </div>
   );
