@@ -37,6 +37,10 @@ export function useUnclaimGifts() {
       });
       await queryClient.invalidateQueries({ queryKey: queries.gifts._def });
       await queryClient.invalidateQueries({ queryKey: queries.donor._def });
+      toast.success("Gift unclaimed");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to unclaim gift");
     },
   });
 }

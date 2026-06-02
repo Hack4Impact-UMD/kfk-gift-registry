@@ -36,6 +36,5 @@ export type GiftFormState = {
   savedTracking: string;
   tracking: string;
   unclaimed: boolean;
-  pendingUnclaim: boolean;
   changesSaved: boolean;
 };

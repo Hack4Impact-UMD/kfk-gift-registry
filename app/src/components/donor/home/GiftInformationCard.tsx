@@ -47,6 +47,7 @@ export function GiftInformationCard({
   const [undoMode, setUndoMode] = useState(false);
   const [orderConfirmOpen, setOrderConfirmOpen] = useState(false);
   const [deliveryConfirmOpen, setDeliveryConfirmOpen] = useState(false);
+  const canUnclaim = gift.status === "CLAIMED" && !state.ordered;
 
   // Keeps track of the most recent saved states
   const [isDelivered, setIsDelivered] = useState(state.delivered);
@@ -136,11 +137,6 @@ export function GiftInformationCard({
                 >
                   Undo Delivery Confirmation
                 </Button>
-                {state.pendingUnclaim && (
-                  <p className="text-center text-xs text-amber-600 font-medium">
-                    Un-claim pending — save to confirm
-                  </p>
-                )}
               </div>
             ) : (
               <ConfirmedBanner label="Gift Delivery Confirmed" />
@@ -165,7 +161,25 @@ export function GiftInformationCard({
         )}
 
         <div className="space-y-4 rounded-lg border-2 border-kfk-blue bg-white p-4">
-          {!state.ordered ? (
+          {undoMode ? (
+            canUnclaim ? (
+              <div className="flex w-full justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 max-w-md rounded-xl border-2 border-kfk-blue font-gaegu text-[18px] font-bold text-kfk-blue hover:bg-kfk-blue/10"
+                  onClick={onUnclaimRequest}
+                >
+                  Un-Claim Gift
+                </Button>
+              </div>
+            ) : (
+              <p className="rounded-xl bg-amber-50 px-4 py-3 text-center text-sm font-medium text-amber-900">
+                This gift has already been marked as purchased. Please reach out
+                to KFK if you need to make a change.
+              </p>
+            )
+          ) : !state.ordered ? (
             <>
               <p className="text-center text-base font-medium text-gray-900">
                 Did you order the gift?
@@ -180,18 +194,6 @@ export function GiftInformationCard({
                 </Button>
               </div>
             </>
-          ) : undoMode ? (
-            // In undo mode: show un-claim button instead of confirmed banner
-            <div className="flex w-full justify-center">
-              <Button
-                type="button"
-                variant="outline"
-                className="h-12 w-[92%] max-w-md rounded-xl border-2 border-kfk-blue font-gaegu text-[18px] font-bold text-kfk-blue hover:bg-kfk-blue/10"
-                onClick={onUnclaimRequest}
-              >
-                Un-Claim Gift
-              </Button>
-            </div>
           ) : (
             <ConfirmedBanner label="Gift Purchase Confirmed" />
           )}

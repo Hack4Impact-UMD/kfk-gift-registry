@@ -19,7 +19,6 @@ export function createInitialGiftStates(
         tracking: g.trackingNumber,
         unclaimed: false,
         changesSaved: true,
-        pendingUnclaim: false,
       },
     ]),
   );

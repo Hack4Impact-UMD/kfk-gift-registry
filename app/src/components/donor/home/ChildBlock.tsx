@@ -12,6 +12,7 @@ import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
 import {
   useMarkGiftDelivered,
   useMarkGiftPurchased,
+  useUnclaimGifts,
   useUpdateGiftTrackingNumber,
   useUploadDeliveryReceipt,
   useUploadPurchaseReceipt,
@@ -34,6 +35,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
   const [unclaimTargetId, setUnclaimTargetId] = useState<string | null>(null);
   const markGiftPurchased = useMarkGiftPurchased();
   const markGiftDelivered = useMarkGiftDelivered();
+  const unclaimGifts = useUnclaimGifts();
   const updateGiftTrackingNumber = useUpdateGiftTrackingNumber();
   const uploadPurchaseReceipt = useUploadPurchaseReceipt();
   const uploadDeliveryReceipt = useUploadDeliveryReceipt();
@@ -186,7 +188,6 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
             tracking: result.trackingNumber,
             savedTracking: result.trackingNumber,
             changesSaved: true,
-            unclaimed: p[id]?.pendingUnclaim,
           },
         }));
         return;
@@ -197,7 +198,6 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
         [id]: {
           ...p[id],
           changesSaved: true,
-          unclaimed: p[id]?.pendingUnclaim,
         },
       }));
     },
@@ -208,15 +208,23 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
 
   const handleUnclaimConfirm = useCallback(() => {
     if (!unclaimTargetId) return;
-    set(unclaimTargetId, { pendingUnclaim: true });
-    setUnclaimTargetId(null);
-  }, [unclaimTargetId, set]);
+    unclaimGifts.mutate([unclaimTargetId], {
+      onSuccess: () => {
+        setGiftStates((p) => ({
+          ...p,
+          [unclaimTargetId]: {
+            ...p[unclaimTargetId],
+            unclaimed: true,
+            changesSaved: true,
+          },
+        }));
+        setUnclaimTargetId(null);
+      },
+    });
+  }, [unclaimGifts, unclaimTargetId]);
 
   const visibleGifts = child.gifts.filter(
-    (g) =>
-      !giftStates[g.id]?.unclaimed &&
-      !giftStates[g.id]?.pendingUnclaim &&
-      !giftStates[g.id]?.receivedByFamily,
+    (g) => !giftStates[g.id]?.unclaimed && !giftStates[g.id]?.receivedByFamily,
   );
 
   const blocker = useBlocker({ condition: !allSaved });

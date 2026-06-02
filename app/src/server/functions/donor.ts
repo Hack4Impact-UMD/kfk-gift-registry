@@ -575,7 +575,7 @@ export const unclaimGifts = createServerFn({ method: "POST" })
         }
         if (gift.status !== "CLAIMED") {
           throw new Error(
-            `Gift ${gift.id} cannot be unclaimed (status: ${gift.status})`,
+            "Only claimed gifts that have not been purchased can be unclaimed. Please reach out to KFK for help with this gift.",
           );
         }
       }
