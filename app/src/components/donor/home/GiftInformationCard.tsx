@@ -48,6 +48,9 @@ export function GiftInformationCard({
   const [orderConfirmOpen, setOrderConfirmOpen] = useState(false);
   const [deliveryConfirmOpen, setDeliveryConfirmOpen] = useState(false);
   const canUnclaim = gift.status === "CLAIMED" && !state.ordered;
+  const undoLockedMessage = state.delivered
+    ? "This gift has already been marked as delivered. Please reach out to KFK if you need to make a change."
+    : "This gift has already been marked as purchased. Please reach out to KFK if you need to make a change.";
 
   // Keeps track of the most recent saved states
   const [isDelivered, setIsDelivered] = useState(state.delivered);
@@ -102,8 +105,17 @@ export function GiftInformationCard({
         </div>
 
         {undoMode && (
-          <p className="text-center text-sm font-medium text-gray-700">
-            Select necessary button(s) to undo or edit any unintended actions.
+          <p
+            className={cn(
+              "text-center text-sm font-medium",
+              canUnclaim
+                ? "text-gray-700"
+                : "rounded-xl bg-amber-50 px-4 py-3 text-amber-900",
+            )}
+          >
+            {canUnclaim
+              ? "Select necessary button(s) to undo or edit any unintended actions."
+              : undoLockedMessage}
           </p>
         )}
 
@@ -125,15 +137,12 @@ export function GiftInformationCard({
                 </div>
               </>
             ) : undoMode ? (
-              // In undo mode: show undo button instead of confirmed banner
               <div className="flex w-full justify-center">
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-12 w-[92%] max-w-md rounded-xl border-2 border-kfk-blue font-gaegu text-[18px] font-bold text-kfk-blue hover:bg-kfk-blue/10"
-                  onClick={() => {
-                    onUndoDelivery();
-                  }}
+                  disabled
+                  className="h-12 w-[92%] max-w-md rounded-xl border-2 border-kfk-blue font-gaegu text-[18px] font-bold text-kfk-blue opacity-60"
                 >
                   Undo Delivery Confirmation
                 </Button>
@@ -162,23 +171,17 @@ export function GiftInformationCard({
 
         <div className="space-y-4 rounded-lg border-2 border-kfk-blue bg-white p-4">
           {undoMode ? (
-            canUnclaim ? (
-              <div className="flex w-full justify-center">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12 max-w-md rounded-xl border-2 border-kfk-blue font-gaegu text-[18px] font-bold text-kfk-blue hover:bg-kfk-blue/10"
-                  onClick={onUnclaimRequest}
-                >
-                  Un-Claim Gift
-                </Button>
-              </div>
-            ) : (
-              <p className="rounded-xl bg-amber-50 px-4 py-3 text-center text-sm font-medium text-amber-900">
-                This gift has already been marked as purchased. Please reach out
-                to KFK if you need to make a change.
-              </p>
-            )
+            <div className="flex w-full justify-center">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={!canUnclaim}
+                className="h-12 w-[92%] max-w-md rounded-xl border-2 border-kfk-blue font-gaegu text-[18px] font-bold text-kfk-blue hover:bg-kfk-blue/10 disabled:opacity-60"
+                onClick={onUnclaimRequest}
+              >
+                Un-Claim Gift
+              </Button>
+            </div>
           ) : !state.ordered ? (
             <>
               <p className="text-center text-base font-medium text-gray-900">
