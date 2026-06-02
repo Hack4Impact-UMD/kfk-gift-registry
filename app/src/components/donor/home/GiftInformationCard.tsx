@@ -48,9 +48,7 @@ export function GiftInformationCard({
   const [orderConfirmOpen, setOrderConfirmOpen] = useState(false);
   const [deliveryConfirmOpen, setDeliveryConfirmOpen] = useState(false);
   const canUnclaim = gift.status === "CLAIMED" && !state.ordered;
-  const undoLockedMessage = state.delivered
-    ? "This gift has already been marked as delivered. Please reach out to KFK if you need to make a change."
-    : "This gift has already been marked as purchased. Please reach out to KFK if you need to make a change.";
+  const kfkEmail = "info@kissesforkyle.org";
 
   // Keeps track of the most recent saved states
   const [isDelivered, setIsDelivered] = useState(state.delivered);
@@ -110,12 +108,25 @@ export function GiftInformationCard({
               "text-center text-sm font-medium",
               canUnclaim
                 ? "text-gray-700"
-                : "rounded-xl bg-amber-50 px-4 py-3 text-amber-900",
+                : "rounded-xl bg-amber-100 px-4 py-3 text-amber-900",
             )}
           >
-            {canUnclaim
-              ? "Select necessary button(s) to undo or edit any unintended actions."
-              : undoLockedMessage}
+            {canUnclaim ? (
+              "Select necessary button(s) to undo or edit any unintended actions."
+            ) : (
+              <>
+                This gift has already been marked as{" "}
+                {state.delivered ? "delivered" : "purchased"}. Please reach out
+                to{" "}
+                <a
+                  href={`mailto:${kfkEmail}`}
+                  className="underline underline-offset-2 hover:opacity-80"
+                >
+                  {kfkEmail}
+                </a>{" "}
+                if you need to make a change.
+              </>
+            )}
           </p>
         )}
 
