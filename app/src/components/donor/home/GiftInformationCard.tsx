@@ -320,6 +320,7 @@ export function GiftInformationCard({
         onConfirm={handleConfirmOrdered}
         isLoading={isOrdering}
         title="Are you sure you ordered this gift?"
+        description="You cannot undo this once you click confirm."
         confirmLabel="Yes, I ordered it!"
       />
       <ConfirmGiftsModal
@@ -328,6 +329,7 @@ export function GiftInformationCard({
         onConfirm={handleConfirmDelivered}
         isLoading={isDelivering}
         title="Are you sure this gift was delivered?"
+        description="You cannot undo this once you click confirm."
         confirmLabel="Yes, it was delivered!"
       />
     </div>

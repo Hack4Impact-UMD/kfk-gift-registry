@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -12,6 +13,7 @@ interface ConfirmGiftsModalProps {
   onConfirm: () => void;
   isLoading?: boolean;
   title?: string;
+  description?: string;
   confirmLabel?: string;
 }
 
@@ -21,6 +23,7 @@ export function ConfirmGiftsModal({
   onConfirm,
   isLoading = false,
   title = "Are you sure you can commit to buying these gifts?",
+  description,
   confirmLabel = "Yes, I am sure!",
 }: ConfirmGiftsModalProps) {
   return (
@@ -30,6 +33,11 @@ export function ConfirmGiftsModal({
           <DialogTitle className="text-center text-base font-normal">
             {title}
           </DialogTitle>
+          {description ? (
+            <DialogDescription className="text-center text-sm text-gray-600">
+              {description}
+            </DialogDescription>
+          ) : null}
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
