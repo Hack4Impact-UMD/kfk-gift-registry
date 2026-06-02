@@ -9,6 +9,7 @@ import { sessionQueries } from "./session";
 import { giftQueries } from "./gift";
 import { donorQueries } from "./donor";
 import { claimQueries } from "./claim";
+import { notificationQueries } from "./notifications";
 
 export const queries = mergeQueryKeys(
   userProfileQueries,
@@ -21,4 +22,5 @@ export const queries = mergeQueryKeys(
   giftQueries,
   donorQueries,
   claimQueries,
+  notificationQueries,
 );

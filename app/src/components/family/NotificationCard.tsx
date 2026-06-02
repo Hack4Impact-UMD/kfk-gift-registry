@@ -1,31 +1,24 @@
 import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
-import type { Child } from "common";
+import type { FamilyNotification } from "common";
 import { Button } from "@/components/ui/button";
-import { ChildProfileCircle } from "@/components/family/ChildProfileCircle";
+import { useFamilyChild } from "@/hooks/queries/useFamilyChild";
+import { getChildColors } from "@/lib/childColors";
+import { ChildProfileCircle } from "./ChildProfileCircle";
 
 type NotificationCardProps = {
-  child: Child;
-  giftTitle: string;
+  notification: FamilyNotification;
   token: string;
   onDismiss?: () => void;
 };
 
-const color_selections = [
-  { bar: "bg-kfk-red", ring: "ring-kfk-red" },
-  { bar: "bg-kfk-blue", ring: "ring-kfk-blue" },
-  { bar: "bg-kfk-green", ring: "ring-kfk-green" },
-] as const;
-
 export function NotificationCard({
-  child,
-  giftTitle,
+  notification,
   token,
   onDismiss,
 }: NotificationCardProps) {
-  // hash function to determine color (persists as the same across all renders)
-  const colorIndex = (child.id.charCodeAt(0) || 0) % color_selections.length;
-  const colorClasses = color_selections[colorIndex];
+  const { data } = useFamilyChild(token, notification.childId);
+  const colorClasses = getChildColors(notification.childId);
 
   return (
     <div className="flex items-stretch rounded-r-[20px] bg-card overflow-hidden border-[2px] border-[#ececec]">
@@ -34,23 +27,21 @@ export function NotificationCard({
       <div className="flex flex-1 items-center gap-4 px-4 py-3">
         <Link
           to="/family/$token/child/$childId"
-          params={{ token, childId: child.id }}
+          params={{ token, childId: notification.childId }}
           className="flex flex-1 items-center gap-4"
         >
           <ChildProfileCircle
-            child={child}
-            ringClass={colorClasses.ring}
-            token={token}
+            child={data?.child}
             compact
-            disableLink
+            token={token}
+            ringClass={colorClasses.ring}
           />
 
           <div className="flex-1 min-w-0">
-            <p className="font-semibold">{child.name} Gift Delivered!</p>
+            <p className="font-semibold">{notification.message}</p>
 
-            <p className="text-sm text-foreground mt-1">
-              {giftTitle}... gift was delivered! Confirm if you received the
-              gift!
+            <p className="text-xs text-muted-foreground mt-1">
+              {new Date(notification.createdAt).toLocaleDateString()}
             </p>
           </div>
         </Link>
