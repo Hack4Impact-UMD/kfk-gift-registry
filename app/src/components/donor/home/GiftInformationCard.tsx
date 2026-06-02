@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { ConfirmedBanner } from "./ConfirmedBanner";
 import { ReceiptImageUploadRow } from "./ReceiptImageUploadRow";
+import { ThankYouNotePanel } from "./ThankYouNotePanel";
 import type { CommittedGift, GiftFormState } from "./types";
 import { formatUsd } from "./utils";
 import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup";
@@ -27,6 +28,7 @@ export function GiftInformationCard({
   onTrackingChange,
   onUnclaimRequest,
   onSave,
+  childFirstName,
 }: {
   gift: CommittedGift;
   state: GiftFormState;
@@ -43,6 +45,7 @@ export function GiftInformationCard({
   onTrackingChange: (v: string) => void;
   onUnclaimRequest: () => void;
   onSave: () => void | Promise<void>;
+  childFirstName: string;
 }) {
   const [undoMode, setUndoMode] = useState(false);
   const [orderConfirmOpen, setOrderConfirmOpen] = useState(false);
@@ -101,6 +104,13 @@ export function GiftInformationCard({
             <dd className="text-gray-800">{gift.additionalInfo}</dd>
           </dl>
         </div>
+
+        {gift.thankYouNote ? (
+          <ThankYouNotePanel
+            note={gift.thankYouNote}
+            childFirstName={childFirstName}
+          />
+        ) : null}
 
         {undoMode && (
           <p

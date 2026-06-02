@@ -182,6 +182,7 @@ export const getCommittedChildrenForDonor = createServerFn({ method: "GET" })
         ),
         deliveryReceiptUrl: claim.deliveryConfirmed?.documentationUrl ?? null,
         trackingNumber: claim.purchaseConfirmation?.trackingNumber ?? "",
+        thankYouNote: claim.thankYouNote ?? null,
       });
     }
 

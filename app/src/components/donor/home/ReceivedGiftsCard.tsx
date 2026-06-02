@@ -1,11 +1,14 @@
 import type { CommittedGift, GiftFormState } from "./types";
+import { ThankYouNotePanel } from "./ThankYouNotePanel";
 
 export function ReceivedGiftsCard({
   gifts,
   giftStates,
+  childFirstName,
 }: {
   gifts: Array<CommittedGift>;
   giftStates: Record<string, GiftFormState>;
+  childFirstName: string;
 }) {
   const received = gifts.filter((g) => giftStates[g.id]?.receivedByFamily);
   if (received.length === 0) return null;
@@ -16,12 +19,17 @@ export function ReceivedGiftsCard({
           The family received your gift(s).
         </p>
         {received.map((g) => (
-          <div
-            key={g.id}
-            className="grid grid-cols-[minmax(7rem,auto)_1fr] gap-x-4 text-sm"
-          >
-            <span className="font-bold">Gift Name:</span>
-            <span>{g.title}</span>
+          <div key={g.id} className="space-y-3">
+            <div className="grid grid-cols-[minmax(7rem,auto)_1fr] gap-x-4 text-sm">
+              <span className="font-bold">Gift Name:</span>
+              <span>{g.title}</span>
+            </div>
+            {g.thankYouNote ? (
+              <ThankYouNotePanel
+                note={g.thankYouNote}
+                childFirstName={childFirstName}
+              />
+            ) : null}
           </div>
         ))}
         <p className="pt-2 text-center font-bold italic text-gray-800">

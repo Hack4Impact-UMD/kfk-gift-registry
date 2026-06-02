@@ -12,6 +12,7 @@ export type CommittedGift = {
   deliveryReceiptFileName: string | null;
   deliveryReceiptUrl: string | null;
   trackingNumber: string;
+  thankYouNote: string | null;
 };
 
 export type ChildStatus = "Warrior" | "Supersib";

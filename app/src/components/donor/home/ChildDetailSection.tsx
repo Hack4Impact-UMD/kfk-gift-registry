@@ -57,7 +57,11 @@ export function ChildDetailSection({
       </div>
 
       <div className="flex w-full min-w-0 flex-col gap-6">
-        <ReceivedGiftsCard gifts={child.gifts} giftStates={giftStates} />
+        <ReceivedGiftsCard
+          gifts={child.gifts}
+          giftStates={giftStates}
+          childFirstName={child.firstName}
+        />
         {/*
         - USE THIS IF WE WANT TO SORT GIFTS BY ORDERED STATUS AND THEN BY ORIGINAL ORDER
         {[...child.gifts]
@@ -90,6 +94,7 @@ export function ChildDetailSection({
             onTrackingChange={(v) => onTrackingChange(gift.id, v)}
             onUnclaimRequest={() => onUnclaimRequest(gift.id)}
             onSave={() => onSave(gift.id)}
+            childFirstName={child.firstName}
           />
         ))}
       </div>
