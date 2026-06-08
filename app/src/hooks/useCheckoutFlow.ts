@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { UserRole } from "common";
 import { useClaimGifts } from "@/hooks/mutations/useClaimGifts";
 import { useLogin } from "@/hooks/mutations/loginMutation";
@@ -44,6 +44,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
   const [disabledMessage, setDisabledMessage] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const router = useRouter();
 
   const { data: localCart } = useLocalCartData();
 
@@ -89,6 +90,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
         );
         return;
       }
+      router.invalidate();
       setAuthModalOpen(false);
       confirmClaim();
     },
@@ -107,6 +109,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
             return;
           }
 
+          router.invalidate();
           setAuthModalOpen(false);
           confirmClaim();
         },
@@ -139,6 +142,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
               return;
             }
 
+            router.invalidate();
             setAuthModalOpen(false);
             confirmClaim();
           },

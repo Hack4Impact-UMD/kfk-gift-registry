@@ -1,4 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  multiFactor,
+  PhoneAuthProvider,
+  PhoneMultiFactorGenerator,
+} from "firebase/auth";
 import type {
   MultiFactorInfo,
   MultiFactorResolver,
@@ -15,6 +20,7 @@ import {
   verifySMSMFACode,
 } from "@/services/authService.client";
 import { toast } from "@/lib/toast";
+import { getClientAuth } from "@/lib/firebase.client";
 
 export interface MfaFlowResult {
   handleMfa: OnMFACallback;
@@ -31,11 +37,83 @@ export interface MfaFlowResult {
   };
 }
 
+export function useMfaEnrollFlow(onSuccess: () => void) {
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+  const resolveEnrollmentRef = useRef<(pin: string) => void>(null);
+
+  const [showMFADialog, setShowMFADialog] = useState(false);
+  const [showEnrollDialog, setShowEnrollDialog] = useState(false);
+
+  useEffect(() => {
+    if (!recaptchaVerifierRef.current) {
+      initRecaptchaVerifier().then((v) => {
+        recaptchaVerifierRef.current = v;
+      });
+    }
+    return () => {
+      if (recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current.clear();
+        recaptchaVerifierRef.current = null;
+      }
+    };
+  }, []);
+
+  const enrollMethod = useCallback(
+    async (name: string, phone: string) => {
+      if (!recaptchaVerifierRef.current)
+        throw new Error("recaptcha verifier not found!");
+      const auth = await getClientAuth();
+      const user = auth.currentUser;
+      if (!user) throw new Error("Not authenticated");
+      const session = await multiFactor(user).getSession();
+
+      if (!phone) {
+        throw new Error("User does not have a phone number!");
+      }
+      const phoneOptions = {
+        phoneNumber: phone,
+        session: session,
+      };
+
+      const phoneAuthProvider = new PhoneAuthProvider(auth);
+
+      const id = await phoneAuthProvider.verifyPhoneNumber(
+        phoneOptions,
+        recaptchaVerifierRef.current,
+      );
+
+      setShowEnrollDialog(false);
+      setShowMFADialog(true);
+
+      resolveEnrollmentRef.current = async (pin: string) => {
+        const cred = PhoneAuthProvider.credential(id, pin);
+        const assertion = PhoneMultiFactorGenerator.assertion(cred);
+        await multiFactor(user).enroll(assertion, name);
+        onSuccess();
+      };
+    },
+    [onSuccess],
+  );
+
+  return {
+    enrollMethod,
+    triggerEnroll: () => setShowEnrollDialog(true),
+    enrollDialogProps: {
+      open: showEnrollDialog,
+      onSubmit: enrollMethod,
+      onCancel: () => setShowEnrollDialog(false),
+    },
+    mfaDialogProps: {
+      open: showMFADialog,
+      onSubmit: (pin: string) => resolveEnrollmentRef.current?.(pin),
+      onCancel: () => setShowMFADialog(false),
+    },
+  };
+}
+
 export function useMfaFlow(
   onSuccess: (result: AuthUser | undefined) => void,
 ): MfaFlowResult {
-  const onSuccessRef = useRef(onSuccess);
-
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
   const sendMFARef = useRef<(info: MultiFactorInfo) => void>(null);
   const resolveMFARef = useRef<(pin: string) => void>(null);
@@ -78,7 +156,7 @@ export function useMfaFlow(
           resolveMFARef.current = async (pin: string) => {
             const cred = await verifySMSMFACode(id, pin, resolver);
             const result = await resolve(cred);
-            onSuccessRef.current(result);
+            onSuccess(result);
           };
         } catch (error) {
           toast.error("Failed to send SMS 2FA code!");
@@ -86,7 +164,7 @@ export function useMfaFlow(
         }
       };
     },
-    [],
+    [onSuccess],
   );
 
   return {

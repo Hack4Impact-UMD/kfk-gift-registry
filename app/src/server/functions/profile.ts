@@ -363,6 +363,7 @@ export const registerDonor = createServerFn({ method: "POST" })
         email: cleaned.email,
         password: cleaned.password,
         phoneNumber: cleaned.phone,
+        emailVerified: true,
       });
 
       await auth.setCustomUserClaims(authUser.uid, {

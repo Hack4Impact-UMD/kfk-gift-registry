@@ -3,6 +3,7 @@ import {
   createFileRoute,
   redirect,
   useNavigate,
+  useRouter,
   Link,
 } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
@@ -18,6 +19,7 @@ import kfkFoundationLogo from "@/assets/kfk-logo.png";
 import MfaDialog from "@/components/auth/MfaDialog";
 import MfaMethodDialog from "@/components/auth/MfaMethodDialog";
 import { useMfaFlow } from "@/hooks/useMfaFlow";
+import { getEnrolledMFAMethods } from "@/services/authService.client";
 
 const searchSchema = z.object({
   redirect: z
@@ -99,6 +101,7 @@ function issueToMessage(issue: unknown): string {
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const router = useRouter();
   const { redirect: redirectPath } = Route.useSearch();
 
   const loginMutation = useLogin();
@@ -132,11 +135,17 @@ function RouteComponent() {
         {
           onSuccess: async (result) => {
             if (result) {
-              await navigate({
-                to:
-                  redirectPath ??
-                  (result.role === UserRole.DONOR ? "/donor" : "/staff/home"),
-              });
+              const methods = await getEnrolledMFAMethods();
+              if (result.role !== UserRole.DONOR && methods.length === 0) {
+                await navigate({ to: "/mfaEnroll" });
+              } else {
+                router.invalidate();
+                await navigate({
+                  to:
+                    redirectPath ??
+                    (result.role === UserRole.DONOR ? "/donor" : "/staff/home"),
+                });
+              }
             }
           },
         },
