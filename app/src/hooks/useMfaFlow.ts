@@ -32,6 +32,7 @@ export interface MfaFlowResult {
   };
   mfaDialogProps: {
     open: boolean;
+    invalid: boolean;
     onSubmit: (pin: string) => void;
     onCancel: () => void;
   };
@@ -43,6 +44,7 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
 
   const [showMFADialog, setShowMFADialog] = useState(false);
   const [showEnrollDialog, setShowEnrollDialog] = useState(false);
+  const [invalidEnrollCode, setInvalidEnrollCode] = useState(false);
 
   useEffect(() => {
     if (!recaptchaVerifierRef.current) {
@@ -86,10 +88,15 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
       setShowMFADialog(true);
 
       resolveEnrollmentRef.current = async (pin: string) => {
-        const cred = PhoneAuthProvider.credential(id, pin);
-        const assertion = PhoneMultiFactorGenerator.assertion(cred);
-        await multiFactor(user).enroll(assertion, name);
-        onSuccess();
+        setInvalidEnrollCode(false);
+        try {
+          const cred = PhoneAuthProvider.credential(id, pin);
+          const assertion = PhoneMultiFactorGenerator.assertion(cred);
+          await multiFactor(user).enroll(assertion, name);
+          onSuccess();
+        } catch {
+          setInvalidEnrollCode(true);
+        }
       };
     },
     [onSuccess],
@@ -105,8 +112,12 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
     },
     mfaDialogProps: {
       open: showMFADialog,
+      invalid: invalidEnrollCode,
       onSubmit: (pin: string) => resolveEnrollmentRef.current?.(pin),
-      onCancel: () => setShowMFADialog(false),
+      onCancel: () => {
+        setShowMFADialog(false);
+        setInvalidEnrollCode(false);
+      },
     },
   };
 }
@@ -121,6 +132,7 @@ export function useMfaFlow(
   const [mfaHints, setMfaHints] = useState<Array<MultiFactorInfo>>([]);
   const [showMFAMethodDialog, setShowMFAMethodDialog] = useState(false);
   const [showMFADialog, setShowMFADialog] = useState(false);
+  const [invalidMfaCode, setInvalidMfaCode] = useState(false);
 
   useEffect(() => {
     if (!recaptchaVerifierRef.current) {
@@ -154,9 +166,14 @@ export function useMfaFlow(
           setShowMFADialog(true);
 
           resolveMFARef.current = async (pin: string) => {
-            const cred = await verifySMSMFACode(id, pin, resolver);
-            const result = await resolve(cred);
-            onSuccess(result);
+            setInvalidMfaCode(false);
+            try {
+              const cred = await verifySMSMFACode(id, pin, resolver);
+              const result = await resolve(cred);
+              onSuccess(result);
+            } catch {
+              setInvalidMfaCode(true);
+            }
           };
         } catch (error) {
           toast.error("Failed to send SMS 2FA code!");
@@ -177,8 +194,12 @@ export function useMfaFlow(
     },
     mfaDialogProps: {
       open: showMFADialog,
+      invalid: invalidMfaCode,
       onSubmit: (pin) => resolveMFARef.current?.(pin),
-      onCancel: () => setShowMFADialog(false),
+      onCancel: () => {
+        setShowMFADialog(false);
+        setInvalidMfaCode(false);
+      },
     },
   };
 }

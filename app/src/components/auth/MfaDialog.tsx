@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +25,11 @@ export default function MfaDialog({
   invalid = false,
 }: MfaDialogProps) {
   const [pin, setPin] = useState("");
+
+  useEffect(() => {
+    // oxlint-disable-next-line react-hooks-js/set-state-in-effect
+    if (invalid) setPin("");
+  }, [invalid]);
 
   return (
     <AlertDialog open={open}>
@@ -72,6 +77,12 @@ export default function MfaDialog({
             </InputOTPGroup>
           </InputOTP>
         </div>
+
+        {invalid && (
+          <p className="text-sm text-destructive text-center">
+            Incorrect code. Please try again.
+          </p>
+        )}
 
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
