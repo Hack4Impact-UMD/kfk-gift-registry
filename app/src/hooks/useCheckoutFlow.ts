@@ -11,7 +11,8 @@ import type { AuthContext } from "@/server/functions/auth";
 import { toast } from "@/lib/toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { queries } from "@/queries";
-import { useMfaFlow, type MfaFlowResult } from "@/hooks/useMfaFlow";
+import { useMfaFlow } from "@/hooks/useMfaFlow";
+import type { MfaFlowResult } from "@/hooks/useMfaFlow";
 
 export interface RegisterDonorInput {
   name: string;

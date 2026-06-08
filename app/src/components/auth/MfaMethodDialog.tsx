@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MultiFactorInfo, PhoneMultiFactorInfo } from "firebase/auth";
+import type { MultiFactorInfo, PhoneMultiFactorInfo } from "firebase/auth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
 type MfaMethodDialogProps = {
   open: boolean;
-  hints: MultiFactorInfo[];
+  hints: Array<MultiFactorInfo>;
   onSelect: (hint: MultiFactorInfo) => void;
   onCancel: () => void;
 };
