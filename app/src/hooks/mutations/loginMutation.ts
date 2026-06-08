@@ -10,7 +10,7 @@ import { queries } from "@/queries";
 type LoginInput = {
   email: string;
   password: string;
-  callback: OnMFACallback
+  callback: OnMFACallback;
 };
 
 export function useLogin() {

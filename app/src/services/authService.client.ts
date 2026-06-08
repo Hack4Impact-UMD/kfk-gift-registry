@@ -4,7 +4,7 @@ import type {
   MultiFactorResolver,
   AuthError,
   MultiFactorError,
-  UserCredential
+  UserCredential,
 } from "firebase/auth";
 import {
   signInWithEmailAndPassword,
@@ -22,9 +22,16 @@ import type { AuthUser } from "@/server/functions/auth";
 import { loginWithToken, logoutSession } from "@/server/functions/auth";
 
 export type ResolveLoginCallback = (cred: UserCredential) => Promise<AuthUser>;
-export type OnMFACallback = (resolver: MultiFactorResolver, callback: ResolveLoginCallback) => void;
+export type OnMFACallback = (
+  resolver: MultiFactorResolver,
+  callback: ResolveLoginCallback,
+) => void;
 
-export async function login(email: string, password: string, onMfa: OnMFACallback) {
+export async function login(
+  email: string,
+  password: string,
+  onMfa: OnMFACallback,
+) {
   const auth = await getClientAuth();
 
   const serverLogin = async (result: UserCredential) => {
@@ -33,7 +40,7 @@ export async function login(email: string, password: string, onMfa: OnMFACallbac
         token: await result.user.getIdToken(),
       },
     });
-  }
+  };
 
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);

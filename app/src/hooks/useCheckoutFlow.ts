@@ -79,15 +79,19 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
     });
   };
 
-  const { handleMfa, mfaMethodDialogProps, mfaDialogProps } = useMfaFlow((result) => {
-    if (!result || result.role !== UserRole.DONOR) {
+  const { handleMfa, mfaMethodDialogProps, mfaDialogProps } = useMfaFlow(
+    (result) => {
+      if (!result || result.role !== UserRole.DONOR) {
+        setAuthModalOpen(false);
+        setDisabledMessage(
+          "Only donors can claim gifts. Please log in with a donor account.",
+        );
+        return;
+      }
       setAuthModalOpen(false);
-      setDisabledMessage("Only donors can claim gifts. Please log in with a donor account.");
-      return;
-    }
-    setAuthModalOpen(false);
-    confirmClaim();
-  });
+      confirmClaim();
+    },
+  );
 
   const submitLogin = async (email: string, password: string) => {
     loginMutation.mutate(
@@ -122,7 +126,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
         {
           email: data.email,
           password: data.password,
-          callback: handleMfa
+          callback: handleMfa,
         },
         {
           onSuccess: async (session) => {

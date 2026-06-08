@@ -1,8 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { MultiFactorInfo, MultiFactorResolver, RecaptchaVerifier } from "firebase/auth";
+import type {
+  MultiFactorInfo,
+  MultiFactorResolver,
+  RecaptchaVerifier,
+} from "firebase/auth";
 import type { AuthUser } from "@/server/functions/auth";
-import type { OnMFACallback, ResolveLoginCallback } from "@/services/authService.client";
-import { initRecaptchaVerifier, sendSMSMFACode, verifySMSMFACode } from "@/services/authService.client";
+import type {
+  OnMFACallback,
+  ResolveLoginCallback,
+} from "@/services/authService.client";
+import {
+  initRecaptchaVerifier,
+  sendSMSMFACode,
+  verifySMSMFACode,
+} from "@/services/authService.client";
 import { toast } from "@/lib/toast";
 
 export interface MfaFlowResult {
@@ -20,7 +31,9 @@ export interface MfaFlowResult {
   };
 }
 
-export function useMfaFlow(onSuccess: (result: AuthUser | undefined) => void): MfaFlowResult {
+export function useMfaFlow(
+  onSuccess: (result: AuthUser | undefined) => void,
+): MfaFlowResult {
   const onSuccessRef = useRef(onSuccess);
 
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
@@ -45,29 +58,36 @@ export function useMfaFlow(onSuccess: (result: AuthUser | undefined) => void): M
     };
   }, []);
 
-  const handleMfa: OnMFACallback = useCallback((resolver: MultiFactorResolver, resolve: ResolveLoginCallback) => {
-    setMfaHints(resolver.hints);
-    setShowMFAMethodDialog(true);
+  const handleMfa: OnMFACallback = useCallback(
+    (resolver: MultiFactorResolver, resolve: ResolveLoginCallback) => {
+      setMfaHints(resolver.hints);
+      setShowMFAMethodDialog(true);
 
-    sendMFARef.current = async (info: MultiFactorInfo) => {
-      if (!recaptchaVerifierRef.current) return;
-      try {
-        const id = await sendSMSMFACode(info, recaptchaVerifierRef.current, resolver);
-        toast.success("Code sent!");
-        setShowMFAMethodDialog(false);
-        setShowMFADialog(true);
+      sendMFARef.current = async (info: MultiFactorInfo) => {
+        if (!recaptchaVerifierRef.current) return;
+        try {
+          const id = await sendSMSMFACode(
+            info,
+            recaptchaVerifierRef.current,
+            resolver,
+          );
+          toast.success("Code sent!");
+          setShowMFAMethodDialog(false);
+          setShowMFADialog(true);
 
-        resolveMFARef.current = async (pin: string) => {
-          const cred = await verifySMSMFACode(id, pin, resolver);
-          const result = await resolve(cred);
-          onSuccessRef.current(result);
-        };
-      } catch (error) {
-        toast.error("Failed to send SMS 2FA code!");
-        console.error(error);
-      }
-    };
-  }, []);
+          resolveMFARef.current = async (pin: string) => {
+            const cred = await verifySMSMFACode(id, pin, resolver);
+            const result = await resolve(cred);
+            onSuccessRef.current(result);
+          };
+        } catch (error) {
+          toast.error("Failed to send SMS 2FA code!");
+          console.error(error);
+        }
+      };
+    },
+    [],
+  );
 
   return {
     handleMfa,

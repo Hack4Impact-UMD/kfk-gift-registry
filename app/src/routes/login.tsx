@@ -104,11 +104,15 @@ function RouteComponent() {
   const loginMutation = useLogin();
   const [rememberMe, setRememberMe] = useState(false);
 
-  const { handleMfa, mfaMethodDialogProps, mfaDialogProps } = useMfaFlow((result) => {
-    navigate({
-      to: redirectPath ?? (result?.role === UserRole.DONOR ? "/donor" : "/staff/home"),
-    });
-  });
+  const { handleMfa, mfaMethodDialogProps, mfaDialogProps } = useMfaFlow(
+    (result) => {
+      navigate({
+        to:
+          redirectPath ??
+          (result?.role === UserRole.DONOR ? "/donor" : "/staff/home"),
+      });
+    },
+  );
 
   const form = useForm({
     defaultValues: {
@@ -123,7 +127,7 @@ function RouteComponent() {
         {
           email: value.email,
           password: value.password,
-          callback: handleMfa
+          callback: handleMfa,
         },
         {
           onSuccess: async (result) => {
@@ -139,7 +143,6 @@ function RouteComponent() {
       );
     },
   });
-
 
   const isSubmitting = form.state.isSubmitting || loginMutation.isPending;
 

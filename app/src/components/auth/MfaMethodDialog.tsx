@@ -29,7 +29,12 @@ function formatHint(hint: MultiFactorInfo): string {
   return hint.factorId;
 }
 
-export default function MfaMethodDialog({ open, hints, onSelect, onCancel }: MfaMethodDialogProps) {
+export default function MfaMethodDialog({
+  open,
+  hints,
+  onSelect,
+  onCancel,
+}: MfaMethodDialogProps) {
   const [selectedUid, setSelectedUid] = useState(hints[0]?.uid ?? "");
 
   const handleSubmit = () => {
@@ -47,7 +52,11 @@ export default function MfaMethodDialog({ open, hints, onSelect, onCancel }: Mfa
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <RadioGroup value={selectedUid} onValueChange={setSelectedUid} className="py-2">
+        <RadioGroup
+          value={selectedUid}
+          onValueChange={setSelectedUid}
+          className="py-2"
+        >
           {hints.map((hint) => (
             <div key={hint.uid} className="flex items-center gap-3">
               <RadioGroupItem value={hint.uid} id={hint.uid} />
