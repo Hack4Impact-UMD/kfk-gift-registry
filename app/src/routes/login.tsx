@@ -15,6 +15,9 @@ import { Input } from "@/components/ui/input";
 import { useLogin } from "@/hooks/mutations/loginMutation";
 import adminVolunteerLoginBg from "@/assets/admin-volunteer-login-bg.png";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
+import MfaDialog from "@/components/auth/MfaDialog";
+import MfaMethodDialog from "@/components/auth/MfaMethodDialog";
+import { useMfaFlow } from "@/hooks/useMfaFlow";
 
 const searchSchema = z.object({
   redirect: z
@@ -101,6 +104,12 @@ function RouteComponent() {
   const loginMutation = useLogin();
   const [rememberMe, setRememberMe] = useState(false);
 
+  const { handleMfa, mfaMethodDialogProps, mfaDialogProps } = useMfaFlow((result) => {
+    navigate({
+      to: redirectPath ?? (result?.role === UserRole.DONOR ? "/donor" : "/staff/home"),
+    });
+  });
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -114,24 +123,30 @@ function RouteComponent() {
         {
           email: value.email,
           password: value.password,
+          callback: handleMfa
         },
         {
           onSuccess: async (result) => {
-            await navigate({
-              to:
-                redirectPath ??
-                (result.role === UserRole.DONOR ? "/donor" : "/staff/home"),
-            });
+            if (result) {
+              await navigate({
+                to:
+                  redirectPath ??
+                  (result.role === UserRole.DONOR ? "/donor" : "/staff/home"),
+              });
+            }
           },
         },
       );
     },
   });
 
+
   const isSubmitting = form.state.isSubmitting || loginMutation.isPending;
 
   return (
     <div className="h-full flex items-center justify-center bg-muted/30 p-4 sm:p-6">
+      <MfaMethodDialog {...mfaMethodDialogProps} />
+      <MfaDialog {...mfaDialogProps} />
       <div className="flex w-full max-w-5xl max-h-164 h-full flex-col items-stretch lg:flex-row">
         {/* Image section: hidden on small screens */}
         <div

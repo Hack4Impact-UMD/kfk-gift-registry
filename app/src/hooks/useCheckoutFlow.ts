@@ -11,6 +11,7 @@ import type { AuthContext } from "@/server/functions/auth";
 import { toast } from "@/lib/toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { queries } from "@/queries";
+import { useMfaFlow, type MfaFlowResult } from "@/hooks/useMfaFlow";
 
 export interface RegisterDonorInput {
   name: string;
@@ -31,6 +32,8 @@ export interface CheckoutFlowState {
   submitRegister: (data: RegisterDonorInput) => Promise<void>;
   closeAll: () => void;
   setAuthMode: (mode: "login" | "register") => void;
+  mfaMethodDialogProps: MfaFlowResult["mfaMethodDialogProps"];
+  mfaDialogProps: MfaFlowResult["mfaDialogProps"];
 }
 
 export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
@@ -76,9 +79,19 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
     });
   };
 
+  const { handleMfa, mfaMethodDialogProps, mfaDialogProps } = useMfaFlow((result) => {
+    if (!result || result.role !== UserRole.DONOR) {
+      setAuthModalOpen(false);
+      setDisabledMessage("Only donors can claim gifts. Please log in with a donor account.");
+      return;
+    }
+    setAuthModalOpen(false);
+    confirmClaim();
+  });
+
   const submitLogin = async (email: string, password: string) => {
     loginMutation.mutate(
-      { email, password },
+      { email, password, callback: handleMfa },
       {
         onSuccess: async (session) => {
           if (!session || session.role !== UserRole.DONOR) {
@@ -109,6 +122,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
         {
           email: data.email,
           password: data.password,
+          callback: handleMfa
         },
         {
           onSuccess: async (session) => {
@@ -182,5 +196,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
     submitRegister,
     closeAll,
     setAuthMode,
+    mfaMethodDialogProps,
+    mfaDialogProps,
   };
 }
