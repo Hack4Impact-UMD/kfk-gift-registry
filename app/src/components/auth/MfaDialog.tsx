@@ -43,7 +43,7 @@ export default function MfaDialog({
 
         <div className="w-full">
           <InputOTP maxLength={6} pattern="\d" value={pin} onChange={setPin}>
-            <InputOTPGroup className="h-32 w-full flex justify-center">
+            <InputOTPGroup className="h-16 w-full flex justify-center">
               <InputOTPSlot
                 className="max-w-16 max-h-16 h-full w-full text-lg"
                 aria-invalid={invalid}

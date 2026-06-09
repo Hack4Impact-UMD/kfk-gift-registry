@@ -3,8 +3,10 @@ import { UserRole } from "common";
 import { Button } from "@/components/ui/button";
 import MFAEnrollDialog from "@/components/auth/MFAEnrollDialog";
 import MfaDialog from "@/components/auth/MfaDialog";
+import { EmailVerificationAlertDialog } from "@/components/auth/EmailVerificationAlertDialog";
 import { useMfaEnrollFlow } from "@/hooks/useMfaFlow";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
+import z from "zod";
 
 export const Route = createFileRoute("/mfaEnroll")({
   beforeLoad: ({ context }) => {
@@ -18,6 +20,9 @@ export const Route = createFileRoute("/mfaEnroll")({
   head: () => ({
     meta: [{ title: "Set Up 2FA - Kisses for Kyle" }],
   }),
+  validateSearch: z.object({
+    redirect: z.string().optional(),
+  }),
   component: RouteComponent,
 });
 
@@ -25,17 +30,20 @@ function RouteComponent() {
   const navigate = useNavigate();
   const { auth } = Route.useRouteContext();
   const phone = auth.isAuthed ? auth.authUser.phone : undefined;
+  const { redirect: redirectTo } = Route.useSearch();
 
   const {
     triggerEnroll,
+    emailDialogProps,
     enrollDialogProps,
     mfaDialogProps: enrollCodeDialogProps,
   } = useMfaEnrollFlow(() => {
-    navigate({ to: "/staff/home" });
+    navigate({ to: redirectTo ?? "/staff/home" });
   });
 
   return (
     <div className="h-full flex items-center justify-center bg-muted/30 p-4 sm:p-6">
+      <EmailVerificationAlertDialog {...emailDialogProps} />
       <MFAEnrollDialog {...enrollDialogProps} defaultPhone={phone} />
       <MfaDialog {...enrollCodeDialogProps} />
       <div className="bg-white rounded-2xl shadow-xl flex flex-col items-center gap-6 max-w-sm w-full overflow-hidden">

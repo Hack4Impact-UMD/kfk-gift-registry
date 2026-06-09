@@ -21,10 +21,11 @@ type MfaMethodDialogProps = {
 };
 
 function formatHint(hint: MultiFactorInfo): string {
-  if (hint.displayName) return hint.displayName;
   if (hint.factorId === "phone") {
     const phone = (hint as PhoneMultiFactorInfo).phoneNumber;
-    return `SMS to ${phone}`;
+    return hint.displayName
+      ? `${hint.displayName} - SMS to ${phone}`
+      : `SMS to ${phone}`;
   }
   return hint.factorId;
 }
@@ -52,18 +53,19 @@ export default function MfaMethodDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <RadioGroup
-          value={selectedUid}
-          onValueChange={setSelectedUid}
-          className="py-2"
-        >
+        <RadioGroup value={selectedUid} onValueChange={setSelectedUid}>
           {hints.map((hint) => (
-            <div key={hint.uid} className="flex items-center gap-3">
-              <RadioGroupItem value={hint.uid} id={hint.uid} />
+            <>
               <Label htmlFor={hint.uid} className="cursor-pointer">
-                {formatHint(hint)}
+                <div
+                  key={hint.uid}
+                  className={`w-full border-2 rounded p-4 flex items-center gap-3 ${hint.uid === selectedUid && "border-kfk-blue border-2 text-kfk-blue"}`}
+                >
+                  <RadioGroupItem value={hint.uid} id={hint.uid} />
+                  <div className="flex flex-col gap-1">{formatHint(hint)}</div>
+                </div>
               </Label>
-            </div>
+            </>
           ))}
         </RadioGroup>
 

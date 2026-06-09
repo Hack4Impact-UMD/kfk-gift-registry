@@ -3,6 +3,8 @@ import {
   multiFactor,
   PhoneAuthProvider,
   PhoneMultiFactorGenerator,
+  reload,
+  sendEmailVerification,
 } from "firebase/auth";
 import type {
   MultiFactorInfo,
@@ -42,6 +44,7 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
   const resolveEnrollmentRef = useRef<(pin: string) => void>(null);
 
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [showMFADialog, setShowMFADialog] = useState(false);
   const [showEnrollDialog, setShowEnrollDialog] = useState(false);
   const [invalidEnrollCode, setInvalidEnrollCode] = useState(false);
@@ -102,9 +105,33 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
     [onSuccess],
   );
 
+  const triggerEnroll = useCallback(async () => {
+    const auth = await getClientAuth();
+    if (!auth.currentUser) throw new Error("not authenticated!");
+    await reload(auth.currentUser);
+    if (!auth.currentUser.emailVerified) {
+      // start with email verification
+      try {
+        await sendEmailVerification(auth.currentUser);
+        toast.success("Verification email sent!");
+        setShowEmailDialog(true);
+      } catch (err) {
+        toast.error("Failed to send verification email");
+        console.error(err);
+      }
+    } else {
+      setShowEmailDialog(false);
+      setShowEnrollDialog(true);
+    }
+  }, []);
+
   return {
-    enrollMethod,
-    triggerEnroll: () => setShowEnrollDialog(true),
+    triggerEnroll,
+    emailDialogProps: {
+      open: showEmailDialog,
+      onSubmit: triggerEnroll,
+      onCancel: () => setShowEmailDialog(false),
+    },
     enrollDialogProps: {
       open: showEnrollDialog,
       onSubmit: enrollMethod,
