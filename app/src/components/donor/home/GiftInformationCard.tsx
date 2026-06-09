@@ -179,6 +179,7 @@ export function GiftInformationCard({
             <ReceiptImageUploadRow
               fileName={state.deliveryReceiptFileName}
               fileUrl={state.deliveryReceiptUrl}
+              disabled={!state.delivered}
               isUploading={isUploadingDeliveryReceipt}
               onFile={(n) => {
                 onDeliveryReceipt(n);
@@ -229,6 +230,7 @@ export function GiftInformationCard({
           <ReceiptImageUploadRow
             fileName={state.receiptFileName}
             fileUrl={state.receiptUrl}
+            disabled={!state.ordered}
             isUploading={isUploadingReceipt}
             onFile={(n) => {
               onReceipt(n);

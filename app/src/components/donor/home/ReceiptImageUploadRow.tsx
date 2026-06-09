@@ -14,6 +14,7 @@ export function ReceiptImageUploadRow({
   onClear,
   showClear = false,
   isUploading = false,
+  disabled = false,
 }: {
   fileName: string | null;
   fileUrl?: string | null;
@@ -21,6 +22,7 @@ export function ReceiptImageUploadRow({
   onClear: () => void;
   showClear?: boolean;
   isUploading?: boolean;
+  disabled?: boolean;
 }) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,7 +33,7 @@ export function ReceiptImageUploadRow({
       <div className="flex flex-row items-center gap-4">
         <Label
           htmlFor={inputId}
-          className="flex shrink-0 cursor-pointer flex-col gap-0 text-base font-medium leading-tight text-gray-800"
+          className="flex shrink-0 flex-col gap-0 text-base font-medium leading-tight text-gray-800"
         >
           <span>Attach</span>
           <span>Receipt</span>
@@ -43,6 +45,7 @@ export function ReceiptImageUploadRow({
             type="file"
             accept="image/*"
             className="sr-only"
+            disabled={disabled || isUploading}
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) onFile(f);
@@ -52,7 +55,7 @@ export function ReceiptImageUploadRow({
           <div className="flex w-full items-center justify-end gap-2">
             <button
               type="button"
-              disabled={isUploading}
+              disabled={disabled || isUploading}
               className="inline-flex min-h-10 items-center justify-center rounded-xl bg-kfk-blue px-8 py-2 font-gaegu text-lg font-bold text-white transition-colors hover:bg-kfk-blue/80 disabled:cursor-not-allowed disabled:opacity-70"
               onClick={() => inputRef.current?.click()}
             >
