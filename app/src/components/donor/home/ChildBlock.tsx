@@ -75,6 +75,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
               ...p[id],
               ordered: true,
               delivered: true,
+              savedDelivered: true,
               changesSaved: true,
             },
           }));
@@ -117,6 +118,8 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
                 savedTracking: data.trackingNumber,
                 receiptFileName: file.name,
                 receiptUrl: data.documentationUrl,
+                savedReceiptFileName: file.name,
+                savedReceiptUrl: data.documentationUrl,
                 changesSaved: true,
               },
             }));
@@ -153,6 +156,8 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
                 ...p[id],
                 deliveryReceiptFileName: file.name,
                 deliveryReceiptUrl: data.documentationUrl,
+                savedDeliveryReceiptFileName: file.name,
+                savedDeliveryReceiptUrl: data.documentationUrl,
                 changesSaved: true,
               },
             }));
@@ -193,11 +198,20 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
         return;
       }
 
+      const hasSavedNonTrackingFields =
+        currentState.delivered === currentState.savedDelivered &&
+        currentState.receiptFileName === currentState.savedReceiptFileName &&
+        currentState.receiptUrl === currentState.savedReceiptUrl &&
+        currentState.deliveryReceiptFileName ===
+          currentState.savedDeliveryReceiptFileName &&
+        currentState.deliveryReceiptUrl ===
+          currentState.savedDeliveryReceiptUrl;
+
       setGiftStates((p) => ({
         ...p,
         [id]: {
           ...p[id],
-          changesSaved: true,
+          changesSaved: hasSavedNonTrackingFields,
         },
       }));
     },

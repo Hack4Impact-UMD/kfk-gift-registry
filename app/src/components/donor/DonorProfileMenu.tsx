@@ -39,6 +39,17 @@ export function DonorProfileMenu({ displayName }: DonorProfileMenuProps) {
   const { mutate: logout, isPending } = useLogout();
   const initials = getInitials(displayName);
 
+  function handleConfirmOpenChange(open: boolean) {
+    if (isPending) return;
+    setConfirmOpen(open);
+  }
+
+  function handleLogout() {
+    logout(undefined, {
+      onSuccess: () => setConfirmOpen(false),
+    });
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -71,7 +82,7 @@ export function DonorProfileMenu({ displayName }: DonorProfileMenuProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+      <AlertDialog open={confirmOpen} onOpenChange={handleConfirmOpenChange}>
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm logout</AlertDialogTitle>
@@ -87,7 +98,10 @@ export function DonorProfileMenu({ displayName }: DonorProfileMenuProps) {
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => logout()}
+              onClick={(event) => {
+                event.preventDefault();
+                handleLogout();
+              }}
               className="bg-kfk-blue text-white hover:bg-kfk-blue/90"
               disabled={isPending}
             >

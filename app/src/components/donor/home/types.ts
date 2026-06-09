@@ -29,11 +29,16 @@ export type CommittedChild = {
 export type GiftFormState = {
   ordered: boolean;
   delivered: boolean;
+  savedDelivered: boolean;
   receivedByFamily: boolean;
   receiptFileName: string | null;
   receiptUrl: string | null;
+  savedReceiptFileName: string | null;
+  savedReceiptUrl: string | null;
   deliveryReceiptFileName: string | null;
   deliveryReceiptUrl: string | null;
+  savedDeliveryReceiptFileName: string | null;
+  savedDeliveryReceiptUrl: string | null;
   savedTracking: string;
   tracking: string;
   unclaimed: boolean;
