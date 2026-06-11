@@ -8,6 +8,7 @@ import { storefrontQueries } from "./storefront";
 import { sessionQueries } from "./session";
 import { giftQueries } from "./gift";
 import { claimQueries } from "./claim";
+import { notificationQueries } from "./notifications";
 
 export const queries = mergeQueryKeys(
   userProfileQueries,
@@ -19,4 +20,5 @@ export const queries = mergeQueryKeys(
   sessionQueries,
   giftQueries,
   claimQueries,
+  notificationQueries,
 );
