@@ -40,20 +40,21 @@ export interface MfaFlowResult {
   };
 }
 
-export function useMfaEnrollFlow(onSuccess: () => void) {
+function useRecaptchaVerifier() {
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-  const resolveEnrollmentRef = useRef<(pin: string) => void>(null);
-
-  const [showEmailDialog, setShowEmailDialog] = useState(false);
-  const [showMFADialog, setShowMFADialog] = useState(false);
-  const [showEnrollDialog, setShowEnrollDialog] = useState(false);
-  const [invalidEnrollCode, setInvalidEnrollCode] = useState(false);
 
   useEffect(() => {
     if (!recaptchaVerifierRef.current) {
-      initRecaptchaVerifier().then((v) => {
-        recaptchaVerifierRef.current = v;
-      });
+      initRecaptchaVerifier()
+        .then((v) => {
+          recaptchaVerifierRef.current = v;
+        })
+        .catch((err) => {
+          toast.error(
+            "Failed to initialize ReCAPTCHA verifier. Refresh to try again.",
+          );
+          console.error(err);
+        });
     }
     return () => {
       if (recaptchaVerifierRef.current) {
@@ -62,6 +63,19 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
       }
     };
   }, []);
+  return {
+    recaptchaVerifierRef,
+  };
+}
+
+export function useMfaEnrollFlow(onSuccess: () => void) {
+  const resolveEnrollmentRef = useRef<(pin: string) => void>(null);
+
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [showMFADialog, setShowMFADialog] = useState(false);
+  const [showEnrollDialog, setShowEnrollDialog] = useState(false);
+  const [invalidEnrollCode, setInvalidEnrollCode] = useState(false);
+  const { recaptchaVerifierRef } = useRecaptchaVerifier();
 
   const enrollMethod = useCallback(
     async (name: string, phone: string) => {
@@ -102,7 +116,7 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
         }
       };
     },
-    [onSuccess],
+    [onSuccess, recaptchaVerifierRef],
   );
 
   const triggerEnroll = useCallback(async () => {
@@ -152,7 +166,6 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
 export function useMfaFlow(
   onSuccess: (result: AuthUser | undefined) => void,
 ): MfaFlowResult {
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
   const sendMFARef = useRef<(info: MultiFactorInfo) => void>(null);
   const resolveMFARef = useRef<(pin: string) => void>(null);
 
@@ -160,20 +173,7 @@ export function useMfaFlow(
   const [showMFAMethodDialog, setShowMFAMethodDialog] = useState(false);
   const [showMFADialog, setShowMFADialog] = useState(false);
   const [invalidMfaCode, setInvalidMfaCode] = useState(false);
-
-  useEffect(() => {
-    if (!recaptchaVerifierRef.current) {
-      initRecaptchaVerifier().then((v) => {
-        recaptchaVerifierRef.current = v;
-      });
-    }
-    return () => {
-      if (recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current.clear();
-        recaptchaVerifierRef.current = null;
-      }
-    };
-  }, []);
+  const { recaptchaVerifierRef } = useRecaptchaVerifier();
 
   const handleMfa: OnMFACallback = useCallback(
     (resolver: MultiFactorResolver, resolve: ResolveLoginCallback) => {
@@ -181,7 +181,10 @@ export function useMfaFlow(
       setShowMFAMethodDialog(true);
 
       sendMFARef.current = async (info: MultiFactorInfo) => {
-        if (!recaptchaVerifierRef.current) return;
+        if (!recaptchaVerifierRef.current) {
+          toast.error("reCAPTCHA not ready. Please refresh and try again.");
+          return;
+        }
         try {
           const id = await sendSMSMFACode(
             info,
@@ -208,7 +211,7 @@ export function useMfaFlow(
         }
       };
     },
-    [onSuccess],
+    [onSuccess, recaptchaVerifierRef],
   );
 
   return {

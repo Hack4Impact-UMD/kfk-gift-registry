@@ -135,7 +135,12 @@ function RouteComponent() {
         {
           onSuccess: async (result) => {
             if (result) {
-              const methods = await getEnrolledMFAMethods();
+              let methods = [];
+              try {
+                methods = await getEnrolledMFAMethods();
+              } catch (err) {
+                console.warn("Failed to fetch MFA methods:", err);
+              }
               if (result.role !== UserRole.DONOR && methods.length === 0) {
                 await navigate({ to: "/mfaEnroll" });
               } else {
