@@ -13,12 +13,14 @@ type EmailVerificationAlertDialogProps = {
   open: boolean;
   onSubmit: () => void;
   onCancel: () => void;
+  disabled: boolean;
 };
 
 export function EmailVerificationAlertDialog({
   open,
   onSubmit,
   onCancel,
+  disabled,
 }: EmailVerificationAlertDialogProps) {
   return (
     <AlertDialog open={open}>
@@ -32,7 +34,9 @@ export function EmailVerificationAlertDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onSubmit}>Continue</AlertDialogAction>
+          <AlertDialogAction disabled={disabled} onClick={onSubmit}>
+            Continue
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

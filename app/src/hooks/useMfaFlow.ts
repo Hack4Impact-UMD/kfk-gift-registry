@@ -75,6 +75,7 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
   const [showMFADialog, setShowMFADialog] = useState(false);
   const [showEnrollDialog, setShowEnrollDialog] = useState(false);
   const [invalidEnrollCode, setInvalidEnrollCode] = useState(false);
+  const [emailVerifyDisabled, setEmailVerifyDisabled] = useState(true);
   const { recaptchaVerifierRef } = useRecaptchaVerifier();
 
   const enrollMethod = useCallback(
@@ -101,6 +102,8 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
         recaptchaVerifierRef.current,
       );
 
+      toast.success("Code sent!");
+
       setShowEnrollDialog(false);
       setShowMFADialog(true);
 
@@ -126,9 +129,11 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
     if (!auth.currentUser.emailVerified) {
       // start with email verification
       try {
+        setEmailVerifyDisabled(true);
         await sendEmailVerification(auth.currentUser);
         toast.success("Verification email sent!");
         setShowEmailDialog(true);
+        setTimeout(() => setEmailVerifyDisabled(false), 1000);
       } catch (err) {
         toast.error("Failed to send verification email");
         console.error(err);
@@ -145,6 +150,7 @@ export function useMfaEnrollFlow(onSuccess: () => void) {
       open: showEmailDialog,
       onSubmit: triggerEnroll,
       onCancel: () => setShowEmailDialog(false),
+      disabled: emailVerifyDisabled,
     },
     enrollDialogProps: {
       open: showEnrollDialog,
