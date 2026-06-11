@@ -109,6 +109,7 @@ function RouteComponent() {
 
   const { handleMfa, mfaMethodDialogProps, mfaDialogProps } = useMfaFlow(
     (result) => {
+      router.invalidate();
       navigate({
         to:
           redirectPath ??
