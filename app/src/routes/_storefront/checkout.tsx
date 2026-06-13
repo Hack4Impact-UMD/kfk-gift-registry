@@ -10,6 +10,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { cartCollection } from "@/local/cartCollection";
 import { CheckoutAuthModal } from "@/components/storefront/CheckoutAuthModal";
 import { useCheckoutFlow } from "@/hooks/useCheckoutFlow";
+import MfaMethodDialog from "@/components/auth/MfaMethodDialog";
+import MfaDialog from "@/components/auth/MfaDialog";
 
 export const Route = createFileRoute("/_storefront/checkout")({
   head: () => ({
@@ -112,6 +114,8 @@ function CheckoutComponent() {
           isLoading={flow.isPending}
         />
       </div>
+      <MfaMethodDialog {...flow.mfaMethodDialogProps} />
+      <MfaDialog {...flow.mfaDialogProps} />
       <CheckoutAuthModal flow={flow} />
     </div>
   );
