@@ -317,9 +317,22 @@ export const markGiftPurchased = createServerFn({ method: "POST" })
         );
       }
 
+      const claimQuery = db.claims
+        .where("giftId", "==", data.giftId)
+        .where("donorId", "==", donorId)
+        .where("active", "==", true);
+      const claimSnapshot = await transaction.get(claimQuery);
+      const claimDoc = claimSnapshot.docs[0];
+
       transaction.update(giftRef, {
         status: "PURCHASED",
       });
+
+      if (claimDoc && !claimDoc.data()?.purchaseConfirmation?.date) {
+        transaction.update(claimDoc.ref, {
+          "purchaseConfirmation.date": new Date().toISOString(),
+        });
+      }
 
       return {
         ...gift,

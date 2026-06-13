@@ -13,7 +13,9 @@ export function ThankYouNotePanel({
         <Quote className="size-4" />
       </div>
       <p className="font-gaegu text-2xl font-bold text-kfk-brown">
-        A note from {childFirstName}
+        {childFirstName.trim()
+          ? `A note from ${childFirstName.trim()}`
+          : "A thank you note"}
       </p>
       <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-kfk-brown">
         "{note}"

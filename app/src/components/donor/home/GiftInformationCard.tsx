@@ -53,13 +53,6 @@ export function GiftInformationCard({
   const canUnclaim = gift.status === "CLAIMED" && !state.ordered;
   const kfkEmail = "info@kissesforkyle.org";
 
-  // Keeps track of the most recent saved states
-  const [isDelivered, setIsDelivered] = useState(state.delivered);
-  const [orderReceipt, setOrderReceipt] = useState(state.receiptFileName);
-  const [orderDeliveryReceipt, setOrderDeliveryReceipt] = useState(
-    state.deliveryReceiptFileName,
-  );
-
   const handleConfirmOrdered = async () => {
     await onOrdered();
     setOrderConfirmOpen(false);
@@ -186,7 +179,6 @@ export function GiftInformationCard({
                   isUploading={isUploadingDeliveryReceipt}
                   onFile={(n) => {
                     onDeliveryReceipt(n);
-                    setOrderDeliveryReceipt(n.name);
                   }}
                   onClear={() => onDeliveryReceipt(null)}
                   showClear={undoMode}
@@ -240,7 +232,6 @@ export function GiftInformationCard({
                 isUploading={isUploadingReceipt}
                 onFile={(n) => {
                   onReceipt(n);
-                  setOrderReceipt(n.name);
                 }}
                 onClear={() => onReceipt(null)}
                 showClear={undoMode}
@@ -306,11 +297,11 @@ export function GiftInformationCard({
               variant="outline"
               className="border-gray-300 bg-white font-medium text-gray-700 hover:bg-gray-50"
               onClick={() => {
-                if (isDelivered) onDelivered();
+                if (state.savedDelivered) onDelivered();
                 else onUndoDelivery();
                 onTrackingChange(state.savedTracking);
-                onReceipt(orderReceipt);
-                onDeliveryReceipt(orderDeliveryReceipt);
+                onReceipt(state.savedReceiptFileName);
+                onDeliveryReceipt(state.savedDeliveryReceiptFileName);
                 onSave();
                 setUndoMode(false);
               }}
@@ -323,9 +314,6 @@ export function GiftInformationCard({
               onClick={async () => {
                 await onSave();
                 setUndoMode(false);
-                setIsDelivered(state.delivered);
-                setOrderReceipt(state.receiptFileName);
-                setOrderDeliveryReceipt(state.deliveryReceiptFileName);
               }}
             >
               Save
