@@ -5,9 +5,11 @@ import {
   initializeAppCheck,
   ReCaptchaEnterpriseProvider,
 } from "firebase/app-check";
+import { connectStorageEmulator, getStorage } from "firebase/storage";
 import { createClientOnlyFn } from "@tanstack/react-start";
 import type { Auth } from "firebase/auth";
 import type { AppCheck } from "firebase/app-check";
+import type { FirebaseStorage } from "firebase/storage";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -37,6 +39,7 @@ if (import.meta.env.DEV) {
 const app = initializeApp(firebaseConfig);
 let auth: Auth | null = null;
 let appCheck: AppCheck | null = null;
+let storage: FirebaseStorage | null = null;
 
 export const getClientAuth = createClientOnlyFn(async () => {
   if (auth) return auth;
@@ -48,6 +51,15 @@ export const getClientAuth = createClientOnlyFn(async () => {
 
   await auth.authStateReady();
   return auth;
+});
+
+export const getClientStorage = createClientOnlyFn(async () => {
+  if (storage) return storage;
+  storage = getStorage(app);
+  if (import.meta.env.DEV) {
+    connectStorageEmulator(storage, "localhost", 9199);
+  }
+  return storage;
 });
 
 export const getClientAppCheck = createClientOnlyFn(async () => {

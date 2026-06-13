@@ -24,6 +24,7 @@ import { Route as StorefrontCheckoutRouteImport } from './routes/_storefront/che
 import { Route as AuthenticatedStaffRouteRouteImport } from './routes/_authenticated/staff/route'
 import { Route as AuthenticatedDonorRouteRouteImport } from './routes/_authenticated/donor/route'
 import { Route as FamilyTokenIndexRouteImport } from './routes/family/$token/index'
+import { Route as AuthenticatedDonorIndexRouteImport } from './routes/_authenticated/donor/index'
 import { Route as SignupAdminInviteIdRouteImport } from './routes/signup/admin/$inviteId'
 import { Route as FamilyDriveDriveIdRouteImport } from './routes/family/drive/$driveId'
 import { Route as FamilyTokenHomeRouteImport } from './routes/family/$token/home'
@@ -35,6 +36,7 @@ import { Route as AuthenticatedStaffFamilyApprovalRouteImport } from './routes/_
 import { Route as AuthenticatedStaffChildProfileRouteImport } from './routes/_authenticated/staff/child-profile'
 import { Route as AuthenticatedDonorNotificationsRouteImport } from './routes/_authenticated/donor/notifications'
 import { Route as AuthenticatedDonorHomeRouteImport } from './routes/_authenticated/donor/home'
+import { Route as AuthenticatedDonorSplatRouteImport } from './routes/_authenticated/donor/$'
 import { Route as AuthenticatedStaffVolunteerRouteRouteImport } from './routes/_authenticated/staff/volunteer/route'
 import { Route as AuthenticatedStaffAdminRouteRouteImport } from './routes/_authenticated/staff/admin/route'
 import { Route as FamilyDriveDriveIdFormRouteImport } from './routes/family/drive/$driveId/form'
@@ -124,6 +126,11 @@ const FamilyTokenIndexRoute = FamilyTokenIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FamilyTokenRoute,
 } as any)
+const AuthenticatedDonorIndexRoute = AuthenticatedDonorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedDonorRouteRoute,
+} as any)
 const SignupAdminInviteIdRoute = SignupAdminInviteIdRouteImport.update({
   id: '/signup/admin/$inviteId',
   path: '/signup/admin/$inviteId',
@@ -181,6 +188,11 @@ const AuthenticatedDonorNotificationsRoute =
 const AuthenticatedDonorHomeRoute = AuthenticatedDonorHomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => AuthenticatedDonorRouteRoute,
+} as any)
+const AuthenticatedDonorSplatRoute = AuthenticatedDonorSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => AuthenticatedDonorRouteRoute,
 } as any)
 const AuthenticatedStaffVolunteerRouteRoute =
@@ -287,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/signup/success': typeof SignupSuccessRoute
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
+  '/donor/$': typeof AuthenticatedDonorSplatRoute
   '/donor/home': typeof AuthenticatedDonorHomeRoute
   '/donor/notifications': typeof AuthenticatedDonorNotificationsRoute
   '/staff/child-profile': typeof AuthenticatedStaffChildProfileRoute
@@ -298,6 +311,7 @@ export interface FileRoutesByFullPath {
   '/family/$token/home': typeof FamilyTokenHomeRoute
   '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
+  '/donor/': typeof AuthenticatedDonorIndexRoute
   '/family/$token/': typeof FamilyTokenIndexRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
   '/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
@@ -321,12 +335,12 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/resetPassword': typeof ResetPasswordRoute
   '/resetSuccess': typeof ResetSuccessRoute
-  '/donor': typeof AuthenticatedDonorRouteRouteWithChildren
   '/staff': typeof AuthenticatedStaffRouteRouteWithChildren
   '/checkout': typeof StorefrontCheckoutRoute
   '/signup/success': typeof SignupSuccessRoute
   '/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
   '/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
+  '/donor/$': typeof AuthenticatedDonorSplatRoute
   '/donor/home': typeof AuthenticatedDonorHomeRoute
   '/donor/notifications': typeof AuthenticatedDonorNotificationsRoute
   '/staff/child-profile': typeof AuthenticatedStaffChildProfileRoute
@@ -338,6 +352,7 @@ export interface FileRoutesByTo {
   '/family/$token/home': typeof FamilyTokenHomeRoute
   '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
+  '/donor': typeof AuthenticatedDonorIndexRoute
   '/family/$token': typeof FamilyTokenIndexRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
   '/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
@@ -370,6 +385,7 @@ export interface FileRoutesById {
   '/_storefront/': typeof StorefrontIndexRoute
   '/_authenticated/staff/admin': typeof AuthenticatedStaffAdminRouteRouteWithChildren
   '/_authenticated/staff/volunteer': typeof AuthenticatedStaffVolunteerRouteRoute
+  '/_authenticated/donor/$': typeof AuthenticatedDonorSplatRoute
   '/_authenticated/donor/home': typeof AuthenticatedDonorHomeRoute
   '/_authenticated/donor/notifications': typeof AuthenticatedDonorNotificationsRoute
   '/_authenticated/staff/child-profile': typeof AuthenticatedStaffChildProfileRoute
@@ -381,6 +397,7 @@ export interface FileRoutesById {
   '/family/$token/home': typeof FamilyTokenHomeRoute
   '/family/drive/$driveId': typeof FamilyDriveDriveIdRouteWithChildren
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
+  '/_authenticated/donor/': typeof AuthenticatedDonorIndexRoute
   '/family/$token/': typeof FamilyTokenIndexRoute
   '/_authenticated/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
   '/_authenticated/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
@@ -413,6 +430,7 @@ export interface FileRouteTypes {
     | '/signup/success'
     | '/staff/admin'
     | '/staff/volunteer'
+    | '/donor/$'
     | '/donor/home'
     | '/donor/notifications'
     | '/staff/child-profile'
@@ -424,6 +442,7 @@ export interface FileRouteTypes {
     | '/family/$token/home'
     | '/family/drive/$driveId'
     | '/signup/admin/$inviteId'
+    | '/donor/'
     | '/family/$token/'
     | '/staff/admin/users'
     | '/staff/child/$childId'
@@ -447,12 +466,12 @@ export interface FileRouteTypes {
     | '/register'
     | '/resetPassword'
     | '/resetSuccess'
-    | '/donor'
     | '/staff'
     | '/checkout'
     | '/signup/success'
     | '/staff/admin'
     | '/staff/volunteer'
+    | '/donor/$'
     | '/donor/home'
     | '/donor/notifications'
     | '/staff/child-profile'
@@ -464,6 +483,7 @@ export interface FileRouteTypes {
     | '/family/$token/home'
     | '/family/drive/$driveId'
     | '/signup/admin/$inviteId'
+    | '/donor'
     | '/family/$token'
     | '/staff/admin/users'
     | '/staff/child/$childId'
@@ -495,6 +515,7 @@ export interface FileRouteTypes {
     | '/_storefront/'
     | '/_authenticated/staff/admin'
     | '/_authenticated/staff/volunteer'
+    | '/_authenticated/donor/$'
     | '/_authenticated/donor/home'
     | '/_authenticated/donor/notifications'
     | '/_authenticated/staff/child-profile'
@@ -506,6 +527,7 @@ export interface FileRouteTypes {
     | '/family/$token/home'
     | '/family/drive/$driveId'
     | '/signup/admin/$inviteId'
+    | '/_authenticated/donor/'
     | '/family/$token/'
     | '/_authenticated/staff/admin/users'
     | '/_authenticated/staff/child/$childId'
@@ -644,6 +666,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FamilyTokenIndexRouteImport
       parentRoute: typeof FamilyTokenRoute
     }
+    '/_authenticated/donor/': {
+      id: '/_authenticated/donor/'
+      path: '/'
+      fullPath: '/donor/'
+      preLoaderRoute: typeof AuthenticatedDonorIndexRouteImport
+      parentRoute: typeof AuthenticatedDonorRouteRoute
+    }
     '/signup/admin/$inviteId': {
       id: '/signup/admin/$inviteId'
       path: '/signup/admin/$inviteId'
@@ -719,6 +748,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/donor/home'
       preLoaderRoute: typeof AuthenticatedDonorHomeRouteImport
+      parentRoute: typeof AuthenticatedDonorRouteRoute
+    }
+    '/_authenticated/donor/$': {
+      id: '/_authenticated/donor/$'
+      path: '/$'
+      fullPath: '/donor/$'
+      preLoaderRoute: typeof AuthenticatedDonorSplatRouteImport
       parentRoute: typeof AuthenticatedDonorRouteRoute
     }
     '/_authenticated/staff/volunteer': {
@@ -846,14 +882,18 @@ const StorefrontRouteRouteWithChildren = StorefrontRouteRoute._addFileChildren(
 )
 
 interface AuthenticatedDonorRouteRouteChildren {
+  AuthenticatedDonorSplatRoute: typeof AuthenticatedDonorSplatRoute
   AuthenticatedDonorHomeRoute: typeof AuthenticatedDonorHomeRoute
   AuthenticatedDonorNotificationsRoute: typeof AuthenticatedDonorNotificationsRoute
+  AuthenticatedDonorIndexRoute: typeof AuthenticatedDonorIndexRoute
 }
 
 const AuthenticatedDonorRouteRouteChildren: AuthenticatedDonorRouteRouteChildren =
   {
+    AuthenticatedDonorSplatRoute: AuthenticatedDonorSplatRoute,
     AuthenticatedDonorHomeRoute: AuthenticatedDonorHomeRoute,
     AuthenticatedDonorNotificationsRoute: AuthenticatedDonorNotificationsRoute,
+    AuthenticatedDonorIndexRoute: AuthenticatedDonorIndexRoute,
   }
 
 const AuthenticatedDonorRouteRouteWithChildren =

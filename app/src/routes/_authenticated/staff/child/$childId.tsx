@@ -1,32 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState, useTransition } from "react";
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
+import { useQuery } from "@tanstack/react-query";
+import { useRef, useState, useTransition } from "react";
 import { v7 as uuidv7 } from "uuid";
+import type { Address, Child, Family, Gift } from "common";
+import {
+  CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE,
+  isChildPublicBlurbTooLong,
+} from "common";
 import { useCollections } from "@/collections/context";
 import {
   childByIdQueryOptions,
   familyByIdQueryOptions,
   giftsByChildIdQueryOptions,
 } from "@/collections/preload";
-import { useQuery } from "@tanstack/react-query";
-import { queries } from "@/queries";
 import { ChildHeader } from "@/components/child-profile/ChildHeader";
 import { ChildInfo } from "@/components/child-profile/ChildInfo";
 import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
 import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
 import { GiftInfoSection } from "@/components/child-profile/GiftInfoSection";
 import { AddGiftForm } from "@/components/child-profile/AddGiftForm";
-import { useFamilyLinkByFamilyId } from "@/hooks/queries/useFamilyLinkByFamilyId";
-import { Spinner } from "@/components/ui/spinner";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
+import { useFamilyLinkByFamilyId } from "@/hooks/queries/useFamilyLinkByFamilyId";
+import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
-import {
-  CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE,
-  isChildPublicBlurbTooLong,
-} from "common";
-import type { Address, Child, Family, Gift } from "common";
 
 export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
   component: ChildProfilePage,
@@ -134,7 +134,7 @@ function ChildProfilePage() {
     enabled: !!child,
   });
   const claimsByGiftId = Object.fromEntries(
-    claimsData.map((c) => [c.giftId, c]),
+    claimsData.map((claim) => [claim.giftId, claim]),
   );
 
   if (childIsError) {
@@ -343,9 +343,8 @@ function ChildProfilePage() {
   const handleGiftToggle = (giftId: string) => {
     const gift = giftsData.find((g) => g.id === giftId);
     if (!gift) return;
-    if (!gift.active) {
-      if (activeGiftCount >= 3) return;
-    }
+    if (!gift.active && activeGiftCount >= 3) return;
+
     const nextActive = !gift.active;
     editGift(giftId, (draft) => {
       draft.active = nextActive;
@@ -426,11 +425,11 @@ function ChildProfilePage() {
 
       <div className="my-6 h-px w-full bg-border/70" />
       {familyLinkPending ? (
-        <div className="p-2 w-full">
+        <div className="w-full p-2">
           <Spinner />
         </div>
       ) : familyLinkError ? (
-        <div className="p-2 w-full">
+        <div className="w-full p-2">
           <span className="text-kfk-red">
             Failed to fetch family link: {familyLinkError.message}
           </span>

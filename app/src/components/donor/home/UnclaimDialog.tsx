@@ -22,27 +22,25 @@ export function UnclaimDialog({
     <AlertDialog open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            Are you sure you want to un-claim the gift?
-          </AlertDialogTitle>
+          <AlertDialogTitle>Confirm unclaiming this gift</AlertDialogTitle>
           <AlertDialogDescription>
-            This action is irreversible and will return the gift back to the
+            Confirming to unclaim this gift will release this gift back to the
             storefront.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction
+          <AlertDialogCancel
             onClick={onCancel}
             className="bg-kfk-blue hover:bg-kfk-blue/80 text-white"
           >
             Cancel
-          </AlertDialogAction>
-          <AlertDialogCancel
+          </AlertDialogCancel>
+          <AlertDialogAction
             onClick={onConfirm}
             className="border-kfk-blue text-kfk-blue hover:bg-kfk-blue/10"
           >
-            Yes, I am sure
-          </AlertDialogCancel>
+            Yes, unclaim gift
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

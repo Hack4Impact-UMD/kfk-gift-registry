@@ -7,6 +7,7 @@ import { giftDriveQueries } from "./giftDrive";
 import { storefrontQueries } from "./storefront";
 import { sessionQueries } from "./session";
 import { giftQueries } from "./gift";
+import { donorQueries } from "./donor";
 import { claimQueries } from "./claim";
 import { notificationQueries } from "./notifications";
 
@@ -19,6 +20,7 @@ export const queries = mergeQueryKeys(
   storefrontQueries,
   sessionQueries,
   giftQueries,
+  donorQueries,
   claimQueries,
   notificationQueries,
 );

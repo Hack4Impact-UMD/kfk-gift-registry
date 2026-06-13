@@ -44,7 +44,7 @@ export const Route = createFileRoute("/login")({
       throw redirect({
         to:
           context.auth.authUser.role === UserRole.DONOR
-            ? "/donor"
+            ? "/donor/home"
             : "/staff/home",
       });
     }
@@ -113,7 +113,7 @@ function RouteComponent() {
       navigate({
         to:
           redirectPath ??
-          (result?.role === UserRole.DONOR ? "/donor" : "/staff/home"),
+          (result?.role === UserRole.DONOR ? "/donor/home" : "/staff/home"),
       });
     },
   );
@@ -149,7 +149,9 @@ function RouteComponent() {
                 await navigate({
                   to:
                     redirectPath ??
-                    (result.role === UserRole.DONOR ? "/donor" : "/staff/home"),
+                    (result.role === UserRole.DONOR
+                      ? "/donor/home"
+                      : "/staff/home"),
                 });
               }
             }
