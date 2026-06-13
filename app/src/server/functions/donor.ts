@@ -94,16 +94,21 @@ function getUploadedFileName(url?: string) {
     return "Receipt uploaded";
   }
 }
+const GetCommittedChildrenForDonorRequestSchema = z.object({
+  driveId: z.string()
+})
 
 export const getCommittedChildrenForDonor = createServerFn({ method: "GET" })
+  .inputValidator(GetCommittedChildrenForDonorRequestSchema)
   .middleware([requireRolesMiddleware([UserRole.DONOR])])
-  .handler(async ({ context }) => {
+  .handler(async ({ context, data }) => {
     const donorId = context.authUser.uid;
     const db = getServerDB();
 
     const claimsSnapshot = await db.claims
       .where("donorId", "==", donorId)
       .where("active", "==", true)
+      .where("driveId", "==", data.driveId)
       .get();
 
     if (claimsSnapshot.empty) {

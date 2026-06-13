@@ -24,12 +24,12 @@ export const Route = createFileRoute("/_authenticated/donor/home")({
 });
 
 function RouteComponent() {
-  const { auth } = Route.useRouteContext();
+  const { auth, currentDrive } = Route.useRouteContext();
   const {
     data: committedChildren,
     isPending,
     isError,
-  } = useDonorCommittedChildren();
+  } = useDonorCommittedChildren(currentDrive?.id ?? "");
 
   if (isPending) {
     return (

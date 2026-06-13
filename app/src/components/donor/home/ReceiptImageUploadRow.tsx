@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export function ReceiptImageUploadRow({
   fileName,
@@ -15,6 +16,7 @@ export function ReceiptImageUploadRow({
   showClear = false,
   isUploading = false,
   disabled = false,
+  label
 }: {
   fileName: string | null;
   fileUrl?: string | null;
@@ -23,6 +25,7 @@ export function ReceiptImageUploadRow({
   showClear?: boolean;
   isUploading?: boolean;
   disabled?: boolean;
+  label?: string;
 }) {
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -35,8 +38,7 @@ export function ReceiptImageUploadRow({
           htmlFor={inputId}
           className="flex shrink-0 flex-col gap-0 text-base font-medium leading-tight text-gray-800"
         >
-          <span>Attach</span>
-          <span>Receipt</span>
+          {label || "Attach Receipt"}
         </Label>
         <div className="flex min-w-0 flex-1 flex-col items-end gap-1">
           <input
@@ -53,32 +55,33 @@ export function ReceiptImageUploadRow({
             }}
           />
           <div className="flex w-full items-center justify-end gap-2">
-            <button
+            <Button
               type="button"
               disabled={disabled || isUploading}
               className="inline-flex min-h-10 items-center justify-center rounded-xl bg-kfk-blue px-8 py-2 font-gaegu text-lg font-bold text-white transition-colors hover:bg-kfk-blue/80 disabled:cursor-not-allowed disabled:opacity-70"
               onClick={() => inputRef.current?.click()}
             >
               {isUploading ? "Uploading..." : "Upload Image"}
-            </button>
+            </Button>
             {fileUrl && (
-              <button
+              <Button
+                variant={"outline"}
                 type="button"
                 onClick={() => setPreviewOpen(true)}
                 className="inline-flex min-h-9 items-center justify-center rounded-lg border border-kfk-blue px-3 py-1 text-xs font-semibold text-kfk-blue transition-colors hover:bg-kfk-blue/5"
               >
                 View
-              </button>
+              </Button>
             )}
             {showClear && fileName && (
-              <button
+              <Button
                 type="button"
                 onClick={onClear}
                 className="text-xl leading-none font-medium text-gray-500 hover:text-gray-700"
                 aria-label="Remove file"
               >
                 ×
-              </button>
+              </Button>
             )}
           </div>
           {fileName && (

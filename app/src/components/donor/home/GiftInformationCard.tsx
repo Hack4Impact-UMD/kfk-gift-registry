@@ -144,7 +144,7 @@ export function GiftInformationCard({
           <div className="space-y-4 rounded-lg border-2 border-kfk-blue bg-white p-4">
             {!state.delivered ? (
               <>
-                <p className="text-center text-base font-medium text-gray-900">
+                <p className="text-center text-lg font-medium text-gray-900">
                   Was the gift delivered?
                 </p>
                 <div className="flex w-full justify-center">
@@ -172,22 +172,27 @@ export function GiftInformationCard({
               <ConfirmedBanner label="Gift Delivery Confirmed" />
             )}
 
-            <Separator className="bg-gray-200" />
-            <p className="text-center text-base text-gray-700">
-              Optional, but helpful for us!
-            </p>
-            <ReceiptImageUploadRow
-              fileName={state.deliveryReceiptFileName}
-              fileUrl={state.deliveryReceiptUrl}
-              disabled={!state.delivered}
-              isUploading={isUploadingDeliveryReceipt}
-              onFile={(n) => {
-                onDeliveryReceipt(n);
-                setOrderDeliveryReceipt(n.name);
-              }}
-              onClear={() => onDeliveryReceipt(null)}
-              showClear={undoMode}
-            />
+            {state.delivered && (
+              <>
+                <Separator className="bg-gray-200" />
+                <p className="text-center text-base text-gray-700">
+                  Optional, but helpful for us!
+                </p>
+                <ReceiptImageUploadRow
+                  label="Attach Delivery Confirmation"
+                  fileName={state.deliveryReceiptFileName}
+                  fileUrl={state.deliveryReceiptUrl}
+                  disabled={!state.delivered}
+                  isUploading={isUploadingDeliveryReceipt}
+                  onFile={(n) => {
+                    onDeliveryReceipt(n);
+                    setOrderDeliveryReceipt(n.name);
+                  }}
+                  onClear={() => onDeliveryReceipt(null)}
+                  showClear={undoMode}
+                />
+              </>
+            )}
           </div>
         )}
 
@@ -206,7 +211,7 @@ export function GiftInformationCard({
             </div>
           ) : !state.ordered ? (
             <>
-              <p className="text-center text-base font-medium text-gray-900">
+              <p className="text-center text-lg font-medium text-gray-900">
                 Did you order the gift?
               </p>
               <div className="flex w-full justify-center">
@@ -222,40 +227,43 @@ export function GiftInformationCard({
           ) : (
             <ConfirmedBanner label="Gift Purchase Confirmed" />
           )}
+          {state.ordered && (
+            <>
+              <Separator className="bg-gray-200" />
+              <p className="text-center text-base text-gray-700">
+                Optional, but helpful for us!
+              </p>
+              <ReceiptImageUploadRow
+                fileName={state.receiptFileName}
+                fileUrl={state.receiptUrl}
+                disabled={!state.ordered}
+                isUploading={isUploadingReceipt}
+                onFile={(n) => {
+                  onReceipt(n);
+                  setOrderReceipt(n.name);
+                }}
+                onClear={() => onReceipt(null)}
+                showClear={undoMode}
+              />
 
-          <Separator className="bg-gray-200" />
-          <p className="text-center text-base text-gray-700">
-            Optional, but helpful for us!
-          </p>
-          <ReceiptImageUploadRow
-            fileName={state.receiptFileName}
-            fileUrl={state.receiptUrl}
-            disabled={!state.ordered}
-            isUploading={isUploadingReceipt}
-            onFile={(n) => {
-              onReceipt(n);
-              setOrderReceipt(n.name);
-            }}
-            onClear={() => onReceipt(null)}
-            showClear={undoMode}
-          />
-
-          <div className="flex flex-row justify-between gap-2">
-            <Label
-              htmlFor={`${gift.id}-tracking`}
-              className="text-sm font-bold whitespace-nowrap text-gray-900"
-            >
-              Tracking #
-            </Label>
-            <Input
-              id={`${gift.id}-tracking`}
-              value={state.tracking}
-              onChange={(e) => onTrackingChange(e.target.value)}
-              disabled={!state.ordered || isSavingTracking}
-              placeholder="Enter tracking number"
-              className="rounded-lg border-gray-300"
-            />
-          </div>
+              <div className="flex flex-row justify-between gap-2">
+                <Label
+                  htmlFor={`${gift.id}-tracking`}
+                  className="text-sm font-bold whitespace-nowrap text-gray-900"
+                >
+                  Tracking #
+                </Label>
+                <Input
+                  id={`${gift.id}-tracking`}
+                  value={state.tracking}
+                  onChange={(e) => onTrackingChange(e.target.value)}
+                  disabled={!state.ordered || isSavingTracking}
+                  placeholder="Enter tracking number"
+                  className="rounded-lg border-gray-300"
+                />
+              </div>
+            </>
+          )}
 
           {state.ordered && state.tracking !== state.savedTracking && (
             <div className="flex justify-end">
