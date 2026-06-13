@@ -9,7 +9,6 @@ import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
 import { assertGiftDriveActive } from "@/server/services/giftDriveService.server";
 import type { CommittedChild } from "@/components/donor/home/types";
-import { uploadClaimDocument } from "@/server/services/claimDocumentService.server";
 import {
   publishNotification,
   createNotificationMessage,
@@ -30,15 +29,13 @@ const updateTrackingNumberSchema = z.object({
 
 const purchaseReceiptUploadSchema = z.object({
   giftId: z.string().min(1),
-  fileName: z.string().min(1),
-  dataUrl: z.string().min(1),
+  documentationPath: z.string().min(1),
   trackingNumber: z.string().optional(),
 });
 
 const deliveryReceiptUploadSchema = z.object({
   giftId: z.string().min(1),
-  fileName: z.string().min(1),
-  dataUrl: z.string().min(1),
+  documentationPath: z.string().min(1),
 });
 
 async function loadGifts(
@@ -81,12 +78,13 @@ function toCommittedCategory(
   return category === "warrior" ? "Warrior" : "Supersib";
 }
 
-function getUploadedFileName(url?: string) {
-  if (!url) return null;
+function getUploadedFileName(urlOrPath?: string) {
+  if (!urlOrPath) return null;
 
   try {
-    const pathname = new URL(url).pathname;
-    const lastSegment = pathname.split("/").pop();
+    const lastSegment = urlOrPath.startsWith("https://")
+      ? new URL(urlOrPath).pathname.split("/").pop()
+      : urlOrPath.split("/").pop();
     if (!lastSegment) return "Receipt uploaded";
     const decoded = decodeURIComponent(lastSegment);
     return decoded.replace(/^\d+-/, "");
@@ -95,8 +93,8 @@ function getUploadedFileName(url?: string) {
   }
 }
 const GetCommittedChildrenForDonorRequestSchema = z.object({
-  driveId: z.string()
-})
+  driveId: z.string(),
+});
 
 export const getCommittedChildrenForDonor = createServerFn({ method: "GET" })
   .inputValidator(GetCommittedChildrenForDonorRequestSchema)
@@ -180,12 +178,12 @@ export const getCommittedChildrenForDonor = createServerFn({ method: "GET" })
         purchaseReceiptFileName: getUploadedFileName(
           claim.purchaseConfirmation?.documentationUrl,
         ),
-        purchaseReceiptUrl:
+        purchaseReceiptPath:
           claim.purchaseConfirmation?.documentationUrl ?? null,
         deliveryReceiptFileName: getUploadedFileName(
           claim.deliveryConfirmed?.documentationUrl,
         ),
-        deliveryReceiptUrl: claim.deliveryConfirmed?.documentationUrl ?? null,
+        deliveryReceiptPath: claim.deliveryConfirmed?.documentationUrl ?? null,
         trackingNumber: claim.purchaseConfirmation?.trackingNumber ?? "",
         thankYouNote: claim.thankYouNote ?? null,
       });
@@ -365,18 +363,13 @@ export const uploadPurchaseReceipt = createServerFn({ method: "POST" })
       throw new Error("Active donor claim not found for this gift");
     }
 
-    const documentationUrl = await uploadClaimDocument(
-      claim.id,
-      data.fileName,
-      data.dataUrl,
-    );
     const nextTrackingNumber =
       data.trackingNumber?.trim() || claim.purchaseConfirmation?.trackingNumber;
 
     await claimDoc.ref.update({
       purchaseConfirmation: {
         date: claim.purchaseConfirmation?.date ?? new Date().toISOString(),
-        documentationUrl,
+        documentationUrl: data.documentationPath,
         verified: claim.purchaseConfirmation?.verified ?? false,
         ...(nextTrackingNumber ? { trackingNumber: nextTrackingNumber } : {}),
       },
@@ -384,8 +377,7 @@ export const uploadPurchaseReceipt = createServerFn({ method: "POST" })
 
     return {
       giftId: gift.id,
-      documentationUrl,
-      fileName: data.fileName,
+      documentationPath: data.documentationPath,
       trackingNumber: nextTrackingNumber ?? "",
     };
   });
@@ -541,24 +533,17 @@ export const uploadDeliveryReceipt = createServerFn({ method: "POST" })
       throw new Error("Active donor claim not found for this gift");
     }
 
-    const documentationUrl = await uploadClaimDocument(
-      claim.id,
-      data.fileName,
-      data.dataUrl,
-    );
-
     await claimDoc.ref.update({
       deliveryConfirmed: {
         date: claim.deliveryConfirmed?.date ?? new Date().toISOString(),
-        documentationUrl,
+        documentationUrl: data.documentationPath,
         verified: claim.deliveryConfirmed?.verified ?? false,
       },
     });
 
     return {
       giftId: gift.id,
-      documentationUrl,
-      fileName: data.fileName,
+      documentationPath: data.documentationPath,
     };
   });
 

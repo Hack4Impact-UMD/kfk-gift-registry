@@ -1,4 +1,5 @@
 import { useRef, useState, useTransition } from "react";
+import { useStorageUrl } from "@/hooks/useStorageUrl";
 import type { ChangeEvent } from "react";
 import type { Transaction } from "@tanstack/react-db";
 import { useQueryClient } from "@tanstack/react-query";
@@ -178,8 +179,8 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
   };
 
   const trackingEditable = isEditing && !!claim?.claimId;
-  const purchaseProofUrl = claim?.proofOfPurchaseUrl ?? null;
-  const deliveryProofUrl = claim?.proofOfDeliveryUrl ?? null;
+  const purchaseProofUrl = useStorageUrl(claim?.proofOfPurchasePath ?? null);
+  const deliveryProofUrl = useStorageUrl(claim?.proofOfDeliveryPath ?? null);
 
   return (
     <div className="space-y-4 px-6 py-5 text-sm">

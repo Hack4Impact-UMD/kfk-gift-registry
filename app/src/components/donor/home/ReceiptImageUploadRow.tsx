@@ -7,19 +7,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useStorageUrl } from "@/hooks/useStorageUrl";
 
 export function ReceiptImageUploadRow({
   fileName,
-  fileUrl,
+  filePath,
   onFile,
   onClear,
   showClear = false,
   isUploading = false,
   disabled = false,
-  label
+  label,
 }: {
   fileName: string | null;
-  fileUrl?: string | null;
+  filePath?: string | null;
   onFile: (file: File) => void;
   onClear: () => void;
   showClear?: boolean;
@@ -30,6 +31,7 @@ export function ReceiptImageUploadRow({
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const fileUrl = useStorageUrl(filePath ?? null);
 
   return (
     <>

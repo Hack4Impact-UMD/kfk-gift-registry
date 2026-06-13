@@ -181,7 +181,7 @@ export function GiftInformationCard({
                 <ReceiptImageUploadRow
                   label="Attach Delivery Confirmation"
                   fileName={state.deliveryReceiptFileName}
-                  fileUrl={state.deliveryReceiptUrl}
+                  filePath={state.deliveryReceiptPath}
                   disabled={!state.delivered}
                   isUploading={isUploadingDeliveryReceipt}
                   onFile={(n) => {
@@ -235,7 +235,7 @@ export function GiftInformationCard({
               </p>
               <ReceiptImageUploadRow
                 fileName={state.receiptFileName}
-                fileUrl={state.receiptUrl}
+                filePath={state.receiptPath}
                 disabled={!state.ordered}
                 isUploading={isUploadingReceipt}
                 onFile={(n) => {

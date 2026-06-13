@@ -45,8 +45,8 @@ export type StaffGiftDetails = {
   dateOrdered: string;
   dateDelivered: string;
   dateReceived: string;
-  proofOfPurchaseUrl: string;
-  proofOfDeliveryUrl: string;
+  proofOfPurchasePath: string;
+  proofOfDeliveryPath: string;
 };
 
 const childParamSchema = z.object({
@@ -399,9 +399,10 @@ export const getChildGiftDetailsByChildId = createServerFn({ method: "GET" })
             dateOrdered: claim.purchaseConfirmation?.date ?? "",
             dateDelivered: claim.deliveryConfirmed?.date ?? "",
             dateReceived: claim.receivedAt ?? "",
-            proofOfPurchaseUrl:
+            proofOfPurchasePath:
               claim.purchaseConfirmation?.documentationUrl ?? "",
-            proofOfDeliveryUrl: claim.deliveryConfirmed?.documentationUrl ?? "",
+            proofOfDeliveryPath:
+              claim.deliveryConfirmed?.documentationUrl ?? "",
           } satisfies StaffGiftDetails,
         ];
       }),
@@ -1170,8 +1171,8 @@ export type GiftClaimDetails = {
   dateOrdered: string | null;
   dateDelivered: string | null;
   dateReceived: string | null;
-  proofOfPurchaseUrl: string | null;
-  proofOfDeliveryUrl: string | null;
+  proofOfPurchasePath: string | null;
+  proofOfDeliveryPath: string | null;
 };
 
 export const getClaimsWithDonorByChildId = createServerFn({ method: "GET" })
@@ -1231,9 +1232,9 @@ export const getClaimsWithDonorByChildId = createServerFn({ method: "GET" })
         dateOrdered: claim.purchaseConfirmation?.date ?? null,
         dateDelivered: claim.deliveryConfirmed?.date ?? null,
         dateReceived: claim.receivedAt ?? null,
-        proofOfPurchaseUrl:
+        proofOfPurchasePath:
           claim.purchaseConfirmation?.documentationUrl ?? null,
-        proofOfDeliveryUrl: claim.deliveryConfirmed?.documentationUrl ?? null,
+        proofOfDeliveryPath: claim.deliveryConfirmed?.documentationUrl ?? null,
       };
     });
   });

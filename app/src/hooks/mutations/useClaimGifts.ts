@@ -1,13 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ref, uploadBytes } from "firebase/storage";
 import {
   claimGifts,
   markGiftDelivered,
   markGiftPurchased,
   updateGiftTrackingNumber,
-  uploadDeliveryReceipt,
-  uploadPurchaseReceipt,
   unclaimGifts,
+  uploadPurchaseReceipt,
+  uploadDeliveryReceipt,
 } from "@/server/functions/donor";
+import { getClientStorage, getClientAuth } from "@/lib/firebase.client";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
 
@@ -87,12 +89,30 @@ export function useUploadPurchaseReceipt() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: {
+    mutationFn: async (params: {
       giftId: string;
-      fileName: string;
-      dataUrl: string;
+      file: File;
       trackingNumber?: string;
-    }) => uploadPurchaseReceipt({ data: params }),
+    }) => {
+      const auth = await getClientAuth();
+      const uid = auth.currentUser?.uid;
+      if (!uid) throw new Error("Not authenticated");
+
+      const storage = await getClientStorage();
+      const storageRef = ref(
+        storage,
+        `claims/purchase-confirmations/${uid}/${params.giftId}`,
+      );
+      await uploadBytes(storageRef, params.file);
+
+      return uploadPurchaseReceipt({
+        data: {
+          giftId: params.giftId,
+          documentationPath: storageRef.fullPath,
+          trackingNumber: params.trackingNumber,
+        },
+      });
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queries.donor._def });
       await queryClient.invalidateQueries({
@@ -102,7 +122,11 @@ export function useUploadPurchaseReceipt() {
       toast.success("Receipt uploaded");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to upload receipt");
+      console.error(error);
+      toast.error(
+        error.message ??
+          "Failed to upload receipt. Make sure the file size is less than 10MB.",
+      );
     },
   });
 }
@@ -111,11 +135,22 @@ export function useUploadDeliveryReceipt() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: {
-      giftId: string;
-      fileName: string;
-      dataUrl: string;
-    }) => uploadDeliveryReceipt({ data: params }),
+    mutationFn: async (params: { giftId: string; file: File }) => {
+      const auth = await getClientAuth();
+      const uid = auth.currentUser?.uid;
+      if (!uid) throw new Error("Not authenticated");
+
+      const storage = await getClientStorage();
+      const storageRef = ref(
+        storage,
+        `claims/delivery-confirmations/${uid}/${params.giftId}`,
+      );
+      await uploadBytes(storageRef, params.file);
+
+      return uploadDeliveryReceipt({
+        data: { giftId: params.giftId, documentationPath: storageRef.fullPath },
+      });
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queries.donor._def });
       await queryClient.invalidateQueries({
@@ -125,7 +160,11 @@ export function useUploadDeliveryReceipt() {
       toast.success("Delivery receipt uploaded");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to upload delivery receipt");
+      console.error(error);
+      toast.error(
+        error.message ??
+          "Failed to upload delivery confirmation. Make sure the file size is less than 10MB.",
+      );
     },
   });
 }

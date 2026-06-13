@@ -18,15 +18,6 @@ import {
   useUploadPurchaseReceipt,
 } from "@/hooks/mutations/useClaimGifts";
 
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result ?? ""));
-    reader.onerror = () => reject(new Error("Failed to read file"));
-    reader.readAsDataURL(file);
-  });
-}
-
 export function ChildBlock({ child }: { child: CommittedChild }) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [giftStates, setGiftStates] = useState<Record<string, GiftFormState>>(
@@ -91,7 +82,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
   const handleReceipt = useCallback(
     async (id: string, file: File | string | null) => {
       if (!file) {
-        set(id, { receiptFileName: null, receiptUrl: null });
+        set(id, { receiptFileName: null, receiptPath: null });
         return;
       }
 
@@ -100,12 +91,10 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
         return;
       }
 
-      const dataUrl = await readFileAsDataUrl(file);
       uploadPurchaseReceipt.mutate(
         {
           giftId: id,
-          fileName: file.name,
-          dataUrl,
+          file,
           trackingNumber: giftStates[id]?.tracking,
         },
         {
@@ -117,9 +106,9 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
                 tracking: data.trackingNumber,
                 savedTracking: data.trackingNumber,
                 receiptFileName: file.name,
-                receiptUrl: data.documentationUrl,
+                receiptPath: data.documentationPath,
                 savedReceiptFileName: file.name,
-                savedReceiptUrl: data.documentationUrl,
+                savedReceiptPath: data.documentationPath,
                 changesSaved: true,
               },
             }));
@@ -132,7 +121,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
   const handleDeliveryReceipt = useCallback(
     async (id: string, file: File | string | null) => {
       if (!file) {
-        set(id, { deliveryReceiptFileName: null, deliveryReceiptUrl: null });
+        set(id, { deliveryReceiptFileName: null, deliveryReceiptPath: null });
         return;
       }
 
@@ -141,12 +130,10 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
         return;
       }
 
-      const dataUrl = await readFileAsDataUrl(file);
       uploadDeliveryReceipt.mutate(
         {
           giftId: id,
-          fileName: file.name,
-          dataUrl,
+          file,
         },
         {
           onSuccess: (data) => {
@@ -155,9 +142,9 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
               [id]: {
                 ...p[id],
                 deliveryReceiptFileName: file.name,
-                deliveryReceiptUrl: data.documentationUrl,
+                deliveryReceiptPath: data.documentationPath,
                 savedDeliveryReceiptFileName: file.name,
-                savedDeliveryReceiptUrl: data.documentationUrl,
+                savedDeliveryReceiptPath: data.documentationPath,
                 changesSaved: true,
               },
             }));
@@ -201,11 +188,11 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
       const hasSavedNonTrackingFields =
         currentState.delivered === currentState.savedDelivered &&
         currentState.receiptFileName === currentState.savedReceiptFileName &&
-        currentState.receiptUrl === currentState.savedReceiptUrl &&
+        currentState.receiptPath === currentState.savedReceiptPath &&
         currentState.deliveryReceiptFileName ===
           currentState.savedDeliveryReceiptFileName &&
-        currentState.deliveryReceiptUrl ===
-          currentState.savedDeliveryReceiptUrl;
+        currentState.deliveryReceiptPath ===
+          currentState.savedDeliveryReceiptPath;
 
       setGiftStates((p) => ({
         ...p,

@@ -149,7 +149,9 @@ function RouteComponent() {
                 await navigate({
                   to:
                     redirectPath ??
-                    (result.role === UserRole.DONOR ? "/donor/home" : "/staff/home"),
+                    (result.role === UserRole.DONOR
+                      ? "/donor/home"
+                      : "/staff/home"),
                 });
               }
             }
