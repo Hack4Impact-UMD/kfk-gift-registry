@@ -135,6 +135,12 @@ function main() {
       name: "Director Dana",
       phone: "+12155550101",
     }),
+    generateUser(UserRole.ADMIN, {
+      id: "admin_1",
+      email: "admin1@test.com",
+      name: "Admin User",
+      phone: "+13155550104",
+    }),
     generateUser(UserRole.VOLUNTEER, {
       id: "volunteer_1",
       email: "volunteer1@test.com",

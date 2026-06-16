@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { UserRole } from "common";
 import { useClaimGifts } from "@/hooks/mutations/useClaimGifts";
 import { useLogin } from "@/hooks/mutations/loginMutation";
@@ -11,6 +11,8 @@ import type { AuthContext } from "@/server/functions/auth";
 import { toast } from "@/lib/toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { queries } from "@/queries";
+import { useMfaFlow } from "@/hooks/useMfaFlow";
+import type { MfaFlowResult } from "@/hooks/useMfaFlow";
 
 export interface RegisterDonorInput {
   name: string;
@@ -31,6 +33,8 @@ export interface CheckoutFlowState {
   submitRegister: (data: RegisterDonorInput) => Promise<void>;
   closeAll: () => void;
   setAuthMode: (mode: "login" | "register") => void;
+  mfaMethodDialogProps: MfaFlowResult["mfaMethodDialogProps"];
+  mfaDialogProps: MfaFlowResult["mfaDialogProps"];
 }
 
 export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
@@ -40,6 +44,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
   const [disabledMessage, setDisabledMessage] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const router = useRouter();
 
   const { data: localCart } = useLocalCartData();
 
@@ -76,9 +81,24 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
     });
   };
 
+  const { handleMfa, mfaMethodDialogProps, mfaDialogProps } = useMfaFlow(
+    (result) => {
+      if (!result || result.role !== UserRole.DONOR) {
+        setAuthModalOpen(false);
+        setDisabledMessage(
+          "Only donors can claim gifts. Please log in with a donor account.",
+        );
+        return;
+      }
+      router.invalidate();
+      setAuthModalOpen(false);
+      confirmClaim();
+    },
+  );
+
   const submitLogin = async (email: string, password: string) => {
     loginMutation.mutate(
-      { email, password },
+      { email, password, callback: handleMfa },
       {
         onSuccess: async (session) => {
           if (!session || session.role !== UserRole.DONOR) {
@@ -89,6 +109,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
             return;
           }
 
+          router.invalidate();
           setAuthModalOpen(false);
           confirmClaim();
         },
@@ -109,6 +130,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
         {
           email: data.email,
           password: data.password,
+          callback: handleMfa,
         },
         {
           onSuccess: async (session) => {
@@ -120,6 +142,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
               return;
             }
 
+            router.invalidate();
             setAuthModalOpen(false);
             confirmClaim();
           },
@@ -182,5 +205,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
     submitRegister,
     closeAll,
     setAuthMode,
+    mfaMethodDialogProps,
+    mfaDialogProps,
   };
 }

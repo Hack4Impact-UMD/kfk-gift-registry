@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ContactInfoSection } from "@/components/profile/ProfileContactInfo";
@@ -30,7 +30,12 @@ function RouteComponent() {
         <ContactInfoSection authCtx={auth} />
 
         <AccountDetailsSection authCtx={auth} />
-        <div className="flex justify-end">
+        <div className="flex gap-1 justify-end">
+          <Button asChild variant="outline">
+            <Link to="/mfaEnroll" search={{ redirect: "/staff/profile" }}>
+              Add 2FA Methods
+            </Link>
+          </Button>
           <Button
             onClick={async () => {
               logout();

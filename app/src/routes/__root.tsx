@@ -126,6 +126,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         />
         <Toaster />
         <Scripts />
+        <div className="hidden" id="recaptcha-container"></div>
       </body>
     </html>
   );

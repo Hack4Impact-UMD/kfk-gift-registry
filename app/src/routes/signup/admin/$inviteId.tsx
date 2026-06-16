@@ -1,4 +1,3 @@
-import * as React from "react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import z from "zod";
 import { useForm, useStore } from "@tanstack/react-form";
@@ -21,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { PhoneInput, formatToE164 } from "@/components/ui/phone-input";
 import { getStaffInviteById } from "@/server/functions/invite";
 import { useRegisterStaffWithInvite } from "@/hooks/mutations/useRegisterStaff";
+import { useState } from "react";
 
 export const Route = createFileRoute("/signup/admin/$inviteId")({
   loader: async ({ params }) => {
@@ -90,7 +90,7 @@ function InviteFieldInput({
   startIcon,
   inputComponent: InputComponent = Input,
 }: InviteFieldProps) {
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const rawError = field.state.meta.isTouched && field.state.meta.errors?.[0];
 
   const errorMessage =
@@ -150,9 +150,13 @@ function RouteComponent() {
 
   const registerMutation = useRegisterStaffWithInvite();
 
-  const [passwordCriterias, setPasswordCriterias] = React.useState<
-    Array<boolean>
-  >([false, false, false, false, false]);
+  const [passwordCriterias, setPasswordCriterias] = useState<Array<boolean>>([
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]);
 
   const form = useForm({
     defaultValues: {

@@ -1,21 +1,22 @@
 import { useRef, useState, useTransition } from "react";
+import { useStorageUrl } from "@/hooks/useStorageUrl";
 import type { ChangeEvent } from "react";
-import { Button } from "@/components/ui/button";
-import { EditableField } from "@/components/review/EditableField";
 import type { Transaction } from "@tanstack/react-db";
-import { useCollections } from "@/collections/context";
 import { useQueryClient } from "@tanstack/react-query";
-import { queries } from "@/queries";
 import type { Gift, GiftStatus } from "common";
-import { toast } from "@/lib/toast";
-import { formatISODate } from "@/lib/utils";
 import {
   GIFT_TITLE_TOO_LONG_MESSAGE,
   MAX_GIFT_TITLE_LENGTH,
   isGiftTitleTooLong,
 } from "common";
+import { useCollections } from "@/collections/context";
+import { queries } from "@/queries";
 import type { GiftClaimDetails } from "@/server/functions/child";
 import { updateClaimTrackingNumber } from "@/server/functions/child";
+import { toast } from "@/lib/toast";
+import { formatISODate } from "@/lib/utils";
+import { EditableField } from "@/components/review/EditableField";
+import { Button } from "@/components/ui/button";
 
 const GIFT_STEPS = [
   "Available",
@@ -50,7 +51,7 @@ function GiftProgressBar({ status }: { status: GiftStatus }) {
   return (
     <div className="mb-3 mt-5 w-full overflow-x-auto font-bold font-gaegu">
       <div className="min-w-[480px]">
-        <div className="relative flex h-8 items-center w-full">
+        <div className="relative flex h-8 w-full items-center">
           <div
             className={`absolute h-[10px] rounded-full border-2 ${progressBorderColor}`}
             style={{ left: `${TRACK_START}%`, width: `${TRACK_WIDTH}%` }}
@@ -104,7 +105,7 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, startSaveTransition] = useTransition();
   const txRef = useRef<Transaction<Gift> | null>(null);
-  const [trackingId, setTrackingId] = useState(claim?.trackingNumber ?? "");
+  const [draftTrackingId, setDraftTrackingId] = useState("");
   const trackingIdBeforeEdit = useRef(claim?.trackingNumber ?? "");
 
   const editField = <K extends keyof Gift>(key: K, value: Gift[K]) => {
@@ -120,7 +121,9 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
   };
 
   const handleEditStart = () => {
-    trackingIdBeforeEdit.current = trackingId;
+    const currentTrackingId = claim?.trackingNumber ?? "";
+    trackingIdBeforeEdit.current = currentTrackingId;
+    setDraftTrackingId(currentTrackingId);
     setIsEditing(true);
   };
 
@@ -131,8 +134,8 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
     }
 
     const tx = txRef.current;
-    const trackingChanged = trackingId !== trackingIdBeforeEdit.current;
-    const hasGiftMutations = tx && tx.mutations.length > 0;
+    const trackingChanged = draftTrackingId !== trackingIdBeforeEdit.current;
+    const hasGiftMutations = !!tx && tx.mutations.length > 0;
 
     if (!hasGiftMutations && !trackingChanged) {
       txRef.current = null;
@@ -143,15 +146,18 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
     startSaveTransition(async () => {
       try {
         await Promise.all([
-          hasGiftMutations ? tx.commit() : undefined,
+          hasGiftMutations && tx ? tx.commit() : undefined,
           trackingChanged && claim?.claimId
             ? updateClaimTrackingNumber({
-                data: { claimId: claim.claimId, trackingNumber: trackingId },
-              }).then(() => {
-                queryClient.invalidateQueries(
-                  queries.claims.byChildId(gift.childId),
-                );
-              })
+                data: {
+                  claimId: claim.claimId,
+                  trackingNumber: draftTrackingId,
+                },
+              }).then(() =>
+                queryClient.invalidateQueries({
+                  queryKey: queries.claims.byChildId(gift.childId).queryKey,
+                }),
+              )
             : undefined,
         ]);
         txRef.current = null;
@@ -168,15 +174,17 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
       txRef.current.rollback();
     }
     txRef.current = null;
-    setTrackingId(trackingIdBeforeEdit.current);
+    setDraftTrackingId(trackingIdBeforeEdit.current);
     setIsEditing(false);
   };
 
   const trackingEditable = isEditing && !!claim?.claimId;
+  const purchaseProofUrl = useStorageUrl(claim?.proofOfPurchasePath ?? null);
+  const deliveryProofUrl = useStorageUrl(claim?.proofOfDeliveryPath ?? null);
 
   return (
-    <div className="px-6 py-5 space-y-4 text-sm">
-      <div className="rounded-xl border bg-white shadow-sm overflow-hidden w-full">
+    <div className="space-y-4 px-6 py-5 text-sm">
+      <div className="w-full overflow-hidden rounded-xl border bg-white shadow-sm">
         <div className="flex flex-col gap-4 bg-[#F6F9FC] px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-1">
             <EditableField
@@ -270,7 +278,7 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
           {!isEditing && <GiftProgressBar status={gift.status} />}
         </div>
 
-        <div className="px-6 py-5 space-y-4 bg-[#F6F9FC]">
+        <div className="space-y-4 bg-[#F6F9FC] px-6 py-5">
           <div className="grid gap-4 md:grid-cols-2">
             <EditableField
               className="w-full"
@@ -290,26 +298,49 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
           </div>
 
           <EditableField
-            value={trackingEditable ? trackingId : trackingId.trim() || "N/A"}
+            value={
+              trackingEditable
+                ? draftTrackingId
+                : claim?.trackingNumber?.trim() || "N/A"
+            }
             editable={trackingEditable}
             onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              setTrackingId(event.target.value)
+              setDraftTrackingId(event.target.value)
             }
           >
             Tracking ID:
           </EditableField>
         </div>
 
-        <div className="bg-white px-6 py-5 space-y-3">
+        <div className="space-y-3 bg-white px-6 py-5">
           <EditableField
             value={formatISODate(claim?.dateOrdered ?? null)}
             editable={false}
           >
             Date Ordered (Confirmed by Donor):
           </EditableField>
+
+          {purchaseProofUrl ? (
+            <Button asChild className="h-11 w-full font-gaegu font-bold">
+              <a
+                href={purchaseProofUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Donor Proof of Purchase
+              </a>
+            </Button>
+          ) : (
+            <Button
+              className="h-11 w-full bg-gray-300 font-gaegu font-bold text-gray-600 hover:bg-gray-300"
+              disabled
+            >
+              Donor Proof of Purchase: N/A
+            </Button>
+          )}
         </div>
 
-        <div className="px-6 py-5 space-y-3 bg-[#F6F9FC]">
+        <div className="space-y-3 bg-[#F6F9FC] px-6 py-5">
           <EditableField
             value={formatISODate(claim?.dateDelivered ?? null)}
             editable={false}
@@ -323,6 +354,25 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
           >
             Date Received (Confirmed by Family):
           </EditableField>
+
+          {deliveryProofUrl ? (
+            <Button asChild className="h-11 w-full font-gaegu font-bold">
+              <a
+                href={deliveryProofUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Donor Delivery Confirmation
+              </a>
+            </Button>
+          ) : (
+            <Button
+              className="h-11 w-full bg-gray-300 font-gaegu font-bold text-gray-600 hover:bg-gray-300"
+              disabled
+            >
+              Donor Delivery Confirmation: N/A
+            </Button>
+          )}
         </div>
       </div>
     </div>

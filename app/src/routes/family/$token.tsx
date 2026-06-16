@@ -3,6 +3,7 @@ import KFKLogo from "@/assets/kfk-logo.png";
 import { HomeIcon } from "@/components/icons";
 import { ChildProfileCircle } from "@/components/family/ChildProfileCircle";
 import { getFamilyDashboardDataByToken } from "@/server/functions/family";
+import { getChildColors } from "@/lib/childColors";
 
 export const Route = createFileRoute("/family/$token")({
   loader: async ({ params }) => {
@@ -57,23 +58,14 @@ function FamilyRoute() {
 
             <div className="w-[2px] h-16 bg-ring shrink-0 rounded-full"></div>
 
-            {data.children.map((child, index: number) => {
-              const ringClasses = [
-                "ring-kfk-red",
-                "ring-kfk-blue",
-                "ring-kfk-green",
-              ] as const;
-              const ringClass = ringClasses[index % ringClasses.length];
-
-              return (
-                <ChildProfileCircle
-                  key={child.id}
-                  child={child}
-                  ringClass={ringClass}
-                  token={data.token}
-                />
-              );
-            })}
+            {data.children.map((child) => (
+              <ChildProfileCircle
+                key={child.id}
+                child={child}
+                ringClass={getChildColors(child.id).ring}
+                token={data.token}
+              />
+            ))}
           </div>
         </div>
 

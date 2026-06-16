@@ -1,10 +1,10 @@
 import { Gift as GiftIcon } from "lucide-react";
+import type { Gift } from "common";
+import type { GiftClaimDetails } from "@/server/functions/child";
 import { GiftInfoCard } from "./GiftInfoCard";
 import { ParentComments } from "./ParentComments";
 import { AdminComments } from "./AdminComments";
 import { FamilyAccountLink } from "./FamilyAccountLink";
-import type { Gift } from "common";
-import type { GiftClaimDetails } from "@/server/functions/child";
 
 interface GiftInfoSectionProps {
   gifts: ReadonlyArray<Gift>;
@@ -28,14 +28,14 @@ export function GiftInfoSection({
 
   return (
     <div className="mt-6 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,250px)]">
-      <div className="flex flex-col gap-6 min-w-164">
-        <div className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-4">
+      <div className="flex min-w-164 flex-col gap-6">
+        <div className="flex flex-col gap-4 rounded-xl border bg-white p-4 shadow-sm">
           <h2 className="flex flex-col items-start gap-3 pt-3 text-2xl font-bold leading-tight sm:flex-row sm:items-center sm:justify-center sm:text-3xl lg:text-4xl">
             <GiftIcon className="h-10 w-10 shrink-0" />
             <span className="leading-none">Main Gift Information</span>
           </h2>
           {activeGifts.length === 0 ? (
-            <p className="text-sm text-gray-400 italic">No active gifts.</p>
+            <p className="text-sm italic text-gray-400">No active gifts.</p>
           ) : (
             activeGifts.map((gift) => (
               <GiftInfoCard
@@ -49,7 +49,7 @@ export function GiftInfoSection({
         </div>
 
         {backupGifts.length > 0 && (
-          <div className="bg-white border rounded-xl p-4 shadow-sm flex flex-col gap-4">
+          <div className="flex flex-col gap-4 rounded-xl border bg-white p-4 shadow-sm">
             <h2 className="flex flex-col items-start gap-3 pt-3 text-2xl font-bold leading-tight sm:flex-row sm:items-center sm:justify-center sm:text-3xl lg:text-4xl">
               <GiftIcon className="h-10 w-10 shrink-0" />
               <span className="leading-none">Backup Gift Information</span>
@@ -67,7 +67,7 @@ export function GiftInfoSection({
       </div>
 
       <div className="flex w-full flex-col gap-6 lg:sticky lg:top-4 lg:max-w-[420px]">
-        <div className="bg-transparent flex flex-col gap-6">
+        <div className="flex flex-col gap-6 bg-transparent">
           <ParentComments comments={parentComments} />
 
           <AdminComments

@@ -15,9 +15,11 @@ export const Route = createFileRoute("/_authenticated/donor")({
 });
 
 function DonorPage() {
+  const { auth } = Route.useRouteContext();
+
   return (
     <div>
-      <DonorNavbar></DonorNavbar>
+      <DonorNavbar displayName={auth.authUser.displayName ?? "User"} />
       <Outlet />
     </div>
   );

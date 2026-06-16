@@ -17,7 +17,7 @@ import {
   uploadChildPhoto,
 } from "../services/childPhotoService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
-import type { Family, Gift, Child, UserProfile } from "common";
+import type { Family, Gift, Child, Claim, UserProfile } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 import { appCheckMiddleware } from "../middleware/appCheckMiddleware";
@@ -36,6 +36,17 @@ export type FamilyGiftClaim = {
   expectedDeliveryDate?: string;
   receivedAt?: string;
   thankYouNote?: string;
+};
+
+export type StaffGiftDetails = {
+  donorName: string;
+  donorEmail: string;
+  trackingId: string;
+  dateOrdered: string;
+  dateDelivered: string;
+  dateReceived: string;
+  proofOfPurchasePath: string;
+  proofOfDeliveryPath: string;
 };
 
 const childParamSchema = z.object({
@@ -315,6 +326,87 @@ export const getChildGiftsByChildId = createServerFn({ method: "GET" })
     }
 
     return gifts.docs.map((doc) => doc.data());
+  });
+
+export const getChildGiftDetailsByChildId = createServerFn({ method: "GET" })
+  .inputValidator(childIdSchema)
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .handler(async ({ data }) => {
+    const { childId } = data;
+
+    const db = getServerDB();
+    const claimsSnapshot = await db.claims
+      .where("childId", "==", childId)
+      .where("active", "==", true)
+      .get();
+
+    if (claimsSnapshot.empty) {
+      return {} satisfies Record<string, StaffGiftDetails>;
+    }
+
+    const claims = claimsSnapshot.docs.map((doc) => doc.data() as Claim);
+    const donorIds = Array.from(
+      new Set(
+        claims
+          .filter(
+            (claim): claim is Extract<Claim, { claimType: "donor" }> =>
+              claim.claimType === "donor",
+          )
+          .map((claim) => claim.donorId),
+      ),
+    );
+
+    const donorProfiles = new Map<string, UserProfile>();
+    if (donorIds.length > 0) {
+      const donorRefs = donorIds.map((donorId) => db.users.doc(donorId));
+      const donorSnapshots = await db._instance.getAll(...donorRefs);
+
+      for (const donorSnapshot of donorSnapshots) {
+        if (!donorSnapshot.exists) {
+          continue;
+        }
+        donorProfiles.set(
+          donorSnapshot.id,
+          donorSnapshot.data() as UserProfile,
+        );
+      }
+    }
+
+    return Object.fromEntries(
+      claims.map((claim) => {
+        const donorProfile =
+          claim.claimType === "donor"
+            ? donorProfiles.get(claim.donorId)
+            : undefined;
+        const donorName =
+          donorProfile?.name ??
+          claim.organizationName ??
+          (claim.claimType === "kfk" ? "KFK" : "");
+        const donorEmail = donorProfile?.email ?? "";
+
+        return [
+          claim.giftId,
+          {
+            donorName,
+            donorEmail,
+            trackingId: claim.purchaseConfirmation?.trackingNumber ?? "",
+            dateOrdered: claim.purchaseConfirmation?.date ?? "",
+            dateDelivered: claim.deliveryConfirmed?.date ?? "",
+            dateReceived: claim.receivedAt ?? "",
+            proofOfPurchasePath:
+              claim.purchaseConfirmation?.documentationUrl ?? "",
+            proofOfDeliveryPath:
+              claim.deliveryConfirmed?.documentationUrl ?? "",
+          } satisfies StaffGiftDetails,
+        ];
+      }),
+    );
   });
 
 // export const getChildrenForFamily = createServerFn({ method: "GET" })
@@ -1079,6 +1171,8 @@ export type GiftClaimDetails = {
   dateOrdered: string | null;
   dateDelivered: string | null;
   dateReceived: string | null;
+  proofOfPurchasePath: string | null;
+  proofOfDeliveryPath: string | null;
 };
 
 export const getClaimsWithDonorByChildId = createServerFn({ method: "GET" })
@@ -1129,12 +1223,18 @@ export const getClaimsWithDonorByChildId = createServerFn({ method: "GET" })
       return {
         giftId: claim.giftId,
         claimId: claim.id,
-        donorName: donor?.name ?? null,
+        donorName:
+          donor?.name ??
+          claim.organizationName ??
+          (claim.claimType === "kfk" ? "KFK" : null),
         donorEmail: donor?.email ?? null,
         trackingNumber: claim.purchaseConfirmation?.trackingNumber ?? null,
         dateOrdered: claim.purchaseConfirmation?.date ?? null,
         dateDelivered: claim.deliveryConfirmed?.date ?? null,
         dateReceived: claim.receivedAt ?? null,
+        proofOfPurchasePath:
+          claim.purchaseConfirmation?.documentationUrl ?? null,
+        proofOfDeliveryPath: claim.deliveryConfirmed?.documentationUrl ?? null,
       };
     });
   });
