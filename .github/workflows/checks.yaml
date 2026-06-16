@@ -87,4 +87,4 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Test
-        run: pnpm -r run test --if-present
+        run: pnpm -r --if-present run test
