@@ -8,5 +8,6 @@ export * from "./gift-drive";
 export * from "./user";
 export * from "./family-link";
 export * from "./profile-update";
+export * from "./notification";
 
 export type NoId<T> = Omit<T, "id">;
