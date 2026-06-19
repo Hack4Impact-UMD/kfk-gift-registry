@@ -17,3 +17,34 @@ export const EmailJobTypeSchema = z.enum([
 ]);
 
 export type EmailJobType = z.infer<typeof EmailJobTypeSchema>;
+
+export const DonorClaimGiftSummarySchema = z.object({
+  giftId: z.string(),
+  childId: z.string(),
+  childName: z.string(),
+  familyId: z.string(),
+  familyName: z.string(),
+  giftTitle: z.string(),
+  productUrl: z.string().optional(),
+  listedPrice: z.number().optional(),
+  familyPublicNotes: z.string().optional(),
+});
+
+export type DonorClaimGiftSummary = z.infer<typeof DonorClaimGiftSummarySchema>;
+
+export const DonorClaimFamilyShippingSchema = z.object({
+  familyId: z.string(),
+  familyName: z.string(),
+  contactName: z.string().optional(),
+  addressLine1: z.string().optional(),
+  addressLine2: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zipCode: z.string().optional(),
+  phone: z.string().optional(),
+  deliveryNotes: z.string().optional(),
+});
+
+export type DonorClaimFamilyShipping = z.infer<
+  typeof DonorClaimFamilyShippingSchema
+>;
