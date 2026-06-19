@@ -49,11 +49,58 @@ export type DonorClaimFamilyShipping = z.infer<
   typeof DonorClaimFamilyShippingSchema
 >;
 
+export const DonorPostClaimConfirmationPayloadSchema = z.object({
+  donorId: z.string(),
+  donorName: z.string(),
+  donorEmail: z.email(),
+  driveId: z.string(),
+  claimIds: z.array(z.string()).min(1),
+  giftIds: z.array(z.string()).min(1),
+  claimedAt: z.iso.datetime(),
+  gifts: z.array(DonorClaimGiftSummarySchema).min(1),
+  shippingByFamily: z.array(DonorClaimFamilyShippingSchema).min(1),
+});
+
+export type DonorPostClaimConfirmationPayload = z.infer<
+  typeof DonorPostClaimConfirmationPayloadSchema
+>;
+
+export const DonorPurchaseReminderPayloadSchema = z.object({
+  donorId: z.string(),
+  donorName: z.string(),
+  donorEmail: z.email(),
+  driveId: z.string(),
+  claimIds: z.array(z.string()).min(1),
+  giftIds: z.array(z.string()).min(1),
+  claimedAt: z.iso.datetime(),
+  reminderReason: z.string().optional(),
+  gifts: z.array(DonorClaimGiftSummarySchema).min(1),
+  shippingByFamily: z.array(DonorClaimFamilyShippingSchema).min(1),
+});
+
+export type DonorPurchaseReminderPayload = z.infer<
+  typeof DonorPurchaseReminderPayloadSchema
+>;
+
+export const EmailJobPayloadSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("DONOR_POST_CLAIM_CONFIRMATION"),
+    data: DonorPostClaimConfirmationPayloadSchema,
+  }),
+  z.object({
+    type: z.literal("DONOR_PURCHASE_REMINDER"),
+    data: DonorPurchaseReminderPayloadSchema,
+  }),
+]);
+
+export type EmailJobPayload = z.infer<typeof EmailJobPayloadSchema>;
+
 export const EmailJobSchema = z.object({
   id: z.string(),
   type: EmailJobTypeSchema,
   to: z.email(),
   subject: z.string(),
+  payload: EmailJobPayloadSchema,
   sendAt: z.iso.datetime(),
   status: EmailJobStatusSchema,
   resendEmailId: z.string().optional(),
