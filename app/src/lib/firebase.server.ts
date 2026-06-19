@@ -7,6 +7,7 @@ import type {
   EmailJob,
   Family,
   FamilyLink,
+  FamilyNotification,
   Gift,
   GiftDrive,
   StaffInvite,
@@ -21,6 +22,7 @@ import {
   GIFT_COLLECTION,
   GIFT_DRIVE_COLLECTION,
   INVITE_COLLECTION,
+  NOTIFICATION_COLLECTION,
   PROFILE_UPDATE_COLLECTION,
   USER_COLLECTION,
 } from "@/data/collections";
@@ -43,6 +45,7 @@ type Database = {
   gifts: Collection<Gift>;
   claims: Collection<Claim>;
   emails: Collection<EmailJob>;
+  notifications: Collection<FamilyNotification>;
   giftDrives: Collection<GiftDrive>;
   invites: Collection<StaffInvite>;
   familyLinks: Collection<FamilyLink>;
@@ -78,6 +81,7 @@ export const getServerDB = createServerOnlyFn(() => {
     children: collection<Child>(CHILD_COLLECTION),
     claims: collection<Claim>(CLAIM_COLLECTION),
     emails: collection<EmailJob>(EMAIL_COLLECTION),
+    notifications: collection<FamilyNotification>(NOTIFICATION_COLLECTION),
     families: collection<Family>(FAMILY_COLLECTION),
     familyLinks: collection<FamilyLink>(FAMILY_LINK_COLLECTION),
     gifts: collection<Gift>(GIFT_COLLECTION),

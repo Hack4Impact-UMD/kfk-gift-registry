@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import z from "zod";
@@ -123,7 +124,7 @@ function RouteComponent() {
           <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-14">
             {!isEmailSent ? (
               <form
-                onSubmit={(e) => {
+                onSubmit={(e: FormEvent<HTMLFormElement>) => {
                   e.preventDefault();
                   e.stopPropagation();
                   form.handleSubmit();

@@ -10,9 +10,12 @@ function canScheduleDirectlyWithResend(sendAt: string) {
     throw new Error("Invalid sendAt timestamp");
   }
 
-  return scheduledFor <= DateTime.now().plus({
-    days: RESEND_SCHEDULING_WINDOW_DAYS,
-  });
+  return (
+    scheduledFor <=
+    DateTime.now().plus({
+      days: RESEND_SCHEDULING_WINDOW_DAYS,
+    })
+  );
 }
 
 export function createEmailJob(params: {

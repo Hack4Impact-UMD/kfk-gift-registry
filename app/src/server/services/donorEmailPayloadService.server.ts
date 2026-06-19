@@ -11,7 +11,9 @@ import type {
 } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 
-function assertDonorClaim(claim: Claim): asserts claim is Extract<Claim, { claimType: "donor" }> {
+function assertDonorClaim(
+  claim: Claim,
+): asserts claim is Extract<Claim, { claimType: "donor" }> {
   if (claim.claimType !== "donor") {
     throw new Error(`Claim ${claim.id} is not a donor claim`);
   }
@@ -79,9 +81,7 @@ async function loadClaimContext(claims: Array<Claim>) {
   }
 
   const familyIds = Array.from(
-    new Set(
-      Array.from(childrenById.values()).map((child) => child.familyId),
-    ),
+    new Set(Array.from(childrenById.values()).map((child) => child.familyId)),
   );
 
   const familySnapshots = await db._instance.getAll(
@@ -129,7 +129,9 @@ function buildSharedPayloadData(params: {
       throw new Error(`Child ${claim.childId} not found for claim ${claim.id}`);
     }
     if (!family) {
-      throw new Error(`Family ${child.familyId} not found for claim ${claim.id}`);
+      throw new Error(
+        `Family ${child.familyId} not found for claim ${claim.id}`,
+      );
     }
 
     giftSummaries.push(

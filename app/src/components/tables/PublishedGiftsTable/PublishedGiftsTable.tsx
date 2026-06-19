@@ -42,8 +42,6 @@ export function PublishedGiftsTable({
         ? data.filter((row) => row.sponsorType === activeFilter)
         : data;
 
-  const tableKey = activeFilter ?? "all";
-
   const handleExport = () => {
     // TODO: Implement export functionality
     console.log("Export clicked");
@@ -82,7 +80,6 @@ export function PublishedGiftsTable({
 
       {/* Data Table */}
       <DataTable
-        key={tableKey}
         columns={columns}
         data={filteredData}
         globalSearch={globalSearch}
