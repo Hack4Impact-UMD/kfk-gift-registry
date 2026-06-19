@@ -1,5 +1,6 @@
 export * from "./child";
 export * from "./claim";
+export * from "./email-job";
 export * from "./family";
 export * from "./invite";
 export * from "./gift";
