@@ -1,3 +1,5 @@
+/// <reference path="../react-jsx-runtime.d.ts" />
+/// <reference path="./jsx.d.ts" />
 import type { DonorPostClaimConfirmationPayload } from "common";
 import {
   Body,
