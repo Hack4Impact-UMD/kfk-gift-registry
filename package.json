@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "luxon": "^3.7.2",
-    "punycode": "^2.3.1"
+    "punycode": "^2.3.1",
+    "react-email": "^6.6.3"
   }
 }

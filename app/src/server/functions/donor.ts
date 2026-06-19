@@ -8,6 +8,15 @@ import { UserRole } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
 import { assertGiftDriveActive } from "@/server/services/giftDriveService.server";
+import {
+  buildDonorPostClaimConfirmationPayload,
+  buildDonorPurchaseReminderPayload,
+} from "@/server/services/donorEmailPayloadService.server";
+import {
+  createEmailJob,
+  sendOrQueueEmailJob,
+} from "@/server/services/emailService.server";
+import { getEmailJobSubject } from "@/server/services/emailTemplateService.server";
 
 const giftIdsSchema = z.object({
   giftIds: z.array(z.string().min(1)).min(1),
@@ -45,7 +54,7 @@ export const claimGifts = createServerFn({ method: "POST" })
     const giftIds = Array.from(new Set(data.giftIds));
     const db = getServerDB();
 
-    return await db._instance.runTransaction(async (tx) => {
+    const result = await db._instance.runTransaction(async (tx) => {
       const { gifts, driveId } = await loadGifts(tx, db, giftIds);
 
       await assertGiftDriveActive(tx, driveId);
@@ -58,7 +67,17 @@ export const claimGifts = createServerFn({ method: "POST" })
         }
       }
 
+      const donorSnap = await tx.get(db.users.doc(donorId));
+      const donor = donorSnap.data();
+      if (!donor) {
+        throw new Error("Donor profile not found");
+      }
+
       const claimedAt = DateTime.utc().toISO();
+      if (!claimedAt) {
+        throw new Error("Failed to create claim timestamp");
+      }
+
       const claims: Array<Claim> = gifts.map((gift) => ({
         id: uuidv7(),
         giftId: gift.id,
@@ -80,8 +99,61 @@ export const claimGifts = createServerFn({ method: "POST" })
         tx.set(db.claims.doc(claim.id), claim);
       }
 
-      return { claims };
+      return { claims, donor };
     });
+
+    const confirmationPayload = await buildDonorPostClaimConfirmationPayload({
+      donor: result.donor,
+      claims: result.claims,
+    });
+    const reminderPayload = await buildDonorPurchaseReminderPayload({
+      donor: result.donor,
+      claims: result.claims,
+      reminderReason:
+        "If you have already purchased these gifts, please confirm your purchase so KFK can keep families updated.",
+    });
+
+    const confirmationJob = createEmailJob({
+      id: uuidv7(),
+      type: "DONOR_POST_CLAIM_CONFIRMATION",
+      to: result.donor.email,
+      subject: getEmailJobSubject({
+        type: "DONOR_POST_CLAIM_CONFIRMATION",
+        data: confirmationPayload,
+      }),
+      payload: {
+        type: "DONOR_POST_CLAIM_CONFIRMATION",
+        data: confirmationPayload,
+      },
+      sendAt: DateTime.utc().toISO() ?? new Date().toISOString(),
+    });
+
+    const reminderSendAt = DateTime.utc().plus({ days: 7 }).toISO();
+    if (!reminderSendAt) {
+      throw new Error("Failed to create reminder send timestamp");
+    }
+
+    const reminderJob = createEmailJob({
+      id: uuidv7(),
+      type: "DONOR_PURCHASE_REMINDER",
+      to: result.donor.email,
+      subject: getEmailJobSubject({
+        type: "DONOR_PURCHASE_REMINDER",
+        data: reminderPayload,
+      }),
+      payload: {
+        type: "DONOR_PURCHASE_REMINDER",
+        data: reminderPayload,
+      },
+      sendAt: reminderSendAt,
+    });
+
+    await Promise.all([
+      sendOrQueueEmailJob(confirmationJob),
+      sendOrQueueEmailJob(reminderJob),
+    ]);
+
+    return { claims: result.claims };
   });
 
 export const unclaimGifts = createServerFn({ method: "POST" })
