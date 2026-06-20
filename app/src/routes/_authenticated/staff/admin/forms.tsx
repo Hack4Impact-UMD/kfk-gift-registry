@@ -119,7 +119,9 @@ function RouteComponent() {
   // Most recent drive first (by start date).
   const sortedDrives = useMemo(
     () =>
-      [...(drives ?? [])].sort((a, b) => b.startDate.localeCompare(a.startDate)),
+      [...(drives ?? [])].sort((a, b) =>
+        b.startDate.localeCompare(a.startDate),
+      ),
     [drives],
   );
 
