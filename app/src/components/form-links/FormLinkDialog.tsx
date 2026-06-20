@@ -65,9 +65,12 @@ export function FormLinkDialog({
   initial,
   defaultDriveId,
 }: FormLinkDialogProps) {
-  const { mutateAsync: createLink, isPending: isCreating } = useCreateFormLink();
-  const { mutateAsync: updateLink, isPending: isUpdating } = useUpdateFormLink();
-  const { mutateAsync: deleteLink, isPending: isDeleting } = useDeleteFormLink();
+  const { mutateAsync: createLink, isPending: isCreating } =
+    useCreateFormLink();
+  const { mutateAsync: updateLink, isPending: isUpdating } =
+    useUpdateFormLink();
+  const { mutateAsync: deleteLink, isPending: isDeleting } =
+    useDeleteFormLink();
 
   // Seeded once per mount. The parent gives this component a `key` tied to the
   // link/drive being edited so it remounts (and reseeds) when the subject changes.
@@ -125,9 +128,7 @@ export function FormLinkDialog({
               id="form-link-name"
               placeholder={namePlaceholder}
               value={form.name}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, name: e.target.value }))
-              }
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             />
             <p className="text-xs text-muted-foreground">
               Optional. Defaults to the drive name if left blank.
@@ -179,10 +180,7 @@ export function FormLinkDialog({
               className="mt-0.5"
             />
             <div>
-              <Label
-                htmlFor="form-link-storefront"
-                className="cursor-pointer"
-              >
+              <Label htmlFor="form-link-storefront" className="cursor-pointer">
                 Show on storefront
               </Label>
               <p className="text-xs text-muted-foreground">
