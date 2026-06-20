@@ -1,6 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
-import { FormLinkSchema } from "common";
+import { FormLinkSchema, UserRole } from "common";
 import { getServerDB } from "@/lib/firebase.server";
+import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
+
+const staffOnly = requireRolesMiddleware([
+  UserRole.DIRECTOR,
+  UserRole.ADMIN,
+  UserRole.VOLUNTEER,
+]);
 
 export const getAllFormLinks = createServerFn().handler(async () => {
   const db = getServerDB();
@@ -26,6 +33,7 @@ export const getStorefrontFormLink = createServerFn().handler(async () => {
 });
 
 export const createFormLink = createServerFn({ method: "POST" })
+  .middleware([staffOnly])
   .inputValidator(FormLinkSchema.omit({ id: true }))
   .handler(async ({ data }) => {
     const db = getServerDB();
@@ -36,6 +44,7 @@ export const createFormLink = createServerFn({ method: "POST" })
   });
 
 export const updateFormLink = createServerFn({ method: "POST" })
+  .middleware([staffOnly])
   .inputValidator(FormLinkSchema.partial().required({ id: true }))
   .handler(async ({ data }) => {
     const db = getServerDB();
@@ -44,6 +53,7 @@ export const updateFormLink = createServerFn({ method: "POST" })
   });
 
 export const deleteFormLink = createServerFn({ method: "POST" })
+  .middleware([staffOnly])
   .inputValidator((data: { id: string }) => data.id)
   .handler(async ({ data: id }) => {
     const db = getServerDB();
