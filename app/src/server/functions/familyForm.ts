@@ -265,6 +265,16 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
 
     const link = await createFamilyLink({ familyId, active: true });
 
+    try {
+      await sendFamilyPortalEmail({
+        email: normalizedEmail,
+        contactName: family.contactName,
+        linkId: link.id,
+      });
+    } catch (error) {
+      console.error("Family portal email failed to send", error);
+    }
+
     return {
       link,
       childIds,
