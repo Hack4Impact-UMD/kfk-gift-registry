@@ -19,9 +19,11 @@ import {
   UserCircleIcon,
   ChevronDoubleLeftIcon,
 } from "@/components/icons";
-import { CircleDollarSign } from "lucide-react";
+import { CircleDollarSign, FormIcon } from "lucide-react";
 import type { AuthContext } from "@/server/functions/auth";
 import { useLogout } from "@/hooks/mutations/logoutMutation";
+import { Spinner } from "../ui/spinner";
+import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
 
 type StorefrontMobileSidebarProps = {
   auth: AuthContext;
@@ -36,7 +38,8 @@ export function StorefrontMobileSidebar({
   // Add more page checks as needed
   const isHomePage = pathname === "/" || pathname.startsWith("/child/");
   const isCheckoutPage = pathname === "/checkout";
-  const { mutate: logout, isPending } = useLogout();
+  const { mutate: logout, isPending: logoutPending } = useLogout();
+  const { data: link, isPending, error } = useStorefrontFormLink();
 
   return (
     <Sidebar collapsible="offcanvas" side="left" className="sm:hidden">
@@ -81,6 +84,25 @@ export function StorefrontMobileSidebar({
                   <HomeIcon className="size-6" />
                   <span className="text-base">Home</span>
                 </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild size="lg">
+                {isPending ? (
+                  <Spinner />
+                ) : error || !link ? (
+                  <></>
+                ) : (
+                  <Link
+                    to="/family/form/$formLinkId/consent"
+                    params={{
+                      formLinkId: link.id,
+                    }}
+                  >
+                    <FormIcon className="size-6" />
+                    <span className="text-base">Go to Family Form</span>
+                  </Link>
+                )}
               </SidebarMenuButton>
             </SidebarMenuItem>
 
@@ -134,7 +156,7 @@ export function StorefrontMobileSidebar({
             variant="default"
             className="w-full bg-kfk-blue hover:bg-kfk-blue/90"
             onClick={() => logout()}
-            disabled={isPending}
+            disabled={logoutPending}
           >
             Logout
           </Button>

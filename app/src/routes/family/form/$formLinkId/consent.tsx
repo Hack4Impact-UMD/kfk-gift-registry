@@ -5,7 +5,7 @@ import { FieldGroup } from "@/components/ui/field";
 import KFKLogo from "@/assets/kisses-for-kyle-logo.png";
 import { ConsentForm } from "@/components/form/sections/Consent";
 
-export const Route = createFileRoute("/family/drive/$driveId/form/consent")({
+export const Route = createFileRoute("/family/form/$formLinkId/consent")({
   head: () => ({
     meta: [
       { title: "Consent - Family Registration" },

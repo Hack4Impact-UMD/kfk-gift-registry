@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/family/drive/$driveId/form/")({
+export const Route = createFileRoute("/family/form/$formLinkId/")({
   head: () => ({
     meta: [
       { title: "Registration Form - Kisses for Kyle" },
@@ -12,8 +12,8 @@ export const Route = createFileRoute("/family/drive/$driveId/form/")({
   }),
   beforeLoad: ({ params }) => {
     throw redirect({
-      to: "/family/drive/$driveId/form/consent",
-      params: { driveId: params.driveId },
+      to: "/family/form/$formLinkId/consent",
+      params: { formLinkId: params.formLinkId },
     });
   },
 });

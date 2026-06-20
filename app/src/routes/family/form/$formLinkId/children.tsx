@@ -6,7 +6,7 @@ import { useChildrenForm } from "@/hooks/family-form/formHooks";
 import { ChildInfoForm } from "@/components/form/sections/ChildInfo";
 import { FormItem } from "@/components/ui/form";
 
-export const Route = createFileRoute("/family/drive/$driveId/form/children")({
+export const Route = createFileRoute("/family/form/$formLinkId/children")({
   head: () => ({
     meta: [
       { title: "Children Information - Registration" },
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/family/drive/$driveId/form/children")({
 function ChildrenPageComponent() {
   const { updateSection } = useFormContext();
   const navigate = useNavigate();
-  const { driveId } = Route.useParams();
+  const { formLinkId } = Route.useParams();
 
   const { form, handleNext } = useChildrenForm();
 
@@ -30,9 +30,9 @@ function ChildrenPageComponent() {
     const currentValues = form.state.values;
     updateSection("children", currentValues);
     navigate({
-      to: "/family/drive/$driveId/form/general-info",
+      to: "/family/form/$formLinkId/general-info",
       params: {
-        driveId,
+        formLinkId,
       },
     });
   };

@@ -3,6 +3,7 @@ import { StorefrontNavbar } from "@/components/storefront/StorefrontNavbar";
 import { StorefrontMobileSidebar } from "@/components/storefront/StorefrontMobileSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
+import { queries } from "@/queries";
 
 export const Route = createFileRoute("/_storefront")({
   head: () => ({
@@ -14,6 +15,9 @@ export const Route = createFileRoute("/_storefront")({
       },
     ],
   }),
+  beforeLoad: async ({ context }) => {
+    await context.queryClient.ensureQueryData(queries.formLinks.storefront);
+  },
   component: RouteComponent,
 });
 

@@ -64,7 +64,7 @@ const giftsFormSchema = z.object({
 });
 
 const familyFormStateSchema = z.object({
-  giftDriveId: z.string(),
+  formLinkId: z.string(),
   generalInfo: generalInfoSchema.optional(),
   children: childrenFormSchema.optional(),
   gifts: giftsFormSchema.optional(),
@@ -152,6 +152,17 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       throw new Error("Gift selections are required");
 
     const db = getServerDB();
+
+    // Resolve the gift drive from the form link doc. The drive ID is never
+    // trusted from the client — it is read from the link, which must exist and
+    // be active for submissions to proceed.
+    const formLink = (await db.formLinks.doc(data.formLinkId).get()).data();
+    if (!formLink) throw new Error("Form link not found");
+    if (!formLink.active) {
+      throw new Error("This registration link is no longer active.");
+    }
+    const giftDriveId = formLink.driveId;
+
     const now = DateTime.now().toISO();
     const normalizedEmail = normalizeFamilyEmail(data.generalInfo.email);
 
@@ -169,7 +180,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       phone: data.generalInfo.phoneNumber,
       address: data.generalInfo.address,
       privateNotes: data.children.additionalNotes,
-      giftDrive: data.giftDriveId,
+      giftDrive: giftDriveId,
       createdAt: now,
       reviewStatus: { approved: false, held: false },
     };
@@ -187,7 +198,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
         diagnosis: childForm.diagnosis ?? "",
         hospital: childForm.hospitalTreatedAt ?? "",
         childSocialWorker: childForm.socialWorkerName ?? "",
-        giftDrive: data.giftDriveId,
+        giftDrive: giftDriveId,
         livesAtHome: true,
         publicBlurb: childForm.blurb,
         createdAt: now,
@@ -214,7 +225,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
               id: uuidv7(),
               childId,
               familyId,
-              giftDrive: data.giftDriveId,
+              giftDrive: giftDriveId,
               title: g.giftName,
               productUrl: g.giftUrl,
               status: "AVAILABLE",
@@ -234,7 +245,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
               id: uuidv7(),
               childId,
               familyId,
-              giftDrive: data.giftDriveId,
+              giftDrive: giftDriveId,
               title: g.giftName,
               productUrl: g.giftUrl,
               status: "AVAILABLE",

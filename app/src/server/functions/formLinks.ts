@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { v7 as uuidv7 } from "uuid";
 import { FormLinkSchema, UserRole } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
@@ -25,6 +26,7 @@ export const getStorefrontFormLink = createServerFn().handler(async () => {
   const db = getServerDB();
   const snap = await db.formLinks
     .where("showOnStorefront", "==", true)
+    .where("active", "==", true)
     .limit(1)
     .get();
 
@@ -32,14 +34,31 @@ export const getStorefrontFormLink = createServerFn().handler(async () => {
   return snap.docs[0].data();
 });
 
+async function demoteOtherStorefrontLinks(
+  db: ReturnType<typeof getServerDB>,
+  exceptId?: string,
+) {
+  const snap = await db.formLinks.where("showOnStorefront", "==", true).get();
+
+  const batch = db._instance.batch();
+  for (const doc of snap.docs) {
+    if (doc.id === exceptId) continue;
+    batch.update(doc.ref, { showOnStorefront: false });
+  }
+  await batch.commit();
+}
+
 export const createFormLink = createServerFn({ method: "POST" })
   .middleware([staffOnly])
   .inputValidator(FormLinkSchema.omit({ id: true }))
   .handler(async ({ data }) => {
     const db = getServerDB();
-    const ref = db.formLinks.doc();
-    const formLink = { id: ref.id, ...data };
-    await ref.set(formLink);
+    if (data.showOnStorefront) {
+      await demoteOtherStorefrontLinks(db);
+    }
+    const id = uuidv7();
+    const formLink = { id, ...data };
+    await db.formLinks.doc(id).set(formLink);
     return formLink;
   });
 
@@ -49,6 +68,9 @@ export const updateFormLink = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const db = getServerDB();
     const { id, ...fields } = data;
+    if (fields.showOnStorefront) {
+      await demoteOtherStorefrontLinks(db, id);
+    }
     await db.formLinks.doc(id).update(fields);
   });
 

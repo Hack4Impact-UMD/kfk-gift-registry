@@ -42,7 +42,7 @@ export const { useAppForm } = createFormHook({
 export function useConsentForm() {
   const { formState, updateSection } = useFormContext();
   const navigate = useNavigate();
-  const { driveId } = useParams({ from: "/family/drive/$driveId" });
+  const { formLinkId } = useParams({ from: "/family/form/$formLinkId" });
 
   const form = useAppForm({
     defaultValues: formState.consentScreen || consentFormDefaults,
@@ -72,9 +72,9 @@ export function useConsentForm() {
       updateSection("consentScreen", result.data);
 
       navigate({
-        to: `/family/drive/$driveId/form/general-info`,
+        to: `/family/form/$formLinkId/general-info`,
         params: {
-          driveId: driveId,
+          formLinkId: formLinkId,
         },
       });
     },
@@ -86,7 +86,7 @@ export function useConsentForm() {
 export function useGeneralInfoForm() {
   const { formState, updateSection } = useFormContext();
   const navigate = useNavigate();
-  const { driveId } = useParams({ from: "/family/drive/$driveId" });
+  const { formLinkId } = useParams({ from: "/family/form/$formLinkId" });
 
   const form = useAppForm({
     defaultValues: formState.generalInfo || generalInfoFormDefaults,
@@ -104,9 +104,9 @@ export function useGeneralInfoForm() {
 
       updateSection("generalInfo", result.data);
       navigate({
-        to: "/family/drive/$driveId/form/children",
+        to: "/family/form/$formLinkId/children",
         params: {
-          driveId,
+          formLinkId,
         },
       });
     },
@@ -118,7 +118,7 @@ export function useGeneralInfoForm() {
 export function useChildrenForm() {
   const { formState, updateSection } = useFormContext();
   const navigate = useNavigate();
-  const { driveId } = useParams({ from: "/family/drive/$driveId" });
+  const { formLinkId } = useParams({ from: "/family/form/$formLinkId" });
 
   const form = useAppForm({
     defaultValues: formState.children || childrenFormDefaults,
@@ -177,8 +177,8 @@ export function useChildrenForm() {
     if (result.success) {
       updateSection("children", result.data);
       navigate({
-        to: "/family/drive/$driveId/form/gift-details",
-        params: { driveId },
+        to: "/family/form/$formLinkId/gift-details",
+        params: { formLinkId },
       });
     } else {
       await form.validateAllFields("submit");

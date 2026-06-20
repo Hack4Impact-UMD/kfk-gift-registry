@@ -47,18 +47,18 @@ const FORM_STEPS: Array<FormStep> = [
 
 type StepLinkProps = {
   stepId: string;
-  driveId: string;
+  formLinkId: string;
   className: string;
   children: ReactNode;
 };
 
-function StepLink({ stepId, driveId, className, children }: StepLinkProps) {
-  const params = { driveId };
+function StepLink({ stepId, formLinkId, className, children }: StepLinkProps) {
+  const params = { formLinkId };
   switch (stepId) {
     case "general":
       return (
         <Link
-          to="/family/drive/$driveId/form/general-info"
+          to="/family/form/$formLinkId/general-info"
           params={params}
           className={className}
         >
@@ -68,7 +68,7 @@ function StepLink({ stepId, driveId, className, children }: StepLinkProps) {
     case "children":
       return (
         <Link
-          to="/family/drive/$driveId/form/children"
+          to="/family/form/$formLinkId/children"
           params={params}
           className={className}
         >
@@ -78,7 +78,7 @@ function StepLink({ stepId, driveId, className, children }: StepLinkProps) {
     case "gifts":
       return (
         <Link
-          to="/family/drive/$driveId/form/gift-details"
+          to="/family/form/$formLinkId/gift-details"
           params={params}
           className={className}
         >
@@ -88,7 +88,7 @@ function StepLink({ stepId, driveId, className, children }: StepLinkProps) {
     case "review":
       return (
         <Link
-          to="/family/drive/$driveId/form/review"
+          to="/family/form/$formLinkId/review"
           params={params}
           className={className}
         >
@@ -102,14 +102,13 @@ function StepLink({ stepId, driveId, className, children }: StepLinkProps) {
 
 type StepState = "current" | "complete" | "error" | "incomplete";
 
-export function FormProgressBar({ driveId }: { driveId: string }) {
+export function FormProgressBar({ formLinkId }: { formLinkId: string }) {
   const { formState } = useFormContext();
   const location = useLocation();
   const currentPath = location.pathname;
 
   const getStepState = (step: FormStep, index: number): StepState => {
-    if (currentPath.includes(`/form/${getPathSegment(step.id)}`))
-      return "current";
+    if (currentPath.endsWith(`/${getPathSegment(step.id)}`)) return "current";
     return getUnderlyingState(step, index);
   };
 
@@ -244,7 +243,7 @@ export function FormProgressBar({ driveId }: { driveId: string }) {
               const iconCell = clickable ? (
                 <StepLink
                   stepId={step.id}
-                  driveId={driveId}
+                  formLinkId={formLinkId}
                   className="flex shrink-0 w-[44px] justify-center cursor-pointer"
                 >
                   {iconCircle}
