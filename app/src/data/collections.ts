@@ -8,3 +8,4 @@ export const INVITE_COLLECTION = "invites";
 export const FAMILY_LINK_COLLECTION = "family-links";
 export const PROFILE_UPDATE_COLLECTION = "profile-updates";
 export const NOTIFICATION_COLLECTION = "notifications";
+export const FORM_LINK_COLLECTION = "form-links";
