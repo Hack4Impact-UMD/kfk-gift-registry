@@ -42,7 +42,7 @@ import {
 } from "@/components/icons";
 import { useAllGiftDrives } from "@/hooks/queries/useAllGiftDrives";
 import type { GiftDrive } from "common";
-import { UserCircleIcon } from "lucide-react";
+import { LinkIcon, UserCircleIcon } from "lucide-react";
 
 // Tooltip wrapper for sidebar menu items to show labels only when collapsed
 function SidebarMenuButtonWithTooltip({
@@ -251,6 +251,27 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
                     <UsersIcon className="transition-colors size-6" />
                     <span className="group-data-[collapsible=icon]:hidden">
                       User Management
+                    </span>
+                  </Link>
+                </SidebarMenuButtonWithHovering>
+              </SidebarMenuButtonWithTooltip>
+            </SidebarMenuItem>
+            <SidebarMenuItem className="flex justify-center">
+              <SidebarMenuButtonWithTooltip label="Form Links">
+                <SidebarMenuButtonWithHovering>
+                  <Link
+                    to="/staff/admin/forms"
+                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                    activeProps={{
+                      className:
+                        "group/button flex items-center gap-2 text-kfk-green hover:text-kfk-green",
+                    }}
+                  >
+                    {" "}
+                    {/* Placeholder Link */}
+                    <LinkIcon className="transition-colors size-6" />
+                    <span className="group-data-[collapsible=icon]:hidden">
+                      Form Links
                     </span>
                   </Link>
                 </SidebarMenuButtonWithHovering>

@@ -51,6 +51,7 @@ import { Route as FamilyTokenChildChildIdRouteImport } from './routes/family/$to
 import { Route as AuthenticatedStaffReviewFamilyIdRouteImport } from './routes/_authenticated/staff/review/$familyId'
 import { Route as AuthenticatedStaffChildChildIdRouteImport } from './routes/_authenticated/staff/child/$childId'
 import { Route as AuthenticatedStaffAdminUsersRouteImport } from './routes/_authenticated/staff/admin/users'
+import { Route as AuthenticatedStaffAdminFormsRouteImport } from './routes/_authenticated/staff/admin/forms'
 
 const ResetSuccessRoute = ResetSuccessRouteImport.update({
   id: '/resetSuccess',
@@ -277,6 +278,12 @@ const AuthenticatedStaffAdminUsersRoute =
     path: '/users',
     getParentRoute: () => AuthenticatedStaffAdminRouteRoute,
   } as any)
+const AuthenticatedStaffAdminFormsRoute =
+  AuthenticatedStaffAdminFormsRouteImport.update({
+    id: '/forms',
+    path: '/forms',
+    getParentRoute: () => AuthenticatedStaffAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof StorefrontIndexRoute
@@ -307,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
   '/donor/': typeof AuthenticatedDonorIndexRoute
   '/family/$token/': typeof FamilyTokenIndexRoute
+  '/staff/admin/forms': typeof AuthenticatedStaffAdminFormsRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
   '/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
   '/staff/review/$familyId': typeof AuthenticatedStaffReviewFamilyIdRoute
@@ -346,6 +354,7 @@ export interface FileRoutesByTo {
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
   '/donor': typeof AuthenticatedDonorIndexRoute
   '/family/$token': typeof FamilyTokenIndexRoute
+  '/staff/admin/forms': typeof AuthenticatedStaffAdminFormsRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
   '/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
   '/staff/review/$familyId': typeof AuthenticatedStaffReviewFamilyIdRoute
@@ -391,6 +400,7 @@ export interface FileRoutesById {
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
   '/_authenticated/donor/': typeof AuthenticatedDonorIndexRoute
   '/family/$token/': typeof FamilyTokenIndexRoute
+  '/_authenticated/staff/admin/forms': typeof AuthenticatedStaffAdminFormsRoute
   '/_authenticated/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
   '/_authenticated/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
   '/_authenticated/staff/review/$familyId': typeof AuthenticatedStaffReviewFamilyIdRoute
@@ -435,6 +445,7 @@ export interface FileRouteTypes {
     | '/signup/admin/$inviteId'
     | '/donor/'
     | '/family/$token/'
+    | '/staff/admin/forms'
     | '/staff/admin/users'
     | '/staff/child/$childId'
     | '/staff/review/$familyId'
@@ -474,6 +485,7 @@ export interface FileRouteTypes {
     | '/signup/admin/$inviteId'
     | '/donor'
     | '/family/$token'
+    | '/staff/admin/forms'
     | '/staff/admin/users'
     | '/staff/child/$childId'
     | '/staff/review/$familyId'
@@ -518,6 +530,7 @@ export interface FileRouteTypes {
     | '/signup/admin/$inviteId'
     | '/_authenticated/donor/'
     | '/family/$token/'
+    | '/_authenticated/staff/admin/forms'
     | '/_authenticated/staff/admin/users'
     | '/_authenticated/staff/child/$childId'
     | '/_authenticated/staff/review/$familyId'
@@ -843,6 +856,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffAdminUsersRouteImport
       parentRoute: typeof AuthenticatedStaffAdminRouteRoute
     }
+    '/_authenticated/staff/admin/forms': {
+      id: '/_authenticated/staff/admin/forms'
+      path: '/forms'
+      fullPath: '/staff/admin/forms'
+      preLoaderRoute: typeof AuthenticatedStaffAdminFormsRouteImport
+      parentRoute: typeof AuthenticatedStaffAdminRouteRoute
+    }
   }
 }
 
@@ -883,11 +903,13 @@ const AuthenticatedDonorRouteRouteWithChildren =
   )
 
 interface AuthenticatedStaffAdminRouteRouteChildren {
+  AuthenticatedStaffAdminFormsRoute: typeof AuthenticatedStaffAdminFormsRoute
   AuthenticatedStaffAdminUsersRoute: typeof AuthenticatedStaffAdminUsersRoute
 }
 
 const AuthenticatedStaffAdminRouteRouteChildren: AuthenticatedStaffAdminRouteRouteChildren =
   {
+    AuthenticatedStaffAdminFormsRoute: AuthenticatedStaffAdminFormsRoute,
     AuthenticatedStaffAdminUsersRoute: AuthenticatedStaffAdminUsersRoute,
   }
 
