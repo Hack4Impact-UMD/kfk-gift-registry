@@ -62,8 +62,8 @@ export default function FamilyPortalEmail({
                 Your family page is ready
               </Heading>
               <Text className="mt-0 text-base text-gray-500">
-                Thank you for submitting your family&apos;s gift drive form.
-                Use the unique link below to view your family page.
+                Thank you for submitting your family&apos;s gift drive form. Use
+                the unique link below to view your family page.
               </Text>
 
               <Hr className="my-6 border-gray-200" />
