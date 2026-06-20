@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { Resend } from "resend";
+import FamilyPortalEmail from "transactional/emails/FamilyPortalEmail";
 import z from "zod";
 import { v7 as uuidv7 } from "uuid";
 import { getServerDB } from "@/lib/firebase.server";
@@ -76,6 +78,46 @@ export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
 
 function normalizeFamilyEmail(email: string) {
   return email.trim().toLowerCase();
+}
+
+function getAppBaseUrl() {
+  return process.env.APP_BASE_URL ?? "https://gifts.kissesforkyle.org";
+}
+
+function buildFamilyPageUrl(linkId: string) {
+  return `${getAppBaseUrl()}/family/${linkId}/home`;
+}
+
+async function sendFamilyPortalEmail({
+  email,
+  contactName,
+  linkId,
+}: {
+  email: string;
+  contactName: string;
+  linkId: string;
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("Skipping family portal email: RESEND_API_KEY is not set");
+    return;
+  }
+
+  const familyLink = buildFamilyPageUrl(linkId);
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const { error } = await resend.emails.send({
+    from: "Kisses for Kyle Gift Registry <noreply@gifts.kissesforkyle.org>",
+    to: email,
+    subject: "Your KFK family page link",
+    react: FamilyPortalEmail({
+      contactName,
+      familyLink,
+      baseUrl: getAppBaseUrl(),
+    }),
+  });
+
+  if (error) {
+    throw new Error(`${error.name} - ${error.message}`);
+  }
 }
 
 async function assertFamilyEmailAvailable(email: string) {
