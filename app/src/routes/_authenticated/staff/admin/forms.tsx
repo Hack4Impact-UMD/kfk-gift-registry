@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Gift, Plus } from "lucide-react";
 import type { FormLink, GiftDrive } from "common";
 import { Button } from "@/components/ui/button";
 import {
@@ -77,7 +77,13 @@ function StorefrontCard({
         <CardDescription className="font-bold text-kfk-green">
           Live on the storefront
         </CardDescription>
-        <CardTitle>{formLinkName(link, drive)}</CardTitle>
+        <CardTitle className="flex items-center gap-2 text-2xl">
+          <Gift className="size-6 shrink-0 text-kfk-green" />
+          {drive ? driveLabel(drive) : "Unknown drive"}
+        </CardTitle>
+        {link.name?.trim() && (
+          <CardDescription>{formLinkName(link, drive)}</CardDescription>
+        )}
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-2">
