@@ -1,7 +1,7 @@
 import {
   Outlet,
   createFileRoute,
-  redirect,
+  notFound,
   useLocation,
 } from "@tanstack/react-router";
 import { FormProvider } from "@/components/providers/FormProvider";
@@ -12,8 +12,9 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { FormProgressBar } from "@/components/form/FormProgressBar";
+import { getFormLinkById } from "@/server/functions/formLinks";
 
-export const Route = createFileRoute("/family/drive/$driveId/form")({
+export const Route = createFileRoute("/family/form/$formLinkId")({
   head: () => ({
     meta: [
       { title: "Registration Form - Kisses for Kyle" },
@@ -23,30 +24,28 @@ export const Route = createFileRoute("/family/drive/$driveId/form")({
       },
     ],
   }),
-  beforeLoad: ({ location, params }) => {
-    if (location.pathname === `/family/drive/${params.driveId}/form`) {
-      throw redirect({
-        to: "/family/drive/$driveId/form/consent",
-        params: { driveId: params.driveId },
-      });
-    }
+  loader: async ({ params }) => {
+    const formLink = await getFormLinkById({ data: { id: params.formLinkId } });
+    if (!formLink) throw notFound();
+    return { formLink };
   },
   component: FormLayoutComponent,
+  notFoundComponent: FormNotFoundComponent,
   ssr: false,
 });
 
 function FormLayoutComponent() {
-  const { driveId } = Route.useParams();
+  const { formLinkId } = Route.useParams();
   const location = useLocation();
 
-  const isConsentRoute = location.pathname.includes("/form/consent");
-  const isThankYouRoute = location.pathname.includes("/form/thank-you");
+  const isConsentRoute = location.pathname.endsWith("/consent");
+  const isThankYouRoute = location.pathname.endsWith("/thank-you");
 
   const showProgressBar = !isConsentRoute && !isThankYouRoute;
   const hideFormHeader = isThankYouRoute;
 
   return (
-    <FormProvider key={driveId} driveId={driveId}>
+    <FormProvider key={formLinkId} formLinkId={formLinkId}>
       <div className="min-h-screen p-4 bg-gray-50 flex flex-col items-center">
         <div className="w-full max-w-md">
           <Card className="w-full">
@@ -56,7 +55,7 @@ function FormLayoutComponent() {
                   Fill all required fields to go to next step
                   <span className="text-destructive">*</span>
                 </CardDescription>
-                {showProgressBar && <FormProgressBar driveId={driveId} />}
+                {showProgressBar && <FormProgressBar formLinkId={formLinkId} />}
               </CardHeader>
             )}
             <CardContent>
@@ -66,5 +65,22 @@ function FormLayoutComponent() {
         </div>
       </div>
     </FormProvider>
+  );
+}
+
+function FormNotFoundComponent() {
+  return (
+    <div className="w-full min-h-screen">
+      <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-center mb-8 font-gaegu">
+            Form Not Found
+          </h1>
+          <p className="text-center text-muted-foreground">
+            This registration link is invalid or no longer exists.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

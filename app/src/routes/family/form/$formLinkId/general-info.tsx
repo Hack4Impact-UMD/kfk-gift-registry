@@ -8,9 +8,7 @@ import { FormItem } from "@/components/ui/form";
 import { useGeneralInfoForm } from "@/hooks/family-form/formHooks";
 import { GeneralInfoForm } from "@/components/form/sections/GeneralInfo";
 
-export const Route = createFileRoute(
-  "/family/drive/$driveId/form/general-info",
-)({
+export const Route = createFileRoute("/family/form/$formLinkId/general-info")({
   head: () => ({
     meta: [
       { title: "Family Information - Registration" },
@@ -26,16 +24,16 @@ export const Route = createFileRoute(
 function GeneralRouteComponent() {
   const { updateSection } = useFormContext();
   const navigate = useNavigate();
-  const { driveId } = Route.useParams();
+  const { formLinkId } = Route.useParams();
   const form = useGeneralInfoForm();
 
   const handleBack = () => {
     const currentValues = form.state.values;
     updateSection("generalInfo", currentValues);
     navigate({
-      to: "/family/drive/$driveId/form/consent",
+      to: "/family/form/$formLinkId/consent",
       params: {
-        driveId,
+        formLinkId,
       },
     });
   };

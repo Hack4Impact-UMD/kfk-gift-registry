@@ -8,6 +8,8 @@ import type { GiftDrive } from "common";
 import { UserRole } from "common";
 import type { AuthContext } from "@/server/functions/auth";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
+import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
+import { Spinner } from "../ui/spinner";
 
 type StorefrontNavbarProps = {
   currentDrive?: GiftDrive;
@@ -21,11 +23,12 @@ export function StorefrontNavbar({
   const showMobileSidebarTrigger = pathname !== "/";
 
   const { data: localCart } = useLocalCartData();
+  const { data: link, isPending, error } = useStorefrontFormLink();
 
   const cartCount = localCart?.length ?? 0;
 
   return (
-    <div className="flex px-4 md:px-8 md:justify-center border-b border-b-gray-300 pb-4">
+    <div className="flex flex-col gap-1 px-4 md:px-8 md:items-center border-b border-b-gray-300 pb-4">
       {/* Mobile header row */}
       <div className="flex md:hidden flex-col items-start pt-4 pb-2 gap-3">
         <Link to="/">
@@ -82,26 +85,35 @@ export function StorefrontNavbar({
           )}
 
           <div className="flex items-center gap-3 ml-auto">
-            {!auth.isAuthed ? (
-              <Link to="/login">
-                <Button variant="default">Log-in</Button>
-              </Link>
-            ) : auth.authUser.role === UserRole.DONOR ? (
-              <Link to="/donor/home">
-                <Button variant="default">Go to Donor Home</Button>
-              </Link>
+            {isPending ? (
+              <Spinner />
+            ) : error || !link ? (
+              <></>
             ) : (
-              <Link to="/staff/home">
-                <Button variant="default">Go to Staff Home</Button>
-              </Link>
+              <Button asChild>
+                <Link
+                  to="/family/form/$formLinkId/consent"
+                  params={{
+                    formLinkId: link.id,
+                  }}
+                >
+                  Go to Family Form
+                </Link>
+              </Button>
             )}
 
-            <Link to="/">
-              <Button variant="default">Family Recovery Link</Button>
-            </Link>
+            <Button asChild variant="outline">
+              {!auth.isAuthed ? (
+                <Link to="/login">Log-in</Link>
+              ) : auth.authUser.role === UserRole.DONOR ? (
+                <Link to="/donor/home">Go to Donor Home</Link>
+              ) : (
+                <Link to="/staff/home">Go to Staff Home</Link>
+              )}
+            </Button>
 
-            <Link to="/checkout">
-              <Button variant="default" className="relative">
+            <Button asChild variant="outline" className="relative">
+              <Link to="/checkout">
                 Your Cart
                 <ShoppingCartIcon className="ml-2" />
                 {cartCount > 0 && (
@@ -109,12 +121,23 @@ export function StorefrontNavbar({
                     {cartCount}
                   </span>
                 )}
-              </Button>
-            </Link>
+              </Link>
+            </Button>
 
-            <Button variant="destructive">Donate!</Button>
+            <Button
+              variant="default"
+              className="bg-green-500 hover:bg-green-400"
+            >
+              Donate!
+            </Button>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-7xl w-full flex flex-col mt-2">
+        <Link className="text-sm underline self-end text-kfk-blue" to="/">
+          Forgot Family Link?
+        </Link>
       </div>
     </div>
   );

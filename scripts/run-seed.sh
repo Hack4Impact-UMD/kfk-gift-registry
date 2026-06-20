@@ -64,7 +64,7 @@ echo "Using flame ${FLAME_TARGET} target..."
 flame use "${FLAME_TARGET}"
 
 echo "Cleaning existing generated data..."
-for collection in claims gifts children family-links families invites gift-drives; do
+for collection in claims gifts children family-links families invites form-links gift-drives; do
   remove_collection "${collection}"
 done
 
@@ -78,6 +78,7 @@ fi
 
 echo "Uploading generated data..."
 upload_collection "giftDrives" "gift-drives"
+upload_collection "formLinks" "form-links"
 upload_collection "users" "users"
 upload_collection "invites" "invites"
 upload_collection "families" "families"

@@ -8,8 +8,7 @@ export function useCreateFormLink() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Omit<FormLink, "id">) =>
-      createFormLink({ data }),
+    mutationFn: (data: Omit<FormLink, "id">) => createFormLink({ data }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: queries.formLinks._def,

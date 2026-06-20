@@ -15,9 +15,7 @@ import { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { GiftDetailsForm } from "@/components/form/sections/GiftDetails";
 import LadyBug from "@/assets/form/ladybug.png";
 
-export const Route = createFileRoute(
-  "/family/drive/$driveId/form/gift-details",
-)({
+export const Route = createFileRoute("/family/form/$formLinkId/gift-details")({
   head: () => ({
     meta: [
       { title: "Gift Details - Family Registration" },
@@ -36,7 +34,7 @@ function GiftsStep() {
   const childrenNameList = (formState.children?.children || []).map(
     (c) => c.name,
   );
-  const { driveId } = Route.useParams();
+  const { formLinkId } = Route.useParams();
 
   const [activeChildIndex, setActiveChildIndex] = useState<number | null>(null);
 
@@ -46,8 +44,8 @@ function GiftsStep() {
     const currentValues = form.state.values;
     updateSection("gifts", currentValues);
     navigate({
-      to: "/family/drive/$driveId/form/children",
-      params: { driveId },
+      to: "/family/form/$formLinkId/children",
+      params: { formLinkId },
     });
   };
 
@@ -163,8 +161,8 @@ function GiftsStep() {
               if (result.success) {
                 updateSection("gifts", result.data);
                 navigate({
-                  to: "/family/drive/$driveId/form/review",
-                  params: { driveId },
+                  to: "/family/form/$formLinkId/review",
+                  params: { formLinkId },
                 });
               }
             }}

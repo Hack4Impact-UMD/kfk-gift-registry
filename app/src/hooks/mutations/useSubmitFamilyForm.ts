@@ -8,7 +8,7 @@ import { uploadChildPictureAppCheck } from "@/server/functions/child";
 import { toast } from "@/lib/toast";
 
 export function buildFamilyFormSubmitPayload(
-  driveId: string,
+  formLinkId: string,
   formState: FamilyFormState,
 ): FamilyFormInput {
   const gi = formState.generalInfo;
@@ -19,7 +19,7 @@ export function buildFamilyFormSubmitPayload(
   }
 
   return {
-    giftDriveId: driveId,
+    formLinkId,
     generalInfo: {
       parentName: gi.parentName,
       email: gi.email.trim().toLowerCase(),
