@@ -81,7 +81,8 @@ function normalizeFamilyEmail(email: string) {
 }
 
 function getAppBaseUrl() {
-  return process.env.APP_BASE_URL ?? "https://gifts.kissesforkyle.org";
+  const raw = process.env.APP_BASE_URL ?? "https://gifts.kissesforkyle.org";
+  return raw.replace(/\/+$/, "");
 }
 
 function buildFamilyPageUrl(linkId: string) {
