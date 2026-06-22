@@ -114,8 +114,13 @@ function formatAddress(params: {
     .join(", ");
   const locality = [params.city, params.state].filter(Boolean).join(", ");
   const postalLine = [locality, params.zipCode].filter(Boolean).join(" ");
+  const addressLines = [street, postalLine].filter(Boolean);
 
-  return [street, postalLine].filter(Boolean);
+  if (addressLines.length === 0 || !params.addressLine1) {
+    return "Address not available - contact KFK";
+  }
+
+  return addressLines.join(", ");
 }
 
 export default function DonorPostClaimConfirmationEmail({
@@ -182,7 +187,9 @@ export default function DonorPostClaimConfirmationEmail({
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-sm text-gray-500">Gifts claimed</td>
+                    <td className="py-1.5 text-sm text-gray-500">
+                      Gifts claimed
+                    </td>
                     <td className="py-1.5 text-right text-sm font-medium text-gray-900">
                       {payload.gifts.length}
                     </td>
@@ -218,48 +225,50 @@ export default function DonorPostClaimConfirmationEmail({
                 Claimed gifts
               </Text>
 
-              {payload.gifts.map((gift: DonorPostClaimConfirmationPayload["gifts"][number]) => (
-                <Section
-                  key={gift.giftId}
-                  className="mt-4 rounded-lg border border-gray-200 bg-gray-50 px-5 py-4"
-                >
-                  <Text className="m-0 text-base font-semibold text-gray-900">
-                    {gift.giftTitle}
-                  </Text>
-
-                  <table className="mt-2 w-full">
-                    <tbody>
-                      <tr>
-                        <td className="py-1 text-sm text-gray-500">Child</td>
-                        <td className="py-1 text-right text-sm font-medium text-gray-900">
-                          {gift.childName}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="py-1 text-sm text-gray-500">Family</td>
-                        <td className="py-1 text-right text-sm font-medium text-gray-900">
-                          {gift.familyName}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="py-1 text-sm text-gray-500">
-                          Listed price
-                        </td>
-                        <td className="py-1 text-right text-sm font-medium text-gray-900">
-                          {formatCurrency(gift.listedPrice)}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-
-                  {gift.familyPublicNotes ? (
-                    <Text className="mb-0 mt-3 text-sm text-gray-700">
-                      <span className="font-semibold">Family notes:</span>{" "}
-                      {gift.familyPublicNotes}
+              {payload.gifts.map(
+                (gift: DonorPostClaimConfirmationPayload["gifts"][number]) => (
+                  <Section
+                    key={gift.giftId}
+                    className="mt-4 rounded-lg border border-gray-200 bg-gray-50 px-5 py-4"
+                  >
+                    <Text className="m-0 text-base font-semibold text-gray-900">
+                      {gift.giftTitle}
                     </Text>
-                  ) : null}
-                </Section>
-              ))}
+
+                    <table className="mt-2 w-full">
+                      <tbody>
+                        <tr>
+                          <td className="py-1 text-sm text-gray-500">Child</td>
+                          <td className="py-1 text-right text-sm font-medium text-gray-900">
+                            {gift.childName}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1 text-sm text-gray-500">Family</td>
+                          <td className="py-1 text-right text-sm font-medium text-gray-900">
+                            {gift.familyName}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1 text-sm text-gray-500">
+                            Listed price
+                          </td>
+                          <td className="py-1 text-right text-sm font-medium text-gray-900">
+                            {formatCurrency(gift.listedPrice)}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    {gift.familyPublicNotes ? (
+                      <Text className="mb-0 mt-3 text-sm text-gray-700">
+                        <span className="font-semibold">Family notes:</span>{" "}
+                        {gift.familyPublicNotes}
+                      </Text>
+                    ) : null}
+                  </Section>
+                ),
+              )}
 
               <Hr className="my-6 border-gray-200" />
 
@@ -271,7 +280,7 @@ export default function DonorPostClaimConfirmationEmail({
                 (
                   family: DonorPostClaimConfirmationPayload["shippingByFamily"][number],
                 ) => {
-                  const addressLines = formatAddress(family);
+                  const addressDisplay = formatAddress(family);
 
                   return (
                     <Section
@@ -294,19 +303,19 @@ export default function DonorPostClaimConfirmationEmail({
                               </td>
                             </tr>
                           ) : null}
-                          {addressLines.length > 0 ? (
-                            <tr>
-                              <td className="py-1 text-sm text-gray-500">
-                                Address
-                              </td>
-                              <td className="py-1 text-right text-sm font-medium text-gray-900">
-                                {addressLines.join(", ")}
-                              </td>
-                            </tr>
-                          ) : null}
+                          <tr>
+                            <td className="py-1 text-sm text-gray-500">
+                              Address
+                            </td>
+                            <td className="py-1 text-right text-sm font-medium text-gray-900">
+                              {addressDisplay}
+                            </td>
+                          </tr>
                           {family.phone ? (
                             <tr>
-                              <td className="py-1 text-sm text-gray-500">Phone</td>
+                              <td className="py-1 text-sm text-gray-500">
+                                Phone
+                              </td>
                               <td className="py-1 text-right text-sm font-medium text-gray-900">
                                 {family.phone}
                               </td>
