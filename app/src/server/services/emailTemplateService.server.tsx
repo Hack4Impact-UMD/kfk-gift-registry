@@ -23,6 +23,7 @@ export function renderEmailJobTemplate(params: {
       return DonorPostClaimConfirmationEmail({
         payload: params.payload.data,
         baseUrl: params.baseUrl,
+        donorPortalUrl: params.donorPortalUrl,
       });
     case "DONOR_PURCHASE_REMINDER":
       return DonorPurchaseReminderEmail({

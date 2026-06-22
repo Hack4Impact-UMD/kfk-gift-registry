@@ -80,8 +80,6 @@ export function PublishedGiftsTable({
     );
   }, [filteredData, globalSearch]);
 
-  const tableKey = `${activeFilter ?? "all"}-${giftStatusFilter ?? "all"}`;
-
   const handleExport = () => {
     const csv = serializeCsv(exportData, [
       { header: "Gift Name", value: (row) => row.giftName },
