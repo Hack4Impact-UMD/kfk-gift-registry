@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -11,6 +12,9 @@ interface ConfirmGiftsModalProps {
   onClose: () => void;
   onConfirm: () => void;
   isLoading?: boolean;
+  title?: string;
+  description?: string;
+  confirmLabel?: string;
 }
 
 export function ConfirmGiftsModal({
@@ -18,14 +22,22 @@ export function ConfirmGiftsModal({
   onClose,
   onConfirm,
   isLoading = false,
+  title = "Are you sure you can commit to buying these gifts?",
+  description,
+  confirmLabel = "Yes, I am sure!",
 }: ConfirmGiftsModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-sm rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-center text-base font-normal">
-            Are you sure you can commit to buying these gifts?
+            {title}
           </DialogTitle>
+          {description ? (
+            <DialogDescription className="text-center text-sm text-gray-600">
+              {description}
+            </DialogDescription>
+          ) : null}
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
@@ -34,7 +46,7 @@ export function ConfirmGiftsModal({
             disabled={isLoading}
             className="w-full text-base font-gaegu py-2"
           >
-            {isLoading ? "Processing..." : "Yes, I am sure!"}
+            {isLoading ? "Processing..." : confirmLabel}
           </Button>
         </div>
       </DialogContent>

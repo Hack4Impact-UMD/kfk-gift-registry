@@ -5,11 +5,24 @@ import {
   useLocalCartData,
 } from "@/hooks/queries/useCartGifts";
 import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup.tsx";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { cartCollection } from "@/local/cartCollection";
+import { CheckoutAuthModal } from "@/components/storefront/CheckoutAuthModal";
+import { useCheckoutFlow } from "@/hooks/useCheckoutFlow";
+import MfaMethodDialog from "@/components/auth/MfaMethodDialog";
+import MfaDialog from "@/components/auth/MfaDialog";
 
 export const Route = createFileRoute("/_storefront/checkout")({
+  head: () => ({
+    meta: [
+      { title: "Checkout - Kisses for Kyle" },
+      {
+        name: "description",
+        content: "Review and confirm your gift selections",
+      },
+    ],
+  }),
   component: CheckoutComponent,
   ssr: false,
 });
@@ -21,7 +34,8 @@ function CheckoutComponent() {
     isPending,
     isError,
   } = useGroupedCartGifts(localCart ?? []);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { auth } = Route.useRouteContext();
+  const flow = useCheckoutFlow(auth);
 
   const handleRemoveGift = (giftId: string) => {
     cartCollection.delete(giftId);
@@ -48,10 +62,6 @@ function CheckoutComponent() {
       ),
     [familyGroups],
   );
-
-  const handleConfirmGifts = () => {
-    setIsModalOpen(true);
-  };
 
   if (isPending) {
     return (
@@ -91,19 +101,22 @@ function CheckoutComponent() {
               gifts={Object.values(cartData).flatMap((g) => g.gifts)}
               totalGifts={totalGifts}
               totalPrice={totalPrice}
-              onConfirm={handleConfirmGifts}
+              onConfirm={flow.start}
+              disabledMessage={flow.disabledMessage}
             />
           </div>
         </div>
 
         <ConfirmGiftsModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onConfirm={() => {
-            setIsModalOpen(false);
-          }}
+          isOpen={flow.confirmModalOpen}
+          onClose={flow.closeAll}
+          onConfirm={flow.confirmClaim}
+          isLoading={flow.isPending}
         />
       </div>
+      <MfaMethodDialog {...flow.mfaMethodDialogProps} />
+      <MfaDialog {...flow.mfaDialogProps} />
+      <CheckoutAuthModal flow={flow} />
     </div>
   );
 }

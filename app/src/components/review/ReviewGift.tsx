@@ -5,6 +5,10 @@ import { cn } from "@/lib/utils";
 import { EditableField } from "./EditableField";
 import { useEffect, useState } from "react";
 import { ExternalLinkIcon } from "lucide-react";
+import {
+  MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
+  MAX_GIFT_TITLE_LENGTH,
+} from "common";
 
 export interface ReviewGiftProps {
   gift: Gift;
@@ -43,13 +47,30 @@ export function ReviewGift({
             className="size-6 shrink-0 my-auto text-foreground"
             aria-hidden
           />
-          <EditableField
-            value={gift.title}
-            editable={editable}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-              onTitleChange(e.target.value);
-            }}
-          ></EditableField>
+
+          {editable ? (
+            <EditableField
+              value={gift.title}
+              editable={editable}
+              characterLimit={MAX_GIFT_TITLE_LENGTH}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                onTitleChange(e.target.value);
+              }}
+            />
+          ) : gift.productUrl ? (
+            <a
+              href={gift.productUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="min-w-0 truncate text-blue-600 hover:underline"
+            >
+              {gift.title}
+            </a>
+          ) : (
+            <span className="min-w-0 truncate text-muted-foreground">
+              {gift.title}
+            </span>
+          )}
         </div>
 
         {gift.productUrl && (
@@ -82,6 +103,7 @@ export function ReviewGift({
               value={gift.familyPublicNotes}
               fieldType="textarea"
               editable={editable}
+              characterLimit={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                 onNotesChange(e.target.value);
               }}

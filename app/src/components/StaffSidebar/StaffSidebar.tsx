@@ -181,7 +181,7 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
               <SidebarMenuButtonWithTooltip label="Profile Approval">
                 <SidebarMenuButtonWithHovering>
                   <Link
-                    to="/staff/pending"
+                    to="/staff/family-approval"
                     className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
                     activeProps={{
                       className:
@@ -201,7 +201,7 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
               <SidebarMenuButtonWithTooltip label="Approved Profiles">
                 <SidebarMenuButtonWithHovering>
                   <Link
-                    to="/staff/approved"
+                    to="/staff/child-profile"
                     className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
                     activeProps={{
                       className:

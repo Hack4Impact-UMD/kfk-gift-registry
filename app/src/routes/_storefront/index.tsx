@@ -28,6 +28,16 @@ export const Route = createFileRoute("/_storefront/")({
       );
     }
   },
+  head: () => ({
+    meta: [
+      { title: "Kisses for Kyle Gift Storefront" },
+      {
+        name: "description",
+        content:
+          "Browse and claim gifts for children in our gift drive program",
+      },
+    ],
+  }),
   component: App,
 });
 

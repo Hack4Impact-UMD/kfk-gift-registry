@@ -6,11 +6,42 @@ import {
 } from "@heroicons/react/24/solid";
 import type { useGeneralInfoForm } from "@/hooks/family-form/formHooks";
 import { US_STATES } from "@/lib/formSchemas";
+import {
+  checkFamilyEmailAvailability,
+  DUPLICATE_FAMILY_EMAIL_MESSAGE,
+} from "@/server/functions/familyForm";
 
 type GeneralInfoFormProps = {
   disabled?: boolean;
   form: ReturnType<typeof useGeneralInfoForm>;
 };
+
+async function validateUniqueFamilyEmail(email: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (!normalizedEmail) {
+    return undefined;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    return undefined;
+  }
+
+  try {
+    await checkFamilyEmailAvailability({
+      data: { email: normalizedEmail },
+    });
+    return undefined;
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message === DUPLICATE_FAMILY_EMAIL_MESSAGE
+    ) {
+      return DUPLICATE_FAMILY_EMAIL_MESSAGE;
+    }
+    return "We couldn't verify this email right now. Please try again.";
+  }
+}
 
 export function GeneralInfoForm({
   form,
@@ -51,11 +82,17 @@ export function GeneralInfoForm({
           name="email"
           validators={{
             onChange: ({ value }) => {
-              if (!value) return "Email is required";
-              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+              const normalizedValue = value.trim().toLowerCase();
+              if (!normalizedValue) return "Email is required";
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedValue))
                 return "Please enter a valid email address";
               return undefined;
             },
+            onChangeAsyncDebounceMs: 400,
+            onChangeAsync: async ({ value }) =>
+              validateUniqueFamilyEmail(value),
+            onSubmitAsync: async ({ value }) =>
+              validateUniqueFamilyEmail(value),
           }}
         >
           {(field) => (
@@ -77,11 +114,16 @@ export function GeneralInfoForm({
           validators={{
             onChangeListenTo: ["email"],
             onChange: ({ value, fieldApi }) => {
-              if (!value) return "Please confirm your email";
-              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+              const normalizedValue = value.trim().toLowerCase();
+              const normalizedEmail = fieldApi.form
+                .getFieldValue("email")
+                .trim()
+                .toLowerCase();
+              if (!normalizedValue) return "Please confirm your email";
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedValue))
                 return "Please enter a valid email address";
-              const email = fieldApi.form.getFieldValue("email");
-              if (value !== email) return "Emails do not match";
+              if (normalizedValue !== normalizedEmail)
+                return "Emails do not match";
               return undefined;
             },
           }}

@@ -7,6 +7,7 @@ import { Menu } from "lucide-react";
 import type { GiftDrive } from "common";
 import { UserRole } from "common";
 import type { AuthContext } from "@/server/functions/auth";
+import { useLocalCartData } from "@/hooks/queries/useCartGifts";
 
 type StorefrontNavbarProps = {
   currentDrive?: GiftDrive;
@@ -18,6 +19,10 @@ export function StorefrontNavbar({
 }: StorefrontNavbarProps) {
   const { pathname } = useLocation();
   const showMobileSidebarTrigger = pathname !== "/";
+
+  const { data: localCart } = useLocalCartData();
+
+  const cartCount = localCart?.length ?? 0;
 
   return (
     <div className="flex px-4 md:px-8 md:justify-center border-b border-b-gray-300 pb-4">
@@ -96,9 +101,14 @@ export function StorefrontNavbar({
             </Link>
 
             <Link to="/checkout">
-              <Button variant="default">
+              <Button variant="default" className="relative">
                 Your Cart
-                <ShoppingCartIcon />
+                <ShoppingCartIcon className="ml-2" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
 

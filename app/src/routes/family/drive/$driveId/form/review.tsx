@@ -16,6 +16,16 @@ import {
 } from "@/hooks/mutations/useSubmitFamilyForm";
 
 export const Route = createFileRoute("/family/drive/$driveId/form/review")({
+  head: () => ({
+    meta: [
+      { title: "Review Information - Family Registration" },
+      {
+        name: "description",
+        content:
+          "Review your family registration information before submitting",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 
@@ -42,7 +52,7 @@ function SectionHeader({ title, onEdit }: SectionHeaderProps) {
 }
 
 function RouteComponent() {
-  const { formState } = useFormContext();
+  const { formState, resetForm } = useFormContext();
   const navigate = useNavigate();
   const { driveId } = Route.useParams();
 
@@ -117,20 +127,29 @@ function RouteComponent() {
           type="button"
           size="lg"
           disabled={submitMutation.isPending}
-          className="flex-1 h-14 rounded-xl bg-[var(--color-kfk-blue)] text-white font-bold text-lg disabled:opacity-60"
-          onClick={() => {
+          className="flex-1 h-14 rounded-xl bg-kfk-blue text-white font-bold text-lg disabled:opacity-60"
+          onClick={async () => {
             try {
               const payload = buildFamilyFormSubmitPayload(driveId, formState);
-              submitMutation.mutate(payload, {
-                onSuccess: (link) =>
-                  navigate({
-                    to: "/family/drive/$driveId/form/thank-you",
-                    params: { driveId },
-                    search: {
-                      linkId: link.id,
-                    },
-                  }),
-              });
+              submitMutation.mutate(
+                {
+                  payload,
+                  photos:
+                    formState.children?.children.map((c) => c.photoUrl) ?? [],
+                },
+                {
+                  onSuccess: (res) => {
+                    resetForm();
+                    navigate({
+                      to: "/family/drive/$driveId/form/thank-you",
+                      params: { driveId },
+                      search: {
+                        linkId: res.link.id,
+                      },
+                    });
+                  },
+                },
+              );
             } catch (e) {
               alert(e instanceof Error ? e.message : String(e));
             }

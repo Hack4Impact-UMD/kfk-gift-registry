@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { UserRole } from "common";
+import { UserRole, UserProfileSchema } from "common";
 import z from "zod";
 import { DateTime } from "luxon";
 import {
   authMiddleware,
   requireRolesMiddleware,
 } from "@/server/middleware/authMiddleware";
+import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { getServerAuth, getServerDB } from "@/lib/firebase.server";
 
 const uidSchema = z.object({ uid: z.string().min(1) });
@@ -73,13 +74,8 @@ export const getAllUserProfiles = createServerFn({
 
 const updateUserProfileSchema = z.object({
   userId: z.string().min(1),
-  updates: z
-    .object({
-      name: z.string().trim().min(1),
-      phone: z.string().trim().min(1),
-    })
+  updates: UserProfileSchema.pick({ name: true, phone: true })
     .partial()
-    .strict()
     .refine((u) => Object.keys(u).length > 0, {
       message: "At least one update field is required",
     }),
@@ -290,6 +286,54 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
     }
   });
 
+const updateUserRoleSchema = z.object({
+  userId: z.string().min(1),
+  role: z.enum([UserRole.DIRECTOR, UserRole.ADMIN, UserRole.VOLUNTEER]),
+});
+
+/**
+ * Updates a user's role (ADMIN ↔ VOLUNTEER). DIRECTOR only.
+ * Cannot change the role of another DIRECTOR or yourself.
+ * Updates both Firestore and Firebase Auth custom claims.
+ */
+export const updateUserRole = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.DIRECTOR])])
+  .inputValidator(updateUserRoleSchema)
+  .handler(async ({ data, context }) => {
+    const { userId, role } = data;
+
+    if (context.authUser.uid === userId) {
+      throw new Error("Cannot update your own role");
+    }
+
+    const db = getServerDB();
+    const auth = getServerAuth();
+
+    const userSnap = await db.users.doc(userId).get();
+    if (!userSnap.exists) throw new Error("User not found");
+    const user = userSnap.data();
+    if (!user) throw new Error("User not found");
+
+    if (user.role === UserRole.DIRECTOR) {
+      throw new Error("Cannot change a director's role");
+    }
+
+    const previousRole = user.role;
+    try {
+      await auth.setCustomUserClaims(userId, { role });
+      await db.users.doc(userId).update({ role });
+    } catch (error) {
+      try {
+        await auth.setCustomUserClaims(userId, { role: previousRole });
+      } catch (rollbackError) {
+        console.error("Failed to rollback Auth claims:", rollbackError);
+      }
+      throw error;
+    }
+
+    return (await db.users.doc(userId).get()).data();
+  });
+
 const donorRegistrationSchema = z.object({
   name: z.string().trim().min(1),
   email: z.email(),
@@ -303,6 +347,7 @@ const donorRegistrationSchema = z.object({
 });
 
 export const registerDonor = createServerFn({ method: "POST" })
+  .middleware([appCheckMiddleware])
   .inputValidator(donorRegistrationSchema)
   .handler(async ({ data }) => {
     const db = getServerDB();
@@ -318,6 +363,7 @@ export const registerDonor = createServerFn({ method: "POST" })
         email: cleaned.email,
         password: cleaned.password,
         phoneNumber: cleaned.phone,
+        emailVerified: true,
       });
 
       await auth.setCustomUserClaims(authUser.uid, {
@@ -358,7 +404,8 @@ export const getCurrentUserProfile = createServerFn({
     const db = getServerDB();
     const userDoc = await db.users.doc(context.authUser.uid).get();
 
-    if (!userDoc.exists) throw new Error("User not found");
+    const userData = userDoc.data();
+    if (!userData) throw new Error("User not found");
 
-    return userDoc.data()!;
+    return userData;
   });

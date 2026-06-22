@@ -16,6 +16,8 @@ import type { QueryClient } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import type { AuthContext } from "@/server/functions/auth";
 import { queries } from "@/queries";
+import { getClientAppCheck } from "@/lib/firebase.client";
+import { useEffect } from "react";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -83,6 +85,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { isLoading } = useRouterState();
 
+  useEffect(() => {
+    getClientAppCheck().catch((error) => {
+      console.warn("AppCheck initialization warning:", error);
+    });
+  }, []);
+
   return (
     <html lang="en">
       <head>
@@ -118,6 +126,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         />
         <Toaster />
         <Scripts />
+        <div className="hidden" id="recaptcha-container"></div>
       </body>
     </html>
   );

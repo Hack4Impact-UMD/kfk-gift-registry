@@ -7,6 +7,15 @@ import { ChildInfoForm } from "@/components/form/sections/ChildInfo";
 import { FormItem } from "@/components/ui/form";
 
 export const Route = createFileRoute("/family/drive/$driveId/form/children")({
+  head: () => ({
+    meta: [
+      { title: "Children Information - Registration" },
+      {
+        name: "description",
+        content: "Add children information for the gift drive",
+      },
+    ],
+  }),
   component: ChildrenPageComponent,
 });
 

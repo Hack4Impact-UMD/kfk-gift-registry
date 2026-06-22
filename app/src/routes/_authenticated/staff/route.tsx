@@ -32,6 +32,16 @@ export const Route = createFileRoute("/_authenticated/staff")({
     await context.queryClient.ensureQueryData(queries.drives.all);
   },
   validateSearch: searchSchema,
+  head: () => ({
+    meta: [
+      { title: "Staff Dashboard - Kisses for Kyle" },
+      {
+        name: "description",
+        content:
+          "Access your staff dashboard and manage the gift drive program",
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 
@@ -62,8 +72,8 @@ function RouteComponent() {
               <main className="flex min-w-0 flex-1 flex-col">
                 <div className="w-full bg-accent border-b block md:hidden">
                   <SidebarTrigger
-                    openIcon={<XIcon />}
-                    closeIcon={<MenuIcon />}
+                    closeIcon={<XIcon />}
+                    openIcon={<MenuIcon />}
                   />
                 </div>
                 <div className="flex min-h-0 flex-1 flex-col p-4">

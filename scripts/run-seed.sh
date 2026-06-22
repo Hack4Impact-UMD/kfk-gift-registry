@@ -70,7 +70,7 @@ done
 
 echo "Generating seed data..."
 
-seed_command=(pnpm exec tsx scripts/seed.ts)
+seed_command=(pnpm --silent exec tsx scripts/seed.ts)
 if ((${#SEED_ARGS[@]})); then
   seed_command+=("${SEED_ARGS[@]}")
 fi
@@ -85,5 +85,10 @@ upload_collection "familyLinks" "family-links"
 upload_collection "children" "children"
 upload_collection "gifts" "gifts"
 upload_collection "claims" "claims"
+
+if [[ "${FLAME_TARGET}" == "emulator" ]]; then
+  echo "Seeding Firebase Auth accounts..."
+  pnpm --silent exec tsx scripts/seed-auth.ts < "${SEED_FILE}"
+fi
 
 echo "Seed complete :)"

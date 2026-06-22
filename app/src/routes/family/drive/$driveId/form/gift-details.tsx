@@ -18,6 +18,15 @@ import LadyBug from "@/assets/form/ladybug.png";
 export const Route = createFileRoute(
   "/family/drive/$driveId/form/gift-details",
 )({
+  head: () => ({
+    meta: [
+      { title: "Gift Details - Family Registration" },
+      {
+        name: "description",
+        content: "Add gift preferences and details for your children",
+      },
+    ],
+  }),
   component: GiftsStep,
 });
 

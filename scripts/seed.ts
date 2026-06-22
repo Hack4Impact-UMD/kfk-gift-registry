@@ -129,17 +129,17 @@ function main() {
 
   const giftDrivesData = [generateGiftDrive(0), generateGiftDrive(1)];
   const usersData: Array<UserProfile> = [
-    generateUser(UserRole.ADMIN, {
-      id: "admin_1",
-      email: "admin@test.com",
-      name: "Admin User",
-      phone: "+12675550100",
-    }),
     generateUser(UserRole.DIRECTOR, {
       id: "director_1",
       email: "director@test.com",
       name: "Director Dana",
       phone: "+12155550101",
+    }),
+    generateUser(UserRole.ADMIN, {
+      id: "admin_1",
+      email: "admin1@test.com",
+      name: "Admin User",
+      phone: "+13155550104",
     }),
     generateUser(UserRole.VOLUNTEER, {
       id: "volunteer_1",

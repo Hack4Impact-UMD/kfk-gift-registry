@@ -1,7 +1,15 @@
 import { initializeApp } from "firebase/app";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
+import {
+  getToken,
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider,
+} from "firebase/app-check";
+import { connectStorageEmulator, getStorage } from "firebase/storage";
 import { createClientOnlyFn } from "@tanstack/react-start";
 import type { Auth } from "firebase/auth";
+import type { AppCheck } from "firebase/app-check";
+import type { FirebaseStorage } from "firebase/storage";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -18,8 +26,20 @@ const firebaseConfig = {
   measurementId: "G-5W4T36409S",
 };
 
+declare global {
+  var FIREBASE_APPCHECK_DEBUG_TOKEN: boolean | string | undefined;
+}
+
+if (import.meta.env.DEV) {
+  console.log("===USING APPCHECK DEBUG TOKEN===");
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN =
+    import.meta.env.VITE_APPCHECK_DEBUG_TOKEN ?? true;
+}
+
 const app = initializeApp(firebaseConfig);
 let auth: Auth | null = null;
+let appCheck: AppCheck | null = null;
+let storage: FirebaseStorage | null = null;
 
 export const getClientAuth = createClientOnlyFn(async () => {
   if (auth) return auth;
@@ -31,4 +51,52 @@ export const getClientAuth = createClientOnlyFn(async () => {
 
   await auth.authStateReady();
   return auth;
+});
+
+export const getClientStorage = createClientOnlyFn(async () => {
+  if (storage) return storage;
+  storage = getStorage(app);
+  if (import.meta.env.DEV) {
+    connectStorageEmulator(storage, "localhost", 9199);
+  }
+  return storage;
+});
+
+export const getClientAppCheck = createClientOnlyFn(async () => {
+  if (appCheck) return appCheck;
+
+  // Initialize App Check with reCAPTCHA Enterprise
+  const reCaptchaPublicKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_KEY;
+  if (!reCaptchaPublicKey) {
+    console.warn(
+      "AppCheck reCAPTCHA Enterprise key not configured. Public endpoints may be vulnerable.",
+    );
+    return null;
+  }
+
+  try {
+    appCheck = initializeAppCheck(app, {
+      provider: new ReCaptchaEnterpriseProvider(reCaptchaPublicKey),
+      isTokenAutoRefreshEnabled: true,
+    });
+
+    console.log("AppCheck initialized successfully");
+    return appCheck;
+  } catch (error) {
+    console.error("Failed to initialize AppCheck:", error);
+    return null;
+  }
+});
+
+export const getAppCheckToken = createClientOnlyFn(async () => {
+  const ac = await getClientAppCheck();
+  if (!ac) return null;
+
+  try {
+    // Use getToken to retrieve the AppCheck token
+    return (await getToken(ac)).token;
+  } catch (error) {
+    console.error("Failed to get AppCheck token:", error);
+    return null;
+  }
 });

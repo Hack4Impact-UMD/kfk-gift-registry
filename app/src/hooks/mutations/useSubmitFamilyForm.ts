@@ -3,6 +3,9 @@ import type { FamilyFormState } from "@/components/providers/FormProvider";
 import type { GiftsFormData } from "@/lib/formSchemas";
 import type { FamilyFormInput } from "@/server/functions/familyForm";
 import { submitFamilyForm } from "@/server/functions/familyForm";
+import Compressor from "compressorjs";
+import { uploadChildPictureAppCheck } from "@/server/functions/child";
+import { toast } from "@/lib/toast";
 
 export function buildFamilyFormSubmitPayload(
   driveId: string,
@@ -19,7 +22,7 @@ export function buildFamilyFormSubmitPayload(
     giftDriveId: driveId,
     generalInfo: {
       parentName: gi.parentName,
-      email: gi.email,
+      email: gi.email.trim().toLowerCase(),
       phoneNumber: gi.phoneNumber ?? "",
       address: {
         street: gi.streetAddress,
@@ -45,11 +48,28 @@ function cleanChildrenObjects(
       diagnosis: child.diagnosis?.trim() ?? "",
       hospitalTreatedAt: child.hospitalTreatedAt?.trim() ?? "",
       socialWorkerName: child.socialWorkerName?.trim() ?? "",
-      photoUrl: child.photoUrl ?? "",
       treatmentLength: child.treatmentLength?.trim() ?? "",
       blurb: child.blurb?.trim() ?? "",
     })),
   };
+}
+
+async function compressImage(dataUrl?: string): Promise<string | null> {
+  if (!dataUrl) return null;
+  const blob = await (await fetch(dataUrl)).blob();
+
+  return new Promise((resolve, reject) => {
+    new Compressor(blob, {
+      quality: 0.7,
+      success: (file) => {
+        const reader = new FileReader();
+        reader.onload = () =>
+          resolve((reader.result as string | undefined) ?? null);
+        reader.readAsDataURL(file);
+      },
+      error: (err) => reject(err),
+    });
+  });
 }
 
 function cleanGiftsObjects(
@@ -60,7 +80,43 @@ function cleanGiftsObjects(
 
 export function useSubmitFamilyForm() {
   return useMutation({
-    mutationFn: (payload: FamilyFormInput) =>
-      submitFamilyForm({ data: payload }),
+    mutationFn: async ({
+      payload,
+      photos,
+    }: {
+      payload: FamilyFormInput;
+      photos: Array<string | undefined>;
+    }) => {
+      const res = await submitFamilyForm({
+        data: payload,
+      });
+      //NOTE: Image data is base64 encoded data URLs. Images are at most 5mb. In order to avoid possible HTTP request body size limits, we need to split up uploads over multiple requests (one per image)
+      const uploadResults = await Promise.allSettled(
+        photos.map(async (p, i) => {
+          const id = res.childIds[i];
+          const compressedImage = await compressImage(p);
+
+          if (id && compressedImage) {
+            await uploadChildPictureAppCheck({
+              data: {
+                childId: id,
+                dataUrl: compressedImage,
+              },
+            });
+          }
+        }),
+      );
+
+      const failedUploads = uploadResults.filter(
+        (r) => r.status === "rejected",
+      );
+      if (failedUploads.length > 0) {
+        toast.error(
+          `Your form was submitted, but ${failedUploads.length} photo(s) failed to upload. Please contact us to resolve the issue.`,
+        );
+      }
+
+      return res;
+    },
   });
 }

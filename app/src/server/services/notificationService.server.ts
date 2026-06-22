@@ -1,13 +1,9 @@
 import { v7 as uuidv7 } from "uuid";
 import type { NoId, FamilyNotification, FamilyNotificationType } from "common";
-import { getServerDB } from "../../lib/firebase.server";
-
-type FirestoreTransaction = Parameters<
-  Parameters<ReturnType<typeof getServerDB>["_instance"]["runTransaction"]>[0]
->[0];
+import { getServerDB } from "@/lib/firebase.server";
 
 export async function publishNotification(
-  tx: FirestoreTransaction,
+  tx: FirebaseFirestore.Transaction,
   notification: NoId<FamilyNotification>,
 ): Promise<string> {
   const db = getServerDB();

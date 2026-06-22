@@ -5,6 +5,8 @@ import { EditableField } from "./EditableField";
 import * as React from "react";
 import { z } from "zod";
 import { generalInfoSchema } from "@/lib/formSchemas";
+import { useCollections } from "@/collections/context";
+import { toast } from "@/lib/toast";
 
 const guardianContactSchema = z.object({
   phone: generalInfoSchema.shape.phoneNumber,
@@ -15,9 +17,8 @@ type GuardianFieldErrors = Partial<
   Record<keyof z.infer<typeof guardianContactSchema>, string>
 >;
 
-interface ChildInfoCardProps {
+interface GuardianInfoCardProps {
   family: Family;
-  onSave?: (updatedFamily: Family) => void;
 }
 
 function createGuardianFormState(family: Family) {
@@ -30,18 +31,34 @@ function createGuardianFormState(family: Family) {
   };
 }
 
-export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
+function getGuardianInfoCardKey(family: Family) {
+  return [
+    family.id,
+    family.contactName,
+    family.phone,
+    family.email,
+    family.guardianRelationship ?? "",
+    family.privateNotes ?? "",
+  ].join("\0");
+}
+
+export function GuardianInfoCard(props: GuardianInfoCardProps) {
+  return (
+    <GuardianInfoCardInner
+      key={getGuardianInfoCardKey(props.family)}
+      {...props}
+    />
+  );
+}
+
+function GuardianInfoCardInner({ family }: GuardianInfoCardProps) {
+  const collections = useCollections();
   const [editing, setEditing] = React.useState(false);
+  const [isSaving, startSaveTransition] = React.useTransition();
   const [formState, setFormState] = React.useState(() =>
     createGuardianFormState(family),
   );
   const [fieldErrors, setFieldErrors] = React.useState<GuardianFieldErrors>({});
-
-  React.useEffect(() => {
-    setFormState(createGuardianFormState(family));
-    setFieldErrors({});
-    setEditing(false);
-  }, [family]);
 
   const handleEditClick = () => {
     setFieldErrors({});
@@ -64,25 +81,23 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
     }
 
     setFieldErrors({});
-
-    const updatedFamily: Family = {
-      ...family,
-      contactName: formState.contactName,
-      guardianRelationship: formState.relationship.trim(),
-      phone: validationResult.data.phone,
-      email: validationResult.data.email,
-      privateNotes: formState.privateNotes,
-    };
-
-    if (onSave) onSave(updatedFamily);
-
-    setFormState((prev) => ({
-      ...prev,
-      relationship: formState.relationship.trim(),
-      phone: validationResult.data.phone,
-      email: validationResult.data.email,
-    }));
-    setEditing(false);
+    startSaveTransition(async () => {
+      try {
+        const tx = collections.families.update(family.id, (draft) => {
+          draft.contactName = formState.contactName;
+          draft.guardianRelationship = formState.relationship.trim();
+          draft.phone = validationResult.data.phone;
+          draft.email = validationResult.data.email;
+          draft.privateNotes = formState.privateNotes;
+        });
+        await tx.isPersisted.promise;
+        toast.success("Guardian information updated successfully");
+        setEditing(false);
+      } catch (error) {
+        console.error("Failed to save guardian info", error);
+        toast.error("Save failed");
+      }
+    });
   };
 
   const handleCancelClick = () => {
@@ -102,10 +117,11 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
             <Button
               type="button"
               size="xs"
+              disabled={isSaving}
               onClick={editing ? handleSave : handleEditClick}
               className="rounded-sm px-6"
             >
-              {editing ? "Save" : "Edit"}
+              {editing ? (isSaving ? "Saving..." : "Save") : "Edit"}
             </Button>
             {editing && (
               <Button
@@ -113,6 +129,7 @@ export function GuardianInfoCard({ family, onSave }: ChildInfoCardProps) {
                 variant="destructive"
                 size="xs"
                 onClick={handleCancelClick}
+                disabled={isSaving}
                 className="rounded-sm px-4"
               >
                 Cancel

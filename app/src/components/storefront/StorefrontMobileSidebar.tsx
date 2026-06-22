@@ -25,10 +25,12 @@ import { useLogout } from "@/hooks/mutations/logoutMutation";
 
 type StorefrontMobileSidebarProps = {
   auth: AuthContext;
+  cartCount: number;
 };
 
 export function StorefrontMobileSidebar({
   auth,
+  cartCount,
 }: StorefrontMobileSidebarProps) {
   const { pathname } = useLocation();
   // Add more page checks as needed
@@ -98,10 +100,15 @@ export function StorefrontMobileSidebar({
               <SidebarMenuButton asChild size="lg" isActive={isCheckoutPage}>
                 <Link
                   to="/checkout"
-                  className="flex items-center gap-3 w-full text-left"
+                  className="relative flex items-center gap-3 w-full text-left"
                 >
                   <ShoppingCartIcon className="size-6" />
                   <span className="text-base">Your Cart</span>
+                  {cartCount > 0 && (
+                    <span className="absolute-top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

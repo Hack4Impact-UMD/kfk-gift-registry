@@ -1,16 +1,13 @@
 import { z } from "zod";
+import {
+  ChildStatusSchema,
+  GiftFamilyPublicNotesSchema,
+  GiftTitleSchema,
+} from "common";
 import type { ChildStatus } from "common";
 
 // Ordered to match display order in the form.
-export const CHILD_STATUS_VALUES = [
-  "recently_diagnosed_relapse",
-  "diagnosed_in_treatment_1yr+",
-  "recently_off_treatment",
-  "off_treatment_5yr+",
-  "sibling_in_treatment",
-  "bereaved_sibling",
-  "bereaved_sibling_5yr+",
-] as const satisfies ReadonlyArray<ChildStatus>;
+export const CHILD_STATUS_VALUES = ChildStatusSchema.options;
 
 export const CHILD_STATUS_LABELS: Record<ChildStatus, string> = {
   recently_diagnosed_relapse:
@@ -24,6 +21,16 @@ export const CHILD_STATUS_LABELS: Record<ChildStatus, string> = {
   bereaved_sibling: "Bereaved sibling (up to 5 years)",
   "bereaved_sibling_5yr+": "Bereaved sibling for more than 5 years",
 };
+
+export const SIBLING_CHILD_STATUSES: ReadonlySet<ChildStatus> = new Set([
+  "sibling_in_treatment",
+  "bereaved_sibling",
+  "bereaved_sibling_5yr+",
+]);
+
+export function isSiblingChildStatus(status: ChildStatus | undefined) {
+  return status !== undefined && SIBLING_CHILD_STATUSES.has(status);
+}
 
 export const US_STATES = [
   "AL",
@@ -178,12 +185,23 @@ const photoUrlSchema = z
   ])
   .optional();
 
+const childAgeSchema = z
+  .union([z.string(), z.number()])
+  .transform((value) => String(value).trim())
+  .refine((value) => value.length > 0, {
+    message: "Age is required",
+  })
+  .refine((value) => {
+    const age = Number(value);
+    return Number.isInteger(age) && age >= 1 && age <= 18;
+  }, "Age must be between 1 and 18");
+
 export const childInfoSchema = z.object({
   name: z
     .string()
     .min(1, "Child's name is required")
     .max(100, "Name is too long"),
-  age: z.string().min(1, "Age is required"),
+  age: childAgeSchema,
   status: z.enum(CHILD_STATUS_VALUES),
   isSibling: z.boolean(),
   // Not required for siblings
@@ -204,18 +222,7 @@ export const childInfoSchema = z.object({
     .or(z.literal("")),
   treatmentLength: z.string().optional().or(z.literal("")),
   photoUrl: photoUrlSchema,
-  blurb: z
-    .string()
-    .refine(
-      (value) => {
-        const wordCount = value.match(/\S+/g)?.length ?? 0;
-        return wordCount <= 50;
-      },
-      {
-        message: "Blurb must be at most 50 words",
-      },
-    )
-    .optional(),
+  blurb: z.string().max(150, "Blurb must be at most 150 characters").optional(),
 });
 
 export const defaultChild = (): ChildInfo => ({
@@ -252,9 +259,9 @@ export const childrenFormSchema = z
 
 const giftSchema = z
   .object({
-    giftName: z.string(),
+    giftName: GiftTitleSchema,
     giftUrl: z.string(),
-    familyPublicNotes: z.string().optional(),
+    familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
   })
   .refine(
     (data) => {

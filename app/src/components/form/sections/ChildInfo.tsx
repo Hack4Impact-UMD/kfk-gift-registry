@@ -1,7 +1,13 @@
 import { Building2, Stethoscope, User, UserCog } from "lucide-react";
 import { PhotoUpload } from "../PhotoUpload";
 import type { useChildrenForm } from "@/hooks/family-form/formHooks";
-import { CHILD_STATUS_VALUES, CHILD_STATUS_LABELS } from "@/lib/formSchemas";
+import {
+  CHILD_STATUS_VALUES,
+  CHILD_STATUS_LABELS,
+  isSiblingChildStatus,
+} from "@/lib/formSchemas";
+
+const PERSONAL_BLURB_MAX_CHARACTERS = 150;
 
 const CHILD_STATUS_OPTIONS = CHILD_STATUS_VALUES.map((value) => ({
   value,
@@ -161,23 +167,73 @@ export function ChildInfoForm({
                       name={`children[${index}].age`}
                       validators={{
                         onChange: ({ value }) => {
-                          if (!value) return "Age is required";
+                          if (value === "" || value === undefined)
+                            return "Age is required";
+                          const n = Number(value);
+                          if (
+                            !Number.isFinite(n) ||
+                            !Number.isInteger(n) ||
+                            n < 1 ||
+                            n > 18
+                          ) {
+                            return "Age must be a whole number between 1 and 18";
+                          }
+                          return undefined;
+                        },
+                        onBlur: ({ value }) => {
+                          if (value === "" || value === undefined)
+                            return "Age is required";
+                          const n = Number(value);
+                          if (
+                            !Number.isFinite(n) ||
+                            !Number.isInteger(n) ||
+                            n < 1 ||
+                            n > 18
+                          ) {
+                            return "Age must be a whole number between 1 and 18";
+                          }
                           return undefined;
                         },
                       }}
                     >
                       {(field) => (
-                        <field.FormSelect
-                          label={
-                            displayCount > 1 ? `Child #${index + 1} Age` : "Age"
-                          }
-                          placeholder="Select Age"
-                          values={Array.from({ length: 18 }, (_unused, i) =>
-                            String(i + 1),
-                          )}
-                          required
-                          disabled={disabled}
-                        />
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">
+                            {displayCount > 1
+                              ? `Child #${index + 1} Age`
+                              : "Age"}
+                            <span className="text-destructive"> *</span>
+                          </label>
+
+                          <div className="relative py-2">
+                            <input
+                              type="number"
+                              min={1}
+                              max={18}
+                              step={1}
+                              placeholder="e.g. 8"
+                              value={field.state.value ?? ""}
+                              onChange={(e) => {
+                                field.handleChange(e.target.value);
+                              }}
+                              onBlur={field.handleBlur}
+                              disabled={disabled}
+                              className={`w-32 h-11 pl-4 pr-4 rounded-xl border text-sm focus:outline-none focus:border-kfk-blue truncate disabled:opacity-50 ${
+                                field.state.meta.isTouched &&
+                                field.state.meta.errors[0]
+                                  ? "border-red-500"
+                                  : "border-slate-700"
+                              }`}
+                            />
+                          </div>
+
+                          {field.state.meta.isTouched &&
+                            field.state.meta.errors[0] && (
+                              <span className="text-sm text-red-500">
+                                {field.state.meta.errors[0]}
+                              </span>
+                            )}
+                        </div>
                       )}
                     </form.AppField>
 
@@ -185,9 +241,7 @@ export function ChildInfoForm({
                     <form.Subscribe
                       selector={(state) => state.values.children[index]?.status}
                       children={(status) => {
-                        const isSibling =
-                          status === "sibling_in_treatment" ||
-                          status === "bereaved_sibling";
+                        const isSibling = isSiblingChildStatus(status);
 
                         if (isSibling) return null;
 
@@ -341,21 +395,17 @@ export function ChildInfoForm({
                       validators={{
                         onChange: ({ value }) => {
                           if (!value) return undefined;
-                          const wordCount = value
-                            .trim()
-                            .split(/\s+/)
-                            .filter(Boolean).length;
-                          if (wordCount > 25)
-                            return "Please keep your blurb to 25 words or less";
+                          if (value.length > PERSONAL_BLURB_MAX_CHARACTERS)
+                            return `Please keep your blurb to ${PERSONAL_BLURB_MAX_CHARACTERS} characters or less`;
                           return undefined;
                         },
                       }}
                     >
                       {(field) => (
                         <field.FormTextarea
-                          label="You may write a blurb about your child to be displayed on the gift drive website (25 words or less)"
+                          label={`You may write a blurb about your child to be displayed on the gift drive website (${PERSONAL_BLURB_MAX_CHARACTERS} characters or less)`}
                           placeholder="You can share details like your child's activities, interests, favorite color, or anything else you'd like to include."
-                          maxWords={25}
+                          maxLength={PERSONAL_BLURB_MAX_CHARACTERS}
                           disabled={disabled}
                         />
                       )}
