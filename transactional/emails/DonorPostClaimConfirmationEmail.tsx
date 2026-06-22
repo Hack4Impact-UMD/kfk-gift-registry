@@ -20,6 +20,62 @@ interface DonorPostClaimConfirmationEmailProps {
   baseUrl?: string;
 }
 
+// example payload for development and previewing design
+const previewPayload: DonorPostClaimConfirmationPayload = {
+  donorId: "preview-donor",
+  donorName: "Alex",
+  donorEmail: "alex@example.com",
+  driveId: "preview-drive",
+  claimIds: ["claim-1", "claim-2"],
+  giftIds: ["gift-1", "gift-2"],
+  claimedAt: "2026-06-21T14:00:00.000Z",
+  gifts: [
+    {
+      giftId: "gift-1",
+      childId: "child-1",
+      childName: "Maya",
+      familyId: "family-1",
+      familyName: "The Johnson Family",
+      giftTitle: "Art Supply Set",
+      listedPrice: 28,
+      familyPublicNotes: "Loves painting and drawing.",
+    },
+    {
+      giftId: "gift-2",
+      childId: "child-2",
+      childName: "Noah",
+      familyId: "family-2",
+      familyName: "The Rivera Family",
+      giftTitle: "LEGO Building Set",
+      listedPrice: 42,
+    },
+  ],
+  shippingByFamily: [
+    {
+      familyId: "family-1",
+      familyName: "The Johnson Family",
+      contactName: "Erica Johnson",
+      addressLine1: "123 Maple Street",
+      city: "Philadelphia",
+      state: "PA",
+      zipCode: "19103",
+      phone: "(215) 555-0123",
+    },
+    {
+      familyId: "family-2",
+      familyName: "The Rivera Family",
+      contactName: "Luis Rivera",
+      addressLine1: "456 Pine Avenue",
+      addressLine2: "Apt 3B",
+      city: "Camden",
+      state: "NJ",
+      zipCode: "08102",
+      phone: "(856) 555-0456",
+      deliveryNotes: "Please leave packages with the front desk.",
+    },
+  ],
+};
+
 function formatCurrency(amount?: number) {
   if (amount == null) {
     return "Price not listed";
