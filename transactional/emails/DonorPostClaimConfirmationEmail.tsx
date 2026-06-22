@@ -3,6 +3,7 @@
 import type { DonorPostClaimConfirmationPayload } from "common";
 import {
   Body,
+  Button,
   Container,
   Head,
   Heading,
@@ -16,8 +17,9 @@ import {
 } from "react-email";
 
 interface DonorPostClaimConfirmationEmailProps {
-  payload: DonorPostClaimConfirmationPayload;
+  payload?: DonorPostClaimConfirmationPayload;
   baseUrl?: string;
+  donorPortalUrl?: string;
 }
 
 // example payload for development and previewing design
@@ -100,8 +102,25 @@ function formatClaimedAt(claimedAt: string) {
   }).format(date);
 }
 
+function formatAddress(params: {
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+}) {
+  const street = [params.addressLine1, params.addressLine2]
+    .filter(Boolean)
+    .join(", ");
+  const locality = [params.city, params.state].filter(Boolean).join(", ");
+  const postalLine = [locality, params.zipCode].filter(Boolean).join(" ");
+
+  return [street, postalLine].filter(Boolean);
+}
+
 export default function DonorPostClaimConfirmationEmail({
-  payload,
+  payload = previewPayload,
+  donorPortalUrl = "http://localhost:5002/donor/home",
   baseUrl = "http://localhost:5002",
 }: DonorPostClaimConfirmationEmailProps) {
   return (
@@ -137,17 +156,61 @@ export default function DonorPostClaimConfirmationEmail({
             </Section>
 
             <Section className="rounded-b-lg border border-t-0 border-gray-200 bg-white px-8 py-8">
-              <Text className="my-0 text-base text-gray-500">
+              <Text className="my-1 text-base text-gray-500">
                 Hi {payload.donorName},
               </Text>
               <Heading className="m-0 mb-2 text-2xl font-bold text-gray-900">
                 Thank you for claiming gifts!
               </Heading>
-              <Text className="mt-0 text-base text-gray-600">
+              <Text className="mt-0 text-base text-gray-500">
                 We appreciate your support. Below is a summary of the gifts you
-                claimed on {formatClaimedAt(payload.claimedAt)} and the shipping
-                information for each family.
+                claimed and the shipping information for each family.
               </Text>
+
+              <Hr className="my-6 border-gray-200" />
+
+              <Text className="m-0 text-sm font-semibold uppercase tracking-widest text-gray-400">
+                Claim details
+              </Text>
+
+              <table className="mt-3 w-full">
+                <tbody>
+                  <tr>
+                    <td className="py-1.5 text-sm text-gray-500">Claim date</td>
+                    <td className="py-1.5 text-right text-sm font-medium text-gray-900">
+                      {formatClaimedAt(payload.claimedAt)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 text-sm text-gray-500">Gifts claimed</td>
+                    <td className="py-1.5 text-right text-sm font-medium text-gray-900">
+                      {payload.gifts.length}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 text-sm text-gray-500">
+                      Families included
+                    </td>
+                    <td className="py-1.5 text-right text-sm font-medium text-gray-900">
+                      {payload.shippingByFamily.length}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <Hr className="my-6 border-gray-200" />
+
+              <Text className="mb-6 text-sm text-gray-600">
+                Use the donor portal to confirm purchases and add tracking
+                information once your gifts have been ordered.
+              </Text>
+
+              <Button
+                href={donorPortalUrl}
+                className="block rounded-lg bg-kfk-blue px-6 py-3.5 text-center text-sm font-semibold text-white no-underline"
+              >
+                Open Donor Portal
+              </Button>
 
               <Hr className="my-6 border-gray-200" />
 
@@ -155,7 +218,7 @@ export default function DonorPostClaimConfirmationEmail({
                 Claimed gifts
               </Text>
 
-              {payload.gifts.map((gift) => (
+              {payload.gifts.map((gift: DonorPostClaimConfirmationPayload["gifts"][number]) => (
                 <Section
                   key={gift.giftId}
                   className="mt-4 rounded-lg border border-gray-200 bg-gray-50 px-5 py-4"
@@ -163,17 +226,34 @@ export default function DonorPostClaimConfirmationEmail({
                   <Text className="m-0 text-base font-semibold text-gray-900">
                     {gift.giftTitle}
                   </Text>
-                  <Text className="mt-1 mb-0 text-sm text-gray-600">
-                    Child: {gift.childName}
-                  </Text>
-                  <Text className="mt-1 mb-0 text-sm text-gray-600">
-                    Family: {gift.familyName}
-                  </Text>
-                  <Text className="mt-1 mb-0 text-sm text-gray-600">
-                    Listed Price: {formatCurrency(gift.listedPrice)}
-                  </Text>
+
+                  <table className="mt-2 w-full">
+                    <tbody>
+                      <tr>
+                        <td className="py-1 text-sm text-gray-500">Child</td>
+                        <td className="py-1 text-right text-sm font-medium text-gray-900">
+                          {gift.childName}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 text-sm text-gray-500">Family</td>
+                        <td className="py-1 text-right text-sm font-medium text-gray-900">
+                          {gift.familyName}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 text-sm text-gray-500">
+                          Listed price
+                        </td>
+                        <td className="py-1 text-right text-sm font-medium text-gray-900">
+                          {formatCurrency(gift.listedPrice)}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
                   {gift.familyPublicNotes ? (
-                    <Text className="mt-2 mb-0 text-sm text-gray-700">
+                    <Text className="mb-0 mt-3 text-sm text-gray-700">
                       <span className="font-semibold">Family notes:</span>{" "}
                       {gift.familyPublicNotes}
                     </Text>
@@ -187,42 +267,64 @@ export default function DonorPostClaimConfirmationEmail({
                 Shipping information
               </Text>
 
-              {payload.shippingByFamily.map((family) => (
-                <Section
-                  key={family.familyId}
-                  className="mt-4 rounded-lg border border-gray-200 bg-white px-5 py-4"
-                >
-                  <Text className="m-0 text-base font-semibold text-gray-900">
-                    {family.familyName}
-                  </Text>
-                  {family.contactName ? (
-                    <Text className="mt-2 mb-0 text-sm text-gray-700">
-                      <span className="font-semibold">Contact:</span>{" "}
-                      {family.contactName}
-                    </Text>
-                  ) : null}
-                  <Text className="mt-1 mb-0 text-sm text-gray-700">
-                    <span className="font-semibold">Address:</span>{" "}
-                    {family.addressLine1}
-                    {family.addressLine2 ? `, ${family.addressLine2}` : ""}
-                    {family.city ? `, ${family.city}` : ""}
-                    {family.state ? `, ${family.state}` : ""}
-                    {family.zipCode ? ` ${family.zipCode}` : ""}
-                  </Text>
-                  {family.phone ? (
-                    <Text className="mt-1 mb-0 text-sm text-gray-700">
-                      <span className="font-semibold">Phone:</span>{" "}
-                      {family.phone}
-                    </Text>
-                  ) : null}
-                  {family.deliveryNotes ? (
-                    <Text className="mt-2 mb-0 text-sm text-gray-700">
-                      <span className="font-semibold">Delivery notes:</span>{" "}
-                      {family.deliveryNotes}
-                    </Text>
-                  ) : null}
-                </Section>
-              ))}
+              {payload.shippingByFamily.map(
+                (
+                  family: DonorPostClaimConfirmationPayload["shippingByFamily"][number],
+                ) => {
+                  const addressLines = formatAddress(family);
+
+                  return (
+                    <Section
+                      key={family.familyId}
+                      className="mt-4 rounded-lg border border-gray-200 bg-white px-5 py-4"
+                    >
+                      <Text className="m-0 text-base font-semibold text-gray-900">
+                        {family.familyName}
+                      </Text>
+
+                      <table className="mt-2 w-full">
+                        <tbody>
+                          {family.contactName ? (
+                            <tr>
+                              <td className="py-1 text-sm text-gray-500">
+                                Contact
+                              </td>
+                              <td className="py-1 text-right text-sm font-medium text-gray-900">
+                                {family.contactName}
+                              </td>
+                            </tr>
+                          ) : null}
+                          {addressLines.length > 0 ? (
+                            <tr>
+                              <td className="py-1 text-sm text-gray-500">
+                                Address
+                              </td>
+                              <td className="py-1 text-right text-sm font-medium text-gray-900">
+                                {addressLines.join(", ")}
+                              </td>
+                            </tr>
+                          ) : null}
+                          {family.phone ? (
+                            <tr>
+                              <td className="py-1 text-sm text-gray-500">Phone</td>
+                              <td className="py-1 text-right text-sm font-medium text-gray-900">
+                                {family.phone}
+                              </td>
+                            </tr>
+                          ) : null}
+                        </tbody>
+                      </table>
+
+                      {family.deliveryNotes ? (
+                        <Text className="mb-0 mt-3 text-sm text-gray-700">
+                          <span className="font-semibold">Delivery notes:</span>{" "}
+                          {family.deliveryNotes}
+                        </Text>
+                      ) : null}
+                    </Section>
+                  );
+                },
+              )}
 
               <Hr className="my-6 border-gray-200" />
 
