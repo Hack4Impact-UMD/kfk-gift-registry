@@ -1,8 +1,22 @@
 import { DateTime } from "luxon";
+import { Resend } from "resend";
 import type { EmailJob, EmailJobPayload, EmailJobType } from "common";
 import { getServerDB } from "@/lib/firebase.server";
+import { getEmailJobContent } from "@/server/services/emailTemplateService.server";
 
 const RESEND_SCHEDULING_WINDOW_DAYS = 30;
+const DEFAULT_APP_BASE_URL = "https://gifts.kissesforkyle.org";
+const FROM_EMAIL =
+  "Kisses for Kyle Gift Registry <noreply@gifts.kissesforkyle.org>";
+
+function getAppBaseUrl() {
+  const raw = process.env.APP_BASE_URL ?? DEFAULT_APP_BASE_URL;
+  return raw.replace(/\/+$/, "");
+}
+
+function getDonorPortalUrl() {
+  return `${getAppBaseUrl()}/donor/home`;
+}
 
 function canScheduleDirectlyWithResend(sendAt: string) {
   const scheduledFor = DateTime.fromISO(sendAt);
@@ -118,4 +132,43 @@ export async function getPendingEmailJobsReadyForResendScheduling() {
     .get();
 
   return snapshot.docs.map((doc) => doc.data());
+}
+// todo: look into refactoring so all emails are sent through this service and we can remove resend logic from individual email functions
+export async function sendEmailNow(params: {
+  to: string;
+  payload: EmailJobPayload;
+  subject?: string;
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("Skipping email send: RESEND_API_KEY is not set");
+    return {
+      skipped: true as const,
+    };
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const content = getEmailJobContent({
+    job: {
+      payload: params.payload,
+      subject: params.subject ?? "",
+    },
+    baseUrl: getAppBaseUrl(),
+    donorPortalUrl: getDonorPortalUrl(),
+  });
+
+  const { data, error } = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: params.to,
+    subject: content.subject,
+    react: content.react,
+  });
+
+  if (error) {
+    throw new Error(`${error.name} - ${error.message}`);
+  }
+
+  return {
+    skipped: false as const,
+    id: data?.id,
+  };
 }

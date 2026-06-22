@@ -8,15 +8,8 @@ import { UserRole } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
 import { assertGiftDriveActive } from "@/server/services/giftDriveService.server";
-import {
-  buildDonorPostClaimConfirmationPayload,
-  buildDonorPurchaseReminderPayload,
-} from "@/server/services/donorEmailPayloadService.server";
-import {
-  createEmailJob,
-  sendOrQueueEmailJob,
-} from "@/server/services/emailService.server";
-import { getEmailJobSubject } from "@/server/services/emailTemplateService.server";
+import { buildDonorPostClaimConfirmationPayload } from "@/server/services/donorEmailPayloadService.server";
+import { sendEmailNow } from "@/server/services/emailService.server";
 import type { CommittedChild } from "@/components/donor/home/types";
 import {
   publishNotification,
@@ -295,6 +288,38 @@ export const claimGifts = createServerFn({ method: "POST" })
 
       return { claims };
     });
+
+    const donorSnapshot = await db.users.doc(donorId).get();
+    const donor = donorSnapshot.data();
+
+    if (!donor) {
+      console.warn(
+        `Skipping donor post-claim confirmation email: donor ${donorId} not found`,
+      );
+      return result;
+    }
+
+    try {
+      const payload = await buildDonorPostClaimConfirmationPayload({
+        donor,
+        claims: result.claims,
+      });
+
+      await sendEmailNow({
+        to: donor.email,
+        payload: {
+          type: "DONOR_POST_CLAIM_CONFIRMATION",
+          data: payload,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "Failed to send donor post-claim confirmation email",
+        error,
+      );
+    }
+
+    return result;
   });
 
 export const markGiftPurchased = createServerFn({ method: "POST" })
