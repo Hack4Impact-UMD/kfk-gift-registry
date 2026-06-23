@@ -91,7 +91,7 @@ export function StorefrontMobileSidebar({
                 {isPending ? (
                   <Spinner />
                 ) : error || !link ? (
-                  <></>
+                  <p>Failed to fetch form link</p>
                 ) : (
                   <Link
                     to="/family/form/$formLinkId/consent"

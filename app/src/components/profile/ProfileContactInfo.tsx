@@ -2,11 +2,7 @@ import { useCallback, useState } from "react";
 import type { AuthContextAuthenticated } from "@/server/functions/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InlineEditInput } from "@/components/ui/inline-edit-input";
-import {
-  e164ToDisplay,
-  formatPhoneDisplay,
-  formatToE164,
-} from "@/components/ui/phone-input";
+import { e164ToDisplay, formatToE164 } from "@/components/ui/phone-input";
 import { useUpdateUserProfile } from "@/hooks/mutations/useUpdateUserProfile";
 import { useRouter } from "@tanstack/react-router";
 import { toast } from "@/lib/toast";
@@ -118,7 +114,7 @@ export function ContactInfoSection({
               value={phoneLocal}
               onChange={(e) => {
                 setPhoneError(null);
-                setPhoneLocal(formatPhoneDisplay(e.target.value));
+                setPhoneLocal(e164ToDisplay(e.target.value));
               }}
               editing={editingPhone}
               onEditClick={() => setEditingPhone(true)}
