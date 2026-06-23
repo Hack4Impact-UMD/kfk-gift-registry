@@ -1,15 +1,6 @@
 import type React from "react";
 import { Input } from "@/components/ui/input";
 
-/** Auto-formats a raw/partial string into (555)-555-5555 as the user types. */
-export function formatPhoneDisplay(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 10);
-  if (digits.length === 0) return "";
-  if (digits.length <= 3) return `${digits}`;
-  if (digits.length <= 6) return `(${digits.slice(0, 3)})-${digits.slice(3)}`;
-  return `(${digits.slice(0, 3)})-${digits.slice(3, 6)}-${digits.slice(6)}`;
-}
-
 /** Converts a display-formatted or raw digit string to E.164 (+1XXXXXXXXXX). */
 export function formatToE164(value: string): string {
   const digits = value.replace(/\D/g, "");
@@ -36,7 +27,7 @@ export function PhoneInput({
   ...props
 }: React.ComponentProps<typeof Input>) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneDisplay(e.target.value);
+    const formatted = e164ToDisplay(e.target.value);
     onChange?.({
       ...e,
       target: { ...e.target, value: formatted },

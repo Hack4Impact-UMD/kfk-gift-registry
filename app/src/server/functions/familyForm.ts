@@ -119,6 +119,10 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       throw new Error("This registration link is no longer active.");
     }
     const giftDriveId = formLink.driveId;
+    const giftDriveDoc = await db.giftDrives.doc(giftDriveId).get();
+    if (!giftDriveDoc.exists) {
+      throw new Error("This registration link is misconfigured.");
+    }
 
     const now = DateTime.now().toISO();
     const normalizedEmail = normalizeFamilyEmail(data.generalInfo.email);

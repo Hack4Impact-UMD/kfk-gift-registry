@@ -36,16 +36,15 @@ export const getStorefrontFormLink = createServerFn().handler(async () => {
 
 async function demoteOtherStorefrontLinks(
   db: ReturnType<typeof getServerDB>,
+  tx: FirebaseFirestore.Transaction,
   exceptId?: string,
 ) {
-  const snap = await db.formLinks.where("showOnStorefront", "==", true).get();
+  const snap = await tx.get(db.formLinks.where("showOnStorefront", "==", true));
 
-  const batch = db._instance.batch();
   for (const doc of snap.docs) {
     if (doc.id === exceptId) continue;
-    batch.update(doc.ref, { showOnStorefront: false });
+    tx.update(doc.ref, { showOnStorefront: false });
   }
-  await batch.commit();
 }
 
 export const createFormLink = createServerFn({ method: "POST" })
@@ -53,13 +52,15 @@ export const createFormLink = createServerFn({ method: "POST" })
   .inputValidator(FormLinkSchema.omit({ id: true }))
   .handler(async ({ data }) => {
     const db = getServerDB();
-    if (data.showOnStorefront) {
-      await demoteOtherStorefrontLinks(db);
-    }
-    const id = uuidv7();
-    const formLink = { id, ...data };
-    await db.formLinks.doc(id).set(formLink);
-    return formLink;
+    return await db._instance.runTransaction(async (tx) => {
+      if (data.showOnStorefront) {
+        await demoteOtherStorefrontLinks(db, tx);
+      }
+      const id = uuidv7();
+      const formLink = { id, ...data };
+      tx.set(db.formLinks.doc(id), formLink);
+      return formLink;
+    });
   });
 
 export const updateFormLink = createServerFn({ method: "POST" })
@@ -68,10 +69,13 @@ export const updateFormLink = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const db = getServerDB();
     const { id, ...fields } = data;
-    if (fields.showOnStorefront) {
-      await demoteOtherStorefrontLinks(db, id);
-    }
-    await db.formLinks.doc(id).update(fields);
+
+    await db._instance.runTransaction(async (tx) => {
+      if (fields.showOnStorefront) {
+        await demoteOtherStorefrontLinks(db, tx, id);
+      }
+      tx.update(db.formLinks.doc(id), fields);
+    });
   });
 
 export const deleteFormLink = createServerFn({ method: "POST" })

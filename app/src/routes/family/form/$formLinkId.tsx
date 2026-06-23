@@ -26,7 +26,7 @@ export const Route = createFileRoute("/family/form/$formLinkId")({
   }),
   loader: async ({ params }) => {
     const formLink = await getFormLinkById({ data: { id: params.formLinkId } });
-    if (!formLink) throw notFound();
+    if (!formLink || !formLink.active) throw notFound();
     return { formLink };
   },
   component: FormLayoutComponent,
