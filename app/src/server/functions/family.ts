@@ -132,6 +132,44 @@ async function sendRecoveredFamilyLinkEmail({
   }
 }
 
+export const sendFamilyRecoveryLink = createServerFn({ method: "POST" })
+  .middleware([appCheckMiddleware])
+  .inputValidator(familyRecoveryEmailSchema)
+  .handler(async ({ data }) => {
+    const normalizedEmail = normalizeFamilyEmail(data.email);
+    const db = getServerDB();
+    const familySnapshot = await db.families
+      .where("email", "==", normalizedEmail)
+      .limit(1)
+      .get();
+
+    if (familySnapshot.empty) {
+      return { accepted: true };
+    }
+
+    const familyDoc = familySnapshot.docs[0];
+    const family = getRequiredData(familyDoc.data(), "Family data unavailable");
+    const familyId = family.id || familyDoc.id;
+
+    const activeLinkSnapshot = await db.familyLinks
+      .where("familyId", "==", familyId)
+      .where("active", "==", true)
+      .limit(1)
+      .get();
+
+    const link = activeLinkSnapshot.empty
+      ? await createFamilyLink({ familyId, active: true })
+      : activeLinkSnapshot.docs[0].data();
+
+    await sendRecoveredFamilyLinkEmail({
+      email: normalizedEmail,
+      contactName: family.contactName,
+      linkId: link.id,
+    });
+
+    return { accepted: true };
+  });
+
 export const getFamilyByToken = createServerFn({ method: "GET" })
   .inputValidator(tokenInputSchema)
   .handler(async ({ data }) => {
