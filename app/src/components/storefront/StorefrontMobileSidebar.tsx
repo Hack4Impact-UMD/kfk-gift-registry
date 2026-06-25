@@ -24,6 +24,7 @@ import type { AuthContext } from "@/server/functions/auth";
 import { useLogout } from "@/hooks/mutations/logoutMutation";
 import { Spinner } from "../ui/spinner";
 import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
+import { StorefrontFamilyRecoveryDialog } from "@/components/storefront/StorefrontFamilyRecoveryDialog";
 
 type StorefrontMobileSidebarProps = {
   auth: AuthContext;
@@ -107,15 +108,16 @@ export function StorefrontMobileSidebar({
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton asChild size="lg">
-                <Link
-                  to="/"
+              <StorefrontFamilyRecoveryDialog>
+                <SidebarMenuButton
+                  size="lg"
+                  type="button"
                   className="flex items-center gap-3 w-full text-left"
                 >
                   <UsersIcon className="size-6" />
                   <span className="text-base">Family Recovery Link</span>
-                </Link>
-              </SidebarMenuButton>
+                </SidebarMenuButton>
+              </StorefrontFamilyRecoveryDialog>
             </SidebarMenuItem>
 
             <SidebarMenuItem>
