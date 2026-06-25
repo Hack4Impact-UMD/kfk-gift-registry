@@ -1,10 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
+import { Resend } from "resend";
 import z from "zod";
 import type { Child } from "common";
 import { UserRole, FamilySchema, AddressSchema } from "common";
-import { getFamilyLinkById } from "../services/familyLinkService.server";
+import FamilyPortalEmail from "transactional/emails/FamilyPortalEmail";
+import {
+  createFamilyLink,
+  getFamilyLinkById,
+} from "../services/familyLinkService.server";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
+import { appCheckMiddleware } from "../middleware/appCheckMiddleware";
 import type {
   PendingProfileTableRow,
   ApplicationStatus,
@@ -21,6 +27,10 @@ const familyIdInputSchema = z.object({
 
 const driveIdInputSchema = z.object({
   driveId: z.string(),
+});
+
+const familyRecoveryEmailSchema = z.object({
+  email: z.email(),
 });
 
 function getRequiredData<T>(data: T | undefined, errorMessage: string): T {
@@ -69,6 +79,58 @@ export const updateFamilyReviewStatusSchema = z.object({
     privateNotes: z.string().trim().max(2000).optional(),
   }),
 });
+
+function normalizeFamilyEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+function getAppBaseUrl() {
+  const raw = process.env.APP_BASE_URL ?? "https://gifts.kissesforkyle.org";
+  return raw.replace(/\/+$/, "");
+}
+
+function buildFamilyPageUrl(linkId: string) {
+  return `${getAppBaseUrl()}/family/${linkId}/home`;
+}
+
+async function sendRecoveredFamilyLinkEmail({
+  email,
+  contactName,
+  linkId,
+}: {
+  email: string;
+  contactName: string;
+  linkId: string;
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("Skipping family recovery email: RESEND_API_KEY is not set");
+    return;
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const familyLink = buildFamilyPageUrl(linkId);
+  const { error } = await resend.emails.send({
+    from: "Kisses for Kyle Gift Registry <noreply@gifts.kissesforkyle.org>",
+    to: email,
+    subject: "Your KFK family page link",
+    react: FamilyPortalEmail({
+      contactName,
+      familyLink,
+      baseUrl: getAppBaseUrl(),
+      previewText: "Your KFK family page link",
+      heading: "Here is your family page link",
+      introText:
+        "We received a request to recover your family page link. Use the link below to return to your family's page.",
+      buttonLabel: "Open Family Page",
+      footerText:
+        "If you did not request this email, you can ignore it. Keep this link somewhere safe so you can come back later.",
+    }),
+  });
+
+  if (error) {
+    throw new Error(`${error.name} - ${error.message}`);
+  }
+}
 
 export const getFamilyByToken = createServerFn({ method: "GET" })
   .inputValidator(tokenInputSchema)
