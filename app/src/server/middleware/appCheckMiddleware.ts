@@ -1,4 +1,3 @@
-import { getAppCheckToken } from "@/lib/firebase.client";
 import { createMiddleware } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import admin from "firebase-admin";
@@ -7,6 +6,7 @@ const APPCHECK_TOKEN_HEADER = "X-APPCHECK";
 
 export const appCheckMiddleware = createMiddleware({ type: "function" })
   .client(async ({ next }) => {
+    const { getAppCheckToken } = await import("@/lib/firebase");
     return next({
       headers: {
         [APPCHECK_TOKEN_HEADER]: (await getAppCheckToken()) ?? "",
