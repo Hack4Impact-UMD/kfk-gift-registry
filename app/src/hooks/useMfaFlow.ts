@@ -15,14 +15,14 @@ import type { AuthUser } from "@/server/functions/auth";
 import type {
   OnMFACallback,
   ResolveLoginCallback,
-} from "@/services/authService.client";
+} from "@/services/authService";
 import {
   initRecaptchaVerifier,
   sendSMSMFACode,
   verifySMSMFACode,
-} from "@/services/authService.client";
+} from "@/services/authService";
 import { toast } from "@/lib/toast";
-import { getClientAuth } from "@/lib/firebase.client";
+import { getClientAuth } from "@/lib/firebase";
 
 export interface MfaFlowResult {
   handleMfa: OnMFACallback;

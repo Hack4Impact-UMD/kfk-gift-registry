@@ -9,7 +9,7 @@ import {
   uploadPurchaseReceipt,
   uploadDeliveryReceipt,
 } from "@/server/functions/donor";
-import { getClientStorage, getClientAuth } from "@/lib/firebase.client";
+import { getClientStorage, getClientAuth } from "@/lib/firebase";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
 

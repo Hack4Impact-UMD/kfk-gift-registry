@@ -11,7 +11,7 @@ import { FirebaseError } from "firebase/app";
 import { UserRole } from "common";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { confirmPasswordReset } from "@/services/authService.client";
+import { confirmPasswordReset } from "@/services/authService";
 import adminVolunteerLoginBg from "@/assets/admin-volunteer-login-bg.png";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
 
