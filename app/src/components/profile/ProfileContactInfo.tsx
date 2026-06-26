@@ -8,7 +8,7 @@ import { useRouter } from "@tanstack/react-router";
 import { toast } from "@/lib/toast";
 import { ReauthAlertDialog } from "../auth/ReauthAlertDialog";
 import { verifyBeforeUpdateEmail } from "firebase/auth";
-import { getClientAuth } from "@/lib/firebase.client";
+import { getClientAuth } from "@/lib/firebase";
 
 export function ContactInfoSection({
   authCtx,

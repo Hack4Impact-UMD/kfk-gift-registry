@@ -1,6 +1,6 @@
 import { sendPasswordResetEmail } from "firebase/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getClientAuth } from "@/lib/firebase.client";
+import { getClientAuth } from "@/lib/firebase";
 import type { AuthContextAuthenticated } from "@/server/functions/auth";
 import { toast } from "@/lib/toast";
 import { Input } from "../ui/input";
