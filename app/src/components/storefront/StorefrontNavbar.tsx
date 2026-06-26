@@ -9,6 +9,7 @@ import { UserRole } from "common";
 import type { AuthContext } from "@/server/functions/auth";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
 import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
+import { StorefrontFamilyRecoveryDialog } from "@/components/storefront/StorefrontFamilyRecoveryDialog";
 import { Spinner } from "../ui/spinner";
 
 type StorefrontNavbarProps = {
@@ -135,9 +136,14 @@ export function StorefrontNavbar({
       </div>
 
       <div className="max-w-7xl w-full flex flex-col mt-2">
-        <Link className="text-sm underline self-end text-kfk-blue" to="/">
-          Forgot Family Link?
-        </Link>
+        <StorefrontFamilyRecoveryDialog>
+          <button
+            type="button"
+            className="text-sm underline self-end text-kfk-blue cursor-pointer"
+          >
+            Forgot Family Link?
+          </button>
+        </StorefrontFamilyRecoveryDialog>
       </div>
     </div>
   );
