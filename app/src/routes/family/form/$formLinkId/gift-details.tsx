@@ -58,7 +58,9 @@ function GiftsStep() {
     if (isComplete) return "completed";
 
     const hasGiftValue = (
-      gift: (typeof childData.gifts)[number] | (typeof childData.backupGifts)[number],
+      gift:
+        | (typeof childData.gifts)[number]
+        | (typeof childData.backupGifts)[number],
     ) =>
       gift.giftName.trim() !== "" ||
       gift.giftUrl.trim() !== "" ||

@@ -38,7 +38,8 @@ export function GiftDetailsForm({
     giftIndex: number,
     currentPrice?: string,
   ) => {
-    const gift = form.state.values.giftSelections[childIndex]?.[giftType][giftIndex];
+    const gift =
+      form.state.values.giftSelections[childIndex]?.[giftType][giftIndex];
     if (!gift) return false;
 
     return (
@@ -445,7 +446,6 @@ export function GiftDetailsForm({
           </div>
         ))}
       </div>
-
     </div>
   );
 }
