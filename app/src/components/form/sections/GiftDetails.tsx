@@ -1,13 +1,15 @@
-import { GiftIcon } from "@heroicons/react/24/solid";
+import { CurrencyDollarIcon, GiftIcon } from "@heroicons/react/24/solid";
 import type { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { CardDescription } from "@/components/ui/card";
 import { useState, useRef } from "react";
 import { fetchProductDetails } from "@/server/functions/giftLinks";
 import {
   GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
+  GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
   GIFT_TITLE_TOO_LONG_MESSAGE,
   MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
+  MAX_GIFT_PRICE,
   MAX_GIFT_TITLE_LENGTH,
   getGiftTitleTooLongCounterMessage,
 } from "common";
@@ -31,6 +33,20 @@ export function GiftDetailsForm({
   const lastFetchedUrlRef = useRef<Record<string, string>>({});
 
   type GiftType = "gifts" | "backupGifts";
+  const isGiftRowSelected = (
+    giftType: GiftType,
+    giftIndex: number,
+    currentPrice?: string,
+  ) => {
+    const gift = form.state.values.giftSelections[childIndex]?.[giftType][giftIndex];
+    if (!gift) return false;
+
+    return (
+      gift.giftName.trim() !== "" ||
+      gift.giftUrl.trim() !== "" ||
+      (currentPrice ?? gift.listedPrice).trim() !== ""
+    );
+  };
 
   const handleUrlBlur = async (
     key: string,
@@ -202,6 +218,45 @@ export function GiftDetailsForm({
             </form.AppField>
 
             <form.AppField
+              name={`giftSelections[${childIndex}].gifts[${i}].listedPrice`}
+              validators={
+                disabled
+                  ? undefined
+                  : {
+                      onChange: ({ value }) => {
+                        const priceIsRequired =
+                          i === 0 || isGiftRowSelected("gifts", i, value);
+                        if (!value.trim()) {
+                          return priceIsRequired
+                            ? "Price is required"
+                            : undefined;
+                        }
+                        const price = Number(value);
+                        if (
+                          !Number.isFinite(price) ||
+                          price < 0 ||
+                          price > MAX_GIFT_PRICE
+                        ) {
+                          return GIFT_PRICE_INVALID_MESSAGE;
+                        }
+                        return undefined;
+                      },
+                    }
+              }
+            >
+              {(field) => (
+                <field.FormFieldInput
+                  Icon={CurrencyDollarIcon}
+                  label={`Gift #${i + 1} Price${i !== 0 ? " (Optional unless selected)" : ""}`}
+                  placeholder="e.g. 19.99"
+                  inputMode="decimal"
+                  required={i === 0}
+                  disabled={disabled}
+                />
+              )}
+            </form.AppField>
+
+            <form.AppField
               name={`giftSelections[${childIndex}].gifts[${i}].familyPublicNotes`}
               validators={{
                 onChange: ({ value }) => {
@@ -329,6 +384,39 @@ export function GiftDetailsForm({
             </form.AppField>
 
             <form.AppField
+              name={`giftSelections[${childIndex}].backupGifts[${i}].listedPrice`}
+              validators={
+                disabled
+                  ? undefined
+                  : {
+                      onChange: ({ value }) => {
+                        if (!value.trim()) return "Price is required";
+                        const price = Number(value);
+                        if (
+                          !Number.isFinite(price) ||
+                          price < 0 ||
+                          price > MAX_GIFT_PRICE
+                        ) {
+                          return GIFT_PRICE_INVALID_MESSAGE;
+                        }
+                        return undefined;
+                      },
+                    }
+              }
+            >
+              {(field) => (
+                <field.FormFieldInput
+                  Icon={CurrencyDollarIcon}
+                  label={`Backup Gift #${i + 1} Price`}
+                  placeholder="e.g. 19.99"
+                  inputMode="decimal"
+                  required
+                  disabled={disabled}
+                />
+              )}
+            </form.AppField>
+
+            <form.AppField
               name={`giftSelections[${childIndex}].backupGifts[${i}].familyPublicNotes`}
               validators={{
                 onChange: ({ value }) => {
@@ -358,14 +446,6 @@ export function GiftDetailsForm({
         ))}
       </div>
 
-      <form.AppField name={`giftSelections[${childIndex}].verified`}>
-        {(field) => (
-          <field.FormCheckbox disabled={disabled}>
-            I verify that all selected gifts are $25 or under based on the
-            original price.
-          </field.FormCheckbox>
-        )}
-      </form.AppField>
     </div>
   );
 }

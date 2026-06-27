@@ -75,7 +75,34 @@ async function compressImage(dataUrl?: string): Promise<string | null> {
 function cleanGiftsObjects(
   g: GiftsFormData,
 ): NonNullable<FamilyFormInput["gifts"]> {
-  return g;
+  const normalizeGift = (
+    gift: GiftsFormData["giftSelections"][number]["gifts"][number],
+  ) => ({
+    ...gift,
+    giftName: gift.giftName.trim(),
+    giftUrl: gift.giftUrl.trim(),
+    listedPrice:
+      gift.listedPrice.trim() === ""
+        ? undefined
+        : Number(gift.listedPrice.trim()),
+    familyPublicNotes: gift.familyPublicNotes?.trim() ?? "",
+  });
+
+  return {
+    giftSelections: g.giftSelections.map((selection) => ({
+      ...selection,
+      childName: selection.childName.trim(),
+      gifts: [
+        normalizeGift(selection.gifts[0]),
+        normalizeGift(selection.gifts[1]),
+        normalizeGift(selection.gifts[2]),
+      ],
+      backupGifts: [
+        normalizeGift(selection.backupGifts[0]),
+        normalizeGift(selection.backupGifts[1]),
+      ],
+    })),
+  };
 }
 
 export function useSubmitFamilyForm() {
