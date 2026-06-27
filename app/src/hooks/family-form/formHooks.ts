@@ -210,7 +210,7 @@ export function useGiftsForm() {
         })) as ChildGiftSelections["gifts"],
         backupGifts: [0, 1].map((giftIndex) => ({
           ...emptyGift,
-          ...existing.backupGifts[giftIndex],
+          ...(existing.backupGifts?.[giftIndex] ?? {}),
         })) as ChildGiftSelections["backupGifts"],
       };
     }

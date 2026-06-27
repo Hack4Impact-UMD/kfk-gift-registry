@@ -62,7 +62,7 @@ const baseGiftSelectionSchema = z.object({
 const optionalGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
   (data, ctx) => {
     const hasName = Boolean(data.giftName);
-    const hasUrl = data.giftUrl !== "";
+    const hasUrl = Boolean(data.giftUrl);
     const hasPrice = data.listedPrice !== undefined;
     const isBlank = !hasName && !hasUrl && !hasPrice;
 
@@ -149,9 +149,10 @@ const childGiftSelectionSchema = z.object({
     optionalGiftSelectionSchema,
     optionalGiftSelectionSchema,
   ]),
-  backupGifts: z
-    .tuple([requiredGiftSelectionSchema, requiredGiftSelectionSchema])
-    .optional(),
+  backupGifts: z.tuple([
+    requiredGiftSelectionSchema,
+    requiredGiftSelectionSchema,
+  ]),
 });
 
 const giftsFormSchema = z.object({
@@ -345,7 +346,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
             };
           });
 
-        const backup = (selection.backupGifts ?? [])
+        const backup = selection.backupGifts
           .filter(hasGiftIdentity)
           .map((g): Gift => {
             const { giftName, giftUrl } = g;
