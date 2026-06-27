@@ -171,6 +171,12 @@ const familyEmailSchema = z.object({
 
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
 
+function hasGiftIdentity<T extends { giftName?: string; giftUrl?: string }>(
+  gift: T,
+): gift is T & { giftName: string; giftUrl: string } {
+  return Boolean(gift.giftName && gift.giftUrl);
+}
+
 function normalizeFamilyEmail(email: string) {
   return email.trim().toLowerCase();
 }
@@ -316,52 +322,52 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
         const childId = childIds[idx];
 
         const regular = selection.gifts
-          .filter((g): g is typeof g & { giftName: string; giftUrl: string } =>
-            Boolean(g.giftName && g.giftUrl),
-          )
-          .map(
-            (g): Gift => ({
+          .filter(hasGiftIdentity)
+          .map((g): Gift => {
+            const { giftName, giftUrl } = g;
+            if (!giftName || !giftUrl) {
+              throw new Error("Gift selections must include both name and URL");
+            }
+
+            return {
               id: uuidv7(),
               childId,
               familyId,
               giftDrive: giftDriveId,
-              title: g.giftName,
-              productUrl: g.giftUrl,
+              title: giftName,
+              productUrl: giftUrl,
               listedPrice: g.listedPrice,
               status: "AVAILABLE",
               backup: false,
               active: true,
               createdAt: now,
               familyPublicNotes: g.familyPublicNotes,
-            }),
-          );
+            };
+          });
 
         const backup = (selection.backupGifts ?? [])
-          .filter(
-            (
-              g,
-            ): g is typeof g & {
-              giftName: string;
-              giftUrl: string;
-              listedPrice?: number;
-            } => Boolean(g.giftName && g.giftUrl),
-          )
-          .map(
-            (g): Gift => ({
+          .filter(hasGiftIdentity)
+          .map((g): Gift => {
+            const { giftName, giftUrl } = g;
+            if (!giftName || !giftUrl) {
+              throw new Error("Gift selections must include both name and URL");
+            }
+
+            return {
               id: uuidv7(),
               childId,
               familyId,
               giftDrive: giftDriveId,
-              title: g.giftName!,
-              productUrl: g.giftUrl!,
+              title: giftName,
+              productUrl: giftUrl,
               listedPrice: g.listedPrice,
               status: "AVAILABLE",
               backup: true,
               active: true,
               createdAt: now,
               familyPublicNotes: g.familyPublicNotes,
-            }),
-          );
+            };
+          });
 
         return [...regular, ...backup];
       },
