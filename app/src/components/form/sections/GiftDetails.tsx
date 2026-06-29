@@ -33,19 +33,24 @@ export function GiftDetailsForm({
   const lastFetchedUrlRef = useRef<Record<string, string>>({});
 
   type GiftType = "gifts" | "backupGifts";
+  type GiftFieldOverrides = {
+    giftName?: string;
+    giftUrl?: string;
+    listedPrice?: string;
+  };
   const isGiftRowSelected = (
     giftType: GiftType,
     giftIndex: number,
-    currentPrice?: string,
+    overrides?: GiftFieldOverrides,
   ) => {
     const gift =
       form.state.values.giftSelections[childIndex]?.[giftType][giftIndex];
     if (!gift) return false;
 
     return (
-      gift.giftName.trim() !== "" ||
-      gift.giftUrl.trim() !== "" ||
-      (currentPrice ?? gift.listedPrice).trim() !== ""
+      (overrides?.giftName ?? gift.giftName).trim() !== "" ||
+      (overrides?.giftUrl ?? gift.giftUrl).trim() !== "" ||
+      (overrides?.listedPrice ?? gift.listedPrice).trim() !== ""
     );
   };
 
@@ -133,10 +138,17 @@ export function GiftDetailsForm({
                   ? undefined
                   : {
                       onChange: ({ value }) => {
-                        if (i !== 0 && !value) return undefined;
-                        if (!value) return "URL is required";
+                        const trimmedValue = value.trim();
+                        const urlIsRequired =
+                          i === 0 ||
+                          isGiftRowSelected("gifts", i, {
+                            giftUrl: trimmedValue,
+                          });
+                        if (!trimmedValue) {
+                          return urlIsRequired ? "URL is required" : undefined;
+                        }
                         try {
-                          const url = new URL(value);
+                          const url = new URL(trimmedValue);
                           if (!["http:", "https:"].includes(url.protocol)) {
                             return "URL must start with http or https";
                           }
@@ -187,8 +199,17 @@ export function GiftDetailsForm({
                   ? undefined
                   : {
                       onChange: ({ value }) => {
-                        if (i !== 0 && !value) return undefined;
-                        if (!value) return GIFT_TITLE_REQUIRED_MESSAGE;
+                        const trimmedValue = value.trim();
+                        const nameIsRequired =
+                          i === 0 ||
+                          isGiftRowSelected("gifts", i, {
+                            giftName: trimmedValue,
+                          });
+                        if (!trimmedValue) {
+                          return nameIsRequired
+                            ? GIFT_TITLE_REQUIRED_MESSAGE
+                            : undefined;
+                        }
                         if (value.length > MAX_GIFT_TITLE_LENGTH) {
                           return getGiftTitleTooLongCounterMessage(
                             value.length,
@@ -226,7 +247,10 @@ export function GiftDetailsForm({
                   : {
                       onChange: ({ value }) => {
                         const priceIsRequired =
-                          i === 0 || isGiftRowSelected("gifts", i, value);
+                          i === 0 ||
+                          isGiftRowSelected("gifts", i, {
+                            listedPrice: value,
+                          });
                         if (!value.trim()) {
                           return priceIsRequired
                             ? "Price is required"

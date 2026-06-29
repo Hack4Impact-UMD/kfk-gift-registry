@@ -481,7 +481,7 @@ export function ChildCard({ child }: ChildCardProps) {
                   onPriceChange={async (value) => {
                     const trimmedValue = value.trim();
                     if (trimmedValue === "") {
-                      collections.gifts.update(gift.id, (draft) => {
+                      editGift(gift.id, (draft) => {
                         draft.listedPrice = undefined;
                       });
                       return;

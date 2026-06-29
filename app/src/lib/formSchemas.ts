@@ -270,7 +270,7 @@ function hasValidPrice(value: string) {
 
 const baseGiftSchema = z.object({
   giftName: GiftTitleSchema,
-  giftUrl: z.string(),
+  giftUrl: z.union([z.literal(""), z.url()]),
   listedPrice: z.string().trim(),
   familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
 });
@@ -279,7 +279,9 @@ const optionalGiftSchema = baseGiftSchema.superRefine((data, ctx) => {
   const hasName = data.giftName.trim().length > 0;
   const hasUrl = data.giftUrl.trim().length > 0;
   const hasPrice = data.listedPrice.length > 0;
-  const isBlank = !hasName && !hasUrl && !hasPrice;
+  const hasNotes = (data.familyPublicNotes?.trim() ?? "").length > 0;
+
+  const isBlank = !hasName && !hasUrl && !hasPrice && !hasNotes;
 
   if (isBlank) return;
 
