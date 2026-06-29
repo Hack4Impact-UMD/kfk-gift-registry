@@ -1,6 +1,4 @@
-/// <reference path="../react-jsx-runtime.d.ts" />
-/// <reference path="./jsx.d.ts" />
-import type { DonorPostClaimConfirmationPayload } from "common";
+import type { DonorPostClaimConfirmationPayload } from "../../common/src/types/email-job";
 import {
   Body,
   Button,
