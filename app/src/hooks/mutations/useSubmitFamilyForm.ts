@@ -6,6 +6,7 @@ import { submitFamilyForm } from "@/server/functions/familyForm";
 import Compressor from "compressorjs";
 import { uploadChildPictureAppCheck } from "@/server/functions/child";
 import { toast } from "@/lib/toast";
+import { GIFT_PRICE_INVALID_MESSAGE, MAX_GIFT_PRICE } from "common";
 
 export function buildFamilyFormSubmitPayload(
   formLinkId: string,
@@ -75,16 +76,29 @@ async function compressImage(dataUrl?: string): Promise<string | null> {
 function cleanGiftsObjects(
   g: GiftsFormData,
 ): NonNullable<FamilyFormInput["gifts"]> {
+  const normalizeListedPrice = (listedPrice: string) => {
+    const trimmedPrice = listedPrice.trim();
+    if (trimmedPrice === "") return undefined;
+
+    const numericPrice = Number(trimmedPrice);
+    if (
+      !Number.isFinite(numericPrice) ||
+      numericPrice < 0 ||
+      numericPrice > MAX_GIFT_PRICE
+    ) {
+      throw new Error(GIFT_PRICE_INVALID_MESSAGE);
+    }
+
+    return numericPrice;
+  };
+
   const normalizeGift = (
     gift: GiftsFormData["giftSelections"][number]["gifts"][number],
   ) => ({
     ...gift,
     giftName: gift.giftName.trim(),
     giftUrl: gift.giftUrl.trim(),
-    listedPrice:
-      gift.listedPrice.trim() === ""
-        ? undefined
-        : Number(gift.listedPrice.trim()),
+    listedPrice: normalizeListedPrice(gift.listedPrice),
     familyPublicNotes: gift.familyPublicNotes?.trim() ?? "",
   });
 
