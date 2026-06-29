@@ -175,7 +175,7 @@ export default function DonorPurchaseReminderEmail({
                       </Text>
                     ) : null}
                   </Section>
-                )
+                ),
               )}
 
               <Hr className="my-6 border-gray-200" />
