@@ -41,6 +41,8 @@ export function buildFamilyFormSubmitPayload(
 function cleanChildrenObjects(
   children: NonNullable<FamilyFormState["children"]>,
 ): NonNullable<FamilyFormInput["children"]> {
+  const shouldIncludePhotos = children.consentPhotosPublic;
+
   return {
     ...children,
     additionalNotes: children.additionalNotes?.trim() ?? "",
@@ -50,6 +52,7 @@ function cleanChildrenObjects(
       hospitalTreatedAt: child.hospitalTreatedAt?.trim() ?? "",
       socialWorkerName: child.socialWorkerName?.trim() ?? "",
       treatmentLength: child.treatmentLength?.trim() ?? "",
+      photoUrl: shouldIncludePhotos ? child.photoUrl : "",
       blurb: child.blurb?.trim() ?? "",
     })),
   };
@@ -131,9 +134,13 @@ export function useSubmitFamilyForm() {
       const res = await submitFamilyForm({
         data: payload,
       });
+      const photosToUpload = payload.children?.consentPhotosPublic
+        ? photos
+        : [];
+
       //NOTE: Image data is base64 encoded data URLs. Images are at most 5mb. In order to avoid possible HTTP request body size limits, we need to split up uploads over multiple requests (one per image)
       const uploadResults = await Promise.allSettled(
-        photos.map(async (p, i) => {
+        photosToUpload.map(async (p, i) => {
           const id = res.childIds[i];
           const compressedImage = await compressImage(p);
 
