@@ -37,6 +37,7 @@ export function GiftDetailsForm({
     giftName?: string;
     giftUrl?: string;
     listedPrice?: string;
+    familyPublicNotes?: string;
   };
   const isGiftRowSelected = (
     giftType: GiftType,
@@ -50,7 +51,40 @@ export function GiftDetailsForm({
     return (
       (overrides?.giftName ?? gift.giftName).trim() !== "" ||
       (overrides?.giftUrl ?? gift.giftUrl).trim() !== "" ||
-      (overrides?.listedPrice ?? gift.listedPrice).trim() !== ""
+      (overrides?.listedPrice ?? gift.listedPrice).trim() !== "" ||
+      (overrides?.familyPublicNotes ?? gift.familyPublicNotes ?? "").trim() !==
+        ""
+    );
+  };
+
+  const validateGiftRowFields = (giftType: GiftType, giftIndex: number) => {
+    if (giftType === "gifts") {
+      void form.validateField(
+        `giftSelections[${childIndex}].gifts[${giftIndex as 0 | 1 | 2}].giftUrl`,
+        "change",
+      );
+      void form.validateField(
+        `giftSelections[${childIndex}].gifts[${giftIndex as 0 | 1 | 2}].giftName`,
+        "change",
+      );
+      void form.validateField(
+        `giftSelections[${childIndex}].gifts[${giftIndex as 0 | 1 | 2}].listedPrice`,
+        "change",
+      );
+      return;
+    }
+
+    void form.validateField(
+      `giftSelections[${childIndex}].backupGifts[${giftIndex as 0 | 1}].giftUrl`,
+      "change",
+    );
+    void form.validateField(
+      `giftSelections[${childIndex}].backupGifts[${giftIndex as 0 | 1}].giftName`,
+      "change",
+    );
+    void form.validateField(
+      `giftSelections[${childIndex}].backupGifts[${giftIndex as 0 | 1}].listedPrice`,
+      "change",
     );
   };
 
@@ -285,6 +319,7 @@ export function GiftDetailsForm({
               name={`giftSelections[${childIndex}].gifts[${i}].familyPublicNotes`}
               validators={{
                 onChange: ({ value }) => {
+                  validateGiftRowFields("gifts", i);
                   if (!value) return undefined;
                   if (value.length > MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH) {
                     return GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE;
@@ -445,6 +480,7 @@ export function GiftDetailsForm({
               name={`giftSelections[${childIndex}].backupGifts[${i}].familyPublicNotes`}
               validators={{
                 onChange: ({ value }) => {
+                  validateGiftRowFields("backupGifts", i);
                   if (!value) return undefined;
                   if (value.length > MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH) {
                     return GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE;
