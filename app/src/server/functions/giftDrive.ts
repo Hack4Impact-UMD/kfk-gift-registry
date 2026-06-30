@@ -66,3 +66,33 @@ export const updateGiftDrive = createServerFn({ method: "POST" })
     await assertGiftDriveWindowAvailable(data);
     await db.giftDrives.doc(id).update(fields);
   });
+
+export const deactivateGiftDrive = createServerFn({ method: "POST" })
+  .middleware([adminOnly])
+  .inputValidator((data: { id: string }) => data.id)
+  .handler(async ({ data: id }) => {
+    const db = getServerDB();
+    const driveRef = db.giftDrives.doc(id);
+    const driveSnap = await driveRef.get();
+    const drive = driveSnap.data();
+
+    if (!drive) {
+      throw new Error("Gift drive not found");
+    }
+
+    const now = DateTime.utc();
+    const start = DateTime.fromISO(drive.startDate, { zone: "utc" });
+    const end = DateTime.fromISO(drive.endDate, { zone: "utc" });
+
+    if (!start.isValid || !end.isValid) {
+      throw new Error("Gift drive has invalid dates");
+    }
+
+    if (start > now || end < now) {
+      throw new Error("Only an active gift drive can be deactivated");
+    }
+
+    await driveRef.update({
+      endDate: now.toISO(),
+    });
+  });

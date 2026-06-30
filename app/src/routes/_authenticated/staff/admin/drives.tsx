@@ -5,6 +5,16 @@ import { Plus, SquarePen } from "lucide-react";
 import type { GiftDrive } from "common";
 import { CalendarIcon } from "@/components/icons";
 import { GiftDriveDialog } from "@/components/gift-drives/GiftDriveDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +24,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useDeactivateGiftDrive } from "@/hooks/mutations/useDeactivateGiftDrive";
 import { useAllGiftDrives } from "@/hooks/queries/useAllGiftDrives";
 import { formatISODate } from "@/lib/utils";
 import { queries } from "@/queries";
@@ -88,7 +99,11 @@ function SummaryCard({
 
 function RouteComponent() {
   const { data: drives, isPending, error } = useAllGiftDrives();
+  const { mutateAsync: deactivateDrive, isPending: isDeactivating } =
+    useDeactivateGiftDrive();
   const [dialog, setDialog] = useState<DialogState>(null);
+  const [drivePendingDeactivation, setDrivePendingDeactivation] =
+    useState<GiftDrive | null>(null);
 
   const sortedDrives = useMemo(
     () =>
@@ -110,6 +125,12 @@ function RouteComponent() {
       { active: 0, upcoming: 0, completed: 0 },
     );
   }, [sortedDrives]);
+
+  async function handleDeactivateDrive() {
+    if (!drivePendingDeactivation) return;
+    await deactivateDrive(drivePendingDeactivation.id);
+    setDrivePendingDeactivation(null);
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -191,16 +212,29 @@ function RouteComponent() {
                           {formatISODate(drive.endDate)}
                         </CardDescription>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          setDialog({ mode: "edit", initial: drive })
-                        }
-                      >
-                        <SquarePen className="size-4" />
-                        Edit
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        {status.label === "Active" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setDrivePendingDeactivation(drive)}
+                            disabled={isDeactivating}
+                          >
+                            Deactivate
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setDialog({ mode: "edit", initial: drive })
+                          }
+                          disabled={isDeactivating}
+                        >
+                          <SquarePen className="size-4" />
+                          Edit
+                        </Button>
+                      </div>
                     </CardHeader>
                     <CardContent className="grid gap-3 text-sm text-muted-foreground sm:grid-cols-3">
                       <div>
@@ -235,6 +269,35 @@ function RouteComponent() {
           initial={dialog.mode === "edit" ? dialog.initial : undefined}
         />
       )}
+
+      <AlertDialog
+        open={drivePendingDeactivation !== null}
+        onOpenChange={(open) => {
+          if (!open) setDrivePendingDeactivation(null);
+        }}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deactivate gift drive</AlertDialogTitle>
+            <AlertDialogDescription>
+              {drivePendingDeactivation
+                ? `End ${drivePendingDeactivation.cycle} today? This updates the drive end date to now.`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeactivating}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeactivateDrive}
+              disabled={isDeactivating}
+            >
+              {isDeactivating ? "Deactivating…" : "Deactivate"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
