@@ -12,6 +12,9 @@ import {
   AddressSchema,
   ChildStatusSchema,
   GiftFamilyPublicNotesSchema,
+  GIFT_PRICE_INVALID_MESSAGE,
+  GIFT_TITLE_REQUIRED_MESSAGE,
+  MAX_GIFT_PRICE,
   NormalizedGiftTitleSchema,
 } from "common";
 
@@ -46,17 +49,110 @@ const childrenFormSchema = z.object({
   consentPhotosPublic: z.boolean(),
 });
 
-const giftSelectionSchema = z.object({
+const PRICE_REQUIRED_MESSAGE = "Price is required";
+const URL_REQUIRED_MESSAGE = "URL is required";
+
+const baseGiftSelectionSchema = z.object({
   giftUrl: z.url().optional().or(z.literal("")),
   giftName: NormalizedGiftTitleSchema.optional(),
+  listedPrice: z.number().min(0).max(MAX_GIFT_PRICE).optional(),
   familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
 });
 
+const optionalGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
+  (data, ctx) => {
+    const hasName = Boolean(data.giftName);
+    const hasUrl = Boolean(data.giftUrl);
+    const hasPrice = data.listedPrice !== undefined;
+    const isBlank = !hasName && !hasUrl && !hasPrice;
+
+    if (isBlank) return;
+
+    if (!hasName) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftName"],
+        message: "Gift name is required.",
+      });
+    }
+
+    if (!hasUrl) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftUrl"],
+        message: URL_REQUIRED_MESSAGE,
+      });
+    }
+
+    if (!hasPrice) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["listedPrice"],
+        message: PRICE_REQUIRED_MESSAGE,
+      });
+      return;
+    }
+
+    const listedPrice = data.listedPrice;
+    if (listedPrice === undefined) return;
+    if (listedPrice < 0 || listedPrice > MAX_GIFT_PRICE) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["listedPrice"],
+        message: GIFT_PRICE_INVALID_MESSAGE,
+      });
+    }
+  },
+);
+
+const requiredGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
+  (data, ctx) => {
+    if (!data.giftName) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftName"],
+        message: GIFT_TITLE_REQUIRED_MESSAGE,
+      });
+    }
+
+    if (!data.giftUrl) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftUrl"],
+        message: URL_REQUIRED_MESSAGE,
+      });
+    }
+
+    if (data.listedPrice === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["listedPrice"],
+        message: PRICE_REQUIRED_MESSAGE,
+      });
+      return;
+    }
+
+    if (data.listedPrice < 0 || data.listedPrice > MAX_GIFT_PRICE) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["listedPrice"],
+        message: GIFT_PRICE_INVALID_MESSAGE,
+      });
+    }
+  },
+);
+
 const childGiftSelectionSchema = z.object({
   childName: z.string(),
-  gifts: z.array(giftSelectionSchema),
-  backupGifts: z.array(giftSelectionSchema).optional(),
-  verified: z.boolean(),
+  gifts: z.tuple([
+    requiredGiftSelectionSchema,
+    optionalGiftSelectionSchema,
+    optionalGiftSelectionSchema,
+  ]),
+  backupGifts: z.tuple([
+    requiredGiftSelectionSchema,
+    requiredGiftSelectionSchema,
+  ]),
 });
 
 const giftsFormSchema = z.object({
@@ -75,6 +171,12 @@ const familyEmailSchema = z.object({
 });
 
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
+
+function hasGiftIdentity<T extends { giftName?: string; giftUrl?: string }>(
+  gift: T,
+): gift is T & { giftName: string; giftUrl: string } {
+  return Boolean(gift.giftName && gift.giftUrl);
+}
 
 function normalizeFamilyEmail(email: string) {
   return email.trim().toLowerCase();
@@ -221,44 +323,52 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
         const childId = childIds[idx];
 
         const regular = selection.gifts
-          .filter((g): g is typeof g & { giftName: string; giftUrl: string } =>
-            Boolean(g.giftName && g.giftUrl),
-          )
-          .map(
-            (g): Gift => ({
+          .filter(hasGiftIdentity)
+          .map((g): Gift => {
+            const { giftName, giftUrl } = g;
+            if (!giftName || !giftUrl) {
+              throw new Error("Gift selections must include both name and URL");
+            }
+
+            return {
               id: uuidv7(),
               childId,
               familyId,
               giftDrive: giftDriveId,
-              title: g.giftName,
-              productUrl: g.giftUrl,
+              title: giftName,
+              productUrl: giftUrl,
+              listedPrice: g.listedPrice,
               status: "AVAILABLE",
               backup: false,
               active: true,
               createdAt: now,
               familyPublicNotes: g.familyPublicNotes,
-            }),
-          );
+            };
+          });
 
-        const backup = (selection.backupGifts ?? [])
-          .filter((g): g is typeof g & { giftName: string; giftUrl: string } =>
-            Boolean(g.giftName && g.giftUrl),
-          )
-          .map(
-            (g): Gift => ({
+        const backup = selection.backupGifts
+          .filter(hasGiftIdentity)
+          .map((g): Gift => {
+            const { giftName, giftUrl } = g;
+            if (!giftName || !giftUrl) {
+              throw new Error("Gift selections must include both name and URL");
+            }
+
+            return {
               id: uuidv7(),
               childId,
               familyId,
               giftDrive: giftDriveId,
-              title: g.giftName,
-              productUrl: g.giftUrl,
+              title: giftName,
+              productUrl: giftUrl,
+              listedPrice: g.listedPrice,
               status: "AVAILABLE",
               backup: true,
               active: true,
               createdAt: now,
               familyPublicNotes: g.familyPublicNotes,
-            }),
-          );
+            };
+          });
 
         return [...regular, ...backup];
       },

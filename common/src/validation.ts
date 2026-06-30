@@ -3,11 +3,13 @@ import { z } from "zod";
 export const MAX_CHILD_PUBLIC_BLURB_LENGTH = 150;
 export const MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH = 150;
 export const MAX_GIFT_TITLE_LENGTH = 50;
+export const MAX_GIFT_PRICE = 30;
 
 export const CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE = `Personal blurb must be ${MAX_CHILD_PUBLIC_BLURB_LENGTH} characters or fewer.`;
 export const GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE = `Gift notes must be ${MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH} characters or fewer.`;
 export const GIFT_TITLE_TOO_LONG_MESSAGE = `Gift name must be ${MAX_GIFT_TITLE_LENGTH} characters or fewer.`;
 export const GIFT_TITLE_REQUIRED_MESSAGE = "Gift name is required.";
+export const GIFT_PRICE_INVALID_MESSAGE = `Price must be a valid non-negative number no greater than $${MAX_GIFT_PRICE}.`;
 
 export const ChildPublicBlurbSchema = z
   .string()
