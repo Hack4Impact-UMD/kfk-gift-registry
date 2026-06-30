@@ -28,3 +28,42 @@ export async function assertGiftDriveActive(
 
   return drive;
 }
+
+type GiftDriveWindow = Pick<GiftDrive, "id" | "cycle" | "startDate" | "endDate">;
+
+function overlapsActiveWindow(left: GiftDriveWindow, right: GiftDriveWindow) {
+  const leftStart = DateTime.fromISO(left.startDate, { zone: "utc" });
+  const leftEnd = DateTime.fromISO(left.endDate, { zone: "utc" });
+  const rightStart = DateTime.fromISO(right.startDate, { zone: "utc" });
+  const rightEnd = DateTime.fromISO(right.endDate, { zone: "utc" });
+
+  if (
+    !leftStart.isValid ||
+    !leftEnd.isValid ||
+    !rightStart.isValid ||
+    !rightEnd.isValid
+  ) {
+    return false;
+  }
+
+  return leftStart < rightEnd && rightStart < leftEnd;
+}
+
+export async function assertGiftDriveWindowAvailable(
+  candidate: GiftDriveWindow,
+) {
+  const db = getServerDB();
+  const existingDrives = (await db.giftDrives.get()).docs.map((doc) =>
+    doc.data(),
+  );
+  const conflictingDrive = existingDrives.find((drive) => {
+    if (drive.id === candidate.id) return false;
+    return overlapsActiveWindow(drive, candidate);
+  });
+
+  if (conflictingDrive) {
+    throw new Error(
+      `Gift drive dates overlap with ${conflictingDrive.cycle}. Only one active drive is allowed at a time.`,
+    );
+  }
+}
