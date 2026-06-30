@@ -29,7 +29,10 @@ export async function assertGiftDriveActive(
   return drive;
 }
 
-type GiftDriveWindow = Pick<GiftDrive, "id" | "cycle" | "startDate" | "endDate">;
+type GiftDriveWindow = Pick<
+  GiftDrive,
+  "id" | "cycle" | "startDate" | "endDate"
+>;
 
 function overlapsActiveWindow(left: GiftDriveWindow, right: GiftDriveWindow) {
   const leftStart = DateTime.fromISO(left.startDate, { zone: "utc" });
