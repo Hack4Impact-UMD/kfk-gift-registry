@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useRouteContext } from "@tanstack/react-router";
+import { UserRole } from "common";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { useDrive } from "@/context/DriveContext";
 
@@ -89,6 +90,8 @@ const SidebarMenuButtonWithHovering = ({
 export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
   const { auth } = useRouteContext({ from: "/_authenticated" });
   const user = auth.authUser;
+  const canAccessAdmin =
+    user.role === UserRole.DIRECTOR || user.role === UserRole.ADMIN;
   const { activeDriveId, setActiveDriveId } = useDrive();
   const [, setIsDropdownPressed] = useState<boolean>(false);
   const { data: drives, isPending, error } = useAllGiftDrives();
@@ -235,48 +238,67 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
                 </SidebarMenuButtonWithHovering>
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
-            <SidebarMenuItem className="flex justify-center">
-              <SidebarMenuButtonWithTooltip label="User Management">
-                <SidebarMenuButtonWithHovering>
-                  <Link
-                    to="/staff/admin/users"
-                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
-                    activeProps={{
-                      className:
-                        "group/button flex items-center gap-2 text-kfk-green hover:text-kfk-green",
-                    }}
-                  >
-                    {" "}
-                    {/* Placeholder Link */}
-                    <UsersIcon className="transition-colors size-6" />
-                    <span className="group-data-[collapsible=icon]:hidden">
-                      User Management
-                    </span>
-                  </Link>
-                </SidebarMenuButtonWithHovering>
-              </SidebarMenuButtonWithTooltip>
-            </SidebarMenuItem>
-            <SidebarMenuItem className="flex justify-center">
-              <SidebarMenuButtonWithTooltip label="Form Links">
-                <SidebarMenuButtonWithHovering>
-                  <Link
-                    to="/staff/admin/forms"
-                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
-                    activeProps={{
-                      className:
-                        "group/button flex items-center gap-2 text-kfk-green hover:text-kfk-green",
-                    }}
-                  >
-                    {" "}
-                    {/* Placeholder Link */}
-                    <LinkIcon className="transition-colors size-6" />
-                    <span className="group-data-[collapsible=icon]:hidden">
-                      Form Links
-                    </span>
-                  </Link>
-                </SidebarMenuButtonWithHovering>
-              </SidebarMenuButtonWithTooltip>
-            </SidebarMenuItem>
+            {canAccessAdmin && (
+              <>
+                <SidebarMenuItem className="flex justify-center">
+                  <SidebarMenuButtonWithTooltip label="User Management">
+                    <SidebarMenuButtonWithHovering>
+                      <Link
+                        to="/staff/admin/users"
+                        className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                        activeProps={{
+                          className:
+                            "group/button flex items-center gap-2 text-kfk-green hover:text-kfk-green",
+                        }}
+                      >
+                        <UsersIcon className="transition-colors size-6" />
+                        <span className="group-data-[collapsible=icon]:hidden">
+                          User Management
+                        </span>
+                      </Link>
+                    </SidebarMenuButtonWithHovering>
+                  </SidebarMenuButtonWithTooltip>
+                </SidebarMenuItem>
+                <SidebarMenuItem className="flex justify-center">
+                  <SidebarMenuButtonWithTooltip label="Gift Drives">
+                    <SidebarMenuButtonWithHovering>
+                      <Link
+                        to="/staff/admin/drives"
+                        className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                        activeProps={{
+                          className:
+                            "group/button flex items-center gap-2 text-kfk-blue hover:text-kfk-blue",
+                        }}
+                      >
+                        <CalendarIcon className="transition-colors size-6" />
+                        <span className="group-data-[collapsible=icon]:hidden">
+                          Gift Drives
+                        </span>
+                      </Link>
+                    </SidebarMenuButtonWithHovering>
+                  </SidebarMenuButtonWithTooltip>
+                </SidebarMenuItem>
+                <SidebarMenuItem className="flex justify-center">
+                  <SidebarMenuButtonWithTooltip label="Form Links">
+                    <SidebarMenuButtonWithHovering>
+                      <Link
+                        to="/staff/admin/forms"
+                        className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                        activeProps={{
+                          className:
+                            "group/button flex items-center gap-2 text-kfk-green hover:text-kfk-green",
+                        }}
+                      >
+                        <LinkIcon className="transition-colors size-6" />
+                        <span className="group-data-[collapsible=icon]:hidden">
+                          Form Links
+                        </span>
+                      </Link>
+                    </SidebarMenuButtonWithHovering>
+                  </SidebarMenuButtonWithTooltip>
+                </SidebarMenuItem>
+              </>
+            )}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
