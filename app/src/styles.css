@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "@fontsource-variable/nunito";
 @import "@fontsource/gaegu";
+@import "react-day-picker/style.css";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -163,5 +164,34 @@ code {
   body {
     width: 100%;
     height: 100%;
+  }
+}
+
+@layer components {
+  .rdp-root {
+    --rdp-accent-color: var(--color-kfk-blue, #0839b1);
+    --rdp-accent-background-color: var(--color-kfk-light-blue, #cedcff);
+    margin: 0;
+  }
+
+  .rdp-month_caption {
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .rdp-weekday {
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .rdp-button_next,
+  .rdp-button_previous {
+    color: var(--foreground);
+  }
+
+  .rdp-day_button:hover:not(:disabled) {
+    background-color: var(--accent);
   }
 }
