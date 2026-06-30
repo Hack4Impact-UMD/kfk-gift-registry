@@ -21,6 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useCreateGiftDrive } from "@/hooks/mutations/useCreateGiftDrive";
 import { useUpdateGiftDrive } from "@/hooks/mutations/useUpdateGiftDrive";
 import { cn } from "@/lib/utils";
@@ -101,6 +102,7 @@ export function GiftDriveDialog({
   mode,
   initial,
 }: GiftDriveDialogProps) {
+  const isMobile = useIsMobile();
   const { mutateAsync: createDrive, isPending: isCreating } =
     useCreateGiftDrive();
   const { mutateAsync: updateDrive, isPending: isUpdating } =
@@ -190,6 +192,7 @@ export function GiftDriveDialog({
                 <DayPicker
                   mode="range"
                   selected={form.dateRange}
+                  numberOfMonths={isMobile ? 1 : 2}
                   defaultMonth={form.dateRange?.from}
                   onSelect={(dateRange) => {
                     setForm((current) => ({
