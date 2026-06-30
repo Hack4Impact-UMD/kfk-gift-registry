@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { format } from "date-fns";
 import { DateTime } from "luxon";
 import type { GiftDrive } from "common";
+import { DayPicker } from "react-day-picker";
+import type { DateRange } from "react-day-picker";
+import { CalendarIcon } from "@/components/icons";
 import {
   Dialog,
   DialogContent,
@@ -12,8 +16,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useCreateGiftDrive } from "@/hooks/mutations/useCreateGiftDrive";
 import { useUpdateGiftDrive } from "@/hooks/mutations/useUpdateGiftDrive";
+import { cn } from "@/lib/utils";
 
 interface GiftDriveDialogProps {
   open: boolean;
@@ -24,36 +34,64 @@ interface GiftDriveDialogProps {
 
 interface FormState {
   cycle: string;
-  startDate: string;
-  endDate: string;
+  dateRange: DateRange | undefined;
 }
 
-function toInputValue(iso: string | undefined): string {
-  if (!iso) return "";
+function toPickerDate(iso: string | undefined): Date | undefined {
+  if (!iso) return undefined;
   const dateTime = DateTime.fromISO(iso);
-  return dateTime.isValid
-    ? dateTime.toLocal().toFormat("yyyy-MM-dd'T'HH:mm")
-    : "";
+  return dateTime.isValid ? dateTime.toLocal().startOf("day").toJSDate() : undefined;
 }
 
-function toUtcIso(value: string): string | null {
-  const dateTime = DateTime.fromISO(value, { zone: "local" });
-  return dateTime.isValid ? dateTime.toUTC().toISO() : null;
+function toUtcIso(date: Date | undefined, boundary: "start" | "end"): string | null {
+  if (!date) return null;
+  const dateTime = DateTime.fromJSDate(date, { zone: "local" });
+  const normalized =
+    boundary === "start" ? dateTime.startOf("day") : dateTime.endOf("day");
+
+  return normalized.isValid ? normalized.toUTC().toISO() : null;
+}
+
+function formatDateRange(dateRange: DateRange | undefined) {
+  if (!dateRange?.from) {
+    return "Pick a date range";
+  }
+
+  if (!dateRange.to) {
+    return format(dateRange.from, "LLL d, y");
+  }
+
+  return `${format(dateRange.from, "LLL d, y")} - ${format(
+    dateRange.to,
+    "LLL d, y",
+  )}`;
+}
+
+function toUtcDateRange(dateRange: DateRange | undefined) {
+  if (!dateRange?.from || !dateRange?.to) {
+    return { startDate: null, endDate: null };
+  }
+
+  return {
+    startDate: toUtcIso(dateRange.from, "start"),
+    endDate: toUtcIso(dateRange.to, "end"),
+  };
 }
 
 function initialState(mode: "create" | "edit", initial?: GiftDrive): FormState {
   if (mode === "edit" && initial) {
+    const from = toPickerDate(initial.startDate);
+    const to = toPickerDate(initial.endDate);
+
     return {
       cycle: initial.cycle,
-      startDate: toInputValue(initial.startDate),
-      endDate: toInputValue(initial.endDate),
+      dateRange: from && to ? { from, to } : undefined,
     };
   }
 
   return {
     cycle: "",
-    startDate: "",
-    endDate: "",
+    dateRange: undefined,
   };
 }
 
@@ -76,8 +114,7 @@ export function GiftDriveDialog({
 
   async function handleSave() {
     const cycle = form.cycle.trim();
-    const startDate = toUtcIso(form.startDate);
-    const endDate = toUtcIso(form.endDate);
+    const { startDate, endDate } = toUtcDateRange(form.dateRange);
 
     if (!cycle) {
       setError("Enter a cycle name.");
@@ -85,7 +122,7 @@ export function GiftDriveDialog({
     }
 
     if (!startDate || !endDate) {
-      setError("Enter a valid start and end date.");
+      setError("Select a start and end date.");
       return;
     }
 
@@ -134,35 +171,37 @@ export function GiftDriveDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="gift-drive-start-date">Start date</Label>
-            <Input
-              id="gift-drive-start-date"
-              type="datetime-local"
-              value={form.startDate}
-              onChange={(e) => {
-                setForm((current) => ({
-                  ...current,
-                  startDate: e.target.value,
-                }));
-                if (error) setError(null);
-              }}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="gift-drive-end-date">End date</Label>
-            <Input
-              id="gift-drive-end-date"
-              type="datetime-local"
-              value={form.endDate}
-              onChange={(e) => {
-                setForm((current) => ({
-                  ...current,
-                  endDate: e.target.value,
-                }));
-                if (error) setError(null);
-              }}
-            />
+            <Label>Drive dates</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !form.dateRange?.from && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarIcon className="size-4 shrink-0" />
+                  {formatDateRange(form.dateRange)}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-3" align="start">
+                <DayPicker
+                  mode="range"
+                  selected={form.dateRange}
+                  defaultMonth={form.dateRange?.from}
+                  onSelect={(dateRange) => {
+                    setForm((current) => ({
+                      ...current,
+                      dateRange,
+                    }));
+                    if (error) setError(null);
+                  }}
+                  resetOnSelect
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           <p className="text-xs text-muted-foreground">
