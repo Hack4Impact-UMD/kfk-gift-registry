@@ -41,10 +41,15 @@ interface FormState {
 function toPickerDate(iso: string | undefined): Date | undefined {
   if (!iso) return undefined;
   const dateTime = DateTime.fromISO(iso);
-  return dateTime.isValid ? dateTime.toLocal().startOf("day").toJSDate() : undefined;
+  return dateTime.isValid
+    ? dateTime.toLocal().startOf("day").toJSDate()
+    : undefined;
 }
 
-function toUtcIso(date: Date | undefined, boundary: "start" | "end"): string | null {
+function toUtcIso(
+  date: Date | undefined,
+  boundary: "start" | "end",
+): string | null {
   if (!date) return null;
   const dateTime = DateTime.fromJSDate(date, { zone: "local" });
   const normalized =
