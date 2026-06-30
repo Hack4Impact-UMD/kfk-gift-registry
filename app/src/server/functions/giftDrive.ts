@@ -4,6 +4,7 @@ import { v7 as uuidv7 } from "uuid";
 import { DateTime } from "luxon";
 import { GiftDriveInputSchema, GiftDriveUpdateSchema, UserRole } from "common";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
+import { assertGiftDriveWindowAvailable } from "@/server/services/giftDriveService.server";
 
 const adminOnly = requireRolesMiddleware([UserRole.DIRECTOR, UserRole.ADMIN]);
 
@@ -50,6 +51,7 @@ export const createGiftDrive = createServerFn({ method: "POST" })
       ...data,
     };
 
+    await assertGiftDriveWindowAvailable(giftDrive);
     await db.giftDrives.doc(id).set(giftDrive);
     return giftDrive;
   });
@@ -61,5 +63,6 @@ export const updateGiftDrive = createServerFn({ method: "POST" })
     const db = getServerDB();
     const { id, ...fields } = data;
 
+    await assertGiftDriveWindowAvailable(data);
     await db.giftDrives.doc(id).update(fields);
   });
