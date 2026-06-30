@@ -52,6 +52,7 @@ import { Route as AuthenticatedStaffReviewFamilyIdRouteImport } from './routes/_
 import { Route as AuthenticatedStaffChildChildIdRouteImport } from './routes/_authenticated/staff/child/$childId'
 import { Route as AuthenticatedStaffAdminUsersRouteImport } from './routes/_authenticated/staff/admin/users'
 import { Route as AuthenticatedStaffAdminFormsRouteImport } from './routes/_authenticated/staff/admin/forms'
+import { Route as AuthenticatedStaffAdminDrivesRouteImport } from './routes/_authenticated/staff/admin/drives'
 
 const ResetSuccessRoute = ResetSuccessRouteImport.update({
   id: '/resetSuccess',
@@ -284,6 +285,12 @@ const AuthenticatedStaffAdminFormsRoute =
     path: '/forms',
     getParentRoute: () => AuthenticatedStaffAdminRouteRoute,
   } as any)
+const AuthenticatedStaffAdminDrivesRoute =
+  AuthenticatedStaffAdminDrivesRouteImport.update({
+    id: '/drives',
+    path: '/drives',
+    getParentRoute: () => AuthenticatedStaffAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof StorefrontIndexRoute
@@ -314,6 +321,7 @@ export interface FileRoutesByFullPath {
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
   '/donor/': typeof AuthenticatedDonorIndexRoute
   '/family/$token/': typeof FamilyTokenIndexRoute
+  '/staff/admin/drives': typeof AuthenticatedStaffAdminDrivesRoute
   '/staff/admin/forms': typeof AuthenticatedStaffAdminFormsRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
   '/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
@@ -354,6 +362,7 @@ export interface FileRoutesByTo {
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
   '/donor': typeof AuthenticatedDonorIndexRoute
   '/family/$token': typeof FamilyTokenIndexRoute
+  '/staff/admin/drives': typeof AuthenticatedStaffAdminDrivesRoute
   '/staff/admin/forms': typeof AuthenticatedStaffAdminFormsRoute
   '/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
   '/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
@@ -400,6 +409,7 @@ export interface FileRoutesById {
   '/signup/admin/$inviteId': typeof SignupAdminInviteIdRoute
   '/_authenticated/donor/': typeof AuthenticatedDonorIndexRoute
   '/family/$token/': typeof FamilyTokenIndexRoute
+  '/_authenticated/staff/admin/drives': typeof AuthenticatedStaffAdminDrivesRoute
   '/_authenticated/staff/admin/forms': typeof AuthenticatedStaffAdminFormsRoute
   '/_authenticated/staff/admin/users': typeof AuthenticatedStaffAdminUsersRoute
   '/_authenticated/staff/child/$childId': typeof AuthenticatedStaffChildChildIdRoute
@@ -445,6 +455,7 @@ export interface FileRouteTypes {
     | '/signup/admin/$inviteId'
     | '/donor/'
     | '/family/$token/'
+    | '/staff/admin/drives'
     | '/staff/admin/forms'
     | '/staff/admin/users'
     | '/staff/child/$childId'
@@ -485,6 +496,7 @@ export interface FileRouteTypes {
     | '/signup/admin/$inviteId'
     | '/donor'
     | '/family/$token'
+    | '/staff/admin/drives'
     | '/staff/admin/forms'
     | '/staff/admin/users'
     | '/staff/child/$childId'
@@ -530,6 +542,7 @@ export interface FileRouteTypes {
     | '/signup/admin/$inviteId'
     | '/_authenticated/donor/'
     | '/family/$token/'
+    | '/_authenticated/staff/admin/drives'
     | '/_authenticated/staff/admin/forms'
     | '/_authenticated/staff/admin/users'
     | '/_authenticated/staff/child/$childId'
@@ -863,6 +876,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffAdminFormsRouteImport
       parentRoute: typeof AuthenticatedStaffAdminRouteRoute
     }
+    '/_authenticated/staff/admin/drives': {
+      id: '/_authenticated/staff/admin/drives'
+      path: '/drives'
+      fullPath: '/staff/admin/drives'
+      preLoaderRoute: typeof AuthenticatedStaffAdminDrivesRouteImport
+      parentRoute: typeof AuthenticatedStaffAdminRouteRoute
+    }
   }
 }
 
@@ -903,12 +923,14 @@ const AuthenticatedDonorRouteRouteWithChildren =
   )
 
 interface AuthenticatedStaffAdminRouteRouteChildren {
+  AuthenticatedStaffAdminDrivesRoute: typeof AuthenticatedStaffAdminDrivesRoute
   AuthenticatedStaffAdminFormsRoute: typeof AuthenticatedStaffAdminFormsRoute
   AuthenticatedStaffAdminUsersRoute: typeof AuthenticatedStaffAdminUsersRoute
 }
 
 const AuthenticatedStaffAdminRouteRouteChildren: AuthenticatedStaffAdminRouteRouteChildren =
   {
+    AuthenticatedStaffAdminDrivesRoute: AuthenticatedStaffAdminDrivesRoute,
     AuthenticatedStaffAdminFormsRoute: AuthenticatedStaffAdminFormsRoute,
     AuthenticatedStaffAdminUsersRoute: AuthenticatedStaffAdminUsersRoute,
   }
