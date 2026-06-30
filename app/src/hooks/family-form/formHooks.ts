@@ -192,27 +192,39 @@ export function useGiftsForm() {
   const { formState, updateSection } = useFormContext();
 
   const children = formState.children?.children || [];
+  const emptyGift = {
+    giftName: "",
+    giftUrl: "",
+    listedPrice: "",
+    familyPublicNotes: "",
+  };
 
   const reconciledGiftSelections = children.map((child, index) => {
     const existing = formState.gifts?.giftSelections[index];
     if (existing) {
       return {
-        ...existing,
         childName: child.name,
+        gifts: [0, 1, 2].map((giftIndex) => ({
+          ...emptyGift,
+          ...existing.gifts[giftIndex],
+        })) as ChildGiftSelections["gifts"],
+        backupGifts: [0, 1].map((giftIndex) => ({
+          ...emptyGift,
+          ...(existing.backupGifts?.[giftIndex] ?? {}),
+        })) as ChildGiftSelections["backupGifts"],
       };
     }
     return {
       childName: child.name,
       gifts: [
-        { giftName: "", giftUrl: "" },
-        { giftName: "", giftUrl: "" },
-        { giftName: "", giftUrl: "" },
+        { giftName: "", giftUrl: "", listedPrice: "" },
+        { giftName: "", giftUrl: "", listedPrice: "" },
+        { giftName: "", giftUrl: "", listedPrice: "" },
       ],
       backupGifts: [
-        { giftName: "", giftUrl: "" },
-        { giftName: "", giftUrl: "" },
+        { giftName: "", giftUrl: "", listedPrice: "" },
+        { giftName: "", giftUrl: "", listedPrice: "" },
       ],
-      verified: false,
     } satisfies ChildGiftSelections;
   });
 

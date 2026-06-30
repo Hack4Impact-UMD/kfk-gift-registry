@@ -23,7 +23,7 @@ import type { AuthUser } from "@/server/functions/auth";
 
 const CHECKLIST_ITEMS = [
   "No gift cards allowed",
-  "Gifts should be $25 or under",
+  "Gifts should be $30 or under",
   "Gift links must point to Amazon/Macy's only",
   "Profile pictures must be appropriate",
   "Personal blurbs must be appropriate",

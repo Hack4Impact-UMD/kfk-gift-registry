@@ -100,6 +100,22 @@ export function ChildCard({ child }: ChildCardProps) {
     });
   };
 
+  const saveGiftPrice = async (
+    giftId: string,
+    listedPrice: number | undefined,
+  ) => {
+    try {
+      const tx = collections.gifts.update(giftId, (draft) => {
+        draft.listedPrice = listedPrice;
+      });
+      await tx.isPersisted.promise;
+      toast.success("Gift updated successfully");
+    } catch (error) {
+      toast.error("Save failed");
+      console.error("Gift price save failed", error);
+    }
+  };
+
   const invalidatePhotoRead = () => {
     photoReadIdRef.current += 1;
     photoReaderRef.current?.abort();
@@ -479,11 +495,27 @@ export function ChildCard({ child }: ChildCardProps) {
                     })
                   }
                   onPriceChange={async (value) => {
+                    const trimmedValue = value.trim();
+                    if (trimmedValue === "") {
+                      if (editing) {
+                        editGift(gift.id, (draft) => {
+                          draft.listedPrice = undefined;
+                        });
+                      } else {
+                        await saveGiftPrice(gift.id, undefined);
+                      }
+                      return;
+                    }
+
                     const price = parsePriceInput(value);
                     if (hasValidListedPrice(price)) {
-                      collections.gifts.update(gift.id, (draft) => {
-                        draft.listedPrice = price;
-                      });
+                      if (editing) {
+                        editGift(gift.id, (draft) => {
+                          draft.listedPrice = price;
+                        });
+                      } else {
+                        await saveGiftPrice(gift.id, price);
+                      }
                     } else if (value.trim() !== "") {
                       toast.warning("Invalid price!");
                     }

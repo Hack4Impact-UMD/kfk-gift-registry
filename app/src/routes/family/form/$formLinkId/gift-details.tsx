@@ -57,9 +57,19 @@ function GiftsStep() {
 
     if (isComplete) return "completed";
 
+    const hasGiftValue = (
+      gift:
+        | (typeof childData.gifts)[number]
+        | (typeof childData.backupGifts)[number],
+    ) =>
+      gift.giftName.trim() !== "" ||
+      gift.giftUrl.trim() !== "" ||
+      (gift.listedPrice?.trim() ?? "") !== "" ||
+      (gift.familyPublicNotes?.trim() ?? "") !== "";
+
     const isPristine =
-      childData.gifts.every((g) => g.giftName === "" && g.giftUrl === "") &&
-      childData.verified === false;
+      childData.gifts.every((gift) => !hasGiftValue(gift)) &&
+      childData.backupGifts.every((gift) => !hasGiftValue(gift));
 
     if (isPristine) return "pristine";
 
@@ -90,7 +100,7 @@ function GiftsStep() {
             </p>
             <ul className="flex flex-col gap-2 list-disc px-7">
               <li>
-                🎁 Gifts must be <strong>$25 or less</strong>, based on the{" "}
+                🎁 Gifts must be <strong>$30 or less</strong>, based on the{" "}
                 <strong>original price</strong> (not the sale price).
               </li>
               <li>
