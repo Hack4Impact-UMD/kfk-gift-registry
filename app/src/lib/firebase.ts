@@ -30,7 +30,7 @@ declare global {
   var FIREBASE_APPCHECK_DEBUG_TOKEN: boolean | string | undefined;
 }
 
-if (import.meta.env.DEV && typeof self !== "undefined") {
+if (import.meta.env.DEV) {
   console.log("===USING APPCHECK DEBUG TOKEN===");
   self.FIREBASE_APPCHECK_DEBUG_TOKEN =
     import.meta.env.VITE_APPCHECK_DEBUG_TOKEN ?? true;
