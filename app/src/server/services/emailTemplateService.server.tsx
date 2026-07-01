@@ -1,16 +1,24 @@
 import type { EmailJob, EmailJobPayload } from "common";
+import z from "zod";
 import DonorPostClaimConfirmationEmail from "transactional/emails/DonorPostClaimConfirmationEmail";
 import DonorPurchaseReminderEmail from "transactional/emails/DonorPurchaseReminderEmail";
 
+const RenderEmailJobTemplateParamsSchema = z.object({
+  payload: z.custom<EmailJobPayload>(),
+  baseUrl: z.url(),
+  donorPortalUrl: z.url(),
+});
+
 export function getEmailJobSubject(payload: EmailJobPayload) {
-  switch (payload.type) {
-    case "DONOR_POST_CLAIM_CONFIRMATION":
-      return "Your KFK gift claim confirmation";
-    case "DONOR_PURCHASE_REMINDER":
-      return "Reminder: confirm your KFK gift purchases";
-    default:
-      throw new Error("Unsupported email job payload type");
+  if (payload.type === "DONOR_POST_CLAIM_CONFIRMATION") {
+    return "Your KFK gift claim confirmation";
   }
+
+  if (payload.type === "DONOR_PURCHASE_REMINDER") {
+    return "Reminder: confirm your KFK gift purchases";
+  }
+
+  throw new Error("Unsupported email job payload type");
 }
 
 export function renderEmailJobTemplate(params: {
@@ -18,22 +26,25 @@ export function renderEmailJobTemplate(params: {
   baseUrl?: string;
   donorPortalUrl?: string;
 }) {
-  switch (params.payload.type) {
-    case "DONOR_POST_CLAIM_CONFIRMATION":
-      return DonorPostClaimConfirmationEmail({
-        payload: params.payload.data,
-        baseUrl: params.baseUrl,
-        donorPortalUrl: params.donorPortalUrl,
-      });
-    case "DONOR_PURCHASE_REMINDER":
-      return DonorPurchaseReminderEmail({
-        payload: params.payload.data,
-        baseUrl: params.baseUrl,
-        donorPortalUrl: params.donorPortalUrl,
-      });
-    default:
-      throw new Error("Unsupported email job payload type");
+  const parsedParams = RenderEmailJobTemplateParamsSchema.parse(params);
+
+  if (parsedParams.payload.type === "DONOR_POST_CLAIM_CONFIRMATION") {
+    return DonorPostClaimConfirmationEmail({
+      payload: parsedParams.payload.data,
+      baseUrl: parsedParams.baseUrl,
+      donorPortalUrl: parsedParams.donorPortalUrl,
+    });
   }
+
+  if (parsedParams.payload.type === "DONOR_PURCHASE_REMINDER") {
+    return DonorPurchaseReminderEmail({
+      payload: parsedParams.payload.data,
+      baseUrl: parsedParams.baseUrl,
+      donorPortalUrl: parsedParams.donorPortalUrl,
+    });
+  }
+
+  throw new Error("Unsupported email job payload type");
 }
 
 export function getEmailJobContent(params: {
