@@ -14,6 +14,8 @@ import {
   Text,
 } from "react-email";
 
+const CLAIMED_AT_TIME_ZONE = "UTC";
+
 interface DonorPostClaimConfirmationEmailProps {
   payload?: DonorPostClaimConfirmationPayload;
   baseUrl?: string;
@@ -97,6 +99,7 @@ function formatClaimedAt(claimedAt: string) {
     month: "long",
     day: "numeric",
     year: "numeric",
+    timeZone: CLAIMED_AT_TIME_ZONE,
   }).format(date);
 }
 
