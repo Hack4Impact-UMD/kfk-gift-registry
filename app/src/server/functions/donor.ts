@@ -294,7 +294,7 @@ export const claimGifts = createServerFn({ method: "POST" })
 
     if (!donor) {
       console.warn(
-        `Skipping donor post-claim confirmation email: donor ${donorId} not found`,
+        "Skipping donor post-claim confirmation email: donor profile not found",
       );
       return result;
     }

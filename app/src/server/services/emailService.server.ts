@@ -18,6 +18,20 @@ function getDonorPortalUrl() {
   return `${getAppBaseUrl()}/donor/home`;
 }
 
+function normalizeSendAt(sendAt: string) {
+  const scheduledFor = DateTime.fromISO(sendAt);
+  if (!scheduledFor.isValid) {
+    throw new Error("Invalid sendAt timestamp");
+  }
+
+  const normalizedSendAt = scheduledFor.toUTC().toISO();
+  if (!normalizedSendAt) {
+    throw new Error("Failed to normalize sendAt timestamp");
+  }
+
+  return normalizedSendAt;
+}
+
 function canScheduleDirectlyWithResend(sendAt: string) {
   const scheduledFor = DateTime.fromISO(sendAt);
   if (!scheduledFor.isValid) {
@@ -45,13 +59,15 @@ export function createEmailJob(params: {
     throw new Error("Failed to create email job timestamp");
   }
 
+  const normalizedSendAt = normalizeSendAt(params.sendAt);
+
   return {
     id: params.id,
     type: params.type,
     to: params.to,
     subject: params.subject,
     payload: params.payload,
-    sendAt: params.sendAt,
+    sendAt: normalizedSendAt,
     status: "pending",
     createdAt: now,
     updatedAt: now,
@@ -118,13 +134,11 @@ export async function sendOrQueueEmailJob(job: EmailJob) {
 
 export async function getPendingEmailJobsReadyForResendScheduling() {
   const db = getServerDB();
-  const latestSendAt = DateTime.now()
-    .plus({ days: RESEND_SCHEDULING_WINDOW_DAYS })
-    .toISO();
-
-  if (!latestSendAt) {
-    throw new Error("Failed to create resend scheduling window timestamp");
-  }
+  const latestSendAt = normalizeSendAt(
+    DateTime.now()
+      .plus({ days: RESEND_SCHEDULING_WINDOW_DAYS })
+      .toISO() ?? "",
+  );
 
   const snapshot = await db.emails
     .where("status", "==", "pending")
