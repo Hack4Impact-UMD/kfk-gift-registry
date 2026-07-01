@@ -80,11 +80,45 @@ export async function queueEmailJob(job: EmailJob) {
   return job;
 }
 
+export async function claimPendingEmailJobForScheduling(jobId: string) {
+  const db = getServerDB();
+  const claimedAt = DateTime.now().toISO();
+  if (!claimedAt) {
+    throw new Error("Failed to create claimedAt timestamp");
+  }
+
+  return await db._instance.runTransaction(async (transaction) => {
+    const jobRef = db.emails.doc(jobId);
+    const jobDoc = await transaction.get(jobRef);
+    const job = jobDoc.data();
+
+    if (!job) {
+      throw new Error("Email job not found");
+    }
+
+    if (job.status !== "pending") {
+      return false;
+    }
+
+    transaction.update(jobRef, {
+      status: "scheduling",
+      updatedAt: claimedAt,
+    });
+
+    return true;
+  });
+}
+
 export async function markEmailJobScheduled(params: {
   jobId: string;
   resendEmailId?: string;
 }) {
   const db = getServerDB();
+  const claimed = await claimPendingEmailJobForScheduling(params.jobId);
+  if (!claimed) {
+    return false;
+  }
+
   const scheduledAt = DateTime.now().toISO();
   if (!scheduledAt) {
     throw new Error("Failed to create scheduledAt timestamp");
@@ -96,6 +130,8 @@ export async function markEmailJobScheduled(params: {
     scheduledAt,
     updatedAt: scheduledAt,
   });
+
+  return true;
 }
 
 export async function markEmailJobFailed(params: {
