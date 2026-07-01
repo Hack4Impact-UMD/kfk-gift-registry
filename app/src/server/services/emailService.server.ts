@@ -171,9 +171,7 @@ export async function sendOrQueueEmailJob(job: EmailJob) {
 export async function getPendingEmailJobsReadyForResendScheduling() {
   const db = getServerDB();
   const latestSendAt = normalizeSendAt(
-    DateTime.now()
-      .plus({ days: RESEND_SCHEDULING_WINDOW_DAYS })
-      .toISO() ?? "",
+    DateTime.now().plus({ days: RESEND_SCHEDULING_WINDOW_DAYS }).toISO() ?? "",
   );
 
   const snapshot = await db.emails

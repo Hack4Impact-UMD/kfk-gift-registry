@@ -70,10 +70,10 @@ async function shouldCancelReminder(job: ScheduledEmailJob) {
   }
 
   const claimIds = job.payload.data.claimIds;
-  if (!claimIds?.length){
+  if (!claimIds?.length) {
     throw new Error("Purchase reminder job is missing claimIds");
   }
-  
+
   const claimSnapshots = await Promise.all(
     claimIds.map((claimId: string) =>
       db.collection("claims").doc(claimId).get(),
