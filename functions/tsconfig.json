@@ -7,11 +7,11 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "outDir": "lib",
-    "rootDir": "src",
     "sourceMap": true,
     "strict": true,
-    "target": "es2017"
+    "target": "es2017",
+    "jsx": "react-jsx"
   },
   "compileOnSave": true,
-  "include": ["src"]
+  "include": ["src", "../transactional/email.tsx", "../transactional/emails/**/*", "../common/src/types/**/*"]
 }

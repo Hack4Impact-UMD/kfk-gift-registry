@@ -11,6 +11,9 @@ import { setGlobalOptions } from "firebase-functions";
 import { onSchedule } from "firebase-functions/scheduler";
 import * as logger from "firebase-functions/logger";
 import admin from "firebase-admin";
+import type { EmailJob } from "../../common/src/types/email-job";
+import { Resend } from "resend";
+import { getEmailJobContent } from "../../transactional/email";
 
 setGlobalOptions({ maxInstances: 10 });
 
@@ -24,21 +27,35 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 const EMAIL_COLLECTION = "emails";
 const RESEND_SCHEDULING_WINDOW_DAYS = 30;
+const DEFAULT_APP_BASE_URL = "https://gifts.kissesforkyle.org";
+const FROM_EMAIL =
+  "Kisses for Kyle Gift Registry <noreply@gifts.kissesforkyle.org>";
 
-type ScheduledEmailJob = {
-  id: string;
-  payload: {
-    type: "DONOR_POST_CLAIM_CONFIRMATION" | "DONOR_PURCHASE_REMINDER";
-    data: {
-      claimIds?: Array<string>;
-    };
-  };
-};
+type ScheduledEmailJob = EmailJob;
 
-async function markJobScheduled(jobId: string) {
+function getAppBaseUrl() {
+  const raw = process.env.APP_BASE_URL ?? DEFAULT_APP_BASE_URL;
+  return raw.replace(/\/+$/, "");
+}
+
+function getDonorPortalUrl() {
+  return `${getAppBaseUrl()}/donor/home`;
+}
+
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY is not set");
+  }
+
+  return new Resend(apiKey);
+}
+
+async function markJobScheduled(jobId: string, resendEmailId?: string) {
   const scheduledAt = new Date().toISOString();
   await db.collection(EMAIL_COLLECTION).doc(jobId).update({
     status: "scheduled",
+    resendEmailId,
     scheduledAt,
     updatedAt: scheduledAt,
   });
@@ -105,6 +122,7 @@ export const promotePendingEmailJobs = onSchedule(
       Date.now() + RESEND_SCHEDULING_WINDOW_DAYS * 24 * 60 * 60 * 1000,
     ).toISOString();
 
+    const resend = getResendClient();
     const snapshot = await db
       .collection(EMAIL_COLLECTION)
       .where("status", "==", "pending")
@@ -120,7 +138,25 @@ export const promotePendingEmailJobs = onSchedule(
           continue;
         }
 
-        await markJobScheduled(job.id);
+        const content = getEmailJobContent({
+          job,
+          baseUrl: getAppBaseUrl(),
+          donorPortalUrl: getDonorPortalUrl(),
+        });
+
+        const { data, error } = await resend.emails.send({
+          from: FROM_EMAIL,
+          to: job.to,
+          subject: content.subject,
+          react: content.react,
+          scheduledAt: job.sendAt,
+        });
+
+        if (error) {
+          throw new Error(`${error.name} - ${error.message}`);
+        }
+
+        await markJobScheduled(job.id, data?.id);
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Unknown error";

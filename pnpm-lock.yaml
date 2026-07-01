@@ -281,6 +281,12 @@ importers:
       firebase-functions:
         specifier: ^7.2.2
         version: 7.2.5(firebase-admin@13.8.0)
+      resend:
+        specifier: ^6.12.3
+        version: 6.12.3(@react-email/render@2.0.9(react-dom@19.2.5(react@19.2.5))(react@19.2.5))
+      transactional:
+        specifier: workspace:*
+        version: link:../transactional
     devDependencies:
       firebase-functions-test:
         specifier: ^3.4.1
@@ -306,6 +312,9 @@ importers:
       react-email:
         specifier: ^6.1.5
         version: 6.1.5(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@react-email/ui':
         specifier: 6.1.5
@@ -14333,6 +14342,13 @@ snapshots:
       svix: 1.92.2
     optionalDependencies:
       '@react-email/render': 2.0.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+
+  resend@6.12.3(@react-email/render@2.0.9(react-dom@19.2.5(react@19.2.5))(react@19.2.5)):
+    dependencies:
+      postal-mime: 2.7.4
+      svix: 1.92.2
+    optionalDependencies:
+      '@react-email/render': 2.0.9(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
 
   resolve-alpn@1.2.1: {}
 
