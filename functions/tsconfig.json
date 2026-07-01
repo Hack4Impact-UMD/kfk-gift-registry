@@ -13,5 +13,10 @@
     "jsx": "react-jsx"
   },
   "compileOnSave": true,
-  "include": ["src", "../transactional/email.tsx", "../transactional/emails/**/*", "../common/src/types/**/*"]
+  "include": [
+    "src",
+    "../transactional/email.tsx",
+    "../transactional/emails/**/*",
+    "../common/src/types/**/*"
+  ]
 }

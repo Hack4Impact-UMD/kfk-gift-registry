@@ -1,7 +1,4 @@
-import type {
-  EmailJob,
-  EmailJobPayload,
-} from "../common/src/types/email-job";
+import type { EmailJob, EmailJobPayload } from "../common/src/types/email-job";
 import z from "zod";
 import DonorPostClaimConfirmationEmail from "./emails/DonorPostClaimConfirmationEmail";
 import DonorPurchaseReminderEmail from "./emails/DonorPurchaseReminderEmail";

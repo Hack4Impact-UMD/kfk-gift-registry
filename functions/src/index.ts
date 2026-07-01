@@ -51,6 +51,31 @@ function getResendClient() {
   return new Resend(apiKey);
 }
 
+async function claimPendingJob(jobId: string) {
+  const claimedAt = new Date().toISOString();
+
+  return await db.runTransaction(async (transaction) => {
+    const jobRef = db.collection(EMAIL_COLLECTION).doc(jobId);
+    const jobDoc = await transaction.get(jobRef);
+    const job = jobDoc.data() as ScheduledEmailJob | undefined;
+
+    if (!job) {
+      throw new Error("Email job not found");
+    }
+
+    if (job.status !== "pending") {
+      return false;
+    }
+
+    transaction.update(jobRef, {
+      status: "scheduling",
+      updatedAt: claimedAt,
+    });
+
+    return true;
+  });
+}
+
 async function markJobScheduled(jobId: string, resendEmailId?: string) {
   const scheduledAt = new Date().toISOString();
   await db.collection(EMAIL_COLLECTION).doc(jobId).update({
@@ -133,6 +158,11 @@ export const promotePendingEmailJobs = onSchedule(
       const job = doc.data() as ScheduledEmailJob;
 
       try {
+        const claimed = await claimPendingJob(job.id);
+        if (!claimed) {
+          continue;
+        }
+
         if (await shouldCancelReminder(job)) {
           await markJobCancelled(job.id, "Reminder no longer needed");
           continue;

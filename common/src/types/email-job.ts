@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const EmailJobStatusSchema = z.enum([
   "pending",
+  "scheduling",
   "scheduled",
   "sent",
   "failed",
