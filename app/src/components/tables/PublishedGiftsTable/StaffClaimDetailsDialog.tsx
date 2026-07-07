@@ -192,7 +192,8 @@ export function StaffClaimDetailsDialog({
               <ClaimLifecycleControls
                 claim={claim}
                 initialTrackingNumber={
-                  claim.details.claim?.purchaseConfirmation?.trackingNumber ?? ""
+                  claim.details.claim?.purchaseConfirmation?.trackingNumber ??
+                  ""
                 }
               />
             ) : (
