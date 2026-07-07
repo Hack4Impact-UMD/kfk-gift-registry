@@ -58,6 +58,17 @@ function toUtcIso(
   return normalized.isValid ? normalized.toUTC().toISO() : null;
 }
 
+function isSameLocalDay(date: Date, iso: string) {
+  const selected = DateTime.fromJSDate(date, { zone: "local" });
+  const existing = DateTime.fromISO(iso);
+
+  if (!selected.isValid || !existing.isValid) {
+    return false;
+  }
+
+  return selected.hasSame(existing.toLocal(), "day");
+}
+
 function formatDateRange(dateRange: DateRange | undefined) {
   if (!dateRange?.from) {
     return "Pick a date range";
@@ -82,6 +93,17 @@ function toUtcDateRange(dateRange: DateRange | undefined) {
     startDate: toUtcIso(dateRange.from, "start"),
     endDate: toUtcIso(dateRange.to, "end"),
   };
+}
+
+function getEndDateForSave(
+  endDate: Date | undefined,
+  originalEndDate?: string | null,
+) {
+  if (!endDate) return null;
+  if (originalEndDate && isSameLocalDay(endDate, originalEndDate)) {
+    return originalEndDate;
+  }
+  return toUtcIso(endDate, "end");
 }
 
 function initialState(mode: "create" | "edit", initial?: GiftDrive): FormState {
@@ -121,7 +143,11 @@ export function GiftDriveDialog({
 
   async function handleSave() {
     const cycle = form.cycle.trim();
-    const { startDate, endDate } = toUtcDateRange(form.dateRange);
+    const { startDate } = toUtcDateRange(form.dateRange);
+    const endDate = getEndDateForSave(
+      form.dateRange?.to,
+      mode === "edit" ? initial?.endDate : undefined,
+    );
 
     if (!cycle) {
       setError("Enter a cycle name.");
