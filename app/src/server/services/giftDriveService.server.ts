@@ -53,10 +53,11 @@ function overlapsActiveWindow(left: GiftDriveWindow, right: GiftDriveWindow) {
 }
 
 export async function assertGiftDriveWindowAvailable(
+  tx: FirebaseFirestore.Transaction,
   candidate: GiftDriveWindow,
 ) {
   const db = getServerDB();
-  const existingDrives = (await db.giftDrives.get()).docs.map((doc) =>
+  const existingDrives = (await tx.get(db.giftDrives)).docs.map((doc) =>
     doc.data(),
   );
   const conflictingDrive = existingDrives.find((drive) => {

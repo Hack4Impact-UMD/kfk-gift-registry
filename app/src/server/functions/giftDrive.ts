@@ -51,9 +51,11 @@ export const createGiftDrive = createServerFn({ method: "POST" })
       ...data,
     };
 
-    await assertGiftDriveWindowAvailable(giftDrive);
-    await db.giftDrives.doc(id).set(giftDrive);
-    return giftDrive;
+    return await db._instance.runTransaction(async (tx) => {
+      await assertGiftDriveWindowAvailable(tx, giftDrive);
+      tx.set(db.giftDrives.doc(id), giftDrive);
+      return giftDrive;
+    });
   });
 
 export const updateGiftDrive = createServerFn({ method: "POST" })
@@ -63,8 +65,10 @@ export const updateGiftDrive = createServerFn({ method: "POST" })
     const db = getServerDB();
     const { id, ...fields } = data;
 
-    await assertGiftDriveWindowAvailable(data);
-    await db.giftDrives.doc(id).update(fields);
+    await db._instance.runTransaction(async (tx) => {
+      await assertGiftDriveWindowAvailable(tx, data);
+      tx.update(db.giftDrives.doc(id), fields);
+    });
   });
 
 export const deactivateGiftDrive = createServerFn({ method: "POST" })
