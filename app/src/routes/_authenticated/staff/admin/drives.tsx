@@ -7,7 +7,6 @@ import { CalendarIcon } from "@/components/icons";
 import { GiftDriveDialog } from "@/components/gift-drives/GiftDriveDialog";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -40,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/staff/admin/drives")({
     ],
   }),
   beforeLoad: async ({ context }) => {
-    await context.queryClient.ensureQueryData(queries.drives.all);
+    await context.queryClient.prefetchQuery(queries.drives.all);
   },
   component: RouteComponent,
 });
@@ -289,12 +288,9 @@ function RouteComponent() {
             <AlertDialogCancel disabled={isDeactivating}>
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeactivateDrive}
-              disabled={isDeactivating}
-            >
+            <Button onClick={handleDeactivateDrive} disabled={isDeactivating}>
               {isDeactivating ? "Deactivating…" : "Deactivate"}
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
