@@ -29,9 +29,7 @@ function handleCopyEmail(email: string) {
 function EmailCell({ email }: { email: string | undefined }) {
   return (
     <div className="flex items-center gap-2 group">
-      <span className="text-sm text-gray-600 font-sans truncate">
-        {email}
-      </span>
+      <span className="text-sm text-gray-600 font-sans truncate">{email}</span>
       {email && (
         <button
           onClick={() => handleCopyEmail(email)}
