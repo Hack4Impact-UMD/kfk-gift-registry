@@ -41,8 +41,15 @@ function GiftsStep() {
   const { formLinkId } = Route.useParams();
   const { childIndex } = Route.useSearch();
 
+  const safeChildIndex =
+    childIndex != null &&
+    childIndex >= 0 &&
+    childIndex < childrenNameList.length
+      ? childIndex
+      : null;
+
   const [activeChildIndex, setActiveChildIndex] = useState<number | null>(
-    childIndex ?? null,
+    safeChildIndex,
   );
 
   const form = useGiftsForm();
