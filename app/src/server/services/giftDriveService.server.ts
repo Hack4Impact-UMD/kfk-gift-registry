@@ -49,7 +49,7 @@ function overlapsActiveWindow(left: GiftDriveWindow, right: GiftDriveWindow) {
     return false;
   }
 
-  return leftStart < rightEnd && rightStart < leftEnd;
+  return leftStart <= rightEnd && rightStart <= leftEnd;
 }
 
 export async function assertGiftDriveWindowAvailable(
