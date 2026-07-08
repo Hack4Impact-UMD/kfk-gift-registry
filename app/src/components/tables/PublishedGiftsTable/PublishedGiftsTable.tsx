@@ -34,26 +34,21 @@ export function PublishedGiftsTable({
   const [activeFilter, setActiveFilter] = useState<GiftClaimStatus | null>(
     sponsorTypeFilter,
   );
-  const [giftStatusFilter, setGiftStatusFilter] = useState<GiftStatus | null>(
-    null,
+  const [giftStatusFilter, setGiftStatusFilter] = useState<Array<GiftStatus>>(
+    [],
   );
 
   const filteredData = useMemo(() => {
     let result = data;
 
-    if (activeFilter === "claimed") {
-      result = result.filter(
-        (row) =>
-          row.sponsorType === "claimed_kfk" ||
-          row.sponsorType === "claimed_donor" ||
-          row.sponsorType === "claimed",
-      );
-    } else if (activeFilter) {
+    if (activeFilter) {
       result = result.filter((row) => row.sponsorType === activeFilter);
     }
 
-    if (giftStatusFilter) {
-      result = result.filter((row) => row.giftStatus === giftStatusFilter);
+    if (giftStatusFilter.length > 0) {
+      result = result.filter((row) =>
+        giftStatusFilter.includes(row.giftStatus),
+      );
     }
 
     return result;
@@ -68,8 +63,10 @@ export function PublishedGiftsTable({
         row.giftName,
         row.giftStatus,
         row.sponsorType,
-        row.sponsorName,
         row.sponsorEmail,
+        row.childName,
+        row.parentName,
+        row.parentEmail,
         row.dateOfFulfillment,
         row.productUrl,
       ].some((value) =>
@@ -80,15 +77,17 @@ export function PublishedGiftsTable({
     );
   }, [filteredData, globalSearch]);
 
-  const tableKey = `${activeFilter ?? "all"}-${giftStatusFilter ?? "all"}`;
+  const tableKey = `${activeFilter ?? "all"}-${giftStatusFilter.length > 0 ? giftStatusFilter.join(",") : "all"}`;
 
   const handleExport = () => {
     const csv = serializeCsv(exportData, [
       { header: "Gift Name", value: (row) => row.giftName },
       { header: "Gift Status", value: (row) => row.giftStatus },
       { header: "Sponsor Type", value: (row) => row.sponsorType },
-      { header: "Sponsor Name", value: (row) => row.sponsorName },
       { header: "Sponsor Email", value: (row) => row.sponsorEmail },
+      { header: "Child Name", value: (row) => row.childName },
+      { header: "Parent Name", value: (row) => row.parentName },
+      { header: "Parent Email", value: (row) => row.parentEmail },
       {
         header: "Date of Fulfillment",
         value: (row) => row.dateOfFulfillment,
@@ -100,7 +99,7 @@ export function PublishedGiftsTable({
   };
 
   return (
-    <div className={cn("flex flex-col gap-4", className)}>
+    <div className={cn("flex flex-col gap-6", className)}>
       {/* Status Summary Cards */}
       <StatusSummaryHeader
         data={data}
@@ -108,56 +107,59 @@ export function PublishedGiftsTable({
         onFilterChange={(filter) => {
           setActiveFilter(filter);
           const visible = getVisibleGiftStatuses(filter);
-          if (
-            !visible ||
-            (giftStatusFilter && !visible.includes(giftStatusFilter))
-          ) {
-            setGiftStatusFilter(null);
+          if (!visible) {
+            setGiftStatusFilter([]);
+          } else {
+            setGiftStatusFilter((prev) =>
+              prev.filter((status) => visible.includes(status)),
+            );
           }
         }}
       />
 
-      {/* Search, Gift Status Filter, and Export */}
-      <div className="rounded-md border bg-card px-4 py-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative flex w-full items-center sm:mr-auto sm:w-56">
-            <Search className="absolute left-2 h-4 w-4 text-gray-500 pointer-events-none" />
-            <Input
-              placeholder="Search"
-              aria-label="Search gifts"
-              value={globalSearch}
-              onChange={(e) => setGlobalSearch(e.target.value)}
-              className="pl-8 border-gray-300 text-gray-700 focus-visible:ring-1"
-            />
+      <div className="flex flex-col gap-4 pt-6">
+        {/* Search, Gift Status Filter, and Export */}
+        <div className="rounded-md border bg-card px-4 py-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative flex w-full items-center sm:mr-auto sm:w-56">
+              <Search className="absolute left-2 h-4 w-4 text-gray-500 pointer-events-none" />
+              <Input
+                placeholder="Search"
+                aria-label="Search gifts"
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
+                className="pl-8 border-gray-300 text-gray-700 focus-visible:ring-1"
+              />
+            </div>
+            <Button
+              onClick={handleExport}
+              className="sm:ml-auto flex items-center gap-2 bg-kfk-blue text-white hover:bg-kfk-blue/90"
+            >
+              Export
+            </Button>
           </div>
-          <Button
-            onClick={handleExport}
-            className="sm:ml-auto flex items-center gap-2 bg-kfk-blue text-white hover:bg-kfk-blue/90"
-          >
-            Export
-          </Button>
+          {activeFilter !== "unclaimed" && (
+            <div className="mt-3 border-t pt-3">
+              <GiftStatusFilterChips
+                activeFilters={giftStatusFilter}
+                claimFilter={activeFilter}
+                onFilterChange={setGiftStatusFilter}
+              />
+            </div>
+          )}
         </div>
-        {activeFilter !== "unclaimed" && (
-          <div className="mt-3 border-t pt-3">
-            <GiftStatusFilterChips
-              activeFilter={giftStatusFilter}
-              claimFilter={activeFilter}
-              onFilterChange={setGiftStatusFilter}
-            />
-          </div>
-        )}
-      </div>
 
-      {/* Data Table */}
-      <DataTable
-        key={tableKey}
-        columns={columns}
-        data={filteredData}
-        globalSearch={globalSearch}
-        onGlobalSearchChange={setGlobalSearch}
-        rowsPerPage={rowsPerPage}
-        paginated={paginated}
-      />
+        {/* Data Table */}
+        <DataTable
+          key={tableKey}
+          columns={columns}
+          data={filteredData}
+          globalSearch={globalSearch}
+          onGlobalSearchChange={setGlobalSearch}
+          rowsPerPage={rowsPerPage}
+          paginated={paginated}
+        />
+      </div>
     </div>
   );
 }

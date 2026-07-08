@@ -1,7 +1,7 @@
 /* Backend server functions relating to published gifts (per specific giftDrive) */
 import { createServerFn } from "@tanstack/react-start";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
-import type { Claim, UserProfile } from "common";
+import type { Child, Claim, Family, UserProfile } from "common";
 import { UserRole } from "common";
 import z from "zod";
 import { getServerDB } from "@/lib/firebase.server";
@@ -99,32 +99,65 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
       }),
     );
 
+    const childIds = Array.from(new Set(gifts.map((gift) => gift.childId)));
+    const childById = new Map<string, Child>();
+    await Promise.all(
+      chunk(childIds, 300).map(async (childIdChunk) => {
+        const childRefs = childIdChunk.map((childId) =>
+          db.children.doc(childId),
+        );
+        const childSnapshots = await db._instance.getAll(...childRefs);
+        for (const childSnapshot of childSnapshots) {
+          if (childSnapshot.exists) {
+            childById.set(childSnapshot.id, childSnapshot.data() as Child);
+          }
+        }
+      }),
+    );
+
+    const familyIds = Array.from(new Set(gifts.map((gift) => gift.familyId)));
+    const familyById = new Map<string, Family>();
+    await Promise.all(
+      chunk(familyIds, 300).map(async (familyIdChunk) => {
+        const familyRefs = familyIdChunk.map((familyId) =>
+          db.families.doc(familyId),
+        );
+        const familySnapshots = await db._instance.getAll(...familyRefs);
+        for (const familySnapshot of familySnapshots) {
+          if (familySnapshot.exists) {
+            familyById.set(familySnapshot.id, familySnapshot.data() as Family);
+          }
+        }
+      }),
+    );
+
     return gifts.map((gift) => {
       const claim = claimByGiftId.get(gift.id);
 
       let sponsorType: GiftClaimStatus = "unclaimed";
-      let sponsorName: string | undefined;
       let sponsorEmail: string | undefined;
 
       if (claim?.claimType === "kfk") {
         sponsorType = "claimed_kfk";
-        sponsorName = claim.organizationName ?? "KFK Team";
       }
 
       if (claim?.claimType === "donor") {
         sponsorType = "claimed_donor";
         const donorProfile = profileByDonorId.get(claim.donorId);
-        sponsorName = donorProfile?.name;
         sponsorEmail = donorProfile?.email;
       }
+
+      const family = familyById.get(gift.familyId);
 
       return {
         id: gift.id,
         giftName: gift.title,
         giftStatus: gift.status,
         sponsorType,
-        sponsorName,
         sponsorEmail,
+        childName: childById.get(gift.childId)?.name,
+        parentName: family?.contactName,
+        parentEmail: family?.email,
         dateOfFulfillment:
           claim?.receivedAt ??
           claim?.deliveryConfirmed?.date ??

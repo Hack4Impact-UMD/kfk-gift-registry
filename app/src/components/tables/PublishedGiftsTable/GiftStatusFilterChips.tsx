@@ -62,19 +62,27 @@ const statusConfig: Record<
 };
 
 interface GiftStatusFilterChipsProps {
-  activeFilter: GiftStatus | null;
+  activeFilters: Array<GiftStatus>;
   claimFilter: GiftClaimStatus | null;
-  onFilterChange: (status: GiftStatus | null) => void;
+  onFilterChange: (statuses: Array<GiftStatus>) => void;
 }
 
 export function GiftStatusFilterChips({
-  activeFilter,
+  activeFilters,
   claimFilter,
   onFilterChange,
 }: GiftStatusFilterChipsProps) {
   const visibleStatuses = getVisibleGiftStatuses(claimFilter);
 
   if (!visibleStatuses) return null;
+
+  const toggleStatus = (status: GiftStatus) => {
+    if (activeFilters.includes(status)) {
+      onFilterChange(activeFilters.filter((s) => s !== status));
+    } else {
+      onFilterChange([...activeFilters, status]);
+    }
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -83,11 +91,11 @@ export function GiftStatusFilterChips({
       </span>
       <button
         type="button"
-        onClick={() => onFilterChange(null)}
-        aria-pressed={activeFilter === null}
+        onClick={() => onFilterChange([])}
+        aria-pressed={activeFilters.length === 0}
         className={cn(
           "cursor-pointer inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors",
-          activeFilter === null
+          activeFilters.length === 0
             ? "bg-kfk-blue text-white"
             : "bg-gray-100 text-gray-600 hover:bg-gray-200",
         )}
@@ -96,12 +104,12 @@ export function GiftStatusFilterChips({
       </button>
       {visibleStatuses.map((status) => {
         const config = statusConfig[status];
-        const isActive = activeFilter === status;
+        const isActive = activeFilters.includes(status);
         return (
           <button
             key={status}
             type="button"
-            onClick={() => onFilterChange(status)}
+            onClick={() => toggleStatus(status)}
             aria-pressed={isActive}
             className={cn(
               "cursor-pointer inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors",

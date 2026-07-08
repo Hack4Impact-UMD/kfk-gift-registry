@@ -99,11 +99,38 @@ export const columns = [
     cell: ({ getValue }) => <SponsorTypeBadge sponsorType={getValue()} />,
   }),
 
-  helper.accessor("sponsorName", {
+  helper.accessor("sponsorEmail", {
     size: 140,
     enableGlobalFilter: true,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>Sponsor Name</ColumnSortButton>
+      <ColumnSortButton column={column}>Sponsor Email</ColumnSortButton>
+    ),
+    cell: ({ getValue }) => {
+      const email = getValue();
+      return (
+        <div className="flex items-center gap-2 group">
+          <span className="text-sm text-gray-600 font-sans truncate">
+            {email}
+          </span>
+          {email && (
+            <button
+              onClick={() => handleCopyEmail(email)}
+              className="flex-shrink-0"
+              aria-label={`Copy ${email} to clipboard`}
+            >
+              <Copy className="h-4 w-4 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer" />
+            </button>
+          )}
+        </div>
+      );
+    },
+  }),
+
+  helper.accessor("childName", {
+    size: 140,
+    enableGlobalFilter: true,
+    header: ({ column }) => (
+      <ColumnSortButton column={column}>Child Name</ColumnSortButton>
     ),
     cell: ({ getValue }) => {
       const name = getValue();
@@ -111,11 +138,23 @@ export const columns = [
     },
   }),
 
-  helper.accessor("sponsorEmail", {
+  helper.accessor("parentName", {
     size: 140,
     enableGlobalFilter: true,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>Sponsor Email</ColumnSortButton>
+      <ColumnSortButton column={column}>Parent Name</ColumnSortButton>
+    ),
+    cell: ({ getValue }) => {
+      const name = getValue();
+      return <span className="text-sm text-gray-600 font-sans">{name}</span>;
+    },
+  }),
+
+  helper.accessor("parentEmail", {
+    size: 140,
+    enableGlobalFilter: true,
+    header: ({ column }) => (
+      <ColumnSortButton column={column}>Parent Email</ColumnSortButton>
     ),
     cell: ({ getValue }) => {
       const email = getValue();
