@@ -16,6 +16,30 @@ const driveIdSchema = z.object({
   driveId: z.string(),
 });
 
+async function batchFetchByIds<T extends FirebaseFirestore.DocumentData>(
+  ids: Array<string>,
+  docRef: (
+    id: string,
+  ) => FirebaseFirestore.DocumentReference<T, FirebaseFirestore.DocumentData>,
+  targetMap: Map<string, T>,
+  chunkSize = 300,
+) {
+  const db = getServerDB();
+  const uniqueIds = Array.from(new Set(ids));
+
+  await Promise.all(
+    chunk(uniqueIds, chunkSize).map(async (idChunk) => {
+      const refs = idChunk.map((id) => docRef(id));
+      const snapshots = await db._instance.getAll(...refs);
+      for (const snapshot of snapshots) {
+        if (snapshot.exists) {
+          targetMap.set(snapshot.id, snapshot.data() as T);
+        }
+      }
+    }),
+  );
+}
+
 export const getPublishedGifts = createServerFn({ method: "GET" })
   .middleware([
     requireRolesMiddleware([
@@ -84,52 +108,15 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
     );
 
     const profileByDonorId = new Map<string, UserProfile>();
-    await Promise.all(
-      chunk(donorIds, 300).map(async (donorIdChunk) => {
-        const donorRefs = donorIdChunk.map((donorId) => db.users.doc(donorId));
-        const donorSnapshots = await db._instance.getAll(...donorRefs);
-        for (const donorSnapshot of donorSnapshots) {
-          if (donorSnapshot.exists) {
-            profileByDonorId.set(
-              donorSnapshot.id,
-              donorSnapshot.data() as UserProfile,
-            );
-          }
-        }
-      }),
-    );
+    await batchFetchByIds(donorIds, (id) => db.users.doc(id), profileByDonorId);
 
-    const childIds = Array.from(new Set(gifts.map((gift) => gift.childId)));
+    const childIds = gifts.map((gift) => gift.childId);
     const childById = new Map<string, Child>();
-    await Promise.all(
-      chunk(childIds, 300).map(async (childIdChunk) => {
-        const childRefs = childIdChunk.map((childId) =>
-          db.children.doc(childId),
-        );
-        const childSnapshots = await db._instance.getAll(...childRefs);
-        for (const childSnapshot of childSnapshots) {
-          if (childSnapshot.exists) {
-            childById.set(childSnapshot.id, childSnapshot.data() as Child);
-          }
-        }
-      }),
-    );
+    await batchFetchByIds(childIds, (id) => db.children.doc(id), childById);
 
-    const familyIds = Array.from(new Set(gifts.map((gift) => gift.familyId)));
+    const familyIds = gifts.map((gift) => gift.familyId);
     const familyById = new Map<string, Family>();
-    await Promise.all(
-      chunk(familyIds, 300).map(async (familyIdChunk) => {
-        const familyRefs = familyIdChunk.map((familyId) =>
-          db.families.doc(familyId),
-        );
-        const familySnapshots = await db._instance.getAll(...familyRefs);
-        for (const familySnapshot of familySnapshots) {
-          if (familySnapshot.exists) {
-            familyById.set(familySnapshot.id, familySnapshot.data() as Family);
-          }
-        }
-      }),
-    );
+    await batchFetchByIds(familyIds, (id) => db.families.doc(id), familyById);
 
     return gifts.map((gift) => {
       const claim = claimByGiftId.get(gift.id);
