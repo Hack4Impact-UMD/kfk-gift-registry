@@ -239,7 +239,8 @@ export function GiftDriveDialog({
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Drive dates cannot overlap. Only one drive can be active at a time.
+            Drive dates cannot overlap with active or upcoming drives. Completed
+            or deactivated drives do not block new ones.
           </p>
 
           {error && <p className="text-sm text-red-500">{error}</p>}

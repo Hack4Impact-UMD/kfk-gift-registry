@@ -52,22 +52,35 @@ function overlapsActiveWindow(left: GiftDriveWindow, right: GiftDriveWindow) {
   return leftStart <= rightEnd && rightStart <= leftEnd;
 }
 
+function canBlockNewDriveWindow(drive: GiftDriveWindow, now: DateTime) {
+  const end = DateTime.fromISO(drive.endDate, { zone: "utc" });
+
+  if (!end.isValid) {
+    return false;
+  }
+
+  // Completed or deactivated drives should not block creating a new drive.
+  return end > now;
+}
+
 export async function assertGiftDriveWindowAvailable(
   tx: FirebaseFirestore.Transaction,
   candidate: GiftDriveWindow,
 ) {
   const db = getServerDB();
+  const now = DateTime.utc();
   const existingDrives = (await tx.get(db.giftDrives)).docs.map((doc) =>
     doc.data(),
   );
   const conflictingDrive = existingDrives.find((drive) => {
     if (drive.id === candidate.id) return false;
+    if (!canBlockNewDriveWindow(drive, now)) return false;
     return overlapsActiveWindow(drive, candidate);
   });
 
   if (conflictingDrive) {
     throw new Error(
-      `Gift drive dates overlap with ${conflictingDrive.cycle}. Only one active drive is allowed at a time.`,
+      `Gift drive dates overlap with ${conflictingDrive.cycle}. Only active or upcoming drives can block a new date window.`,
     );
   }
 }
