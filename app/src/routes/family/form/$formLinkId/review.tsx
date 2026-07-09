@@ -37,7 +37,7 @@ type SectionHeaderProps = {
 function SectionHeader({ title, onEdit }: SectionHeaderProps) {
   return (
     <div className="flex justify-between border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
-      <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">
+      <h2 className="text-2xl font-bold text-[var(--color-kfk-blue)] pb-1">
         {title}
       </h2>
       <button
@@ -103,6 +103,7 @@ function RouteComponent() {
               navigate({
                 to: "/family/form/$formLinkId/gift-details",
                 params: { formLinkId },
+                search: { childIndex: index },
               })
             }
           />

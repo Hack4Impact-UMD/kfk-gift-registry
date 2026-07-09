@@ -96,7 +96,7 @@ export function FormCheckbox({
         checked={field.state.value ?? value}
         onCheckedChange={(checked) => field.handleChange(!!checked)}
         disabled={disabled}
-        className="mt-0.5"
+        className="mt-0.5 border-2 border-slate-400"
       />
       <label htmlFor={checkboxId} className="text-sm cursor-pointer">
         {children}
@@ -402,7 +402,7 @@ export function FormTextarea({
         onChange={(e) => field.handleChange(e.target.value)}
         onBlur={field.handleBlur}
         disabled={disabled}
-        className={`resize-none min-h-[100px] ${errorMessage ? "border-red-500" : ""}`}
+        className={`resize-none min-h-[100px] ${errorMessage ? "border-red-500" : "border-slate-700"}`}
       />
       {maxLength !== undefined && !disabled && (
         <p
@@ -415,7 +415,7 @@ export function FormTextarea({
       )}
       {maxWords !== undefined && maxLength === undefined && !disabled && (
         <p className="text-xs text-right text-slate-500">
-          {wordCount} out of {maxWords}
+          {wordCount}/{maxWords} words
         </p>
       )}
       {errorMessage && (
@@ -457,7 +457,7 @@ export function FormAgreement({
           checked={field.state.value}
           onCheckedChange={(checked) => field.handleChange(!!checked)}
           disabled={disabled}
-          className="mt-0.5"
+          className="mt-0.5 border-2 border-slate-400"
         />
         <label htmlFor={checkboxId} className="text-sm cursor-pointer">
           {checkboxLabel}
