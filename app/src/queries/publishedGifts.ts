@@ -2,6 +2,7 @@ import {
   getPublishedGifts,
   getPublishedGiftsTableRows,
 } from "@/server/functions/gifts";
+import { getStaffGiftClaimDetails } from "@/server/functions/staffClaim";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
 const publishedGiftsQueries = createQueryKeys("publishedGifts", {
@@ -12,6 +13,10 @@ const publishedGiftsQueries = createQueryKeys("publishedGifts", {
   tableRowsByDrive: (driveId: string) => ({
     queryKey: ["tableRowsByDrive", driveId],
     queryFn: () => getPublishedGiftsTableRows({ data: { driveId } }),
+  }),
+  claimDetailsByGift: (giftId: string) => ({
+    queryKey: ["claimDetailsByGift", giftId],
+    queryFn: () => getStaffGiftClaimDetails({ data: { giftId } }),
   }),
 });
 

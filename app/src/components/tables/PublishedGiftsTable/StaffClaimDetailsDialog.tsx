@@ -1,0 +1,210 @@
+import { useState } from "react";
+import type { Address } from "common";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { GiftStatusBadge } from "./GiftStatusBadge";
+import { useStaffClaimDialog } from "./useStaffClaimDialog";
+
+type StaffClaim = ReturnType<typeof useStaffClaimDialog>;
+
+type StaffClaimDetailsDialogProps = {
+  giftId: string;
+  giftName: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
+
+function formatAddress(address: Address) {
+  return [
+    address.street,
+    address.addressLine2,
+    `${address.city}, ${address.state} ${address.zipCode}`,
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
+function InfoRow({ label, value }: { label: string; value?: string }) {
+  return (
+    <p className="text-sm">
+      <span className="font-semibold">{label}:</span>{" "}
+      <span className="text-muted-foreground">{value || "N/A"}</span>
+    </p>
+  );
+}
+
+/**
+ * Lifecycle controls for a KFK claim. Rendered only once the claim has loaded,
+ * so the tracking input can seed itself from the loaded value with a plain
+ * `useState` initializer (no effect, no setState during render).
+ */
+function ClaimLifecycleControls({
+  claim,
+  initialTrackingNumber,
+}: {
+  claim: StaffClaim;
+  initialTrackingNumber: string;
+}) {
+  const [trackingInput, setTrackingInput] = useState(initialTrackingNumber);
+
+  return (
+    <section className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        <Button
+          size="sm"
+          disabled={!claim.canMarkPurchased || claim.isMutating}
+          onClick={claim.markPurchased}
+        >
+          Mark Purchased
+        </Button>
+        <Button
+          size="sm"
+          disabled={!claim.canMarkDelivered || claim.isMutating}
+          onClick={claim.markDelivered}
+        >
+          Mark Delivered
+        </Button>
+        {claim.canUnclaim && (
+          <Button
+            size="sm"
+            variant="destructive"
+            disabled={claim.isMutating}
+            onClick={claim.unclaim}
+          >
+            Unclaim
+          </Button>
+        )}
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="tracking-number" className="text-sm font-semibold">
+          Tracking Number
+        </label>
+        <div className="flex items-center gap-2">
+          <Input
+            id="tracking-number"
+            value={trackingInput}
+            onChange={(e) => setTrackingInput(e.target.value)}
+            placeholder="Enter tracking number"
+            disabled={!claim.canEditTracking || claim.isMutating}
+          />
+          <Button
+            size="sm"
+            disabled={
+              !claim.canEditTracking ||
+              claim.isMutating ||
+              trackingInput.trim() === initialTrackingNumber
+            }
+            onClick={() => claim.saveTracking(trackingInput.trim())}
+          >
+            Save
+          </Button>
+        </div>
+        {!claim.canEditTracking && (
+          <p className="text-xs text-muted-foreground">
+            Mark the gift as purchased to add a tracking number.
+          </p>
+        )}
+      </div>
+
+      {claim.mutationError && (
+        <p className="text-sm text-destructive">
+          {claim.mutationError.message}
+        </p>
+      )}
+    </section>
+  );
+}
+
+export function StaffClaimDetailsDialog({
+  giftId,
+  giftName,
+  open,
+  onOpenChange,
+}: StaffClaimDetailsDialogProps) {
+  const claim = useStaffClaimDialog(giftId, open);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Gift Claim Details</DialogTitle>
+          <DialogDescription>{giftName}</DialogDescription>
+        </DialogHeader>
+
+        {claim.isLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <Spinner className="size-6" />
+          </div>
+        ) : claim.error || !claim.details ? (
+          <div className="flex flex-col items-center gap-3 py-8 text-center">
+            <p className="text-sm text-destructive">
+              Failed to load claim details.
+            </p>
+            <Button variant="outline" size="sm" onClick={() => claim.refetch()}>
+              Retry
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {/* Shipping info */}
+            <section className="space-y-1">
+              <h3 className="text-sm font-semibold text-foreground">
+                Shipping Info
+              </h3>
+              <InfoRow label="Child" value={claim.details.child?.name} />
+              {claim.details.family ? (
+                <>
+                  <InfoRow
+                    label="Contact"
+                    value={claim.details.family.contactName}
+                  />
+                  <InfoRow label="Phone" value={claim.details.family.phone} />
+                  <InfoRow label="Email" value={claim.details.family.email} />
+                  <InfoRow
+                    label="Address"
+                    value={formatAddress(claim.details.family.address)}
+                  />
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No family shipping info available.
+                </p>
+              )}
+            </section>
+
+            {/* Status */}
+            <section className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-foreground">Status</h3>
+              <GiftStatusBadge status={claim.details.gift.status} />
+            </section>
+
+            {/* Lifecycle controls */}
+            {claim.canManage ? (
+              <ClaimLifecycleControls
+                claim={claim}
+                initialTrackingNumber={
+                  claim.details.claim?.purchaseConfirmation?.trackingNumber ??
+                  ""
+                }
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                This gift was claimed by a donor. Its lifecycle is managed from
+                the donor&apos;s account.
+              </p>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
