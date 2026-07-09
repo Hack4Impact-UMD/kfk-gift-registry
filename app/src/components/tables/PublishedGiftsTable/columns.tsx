@@ -1,11 +1,13 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { ExternalLink, Copy } from "lucide-react";
 import ColumnSortButton from "../ColumnSortButton";
 import { SponsorTypeBadge } from "./SponsorTypeBadge";
 import { GiftStatusBadge } from "./GiftStatusBadge";
-import type { PublishedGiftsTableRow } from "./types";
+import type { PublishedGiftsTableMeta, PublishedGiftsTableRow } from "./types";
 
 const helper = createColumnHelper<PublishedGiftsTableRow>();
 
@@ -150,6 +152,47 @@ export const columns = [
         <span className="text-sm text-gray-600 font-sans">
           {date ? formatDate(date) : ""}
         </span>
+      );
+    },
+  }),
+
+  helper.display({
+    id: "action",
+    size: 140,
+    header: "Claim",
+    cell: ({ row, table }) => {
+      const meta = table.options.meta as PublishedGiftsTableMeta | undefined;
+      const rowData = row.original;
+
+      if (rowData.sponsorType === "unclaimed") {
+        const isClaiming = meta?.claimingGiftId === rowData.id;
+        return (
+          <Button
+            size="sm"
+            disabled={isClaiming}
+            onClick={(e) => {
+              e.stopPropagation();
+              meta?.onClaimGift(rowData.id);
+            }}
+          >
+            {isClaiming ? <Spinner /> : "Claim Gift"}
+          </Button>
+        );
+      }
+
+      return (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={(e) => {
+            e.stopPropagation();
+            meta?.onOpenClaimDetails(rowData);
+          }}
+        >
+          {rowData.sponsorType === "claimed_kfk"
+            ? "Manage Claim"
+            : "Claim Details"}
+        </Button>
       );
     },
   }),
