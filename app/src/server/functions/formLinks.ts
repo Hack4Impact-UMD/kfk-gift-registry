@@ -1,8 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { GiftDrive } from "common";
+import { DateTime } from "luxon";
 import { v7 as uuidv7 } from "uuid";
 import { FormLinkSchema, UserRole } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
+import { deactivateFormLinksForDrive } from "@/server/services/giftDriveService.server";
 
 const staffOnly = requireRolesMiddleware([
   UserRole.DIRECTOR,
@@ -12,14 +15,37 @@ const staffOnly = requireRolesMiddleware([
 
 export const getAllFormLinks = createServerFn().handler(async () => {
   const db = getServerDB();
-  return (await db.formLinks.get()).docs.map((d) => d.data());
+  const drives = (await db.giftDrives.get()).docs.map((doc) => doc.data());
+
+  await Promise.all(
+    drives
+      .filter(shouldDeactivateDriveLinks)
+      .map((drive) =>
+        db._instance.runTransaction((tx) =>
+          deactivateFormLinksForDrive(tx, drive.id),
+        ),
+      ),
+  );
+
+  return (await db.formLinks.get()).docs.map((doc) => doc.data());
 });
 
 export const getFormLinkById = createServerFn()
   .inputValidator((data: { id: string }) => data.id)
   .handler(async ({ data: id }) => {
     const db = getServerDB();
-    return (await db.formLinks.doc(id).get()).data();
+    const formLink = (await db.formLinks.doc(id).get()).data();
+    if (!formLink) return undefined;
+
+    const drive = (await db.giftDrives.doc(formLink.driveId).get()).data();
+    if (drive && shouldDeactivateDriveLinks(drive)) {
+      await db._instance.runTransaction((tx) =>
+        deactivateFormLinksForDrive(tx, drive.id),
+      );
+      return (await db.formLinks.doc(id).get()).data();
+    }
+
+    return formLink;
   });
 
 export const getStorefrontFormLink = createServerFn().handler(async () => {
@@ -27,12 +53,51 @@ export const getStorefrontFormLink = createServerFn().handler(async () => {
   const snap = await db.formLinks
     .where("showOnStorefront", "==", true)
     .where("active", "==", true)
-    .limit(1)
     .get();
 
   if (snap.empty) return null;
-  return snap.docs[0].data();
+
+  const drivesToDeactivate = new Set<string>();
+  for (const doc of snap.docs) {
+    const link = doc.data();
+    const drive = (await db.giftDrives.doc(link.driveId).get()).data();
+    if (drive && shouldDeactivateDriveLinks(drive)) {
+      drivesToDeactivate.add(drive.id);
+      continue;
+    }
+
+    return link;
+  }
+
+  if (drivesToDeactivate.size > 0) {
+    await Promise.all(
+      [...drivesToDeactivate].map((driveId) =>
+        db._instance.runTransaction((tx) =>
+          deactivateFormLinksForDrive(tx, driveId),
+        ),
+      ),
+    );
+
+    const refreshed = await db.formLinks
+      .where("showOnStorefront", "==", true)
+      .where("active", "==", true)
+      .limit(1)
+      .get();
+
+    return refreshed.empty ? null : refreshed.docs[0].data();
+  }
+
+  return null;
 });
+
+function shouldDeactivateDriveLinks(drive: GiftDrive) {
+  if (drive.formLinksDeactivatedAt) {
+    return false;
+  }
+
+  const end = DateTime.fromISO(drive.endDate, { zone: "utc" });
+  return end.isValid && end < DateTime.utc();
+}
 
 async function demoteOtherStorefrontLinks(
   db: ReturnType<typeof getServerDB>,

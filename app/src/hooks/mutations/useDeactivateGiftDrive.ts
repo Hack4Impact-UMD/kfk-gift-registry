@@ -9,9 +9,14 @@ export function useDeactivateGiftDrive() {
   return useMutation({
     mutationFn: (id: string) => deactivateGiftDrive({ data: { id } }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queries.drives._def,
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: queries.drives._def,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: queries.formLinks._def,
+        }),
+      ]);
       toast.success("Gift drive deactivated");
     },
     onError: (error: unknown) => {

@@ -4,7 +4,10 @@ import { v7 as uuidv7 } from "uuid";
 import { DateTime } from "luxon";
 import { GiftDriveInputSchema, GiftDriveUpdateSchema, UserRole } from "common";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
-import { assertGiftDriveWindowAvailable } from "@/server/services/giftDriveService.server";
+import {
+  assertGiftDriveWindowAvailable,
+  deactivateFormLinksForDrive,
+} from "@/server/services/giftDriveService.server";
 
 const adminOnly = requireRolesMiddleware([UserRole.DIRECTOR, UserRole.ADMIN]);
 
@@ -96,7 +99,12 @@ export const deactivateGiftDrive = createServerFn({ method: "POST" })
       throw new Error("Only an active gift drive can be deactivated");
     }
 
-    await driveRef.update({
-      endDate: now.toISO(),
+    const deactivatedAt = now.toISO();
+
+    await db._instance.runTransaction(async (tx) => {
+      await deactivateFormLinksForDrive(tx, id, deactivatedAt);
+      tx.update(driveRef, {
+        endDate: deactivatedAt,
+      });
     });
   });

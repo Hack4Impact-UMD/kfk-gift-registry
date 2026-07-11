@@ -2,6 +2,20 @@ import type { GiftDrive } from "common";
 import { DateTime } from "luxon";
 import { getServerDB } from "@/lib/firebase.server";
 
+export function isGiftDriveActiveWindow(
+  drive: Pick<GiftDrive, "startDate" | "endDate">,
+  now = DateTime.utc(),
+) {
+  const start = DateTime.fromISO(drive.startDate, { zone: "utc" });
+  const end = DateTime.fromISO(drive.endDate, { zone: "utc" });
+
+  if (!start.isValid || !end.isValid) {
+    return false;
+  }
+
+  return now >= start && now <= end;
+}
+
 export async function assertGiftDriveActive(
   tx: FirebaseFirestore.Transaction,
   driveId: string,
@@ -14,16 +28,19 @@ export async function assertGiftDriveActive(
   if (!drive) {
     throw new Error(`Gift drive ${driveId} not found`);
   }
-  const now = DateTime.utc();
-  const start = DateTime.fromISO(drive.startDate, { zone: "utc" });
-  const end = DateTime.fromISO(drive.endDate, { zone: "utc" });
-
-  if (!start.isValid || !end.isValid) {
-    throw new Error(`Gift drive ${driveId} has invalid start/end date`);
+  if (!isGiftDriveActiveWindow(drive)) {
+    const start = DateTime.fromISO(drive.startDate, { zone: "utc" });
+    const end = DateTime.fromISO(drive.endDate, { zone: "utc" });
+    if (!start.isValid || !end.isValid) {
+      throw new Error(`Gift drive ${driveId} has invalid start/end date`);
+    }
+    throw new Error(`Gift drive ${driveId} is not active`);
   }
 
-  if (now < start || now > end) {
-    throw new Error(`Gift drive ${driveId} is not active`);
+  const start = DateTime.fromISO(drive.startDate, { zone: "utc" });
+  const end = DateTime.fromISO(drive.endDate, { zone: "utc" });
+  if (!start.isValid || !end.isValid) {
+    throw new Error(`Gift drive ${driveId} has invalid start/end date`);
   }
 
   return drive;
@@ -83,4 +100,36 @@ export async function assertGiftDriveWindowAvailable(
       `Gift drive dates overlap with ${conflictingDrive.cycle}. Only active or upcoming drives can block a new date window.`,
     );
   }
+}
+
+export async function deactivateFormLinksForDrive(
+  tx: FirebaseFirestore.Transaction,
+  driveId: string,
+  deactivatedAt = DateTime.utc().toISO(),
+) {
+  const db = getServerDB();
+  const driveRef = db.giftDrives.doc(driveId);
+  const driveSnap = await tx.get(driveRef);
+  const drive = driveSnap.data();
+
+  if (!drive) {
+    throw new Error(`Gift drive ${driveId} not found`);
+  }
+
+  if (drive.formLinksDeactivatedAt) {
+    return;
+  }
+
+  const linkSnap = await tx.get(db.formLinks.where("driveId", "==", driveId));
+
+  for (const doc of linkSnap.docs) {
+    tx.update(doc.ref, {
+      active: false,
+      showOnStorefront: false,
+    });
+  }
+
+  tx.update(driveRef, {
+    formLinksDeactivatedAt: deactivatedAt,
+  });
 }

@@ -87,13 +87,15 @@ export function StorefrontMobileSidebar({
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild size="lg">
-                {isPending ? (
+            {isPending ? (
+              <SidebarMenuItem>
+                <SidebarMenuButton size="lg">
                   <Spinner />
-                ) : error || !link ? (
-                  <p>Failed to fetch form link</p>
-                ) : (
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ) : error || !link ? null : (
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild size="lg">
                   <Link
                     to="/family/form/$formLinkId/consent"
                     params={{
@@ -103,9 +105,9 @@ export function StorefrontMobileSidebar({
                     <FormIcon className="size-6" />
                     <span className="text-base">Go to Family Form</span>
                   </Link>
-                )}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
 
             <SidebarMenuItem>
               <StorefrontFamilyRecoveryDialog>

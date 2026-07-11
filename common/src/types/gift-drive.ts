@@ -6,6 +6,7 @@ export const GiftDriveSchema = z.object({
   startDate: z.iso.datetime(),
   endDate: z.iso.datetime(),
   cycle: z.string(),
+  formLinksDeactivatedAt: z.iso.datetime().optional(),
 });
 
 export type GiftDrive = z.infer<typeof GiftDriveSchema>;
@@ -13,6 +14,7 @@ export type GiftDrive = z.infer<typeof GiftDriveSchema>;
 export const GiftDriveInputSchema = GiftDriveSchema.omit({
   id: true,
   createdAt: true,
+  formLinksDeactivatedAt: true,
 })
   .extend({
     cycle: z.string().trim().min(1, "Cycle is required"),
