@@ -7,6 +7,7 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 import { useState } from "react";
+import { z } from "zod";
 import { useFormContext } from "@/components/providers/FormProvider";
 import { childGiftSchema, giftsFormSchema } from "@/lib/formSchemas";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,9 @@ import { GiftDetailsForm } from "@/components/form/sections/GiftDetails";
 import LadyBug from "@/assets/form/ladybug.png";
 
 export const Route = createFileRoute("/family/form/$formLinkId/gift-details")({
+  validateSearch: z.object({
+    childIndex: z.number().optional(),
+  }),
   head: () => ({
     meta: [
       { title: "Gift Details - Family Registration" },
@@ -35,8 +39,18 @@ function GiftsStep() {
     (c) => c.name,
   );
   const { formLinkId } = Route.useParams();
+  const { childIndex } = Route.useSearch();
 
-  const [activeChildIndex, setActiveChildIndex] = useState<number | null>(null);
+  const safeChildIndex =
+    childIndex != null &&
+    childIndex >= 0 &&
+    childIndex < childrenNameList.length
+      ? childIndex
+      : null;
+
+  const [activeChildIndex, setActiveChildIndex] = useState<number | null>(
+    safeChildIndex,
+  );
 
   const form = useGiftsForm();
 
@@ -204,20 +218,37 @@ function GiftsStep() {
           childName={childrenNameList[activeChildIndex]}
         />
 
-        <Button
-          type="button"
-          onClick={() => {
-            if (document.activeElement instanceof HTMLElement) {
-              document.activeElement.blur();
-            }
-            setActiveChildIndex(null);
-          }}
-          variant="outline"
-          className="flex h-14 rounded-xl border-2 border-kfk-blue text-kfk-blue font-bold text-lg"
-        >
-          <ChevronLeftIcon className="mr-2 h-6 w-6" />
-          Back
-        </Button>
+        <FormItem className="flex gap-4">
+          <Button
+            type="button"
+            onClick={() => {
+              if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur();
+              }
+              setActiveChildIndex(null);
+            }}
+            variant="outline"
+            className="flex-1 h-14 rounded-xl border-2 border-kfk-blue text-kfk-blue font-bold text-lg"
+          >
+            <ChevronLeftIcon className="mr-2 h-6 w-6" />
+            Back
+          </Button>
+          {activeChildIndex < childrenNameList.length - 1 && (
+            <Button
+              type="button"
+              onClick={() => {
+                if (document.activeElement instanceof HTMLElement) {
+                  document.activeElement.blur();
+                }
+                setActiveChildIndex(activeChildIndex + 1);
+              }}
+              className="flex-1 h-14 rounded-xl bg-kfk-blue text-white font-bold text-lg"
+            >
+              Next
+              <ChevronRightIcon className="ml-2 h-6 w-6" />
+            </Button>
+          )}
+        </FormItem>
       </div>
     </div>
   );

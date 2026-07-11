@@ -48,7 +48,7 @@ export function GeneralInfoForm({
   disabled = false,
 }: GeneralInfoFormProps) {
   return (
-    <>
+    <div className="flex flex-col gap-10">
       <div>
         <div className="border-b-2 border-kfk-blue w-full mb-8">
           <h2 className="text-xl font-bold text-kfk-blue pb-1">
@@ -307,6 +307,6 @@ export function GeneralInfoForm({
           )}
         </form.AppField>
       </div>
-    </>
+    </div>
   );
 }
