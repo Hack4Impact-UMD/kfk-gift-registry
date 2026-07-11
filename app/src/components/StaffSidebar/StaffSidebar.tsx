@@ -302,28 +302,32 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="px-6 py-4">
-        <SidebarMenuButtonWithTooltip label={user.displayName || "User"}>
-          <SidebarMenuButtonWithHovering>
-            <Link
-              to="/staff/profile"
-              className="group/button flex items-center gap-3 w-full text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 hover:bg-black! hover:text-white active:text-white"
-              activeProps={{
-                className:
-                  "group/button flex items-center gap-3 w-full text-left bg-black text-white group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0",
-              }}
-            >
-              <UserCircleIcon className="transition-colors size-8" />
+      <SidebarFooter className="px-6 py-4 group-data-[collapsible=icon]:px-2">
+        <SidebarMenu>
+          <SidebarMenuItem className="flex justify-center">
+            <SidebarMenuButtonWithTooltip label={user.displayName || "User"}>
+              <SidebarMenuButtonWithHovering>
+                <Link
+                  to="/staff/profile"
+                  className="group/button flex w-full items-center gap-3 text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 hover:bg-black! hover:text-white active:text-white"
+                  activeProps={{
+                    className:
+                      "group/button flex w-full items-center gap-3 text-left bg-black text-white group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0",
+                  }}
+                >
+                  <UserCircleIcon className="size-8 transition-colors group-data-[collapsible=icon]:size-6" />
 
-              <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                <span className="text-base font-medium">
-                  {user.displayName || "User Name"}
-                </span>
-                <span className={`text-sm`}>{user.role}</span>
-              </div>
-            </Link>
-          </SidebarMenuButtonWithHovering>
-        </SidebarMenuButtonWithTooltip>
+                  <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+                    <span className="text-base font-medium">
+                      {user.displayName || "User Name"}
+                    </span>
+                    <span className="text-sm">{user.role}</span>
+                  </div>
+                </Link>
+              </SidebarMenuButtonWithHovering>
+            </SidebarMenuButtonWithTooltip>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );
