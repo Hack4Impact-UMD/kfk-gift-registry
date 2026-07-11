@@ -77,7 +77,7 @@ function canBlockNewDriveWindow(drive: GiftDriveWindow, now: DateTime) {
   }
 
   // Completed or deactivated drives should not block creating a new drive.
-  return end > now;
+  return end >= now;
 }
 
 export async function assertGiftDriveWindowAvailable(

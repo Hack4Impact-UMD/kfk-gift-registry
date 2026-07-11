@@ -20,11 +20,7 @@ export const getAllFormLinks = createServerFn().handler(async () => {
   await Promise.all(
     drives
       .filter(shouldDeactivateDriveLinks)
-      .map((drive) =>
-        db._instance.runTransaction((tx) =>
-          deactivateFormLinksForDrive(tx, drive.id),
-        ),
-      ),
+      .map((drive) => tryDeactivateDriveLinks(db, drive.id)),
   );
 
   return (await db.formLinks.get()).docs.map((doc) => doc.data());
@@ -39,9 +35,7 @@ export const getFormLinkById = createServerFn()
 
     const drive = (await db.giftDrives.doc(formLink.driveId).get()).data();
     if (drive && shouldDeactivateDriveLinks(drive)) {
-      await db._instance.runTransaction((tx) =>
-        deactivateFormLinksForDrive(tx, drive.id),
-      );
+      await tryDeactivateDriveLinks(db, drive.id);
       return (await db.formLinks.doc(id).get()).data();
     }
 
@@ -58,6 +52,7 @@ export const getStorefrontFormLink = createServerFn().handler(async () => {
   if (snap.empty) return null;
 
   const drivesToDeactivate = new Set<string>();
+  let validLink: ReturnType<(typeof snap.docs)[number]["data"]> | null = null;
   for (const doc of snap.docs) {
     const link = doc.data();
     const drive = (await db.giftDrives.doc(link.driveId).get()).data();
@@ -66,17 +61,17 @@ export const getStorefrontFormLink = createServerFn().handler(async () => {
       continue;
     }
 
-    return link;
+    validLink ??= link;
   }
 
   if (drivesToDeactivate.size > 0) {
     await Promise.all(
       [...drivesToDeactivate].map((driveId) =>
-        db._instance.runTransaction((tx) =>
-          deactivateFormLinksForDrive(tx, driveId),
-        ),
+        tryDeactivateDriveLinks(db, driveId),
       ),
     );
+
+    if (validLink) return validLink;
 
     const refreshed = await db.formLinks
       .where("showOnStorefront", "==", true)
@@ -87,7 +82,7 @@ export const getStorefrontFormLink = createServerFn().handler(async () => {
     return refreshed.empty ? null : refreshed.docs[0].data();
   }
 
-  return null;
+  return validLink;
 });
 
 function shouldDeactivateDriveLinks(drive: GiftDrive) {
@@ -97,6 +92,22 @@ function shouldDeactivateDriveLinks(drive: GiftDrive) {
 
   const end = DateTime.fromISO(drive.endDate, { zone: "utc" });
   return end.isValid && end < DateTime.utc();
+}
+
+async function tryDeactivateDriveLinks(
+  db: ReturnType<typeof getServerDB>,
+  driveId: string,
+) {
+  try {
+    await db._instance.runTransaction((tx) =>
+      deactivateFormLinksForDrive(tx, driveId),
+    );
+  } catch (error) {
+    console.error(
+      `Failed to deactivate form links for drive ${driveId}`,
+      error,
+    );
+  }
 }
 
 async function demoteOtherStorefrontLinks(
