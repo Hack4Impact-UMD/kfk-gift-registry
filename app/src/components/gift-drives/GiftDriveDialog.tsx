@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { format } from "date-fns";
 import { DateTime } from "luxon";
 import type { GiftDrive } from "common";
@@ -37,6 +37,8 @@ interface FormState {
   cycle: string;
   dateRange: DateRange | undefined;
 }
+
+type DayPickerStyle = CSSProperties & Record<`--rdp-${string}`, string>;
 
 function toPickerDate(iso: string | undefined): Date | undefined {
   if (!iso) return undefined;
@@ -141,6 +143,11 @@ export function GiftDriveDialog({
 
   const isPending = isCreating || isUpdating;
 
+  const calendarStyle: DayPickerStyle = {
+    "--rdp-day-width": "34px",
+    "--rdp-day-height": "34px",
+  };
+
   async function handleSave() {
     const cycle = form.cycle.trim();
     const { startDate } = toUtcDateRange(form.dateRange);
@@ -219,11 +226,12 @@ export function GiftDriveDialog({
                   {formatDateRange(form.dateRange)}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-3" align="start">
+              <PopoverContent className="w-auto p-2" align="start">
                 <DayPicker
                   mode="range"
                   selected={form.dateRange}
                   numberOfMonths={isMobile ? 1 : 2}
+                  style={calendarStyle}
                   defaultMonth={form.dateRange?.from}
                   onSelect={(dateRange) => {
                     setForm((current) => ({
