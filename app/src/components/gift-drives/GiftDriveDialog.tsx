@@ -1,4 +1,5 @@
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
+import type { CSSProperties } from "react";
 import { format } from "date-fns";
 import { DateTime } from "luxon";
 import type { GiftDrive } from "common";
