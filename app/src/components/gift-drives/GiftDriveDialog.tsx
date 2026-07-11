@@ -77,6 +77,13 @@ function formatDateRange(dateRange: DateRange | undefined) {
     return "Pick a date range";
   }
 
+  if (
+    dateRange.to &&
+    dateRange.from.toDateString() === dateRange.to.toDateString()
+  ) {
+    return format(dateRange.from, "LLL d, y");
+  }
+
   if (!dateRange.to) {
     return format(dateRange.from, "LLL d, y");
   }
@@ -95,6 +102,17 @@ function toUtcDateRange(dateRange: DateRange | undefined) {
   return {
     startDate: toUtcIso(dateRange.from, "start"),
     endDate: toUtcIso(dateRange.to, "end"),
+  };
+}
+
+function normalizeDateRange(dateRange: DateRange | undefined) {
+  if (!dateRange?.from || dateRange.to) {
+    return dateRange;
+  }
+
+  return {
+    from: dateRange.from,
+    to: dateRange.from,
   };
 }
 
@@ -145,8 +163,15 @@ export function GiftDriveDialog({
   const isPending = isCreating || isUpdating;
 
   const calendarStyle: DayPickerStyle = {
-    "--rdp-day-width": "34px",
-    "--rdp-day-height": "34px",
+    "--rdp-day-width": "32px",
+    "--rdp-day-height": "32px",
+    "--rdp-day_button-width": "30px",
+    "--rdp-day_button-height": "30px",
+    "--rdp-months-gap": "0.75rem",
+    "--rdp-nav_button-width": "1.75rem",
+    "--rdp-nav_button-height": "1.75rem",
+    "--rdp-nav-height": "2rem",
+    "--rdp-weekday-padding": "0.2rem 0",
   };
 
   async function handleSave() {
@@ -237,11 +262,10 @@ export function GiftDriveDialog({
                   onSelect={(dateRange) => {
                     setForm((current) => ({
                       ...current,
-                      dateRange,
+                      dateRange: normalizeDateRange(dateRange),
                     }));
                     if (error) setError(null);
                   }}
-                  resetOnSelect
                 />
               </PopoverContent>
             </Popover>
