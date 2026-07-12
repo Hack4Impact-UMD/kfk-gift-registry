@@ -6,10 +6,13 @@ import peopleDonatedBackground from "@/assets/off-season/stats-people-donated.sv
 import { useAllGiftDrives } from "@/hooks/queries/useAllGiftDrives";
 import { useStorefrontChildProfiles } from "@/hooks/queries/useStorefrontChildProfiles";
 import { useStorefrontUniqueDonors } from "@/hooks/queries/useStorefrontUniqueDonors";
-import { formatISODate } from "@/lib/utils";
+import {
+  formatISODate,
+  getLatestCompletedDrive,
+  getNextScheduledDrive,
+} from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
-import { DateTime } from "luxon";
-import type { GiftDrive, GiftStatus } from "common";
+import type { GiftStatus } from "common";
 import { useMemo } from "react";
 import { ArrowDown } from "lucide-react";
 
@@ -18,34 +21,6 @@ const purchasedGiftStatuses = new Set<GiftStatus>([
   "DELIVERED",
   "RECEIVED",
 ]);
-
-function getLatestCompletedDrive(
-  drives: Array<GiftDrive>,
-): GiftDrive | undefined {
-  const now = DateTime.utc().toMillis();
-
-  return [...drives]
-    .filter((drive) => DateTime.fromISO(drive.endDate).toMillis() < now)
-    .sort(
-      (a, b) =>
-        DateTime.fromISO(b.endDate).toMillis() -
-        DateTime.fromISO(a.endDate).toMillis(),
-    )[0];
-}
-
-function getNextScheduledDrive(
-  drives: Array<GiftDrive>,
-): GiftDrive | undefined {
-  const now = DateTime.utc().toMillis();
-
-  return [...drives]
-    .filter((drive) => DateTime.fromISO(drive.startDate).toMillis() > now)
-    .sort(
-      (a, b) =>
-        DateTime.fromISO(a.startDate).toMillis() -
-        DateTime.fromISO(b.startDate).toMillis(),
-    )[0];
-}
 
 type StatCardProps = {
   backgroundSrc: string;

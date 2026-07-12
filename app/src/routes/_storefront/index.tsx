@@ -12,7 +12,7 @@ import { queries } from "@/queries";
 import { useStorefrontChildProfiles } from "@/hooks/queries/useStorefrontChildProfiles";
 import { useStorefrontUniqueDonors } from "@/hooks/queries/useStorefrontUniqueDonors";
 import { Spinner } from "@/components/ui/spinner";
-import { DateTime } from "luxon";
+import { getLatestCompletedDrive } from "@/lib/utils";
 
 export const Route = createFileRoute("/_storefront/")({
   validateSearch: z.object({
@@ -32,21 +32,18 @@ export const Route = createFileRoute("/_storefront/")({
         context.queryClient.ensureQueryData(
           queries.storefront.uniqueDonorsForDrive(driveId),
         ),
-      ]);
+      ]).catch(() => undefined);
       return;
     }
 
-    const drives = await context.queryClient.ensureQueryData(
-      queries.drives.all,
-    );
-    const now = DateTime.utc().toMillis();
-    const latestCompletedDrive = [...drives]
-      .filter((drive) => DateTime.fromISO(drive.endDate).toMillis() < now)
-      .sort(
-        (a, b) =>
-          DateTime.fromISO(b.endDate).toMillis() -
-          DateTime.fromISO(a.endDate).toMillis(),
-      )[0];
+    const drives = await context.queryClient
+      .ensureQueryData(queries.drives.all)
+      .catch(() => undefined);
+    if (!drives) {
+      return;
+    }
+
+    const latestCompletedDrive = getLatestCompletedDrive(drives);
 
     if (!latestCompletedDrive) {
       return;
@@ -59,7 +56,7 @@ export const Route = createFileRoute("/_storefront/")({
       context.queryClient.ensureQueryData(
         queries.storefront.uniqueDonorsForDrive(latestCompletedDrive.id),
       ),
-    ]);
+    ]).catch(() => undefined);
   },
   head: () => ({
     meta: [
