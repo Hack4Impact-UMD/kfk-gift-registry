@@ -151,7 +151,7 @@ export function OffSeasonScreen() {
 
   if (isDrivesPending) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="flex min-h-96 items-center justify-center">
         <Spinner />
       </div>
     );
@@ -159,7 +159,7 @@ export function OffSeasonScreen() {
 
   if (isDrivesError) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center px-4 text-center">
+      <div className="flex min-h-96 items-center justify-center px-4 text-center">
         <p className="font-gaegu text-xl text-kfk-red">
           Error loading gift drive information. Please try again later.
         </p>
@@ -179,12 +179,12 @@ export function OffSeasonScreen() {
   return (
     <div className="bg-white">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10 lg:gap-10 lg:py-12">
-        <section className="rounded-4xl bg-gradient-to-br from-[#fffaf0] via-white to-[#fff6cc] px-5 py-8 shadow-sm ring-1 ring-black/5 sm:px-8 lg:px-10">
+        <section className="rounded-4xl bg-gradient-to-br from-white via-kfk-yellow/10 to-kfk-yellow/20 px-5 py-8 shadow-sm ring-1 ring-black/5 sm:px-8 lg:px-10">
           <div className="grid items-center gap-8 lg:grid-cols-2">
             <div className="order-2 lg:order-1">
               <div
                 aria-hidden="true"
-                className="pointer-events-none mx-auto aspect-[671/575] w-full max-w-xl select-none bg-contain bg-center bg-no-repeat lg:max-w-none"
+                className="pointer-events-none mx-auto min-h-80 w-full max-w-xl select-none bg-contain bg-center bg-no-repeat lg:min-h-96 lg:max-w-none"
                 style={{ backgroundImage: `url(${heroScene})` }}
               />
             </div>
@@ -228,7 +228,7 @@ export function OffSeasonScreen() {
 
             {isRecentDriveChildrenPending ||
             isRecentDriveUniqueDonorsPending ? (
-              <div className="flex min-h-52 items-center justify-center rounded-3xl bg-[#fff9eb]">
+              <div className="flex min-h-52 items-center justify-center rounded-3xl bg-kfk-yellow/10">
                 <Spinner />
               </div>
             ) : (
