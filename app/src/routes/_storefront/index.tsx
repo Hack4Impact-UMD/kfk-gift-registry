@@ -36,7 +36,9 @@ export const Route = createFileRoute("/_storefront/")({
       return;
     }
 
-    const drives = await context.queryClient.ensureQueryData(queries.drives.all);
+    const drives = await context.queryClient.ensureQueryData(
+      queries.drives.all,
+    );
     const now = DateTime.utc().toMillis();
     const latestCompletedDrive = [...drives]
       .filter((drive) => DateTime.fromISO(drive.endDate).toMillis() < now)

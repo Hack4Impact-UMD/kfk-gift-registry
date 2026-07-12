@@ -19,7 +19,9 @@ const purchasedGiftStatuses = new Set<GiftStatus>([
   "RECEIVED",
 ]);
 
-function getLatestCompletedDrive(drives: Array<GiftDrive>): GiftDrive | undefined {
+function getLatestCompletedDrive(
+  drives: Array<GiftDrive>,
+): GiftDrive | undefined {
   const now = DateTime.utc().toMillis();
 
   return [...drives]
@@ -31,7 +33,9 @@ function getLatestCompletedDrive(drives: Array<GiftDrive>): GiftDrive | undefine
     )[0];
 }
 
-function getNextScheduledDrive(drives: Array<GiftDrive>): GiftDrive | undefined {
+function getNextScheduledDrive(
+  drives: Array<GiftDrive>,
+): GiftDrive | undefined {
   const now = DateTime.utc().toMillis();
 
   return [...drives]
@@ -70,7 +74,9 @@ function StatCard({
         <div
           className={`relative z-10 flex min-h-28 flex-col justify-center gap-1 px-6 py-5 font-gaegu text-black sm:min-h-32 sm:px-8 ${contentClassName ?? ""}`}
         >
-          <p className="text-2xl leading-tight font-bold sm:text-3xl">{value}</p>
+          <p className="text-2xl leading-tight font-bold sm:text-3xl">
+            {value}
+          </p>
           <p className="text-lg leading-tight sm:text-2xl">{label}</p>
         </div>
       </div>
@@ -220,7 +226,8 @@ export function OffSeasonScreen() {
               </h2>
             </div>
 
-            {isRecentDriveChildrenPending || isRecentDriveUniqueDonorsPending ? (
+            {isRecentDriveChildrenPending ||
+            isRecentDriveUniqueDonorsPending ? (
               <div className="flex min-h-52 items-center justify-center rounded-3xl bg-[#fff9eb]">
                 <Spinner />
               </div>
