@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
+import { OffSeasonScreen } from "@/components/storefront/OffSeasonScreen";
 import type { ChildCardData } from "@/components/storefront/ChildCard";
 import { ChildCard } from "@/components/storefront/ChildCard";
 import { useEffect, useMemo, useState } from "react";
@@ -11,6 +12,7 @@ import { queries } from "@/queries";
 import { useStorefrontChildProfiles } from "@/hooks/queries/useStorefrontChildProfiles";
 import { useStorefrontUniqueDonors } from "@/hooks/queries/useStorefrontUniqueDonors";
 import { Spinner } from "@/components/ui/spinner";
+import { getLatestCompletedDrive } from "@/lib/utils";
 
 export const Route = createFileRoute("/_storefront/")({
   validateSearch: z.object({
@@ -23,10 +25,38 @@ export const Route = createFileRoute("/_storefront/")({
   loader: async ({ context }) => {
     const driveId = context.currentDrive?.id;
     if (driveId) {
-      await context.queryClient.ensureQueryData(
-        queries.storefront.profilesForDrive(driveId),
-      );
+      await Promise.all([
+        context.queryClient.ensureQueryData(
+          queries.storefront.profilesForDrive(driveId),
+        ),
+        context.queryClient.ensureQueryData(
+          queries.storefront.uniqueDonorsForDrive(driveId),
+        ),
+      ]).catch(() => undefined);
+      return;
     }
+
+    const drives = await context.queryClient
+      .ensureQueryData(queries.drives.all)
+      .catch(() => undefined);
+    if (!drives) {
+      return;
+    }
+
+    const latestCompletedDrive = getLatestCompletedDrive(drives);
+
+    if (!latestCompletedDrive) {
+      return;
+    }
+
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        queries.storefront.profilesForDrive(latestCompletedDrive.id),
+      ),
+      context.queryClient.ensureQueryData(
+        queries.storefront.uniqueDonorsForDrive(latestCompletedDrive.id),
+      ),
+    ]).catch(() => undefined);
   },
   head: () => ({
     meta: [
@@ -147,13 +177,7 @@ function App() {
   );
 
   if (!context.currentDrive) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-lg font-gaegu text-red-600">
-          No active gift drive. Please try again later.
-        </p>
-      </div>
-    );
+    return <OffSeasonScreen />;
   }
 
   if (isError) {
