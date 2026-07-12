@@ -202,13 +202,21 @@ export function OffSeasonScreen() {
                     Before you go, check out our most recent gift drive stats
                     below.
                   </p>
-                  <a
-                    href="#recent-drive-stats"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      document
+                        .getElementById("recent-drive-stats")
+                        ?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
+                    }}
                     className="mt-5 inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-black text-black transition-colors hover:bg-black hover:text-white"
                     aria-label="Jump to recent drive stats"
                   >
                     <ArrowDown className="h-5 w-5" />
-                  </a>
+                  </button>
                 </>
               ) : null}
             </div>
