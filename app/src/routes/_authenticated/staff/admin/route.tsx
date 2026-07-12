@@ -1,7 +1,15 @@
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { UserRole } from "common";
 
-// TODO: Add role check on beforeLoad to ensure only admins can access these routes
 export const Route = createFileRoute("/_authenticated/staff/admin")({
+  beforeLoad: ({ context }) => {
+    if (
+      context.auth.authUser.role !== UserRole.DIRECTOR &&
+      context.auth.authUser.role !== UserRole.ADMIN
+    ) {
+      throw redirect({ to: "/staff/home" });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Admin Dashboard - Kisses for Kyle" },
