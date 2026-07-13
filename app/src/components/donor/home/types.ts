@@ -1,7 +1,9 @@
-import type { GiftStatus } from "common";
+import type { Address, GiftStatus } from "common";
 
 export type CommittedGift = {
   id: string;
+  familyId: string;
+  familyAddress: Address | null;
   title: string;
   productUrl: string;
   listedPrice: number;
