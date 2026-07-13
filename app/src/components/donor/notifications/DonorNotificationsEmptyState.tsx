@@ -14,7 +14,7 @@ export function DonorNotificationsEmptyState() {
         <img
           src={ladybug}
           alt="Ladybug"
-          className="absolute left-1/2 top-0 z-10 h-[320px] w-[320px] -translate-x-1/2 -rotate-90 object-contain"
+          className="absolute left-1/2 top-0 z-10 h-[320px] w-[320px] -translate-x-1/2 -rotate-[70deg] object-contain"
         />
       </div>
     </div>
