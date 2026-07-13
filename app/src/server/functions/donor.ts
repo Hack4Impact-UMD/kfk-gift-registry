@@ -705,7 +705,9 @@ export const getDonorNotifications = createServerFn({ method: "GET" })
     const [giftSnapshots, childSnapshots, donorNotificationReadsSnapshot] =
       await Promise.all([
         db._instance.getAll(...giftIds.map((giftId) => db.gifts.doc(giftId))),
-        db._instance.getAll(...childIds.map((childId) => db.children.doc(childId))),
+        db._instance.getAll(
+          ...childIds.map((childId) => db.children.doc(childId)),
+        ),
         db._instance
           .collection("donor-notification-reads")
           .where("donorId", "==", donorId)
@@ -759,13 +761,16 @@ export const getDonorNotifications = createServerFn({ method: "GET" })
           message: buildDonorNotificationMessage(type, gift.title),
           createdAt:
             type === "DELIVERY_CONFIRMATION_NEEDED"
-              ? claim.purchaseConfirmation?.date ?? claim.claimedAt
+              ? (claim.purchaseConfirmation?.date ?? claim.claimedAt)
               : claim.claimedAt,
           read: readIds.has(id),
           actionCompleted: false,
         };
       })
-      .filter((notification): notification is DonorNotification => notification !== null)
+      .filter(
+        (notification): notification is DonorNotification =>
+          notification !== null,
+      )
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
     return { notifications };

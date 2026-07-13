@@ -24,11 +24,14 @@ export function DonorNotificationDetail({
             <span className="font-semibold text-kfk-blue">
               {notification.giftTitle}
             </span>{" "}
-            has been reserved but is not yet marked as purchased. Please complete the purchase below. Once delivery is complete, please update the status in the app.
+            has been reserved but is not yet marked as purchased. Please
+            complete the purchase below. Once delivery is complete, please
+            update the status in the app.
           </p>
 
           <p className="mt-8 text-[18px] italic leading-10 text-[#1F2937]">
-            We kindly ask that you allow some time for delivery to help ensure gifts arrive in time for the holidays.
+            We kindly ask that you allow some time for delivery to help ensure
+            gifts arrive in time for the holidays.
           </p>
 
           <p className="mt-8 text-[18px] leading-10 text-[#1F2937]">
@@ -90,9 +93,11 @@ export function DonorNotificationDetail({
               {notification.childName}
             </h2>
             <span
-              className={notification.childCategory === "Warrior"
-                ? "mt-2 inline-flex rounded-full bg-[#FFF1B8] px-4 py-1 text-sm font-semibold text-[#8A5A00]"
-                : "mt-2 inline-flex rounded-full bg-[#D4EAFF] px-4 py-1 text-sm font-semibold text-kfk-blue"}
+              className={
+                notification.childCategory === "Warrior"
+                  ? "mt-2 inline-flex rounded-full bg-[#FFF1B8] px-4 py-1 text-sm font-semibold text-[#8A5A00]"
+                  : "mt-2 inline-flex rounded-full bg-[#D4EAFF] px-4 py-1 text-sm font-semibold text-kfk-blue"
+              }
             >
               {notification.childCategory}
             </span>

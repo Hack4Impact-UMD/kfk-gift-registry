@@ -10,21 +10,29 @@ import {
 type DonorNotificationCardProps = {
   notification: DonorNotificationListItem;
   index: number;
+  onOpen?: (notificationId: string) => void;
 };
 
 export function DonorNotificationCard({
   notification,
   index,
+  onOpen,
 }: DonorNotificationCardProps) {
   return (
     <Link
       to="/donor/notifications"
       search={{ notificationId: notification.id }}
       className="block"
+      onClick={() => onOpen?.(notification.id)}
     >
       <article className="overflow-hidden rounded-[22px] border border-[#E8E8E8] bg-white shadow-[0_2px_10px_rgba(0,0,0,0.06)]">
         <div className="flex min-h-[128px]">
-          <div className={cn("w-[7px] shrink-0", getNotificationAccentClass(index))} />
+          <div
+            className={cn(
+              "w-[7px] shrink-0",
+              getNotificationAccentClass(index),
+            )}
+          />
           <div className="flex flex-1 items-start gap-3 px-4 py-4">
             <Avatar className="mt-1 size-[56px] shrink-0 border border-[#F15A29] ring-1 ring-[#8BC34A]">
               <AvatarImage

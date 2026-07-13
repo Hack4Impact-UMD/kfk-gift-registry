@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import DefaultProfile from "@/assets/default-profile-photo.png";
@@ -14,13 +14,18 @@ import { filterNotifications } from "@/components/donor/notifications/utils";
 import { cn } from "@/lib/utils";
 import { queries } from "@/queries";
 
-function formatAddressLines(address: {
-  street: string;
-  addressLine2?: string;
-  city: string;
-  state: string;
-  zipCode: string;
-} | null | undefined): Array<string> {
+function formatAddressLines(
+  address:
+    | {
+        street: string;
+        addressLine2?: string;
+        city: string;
+        state: string;
+        zipCode: string;
+      }
+    | null
+    | undefined,
+): Array<string> {
   if (!address) {
     return [];
   }
@@ -29,7 +34,9 @@ function formatAddressLines(address: {
   if (address.addressLine2?.trim()) {
     lines.push(address.addressLine2.trim());
   }
-  lines.push(`${address.city.trim()}, ${address.state.trim()} ${address.zipCode.trim()}`);
+  lines.push(
+    `${address.city.trim()}, ${address.state.trim()} ${address.zipCode.trim()}`,
+  );
   return lines.filter(Boolean);
 }
 
@@ -76,10 +83,15 @@ function RouteComponent() {
   const markAsRead = useMarkDonorNotificationAsRead();
   const [markedIds, setMarkedIds] = useState<Array<string>>([]);
 
-  const notifications = notificationsData?.notifications ?? [];
-  const children = committedChildren ?? [];
+  const notifications = useMemo(
+    () => notificationsData?.notifications ?? [],
+    [notificationsData],
+  );
+  const children = useMemo(() => committedChildren ?? [], [committedChildren]);
 
-  const enrichedNotifications = useMemo<Array<DonorNotificationListItem>>(() => {
+  const enrichedNotifications = useMemo<
+    Array<DonorNotificationListItem>
+  >(() => {
     const childById = new Map(
       children.map((child) => [
         child.id,
@@ -126,21 +138,18 @@ function RouteComponent() {
     [enrichedNotifications, notificationId],
   );
 
-  useEffect(() => {
-    if (!selectedNotification || selectedNotification.read) {
+  const handleOpenNotification = (id: string) => {
+    const notification = enrichedNotifications.find((item) => item.id === id);
+    if (!notification || notification.read) {
       return;
     }
 
-    setMarkedIds((prev) =>
-      prev.includes(selectedNotification.id)
-        ? prev
-        : [...prev, selectedNotification.id],
-    );
+    setMarkedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
     markAsRead.mutate({
-      notificationId: selectedNotification.id,
+      notificationId: id,
       driveId,
     });
-  }, [driveId, markAsRead, selectedNotification]);
+  };
 
   if (notificationsPending || childrenPending) {
     return (
@@ -233,6 +242,7 @@ function RouteComponent() {
               key={notification.id}
               notification={notification}
               index={index}
+              onOpen={handleOpenNotification}
             />
           ))}
         </div>
