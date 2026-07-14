@@ -11,9 +11,9 @@ import { setGlobalOptions } from "firebase-functions";
 import { onSchedule } from "firebase-functions/scheduler";
 import * as logger from "firebase-functions/logger";
 import admin from "firebase-admin";
-import type { EmailJob } from "../../common/src/types/email-job";
+import type { EmailJob } from "common";
 import { Resend } from "resend";
-import { getEmailJobContent } from "../../transactional/email";
+import { getEmailJobContent } from "./emailJobContent";
 
 setGlobalOptions({ maxInstances: 10 });
 

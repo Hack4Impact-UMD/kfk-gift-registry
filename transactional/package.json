@@ -3,8 +3,8 @@
   "private": true,
   "exports": {
     ".": {
-      "source": "./email.tsx",
-      "default": "./email.tsx"
+      "source": "./index.ts",
+      "default": "./index.ts"
     },
     "./emails/*": {
       "source": "./emails/*.tsx",

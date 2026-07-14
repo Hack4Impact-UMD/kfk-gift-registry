@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { Resend } from "resend";
-import FamilyPortalEmail from "transactional/emails/FamilyPortalEmail";
+import { FamilyPortalEmail } from "transactional";
 import z from "zod";
 import { v7 as uuidv7 } from "uuid";
 import { getServerDB } from "@/lib/firebase.server";

@@ -8,15 +8,11 @@
     "noUnusedLocals": true,
     "outDir": "lib",
     "sourceMap": true,
+    "skipLibCheck": true,
     "strict": true,
     "target": "es2017",
     "jsx": "react-jsx"
   },
   "compileOnSave": true,
-  "include": [
-    "src",
-    "../transactional/email.tsx",
-    "../transactional/emails/**/*",
-    "../common/src/types/**/*"
-  ]
+  "include": ["src", "../transactional/emails/**/*", "../common/src/types/**/*"]
 }
