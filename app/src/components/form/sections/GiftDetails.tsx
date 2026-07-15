@@ -1,8 +1,6 @@
 import { CurrencyDollarIcon, GiftIcon } from "@heroicons/react/24/solid";
 import type { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { CardDescription } from "@/components/ui/card";
-import { useState, useRef } from "react";
-import { fetchProductDetails } from "@/server/functions/giftLinks";
 import {
   GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
   GIFT_PRICE_INVALID_MESSAGE,
@@ -26,12 +24,6 @@ export function GiftDetailsForm({
   childIndex,
   disabled = false,
 }: GiftDetailsFormProps) {
-  const [fetchStatus, setFetchStatus] = useState<
-    Record<string, { loading: boolean; error: string | null }>
-  >({});
-  const manuallyEditedRef = useRef<Set<string>>(new Set());
-  const lastFetchedUrlRef = useRef<Record<string, string>>({});
-
   type GiftType = "gifts" | "backupGifts";
   type GiftFieldOverrides = {
     giftName?: string;
@@ -88,73 +80,6 @@ export function GiftDetailsForm({
     );
   };
 
-  const handleUrlBlur = async (
-    key: string,
-    giftType: GiftType,
-    giftIndex: number,
-    url: string,
-  ) => {
-    if (!url) return;
-
-    const requestedUrl = url;
-    const getNameValue = () =>
-      form.state.values.giftSelections[childIndex]?.[giftType][giftIndex]
-        ?.giftName ?? "";
-
-    const nameIsEmpty = getNameValue().trim() === "";
-
-    if (requestedUrl !== lastFetchedUrlRef.current[key]) {
-      manuallyEditedRef.current.delete(key);
-    }
-
-    if (requestedUrl === lastFetchedUrlRef.current[key] && !nameIsEmpty) {
-      return;
-    }
-
-    lastFetchedUrlRef.current[key] = requestedUrl;
-    setFetchStatus((prev) => ({
-      ...prev,
-      [key]: { loading: true, error: null },
-    }));
-
-    try {
-      const result = await fetchProductDetails({ data: { url: requestedUrl } });
-
-      if (lastFetchedUrlRef.current[key] !== requestedUrl) {
-        return;
-      }
-
-      setFetchStatus((prev) => ({
-        ...prev,
-        [key]: { loading: false, error: null },
-      }));
-
-      if (getNameValue().trim() === "" || !manuallyEditedRef.current.has(key)) {
-        if (giftType === "gifts") {
-          const nameFieldPath =
-            `giftSelections[${childIndex}].${giftType}[${giftIndex as 0 | 1 | 2}].giftName` as const;
-          form.setFieldValue(nameFieldPath, result.productName);
-        } else {
-          const nameFieldPath =
-            `giftSelections[${childIndex}].${giftType}[${giftIndex as 0 | 1}].giftName` as const;
-          form.setFieldValue(nameFieldPath, result.productName);
-        }
-      }
-    } catch {
-      if (lastFetchedUrlRef.current[key] !== requestedUrl) {
-        return;
-      }
-
-      setFetchStatus((prev) => ({
-        ...prev,
-        [key]: {
-          loading: false,
-          error:
-            "Unable to fetch product item, please double check and make sure link is correct",
-        },
-      }));
-    }
-  };
   //TODO: update the child status dropdown wording/options
 
   return (
@@ -194,37 +119,15 @@ export function GiftDetailsForm({
                     }
               }
             >
-              {(field) => {
-                const key = `${childIndex}-gifts-${i}`;
-                const status = fetchStatus[key];
-                return (
-                  <>
-                    <div
-                      onBlur={() =>
-                        handleUrlBlur(key, "gifts", i, field.state.value)
-                      }
-                    >
-                      <field.FormFieldInput
-                        Icon={GiftIcon}
-                        label={`Gift #${i + 1} URL${i !== 0 ? " (Optional)" : ""}`}
-                        placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
-                        required={i === 0}
-                        disabled={disabled}
-                      />
-                    </div>
-                    {status?.loading && (
-                      <p className="text-xs text-slate-500 mt-1 pl-1">
-                        Fetching product info...
-                      </p>
-                    )}
-                    {status?.error && (
-                      <p className="text-xs text-red-500 mt-1 pl-1">
-                        {status.error}
-                      </p>
-                    )}
-                  </>
-                );
-              }}
+              {(field) => (
+                <field.FormFieldInput
+                  Icon={GiftIcon}
+                  label={`Gift #${i + 1} URL${i !== 0 ? " (Optional)" : ""}`}
+                  placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
+                  required={i === 0}
+                  disabled={disabled}
+                />
+              )}
             </form.AppField>
             <form.AppField
               name={`giftSelections[${childIndex}].gifts[${i}].giftName`}
@@ -254,23 +157,18 @@ export function GiftDetailsForm({
                     }
               }
             >
-              {(field) => {
-                const key = `${childIndex}-gifts-${i}`;
-                return (
-                  <div onChange={() => manuallyEditedRef.current.add(key)}>
-                    <field.FormFieldInput
-                      Icon={GiftIcon}
-                      label={`Gift #${i + 1} Name${i !== 0 ? " (Optional)" : ""}`}
-                      placeholder="e.g. Monopoly"
-                      characterLimit={MAX_GIFT_TITLE_LENGTH}
-                      required={i === 0}
-                      maxCharactersErrorMessage={GIFT_TITLE_TOO_LONG_MESSAGE}
-                      showMaxCharactersError
-                      disabled={disabled}
-                    />
-                  </div>
-                );
-              }}
+              {(field) => (
+                <field.FormFieldInput
+                  Icon={GiftIcon}
+                  label={`Gift #${i + 1} Name${i !== 0 ? " (Optional)" : ""}`}
+                  placeholder="e.g. Monopoly"
+                  characterLimit={MAX_GIFT_TITLE_LENGTH}
+                  required={i === 0}
+                  maxCharactersErrorMessage={GIFT_TITLE_TOO_LONG_MESSAGE}
+                  showMaxCharactersError
+                  disabled={disabled}
+                />
+              )}
             </form.AppField>
 
             <form.AppField
@@ -373,37 +271,15 @@ export function GiftDetailsForm({
                     }
               }
             >
-              {(field) => {
-                const key = `${childIndex}-backupGifts-${i}`;
-                const status = fetchStatus[key];
-                return (
-                  <>
-                    <div
-                      onBlur={() =>
-                        handleUrlBlur(key, "backupGifts", i, field.state.value)
-                      }
-                    >
-                      <field.FormFieldInput
-                        Icon={GiftIcon}
-                        label={`Backup Gift #${i + 1} URL`}
-                        placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
-                        required
-                        disabled={disabled}
-                      />
-                    </div>
-                    {status?.loading && (
-                      <p className="text-xs text-slate-500 mt-1 pl-1">
-                        Fetching product info...
-                      </p>
-                    )}
-                    {status?.error && (
-                      <p className="text-xs text-red-500 mt-1 pl-1">
-                        {status.error}
-                      </p>
-                    )}
-                  </>
-                );
-              }}
+              {(field) => (
+                <field.FormFieldInput
+                  Icon={GiftIcon}
+                  label={`Backup Gift #${i + 1} URL`}
+                  placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
+                  required
+                  disabled={disabled}
+                />
+              )}
             </form.AppField>
             <form.AppField
               name={`giftSelections[${childIndex}].backupGifts[${i}].giftName`}
@@ -424,23 +300,18 @@ export function GiftDetailsForm({
                     }
               }
             >
-              {(field) => {
-                const key = `${childIndex}-backupGifts-${i}`;
-                return (
-                  <div onChange={() => manuallyEditedRef.current.add(key)}>
-                    <field.FormFieldInput
-                      Icon={GiftIcon}
-                      label={`Backup Gift #${i + 1} Name`}
-                      placeholder="e.g. Monopoly"
-                      characterLimit={MAX_GIFT_TITLE_LENGTH}
-                      required
-                      maxCharactersErrorMessage={GIFT_TITLE_TOO_LONG_MESSAGE}
-                      showMaxCharactersError
-                      disabled={disabled}
-                    />
-                  </div>
-                );
-              }}
+              {(field) => (
+                <field.FormFieldInput
+                  Icon={GiftIcon}
+                  label={`Backup Gift #${i + 1} Name`}
+                  placeholder="e.g. Monopoly"
+                  characterLimit={MAX_GIFT_TITLE_LENGTH}
+                  required
+                  maxCharactersErrorMessage={GIFT_TITLE_TOO_LONG_MESSAGE}
+                  showMaxCharactersError
+                  disabled={disabled}
+                />
+              )}
             </form.AppField>
 
             <form.AppField
