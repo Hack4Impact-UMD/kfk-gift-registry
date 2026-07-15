@@ -1,11 +1,13 @@
 import { z } from "zod";
 import {
+  AMAZON_PRODUCT_URL_INVALID_MESSAGE,
   ChildStatusSchema,
   GiftFamilyPublicNotesSchema,
   GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
   GiftTitleSchema,
   MAX_GIFT_PRICE,
+  isValidAmazonProductUrl,
 } from "common";
 import type { ChildStatus } from "common";
 
@@ -270,7 +272,7 @@ function hasValidPrice(value: string) {
 
 const baseGiftSchema = z.object({
   giftName: GiftTitleSchema,
-  giftUrl: z.union([z.literal(""), z.url()]),
+  giftUrl: z.string().trim(),
   listedPrice: z.string().trim(),
   familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
 });
@@ -298,6 +300,12 @@ const optionalGiftSchema = baseGiftSchema.superRefine((data, ctx) => {
       code: "custom",
       path: ["giftUrl"],
       message: URL_REQUIRED_MESSAGE,
+    });
+  } else if (!isValidAmazonProductUrl(data.giftUrl)) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["giftUrl"],
+      message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
     });
   }
 
@@ -337,6 +345,12 @@ const requiredGiftSchema = baseGiftSchema.superRefine((data, ctx) => {
       code: "custom",
       path: ["giftUrl"],
       message: URL_REQUIRED_MESSAGE,
+    });
+  } else if (!isValidAmazonProductUrl(data.giftUrl)) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["giftUrl"],
+      message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
     });
   }
 
