@@ -2,6 +2,7 @@ import { CurrencyDollarIcon, GiftIcon } from "@heroicons/react/24/solid";
 import type { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { CardDescription } from "@/components/ui/card";
 import {
+  AMAZON_PRODUCT_URL_INVALID_MESSAGE,
   GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
   GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
@@ -10,6 +11,7 @@ import {
   MAX_GIFT_PRICE,
   MAX_GIFT_TITLE_LENGTH,
   getGiftTitleTooLongCounterMessage,
+  isValidAmazonProductUrl,
 } from "common";
 
 type GiftDetailsFormProps = {
@@ -106,15 +108,12 @@ export function GiftDetailsForm({
                         if (!trimmedValue) {
                           return urlIsRequired ? "URL is required" : undefined;
                         }
-                        try {
-                          const url = new URL(trimmedValue);
-                          if (!["http:", "https:"].includes(url.protocol)) {
-                            return "URL must start with http or https";
-                          }
-                          return undefined;
-                        } catch {
-                          return "Please enter a valid URL";
+
+                        if (!isValidAmazonProductUrl(trimmedValue)) {
+                          return AMAZON_PRODUCT_URL_INVALID_MESSAGE;
                         }
+
+                        return undefined;
                       },
                     }
               }
@@ -257,16 +256,12 @@ export function GiftDetailsForm({
                   ? undefined
                   : {
                       onChange: ({ value }) => {
-                        if (!value) return "URL is required";
-                        try {
-                          const url = new URL(value);
-                          if (!["http:", "https:"].includes(url.protocol)) {
-                            return "URL must start with http or https";
-                          }
-                          return undefined;
-                        } catch {
-                          return "Please enter a valid URL";
+                        const trimmedValue = value.trim();
+                        if (!trimmedValue) return "URL is required";
+                        if (!isValidAmazonProductUrl(trimmedValue)) {
+                          return AMAZON_PRODUCT_URL_INVALID_MESSAGE;
                         }
+                        return undefined;
                       },
                     }
               }
