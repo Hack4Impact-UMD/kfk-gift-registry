@@ -18,6 +18,7 @@ import {
   ShoppingCartIcon,
   UserCircleIcon,
   ChevronDoubleLeftIcon,
+  ArrowTopRightOnSquareIcon,
 } from "@/components/icons";
 import { CircleDollarSign, FormIcon } from "lucide-react";
 import type { AuthContext } from "@/server/functions/auth";
@@ -84,6 +85,17 @@ export function StorefrontMobileSidebar({
                 >
                   <HomeIcon className="size-6" />
                   <span className="text-base">Home</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild size="lg">
+                <Link
+                  to="/"
+                  className="flex items-center gap-3 w-full text-left"
+                >
+                  <ArrowTopRightOnSquareIcon className="size-6" />
+                  <span className="text-base">Storefront Tutorial</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
