@@ -2,6 +2,10 @@
   "name": "transactional",
   "private": true,
   "exports": {
+    ".": {
+      "source": "./index.ts",
+      "default": "./index.ts"
+    },
     "./emails/*": {
       "source": "./emails/*.tsx",
       "default": "./emails/*.tsx"
@@ -17,7 +21,8 @@
     "common": "workspace:*",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "react-email": "^6.1.5"
+    "react-email": "^6.1.5",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@react-email/ui": "6.1.5",

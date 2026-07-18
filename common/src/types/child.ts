@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ChildPublicBlurbSchema } from "../validation";
+import { ChildPublicBlurbSchema } from "../validation.js";
 
 export const ChildStatusSchema = z.enum([
   "recently_diagnosed_relapse",

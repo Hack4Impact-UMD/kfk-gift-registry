@@ -8,6 +8,9 @@ import { UserRole } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
 import { assertGiftDriveActive } from "@/server/services/giftDriveService.server";
+import { buildDonorPostClaimConfirmationPayload } from "@/server/services/donorEmailPayloadService.server";
+import { renderDonorPostClaimConfirmationEmail } from "@/server/services/donorEmailRenderer.server";
+import { sendEmailNow } from "@/server/services/emailService.server";
 import type { CommittedChild } from "@/components/donor/home/types";
 import {
   publishNotification,
@@ -275,7 +278,7 @@ export const claimGifts = createServerFn({ method: "POST" })
     const giftIds = Array.from(new Set(data.giftIds));
     const db = getServerDB();
 
-    return await db._instance.runTransaction(async (tx) => {
+    const result = await db._instance.runTransaction(async (tx) => {
       const { gifts, driveId } = await loadGifts(tx, db, giftIds);
 
       await assertGiftDriveActive(tx, driveId);
@@ -302,6 +305,10 @@ export const claimGifts = createServerFn({ method: "POST" })
       }
 
       const claimedAt = DateTime.utc().toISO();
+      if (!claimedAt) {
+        throw new Error("Failed to create claim timestamp");
+      }
+
       const claims: Array<Claim> = gifts.map((gift) => ({
         id: uuidv7(),
         giftId: gift.id,
@@ -348,6 +355,39 @@ export const claimGifts = createServerFn({ method: "POST" })
 
       return { claims };
     });
+
+    const donorSnapshot = await db.users.doc(donorId).get();
+    const donor = donorSnapshot.data();
+
+    if (!donor) {
+      console.warn(
+        "Skipping donor post-claim confirmation email: donor profile not found",
+      );
+      return result;
+    }
+
+    try {
+      const payload = await buildDonorPostClaimConfirmationPayload({
+        donor,
+        claims: result.claims,
+      });
+
+      const { subject, html } =
+        await renderDonorPostClaimConfirmationEmail(payload);
+
+      await sendEmailNow({
+        to: donor.email,
+        subject,
+        html,
+      });
+    } catch (error) {
+      console.error(
+        "Failed to send donor post-claim confirmation email",
+        error,
+      );
+    }
+
+    return result;
   });
 
 export const markGiftPurchased = createServerFn({ method: "POST" })
