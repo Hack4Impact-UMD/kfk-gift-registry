@@ -13,7 +13,6 @@ import * as logger from "firebase-functions/logger";
 import admin from "firebase-admin";
 import type { EmailJob } from "common";
 import { Resend } from "resend";
-import { getEmailJobContent } from "./emailJobContent";
 
 setGlobalOptions({ maxInstances: 10 });
 
@@ -27,20 +26,10 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 const EMAIL_COLLECTION = "emails";
 const RESEND_SCHEDULING_WINDOW_DAYS = 30;
-const DEFAULT_APP_BASE_URL = "https://gifts.kissesforkyle.org";
 const FROM_EMAIL =
   "Kisses for Kyle Gift Registry <noreply@gifts.kissesforkyle.org>";
 
 type ScheduledEmailJob = EmailJob;
-
-function getAppBaseUrl() {
-  const raw = process.env.APP_BASE_URL ?? DEFAULT_APP_BASE_URL;
-  return raw.replace(/\/+$/, "");
-}
-
-function getDonorPortalUrl() {
-  return `${getAppBaseUrl()}/donor/home`;
-}
 
 function getResendClient() {
   const apiKey = process.env.RESEND_API_KEY;
@@ -106,20 +95,22 @@ async function markJobCancelled(jobId: string, reason: string) {
   });
 }
 
-async function shouldCancelReminder(job: ScheduledEmailJob) {
-  if (job.payload.type !== "DONOR_PURCHASE_REMINDER") {
+/**
+ * Generic, content-agnostic cancellation check: if the caller attached
+ * `claimIds` to a job's metadata, cancel the job once every referenced
+ * claim is inactive or already confirmed. Jobs without this metadata are
+ * never auto-cancelled.
+ */
+async function shouldCancelJob(job: ScheduledEmailJob) {
+  const claimIds = job.metadata?.claimIds;
+  if (!Array.isArray(claimIds) || claimIds.length === 0) {
     return false;
   }
 
-  const claimIds = job.payload.data.claimIds;
-  if (!claimIds?.length) {
-    throw new Error("Purchase reminder job is missing claimIds");
-  }
-
   const claimSnapshots = await Promise.all(
-    claimIds.map((claimId: string) =>
-      db.collection("claims").doc(claimId).get(),
-    ),
+    (claimIds as unknown[])
+      .filter((claimId): claimId is string => typeof claimId === "string")
+      .map((claimId) => db.collection("claims").doc(claimId).get()),
   );
 
   const activeClaims = claimSnapshots
@@ -163,22 +154,16 @@ export const promotePendingEmailJobs = onSchedule(
           continue;
         }
 
-        if (await shouldCancelReminder(job)) {
-          await markJobCancelled(job.id, "Reminder no longer needed");
+        if (await shouldCancelJob(job)) {
+          await markJobCancelled(job.id, "Job no longer needed");
           continue;
         }
-
-        const content = getEmailJobContent({
-          job,
-          baseUrl: getAppBaseUrl(),
-          donorPortalUrl: getDonorPortalUrl(),
-        });
 
         const { data, error } = await resend.emails.send({
           from: FROM_EMAIL,
           to: job.to,
-          subject: content.subject,
-          react: content.react,
+          subject: job.subject,
+          html: job.html,
           scheduledAt: job.sendAt,
         });
 

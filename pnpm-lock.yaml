@@ -284,9 +284,6 @@ importers:
       resend:
         specifier: ^6.12.3
         version: 6.12.3(@react-email/render@2.0.9(react-dom@19.2.5(react@19.2.5))(react@19.2.5))
-      transactional:
-        specifier: workspace:*
-        version: link:../transactional
     devDependencies:
       firebase-functions-test:
         specifier: ^3.4.1

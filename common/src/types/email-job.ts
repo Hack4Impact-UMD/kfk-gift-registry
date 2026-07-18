@@ -11,14 +11,6 @@ export const EmailJobStatusSchema = z.enum([
 
 export type EmailJobStatus = z.infer<typeof EmailJobStatusSchema>;
 
-/* implementation will utilize either resend or our own cloud func */
-export const EmailJobTypeSchema = z.enum([
-  "DONOR_POST_CLAIM_CONFIRMATION",
-  "DONOR_PURCHASE_REMINDER",
-]);
-
-export type EmailJobType = z.infer<typeof EmailJobTypeSchema>;
-
 export const DonorClaimGiftSummarySchema = z.object({
   giftId: z.string(),
   childId: z.string(),
@@ -83,27 +75,19 @@ export type DonorPurchaseReminderPayload = z.infer<
   typeof DonorPurchaseReminderPayloadSchema
 >;
 
-export const EmailJobPayloadSchema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.literal("DONOR_POST_CLAIM_CONFIRMATION"),
-    data: DonorPostClaimConfirmationPayloadSchema,
-  }),
-  z.object({
-    type: z.literal("DONOR_PURCHASE_REMINDER"),
-    data: DonorPurchaseReminderPayloadSchema,
-  }),
-]);
-
-export type EmailJobPayload = z.infer<typeof EmailJobPayloadSchema>;
-
 export const EmailJobSchema = z.object({
   id: z.string(),
-  type: EmailJobTypeSchema,
   to: z.email(),
   subject: z.string(),
-  payload: EmailJobPayloadSchema,
+  html: z.string(),
   sendAt: z.iso.datetime(),
   status: EmailJobStatusSchema,
+  /**
+   * Opaque, caller-defined data the scheduler may consult for its own
+   * delivery decisions (e.g. cancellation). The scheduler must not use
+   * this to select or render content.
+   */
+  metadata: z.record(z.string(), z.unknown()).optional(),
   resendEmailId: z.string().optional(),
   scheduledAt: z.iso.datetime().optional(),
   sentAt: z.iso.datetime().optional(),

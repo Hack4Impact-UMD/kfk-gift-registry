@@ -9,6 +9,7 @@ import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
 import { assertGiftDriveActive } from "@/server/services/giftDriveService.server";
 import { buildDonorPostClaimConfirmationPayload } from "@/server/services/donorEmailPayloadService.server";
+import { renderDonorPostClaimConfirmationEmail } from "@/server/services/donorEmailRenderer.server";
 import { sendEmailNow } from "@/server/services/emailService.server";
 import type { CommittedChild } from "@/components/donor/home/types";
 import {
@@ -305,12 +306,13 @@ export const claimGifts = createServerFn({ method: "POST" })
         claims: result.claims,
       });
 
+      const { subject, html } =
+        await renderDonorPostClaimConfirmationEmail(payload);
+
       await sendEmailNow({
         to: donor.email,
-        payload: {
-          type: "DONOR_POST_CLAIM_CONFIRMATION",
-          data: payload,
-        },
+        subject,
+        html,
       });
     } catch (error) {
       console.error(

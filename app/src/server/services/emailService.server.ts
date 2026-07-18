@@ -1,20 +1,19 @@
 import { DateTime } from "luxon";
 import { Resend } from "resend";
-import type { EmailJob, EmailJobPayload, EmailJobType } from "common";
+import type { EmailJob } from "common";
 import { getServerDB } from "@/lib/firebase.server";
-import { getEmailJobContent } from "@/server/services/emailTemplateService.server";
 
 const RESEND_SCHEDULING_WINDOW_DAYS = 30;
 const DEFAULT_APP_BASE_URL = "https://gifts.kissesforkyle.org";
 const FROM_EMAIL =
   "Kisses for Kyle Gift Registry <noreply@gifts.kissesforkyle.org>";
 
-function getAppBaseUrl() {
+export function getAppBaseUrl() {
   const raw = process.env.APP_BASE_URL ?? DEFAULT_APP_BASE_URL;
   return raw.replace(/\/+$/, "");
 }
 
-function getDonorPortalUrl() {
+export function getDonorPortalUrl() {
   return `${getAppBaseUrl()}/donor/home`;
 }
 
@@ -48,11 +47,11 @@ function canScheduleDirectlyWithResend(sendAt: string) {
 
 export function createEmailJob(params: {
   id: string;
-  type: EmailJobType;
   to: string;
   subject: string;
-  payload: EmailJobPayload;
+  html: string;
   sendAt: string;
+  metadata?: Record<string, unknown>;
 }): EmailJob {
   const now = DateTime.now().toISO();
   if (!now) {
@@ -63,12 +62,12 @@ export function createEmailJob(params: {
 
   return {
     id: params.id,
-    type: params.type,
     to: params.to,
     subject: params.subject,
-    payload: params.payload,
+    html: params.html,
     sendAt: normalizedSendAt,
     status: "pending",
+    metadata: params.metadata,
     createdAt: now,
     updatedAt: now,
   };
@@ -181,11 +180,10 @@ export async function getPendingEmailJobsReadyForResendScheduling() {
 
   return snapshot.docs.map((doc) => doc.data());
 }
-// todo: look into refactoring so all emails are sent through this service and we can remove resend logic from individual email functions
 export async function sendEmailNow(params: {
   to: string;
-  payload: EmailJobPayload;
-  subject?: string;
+  subject: string;
+  html: string;
 }) {
   if (!process.env.RESEND_API_KEY) {
     console.warn("Skipping email send: RESEND_API_KEY is not set");
@@ -195,20 +193,12 @@ export async function sendEmailNow(params: {
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const content = getEmailJobContent({
-    job: {
-      payload: params.payload,
-      subject: params.subject ?? "",
-    },
-    baseUrl: getAppBaseUrl(),
-    donorPortalUrl: getDonorPortalUrl(),
-  });
 
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: params.to,
-    subject: content.subject,
-    react: content.react,
+    subject: params.subject,
+    html: params.html,
   });
 
   if (error) {
