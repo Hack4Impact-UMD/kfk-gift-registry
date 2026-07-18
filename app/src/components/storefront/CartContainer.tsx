@@ -29,8 +29,9 @@ export function CartContainer({
         </div>
       ) : (
         <div className="space-y-6">
-          {cartData.map((family) => (
+          {cartData.map((family, index) => (
             <FamilyCartTable
+              index={index}
               key={family.family.id}
               family={family}
               onRemoveGift={onRemoveGift}
