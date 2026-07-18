@@ -34,9 +34,12 @@ function formatAddressLines(
   if (address.addressLine2?.trim()) {
     lines.push(address.addressLine2.trim());
   }
-  lines.push(
-    `${address.city.trim()}, ${address.state.trim()} ${address.zipCode.trim()}`,
-  );
+  const city = address.city.trim();
+  const state = address.state.trim();
+  const zipCode = address.zipCode.trim();
+  if (city && state && zipCode) {
+    lines.push(`${city}, ${state} ${zipCode}`);
+  }
   return lines.filter(Boolean);
 }
 
@@ -145,10 +148,14 @@ function RouteComponent() {
     }
 
     setMarkedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
-    markAsRead.mutate({
-      notificationId: id,
-      driveId,
-    });
+    markAsRead.mutate(
+      { notificationId: id, driveId },
+      {
+        onError: () => {
+          setMarkedIds((prev) => prev.filter((markedId) => markedId !== id));
+        },
+      },
+    );
   };
 
   if (notificationsPending || childrenPending) {

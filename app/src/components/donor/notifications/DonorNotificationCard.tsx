@@ -62,7 +62,10 @@ export function DonorNotificationCard({
             </div>
 
             {!notification.read ? (
-              <div className="mt-10 size-2.5 shrink-0 rounded-full bg-kfk-blue" />
+              <>
+                <span className="sr-only">Unread notification</span>
+                <div className="mt-10 size-2.5 shrink-0 rounded-full bg-kfk-blue" />
+              </>
             ) : null}
           </div>
         </div>

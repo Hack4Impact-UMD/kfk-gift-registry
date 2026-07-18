@@ -150,7 +150,9 @@ export function DonorNotificationDetail({
         <Button
           type="button"
           className="h-12 flex-1 rounded-[12px] bg-kfk-blue font-gaegu text-[18px] font-bold text-white hover:bg-kfk-blue/90"
-          onClick={() => navigate({ to: "/donor/home" })}
+          onClick={() =>
+            navigate({ to: "/donor/home", hash: notification.childId })
+          }
         >
           Go to action
         </Button>
