@@ -27,8 +27,8 @@ export function GiftInfoSection({
   const backupGifts = gifts.filter((g) => !g.active);
 
   return (
-    <div className="mt-6 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,250px)]">
-      <div className="flex min-w-164 flex-col gap-6">
+    <div className="mt-6 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className="flex min-w-0 flex-col gap-6">
         <div className="flex flex-col gap-4 rounded-xl border bg-white p-4 shadow-sm">
           <h2 className="flex flex-col items-start gap-3 pt-3 text-2xl font-bold leading-tight sm:flex-row sm:items-center sm:justify-center sm:text-3xl lg:text-4xl">
             <GiftIcon className="h-10 w-10 shrink-0" />
@@ -66,7 +66,7 @@ export function GiftInfoSection({
         )}
       </div>
 
-      <div className="flex w-full flex-col gap-6 lg:sticky lg:top-4 lg:max-w-[420px]">
+      <div className="flex min-w-0 w-full flex-col gap-6 xl:sticky xl:top-4">
         <div className="flex flex-col gap-6 bg-transparent">
           <ParentComments comments={parentComments} />
 

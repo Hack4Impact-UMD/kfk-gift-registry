@@ -25,6 +25,7 @@ import { chunk, isDonorClaim } from "@/lib/utils";
 
 export type FamilyGiftClaim = {
   giftId: string;
+  claimType: "donor" | "kfk";
   claimedAt: string;
   purchaseConfirmation?: {
     date: string;
@@ -614,6 +615,7 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
       .map(
         (claim): FamilyGiftClaim => ({
           giftId: claim.giftId,
+          claimType: claim.claimType,
           claimedAt: claim.claimedAt,
           purchaseConfirmation: claim.purchaseConfirmation
             ? {
@@ -673,6 +675,7 @@ export const getFamilyChildDataByToken = createServerFn({ method: "GET" })
           .map(
             (claim): FamilyGiftClaim => ({
               giftId: claim.giftId,
+              claimType: claim.claimType,
               claimedAt: claim.claimedAt,
               purchaseConfirmation: claim.purchaseConfirmation
                 ? {

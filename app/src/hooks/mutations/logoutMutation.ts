@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { logout } from "@/services/authService.client";
+import { logout } from "@/services/authService";
 import { queries } from "@/queries";
 import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";

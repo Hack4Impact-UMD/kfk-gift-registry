@@ -2,8 +2,8 @@
 https://tanstack.com/query/v5/docs/framework/react/guides/mutations */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { OnMFACallback } from "@/services/authService.client";
-import { login } from "@/services/authService.client";
+import type { OnMFACallback } from "@/services/authService";
+import { login } from "@/services/authService";
 import { queries } from "@/queries";
 
 type LoginInput = {

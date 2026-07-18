@@ -7,6 +7,7 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 import { useState } from "react";
+import { z } from "zod";
 import { useFormContext } from "@/components/providers/FormProvider";
 import { childGiftSchema, giftsFormSchema } from "@/lib/formSchemas";
 import { Button } from "@/components/ui/button";
@@ -15,9 +16,10 @@ import { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { GiftDetailsForm } from "@/components/form/sections/GiftDetails";
 import LadyBug from "@/assets/form/ladybug.png";
 
-export const Route = createFileRoute(
-  "/family/drive/$driveId/form/gift-details",
-)({
+export const Route = createFileRoute("/family/form/$formLinkId/gift-details")({
+  validateSearch: z.object({
+    childIndex: z.number().optional(),
+  }),
   head: () => ({
     meta: [
       { title: "Gift Details - Family Registration" },
@@ -36,9 +38,19 @@ function GiftsStep() {
   const childrenNameList = (formState.children?.children || []).map(
     (c) => c.name,
   );
-  const { driveId } = Route.useParams();
+  const { formLinkId } = Route.useParams();
+  const { childIndex } = Route.useSearch();
 
-  const [activeChildIndex, setActiveChildIndex] = useState<number | null>(null);
+  const safeChildIndex =
+    childIndex != null &&
+    childIndex >= 0 &&
+    childIndex < childrenNameList.length
+      ? childIndex
+      : null;
+
+  const [activeChildIndex, setActiveChildIndex] = useState<number | null>(
+    safeChildIndex,
+  );
 
   const form = useGiftsForm();
 
@@ -46,8 +58,8 @@ function GiftsStep() {
     const currentValues = form.state.values;
     updateSection("gifts", currentValues);
     navigate({
-      to: "/family/drive/$driveId/form/children",
-      params: { driveId },
+      to: "/family/form/$formLinkId/children",
+      params: { formLinkId },
     });
   };
 
@@ -59,9 +71,19 @@ function GiftsStep() {
 
     if (isComplete) return "completed";
 
+    const hasGiftValue = (
+      gift:
+        | (typeof childData.gifts)[number]
+        | (typeof childData.backupGifts)[number],
+    ) =>
+      gift.giftName.trim() !== "" ||
+      gift.giftUrl.trim() !== "" ||
+      (gift.listedPrice?.trim() ?? "") !== "" ||
+      (gift.familyPublicNotes?.trim() ?? "") !== "";
+
     const isPristine =
-      childData.gifts.every((g) => g.giftName === "" && g.giftUrl === "") &&
-      childData.verified === false;
+      childData.gifts.every((gift) => !hasGiftValue(gift)) &&
+      childData.backupGifts.every((gift) => !hasGiftValue(gift));
 
     if (isPristine) return "pristine";
 
@@ -92,7 +114,7 @@ function GiftsStep() {
             </p>
             <ul className="flex flex-col gap-2 list-disc px-7">
               <li>
-                🎁 Gifts must be <strong>$25 or less</strong>, based on the{" "}
+                🎁 Gifts must be <strong>$30 or less</strong>, based on the{" "}
                 <strong>original price</strong> (not the sale price).
               </li>
               <li>
@@ -163,8 +185,8 @@ function GiftsStep() {
               if (result.success) {
                 updateSection("gifts", result.data);
                 navigate({
-                  to: "/family/drive/$driveId/form/review",
-                  params: { driveId },
+                  to: "/family/form/$formLinkId/review",
+                  params: { formLinkId },
                 });
               }
             }}
@@ -196,20 +218,37 @@ function GiftsStep() {
           childName={childrenNameList[activeChildIndex]}
         />
 
-        <Button
-          type="button"
-          onClick={() => {
-            if (document.activeElement instanceof HTMLElement) {
-              document.activeElement.blur();
-            }
-            setActiveChildIndex(null);
-          }}
-          variant="outline"
-          className="flex h-14 rounded-xl border-2 border-kfk-blue text-kfk-blue font-bold text-lg"
-        >
-          <ChevronLeftIcon className="mr-2 h-6 w-6" />
-          Back
-        </Button>
+        <FormItem className="flex gap-4">
+          <Button
+            type="button"
+            onClick={() => {
+              if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur();
+              }
+              setActiveChildIndex(null);
+            }}
+            variant="outline"
+            className="flex-1 h-14 rounded-xl border-2 border-kfk-blue text-kfk-blue font-bold text-lg"
+          >
+            <ChevronLeftIcon className="mr-2 h-6 w-6" />
+            Back
+          </Button>
+          {activeChildIndex < childrenNameList.length - 1 && (
+            <Button
+              type="button"
+              onClick={() => {
+                if (document.activeElement instanceof HTMLElement) {
+                  document.activeElement.blur();
+                }
+                setActiveChildIndex(activeChildIndex + 1);
+              }}
+              className="flex-1 h-14 rounded-xl bg-kfk-blue text-white font-bold text-lg"
+            >
+              Next
+              <ChevronRightIcon className="ml-2 h-6 w-6" />
+            </Button>
+          )}
+        </FormItem>
       </div>
     </div>
   );

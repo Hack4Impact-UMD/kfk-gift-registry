@@ -10,6 +10,7 @@ import { giftQueries } from "./gift";
 import { donorQueries } from "./donor";
 import { claimQueries } from "./claim";
 import { notificationQueries } from "./notifications";
+import { formLinkQueries } from "./formLink";
 
 export const queries = mergeQueryKeys(
   userProfileQueries,
@@ -23,4 +24,5 @@ export const queries = mergeQueryKeys(
   donorQueries,
   claimQueries,
   notificationQueries,
+  formLinkQueries,
 );

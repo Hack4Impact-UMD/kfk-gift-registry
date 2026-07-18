@@ -9,5 +9,6 @@ export * from "./user.js";
 export * from "./family-link.js";
 export * from "./profile-update.js";
 export * from "./notification.js";
+export * from "./form-link.js";
 
 export type NoId<T> = Omit<T, "id">;

@@ -40,7 +40,7 @@ const deliveryReceiptUploadSchema = z.object({
   documentationPath: z.string().min(1),
 });
 
-async function loadGifts(
+export async function loadGifts(
   tx: FirebaseFirestore.Transaction,
   db: ReturnType<typeof getServerDB>,
   giftIds: Array<string>,

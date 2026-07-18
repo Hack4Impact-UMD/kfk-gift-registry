@@ -3,9 +3,12 @@ import { Input } from "@/components/ui/input";
 
 /** Auto-formats a raw/partial string into (555)-555-5555 as the user types. */
 export function formatPhoneDisplay(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 10);
+  let digits = value.replace(/\D/g, "");
+  // Drop a leading US country code (1) so 11-digit numbers format correctly.
+  if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+  digits = digits.slice(0, 10);
   if (digits.length === 0) return "";
-  if (digits.length <= 3) return `${digits}`;
+  if (digits.length <= 3) return `(${digits}`;
   if (digits.length <= 6) return `(${digits.slice(0, 3)})-${digits.slice(3)}`;
   return `(${digits.slice(0, 3)})-${digits.slice(3, 6)}-${digits.slice(6)}`;
 }

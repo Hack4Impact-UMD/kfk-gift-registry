@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { ref, getDownloadURL } from "firebase/storage";
-import { getClientStorage } from "@/lib/firebase.client";
+import { getClientStorage } from "@/lib/firebase";
 
 export function useStorageUrl(path: string | null): string | null {
   const { data = null } = useQuery({

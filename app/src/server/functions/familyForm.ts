@@ -9,10 +9,15 @@ import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
 import {
+  AMAZON_PRODUCT_URL_INVALID_MESSAGE,
   AddressSchema,
   ChildStatusSchema,
   GiftFamilyPublicNotesSchema,
+  GIFT_PRICE_INVALID_MESSAGE,
+  GIFT_TITLE_REQUIRED_MESSAGE,
+  MAX_GIFT_PRICE,
   NormalizedGiftTitleSchema,
+  isValidAmazonProductUrl,
 } from "common";
 
 export const DUPLICATE_FAMILY_EMAIL_MESSAGE =
@@ -46,17 +51,122 @@ const childrenFormSchema = z.object({
   consentPhotosPublic: z.boolean(),
 });
 
-const giftSelectionSchema = z.object({
+const PRICE_REQUIRED_MESSAGE = "Price is required";
+const URL_REQUIRED_MESSAGE = "URL is required";
+
+const baseGiftSelectionSchema = z.object({
   giftUrl: z.url().optional().or(z.literal("")),
   giftName: NormalizedGiftTitleSchema.optional(),
+  listedPrice: z.number().min(0).max(MAX_GIFT_PRICE).optional(),
   familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
 });
 
+const optionalGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
+  (data, ctx) => {
+    const hasName = Boolean(data.giftName);
+    const hasUrl = Boolean(data.giftUrl);
+    const hasPrice = data.listedPrice !== undefined;
+    const isBlank = !hasName && !hasUrl && !hasPrice;
+
+    if (isBlank) return;
+
+    if (!hasName) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftName"],
+        message: "Gift name is required.",
+      });
+    }
+
+    if (!hasUrl) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftUrl"],
+        message: URL_REQUIRED_MESSAGE,
+      });
+    } else if (!isValidAmazonProductUrl(data.giftUrl ?? "")) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftUrl"],
+        message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
+      });
+    }
+
+    if (!hasPrice) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["listedPrice"],
+        message: PRICE_REQUIRED_MESSAGE,
+      });
+      return;
+    }
+
+    const listedPrice = data.listedPrice;
+    if (listedPrice === undefined) return;
+    if (listedPrice < 0 || listedPrice > MAX_GIFT_PRICE) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["listedPrice"],
+        message: GIFT_PRICE_INVALID_MESSAGE,
+      });
+    }
+  },
+);
+
+const requiredGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
+  (data, ctx) => {
+    if (!data.giftName) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftName"],
+        message: GIFT_TITLE_REQUIRED_MESSAGE,
+      });
+    }
+
+    if (!data.giftUrl) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftUrl"],
+        message: URL_REQUIRED_MESSAGE,
+      });
+    } else if (!isValidAmazonProductUrl(data.giftUrl ?? "")) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftUrl"],
+        message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
+      });
+    }
+
+    if (data.listedPrice === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["listedPrice"],
+        message: PRICE_REQUIRED_MESSAGE,
+      });
+      return;
+    }
+
+    if (data.listedPrice < 0 || data.listedPrice > MAX_GIFT_PRICE) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["listedPrice"],
+        message: GIFT_PRICE_INVALID_MESSAGE,
+      });
+    }
+  },
+);
+
 const childGiftSelectionSchema = z.object({
   childName: z.string(),
-  gifts: z.array(giftSelectionSchema),
-  backupGifts: z.array(giftSelectionSchema).optional(),
-  verified: z.boolean(),
+  gifts: z.tuple([
+    requiredGiftSelectionSchema,
+    optionalGiftSelectionSchema,
+    optionalGiftSelectionSchema,
+  ]),
+  backupGifts: z.tuple([
+    requiredGiftSelectionSchema,
+    requiredGiftSelectionSchema,
+  ]),
 });
 
 const giftsFormSchema = z.object({
@@ -64,7 +174,7 @@ const giftsFormSchema = z.object({
 });
 
 const familyFormStateSchema = z.object({
-  giftDriveId: z.string(),
+  formLinkId: z.string(),
   generalInfo: generalInfoSchema.optional(),
   children: childrenFormSchema.optional(),
   gifts: giftsFormSchema.optional(),
@@ -75,6 +185,12 @@ const familyEmailSchema = z.object({
 });
 
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
+
+function hasGiftIdentity<T extends { giftName?: string; giftUrl?: string }>(
+  gift: T,
+): gift is T & { giftName: string; giftUrl: string } {
+  return Boolean(gift.giftName && gift.giftUrl);
+}
 
 function normalizeFamilyEmail(email: string) {
   return email.trim().toLowerCase();
@@ -152,6 +268,21 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       throw new Error("Gift selections are required");
 
     const db = getServerDB();
+
+    // Resolve the gift drive from the form link doc. The drive ID is never
+    // trusted from the client — it is read from the link, which must exist and
+    // be active for submissions to proceed.
+    const formLink = (await db.formLinks.doc(data.formLinkId).get()).data();
+    if (!formLink) throw new Error("Form link not found");
+    if (!formLink.active) {
+      throw new Error("This registration link is no longer active.");
+    }
+    const giftDriveId = formLink.driveId;
+    const giftDriveDoc = await db.giftDrives.doc(giftDriveId).get();
+    if (!giftDriveDoc.exists) {
+      throw new Error("This registration link is misconfigured.");
+    }
+
     const now = DateTime.now().toISO();
     const normalizedEmail = normalizeFamilyEmail(data.generalInfo.email);
 
@@ -169,7 +300,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       phone: data.generalInfo.phoneNumber,
       address: data.generalInfo.address,
       privateNotes: data.children.additionalNotes,
-      giftDrive: data.giftDriveId,
+      giftDrive: giftDriveId,
       createdAt: now,
       reviewStatus: { approved: false, held: false },
     };
@@ -187,7 +318,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
         diagnosis: childForm.diagnosis ?? "",
         hospital: childForm.hospitalTreatedAt ?? "",
         childSocialWorker: childForm.socialWorkerName ?? "",
-        giftDrive: data.giftDriveId,
+        giftDrive: giftDriveId,
         livesAtHome: true,
         publicBlurb: childForm.blurb,
         createdAt: now,
@@ -206,44 +337,52 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
         const childId = childIds[idx];
 
         const regular = selection.gifts
-          .filter((g): g is typeof g & { giftName: string; giftUrl: string } =>
-            Boolean(g.giftName && g.giftUrl),
-          )
-          .map(
-            (g): Gift => ({
+          .filter(hasGiftIdentity)
+          .map((g): Gift => {
+            const { giftName, giftUrl } = g;
+            if (!giftName || !giftUrl) {
+              throw new Error("Gift selections must include both name and URL");
+            }
+
+            return {
               id: uuidv7(),
               childId,
               familyId,
-              giftDrive: data.giftDriveId,
-              title: g.giftName,
-              productUrl: g.giftUrl,
+              giftDrive: giftDriveId,
+              title: giftName,
+              productUrl: giftUrl,
+              listedPrice: g.listedPrice,
               status: "AVAILABLE",
               backup: false,
               active: true,
               createdAt: now,
               familyPublicNotes: g.familyPublicNotes,
-            }),
-          );
+            };
+          });
 
-        const backup = (selection.backupGifts ?? [])
-          .filter((g): g is typeof g & { giftName: string; giftUrl: string } =>
-            Boolean(g.giftName && g.giftUrl),
-          )
-          .map(
-            (g): Gift => ({
+        const backup = selection.backupGifts
+          .filter(hasGiftIdentity)
+          .map((g): Gift => {
+            const { giftName, giftUrl } = g;
+            if (!giftName || !giftUrl) {
+              throw new Error("Gift selections must include both name and URL");
+            }
+
+            return {
               id: uuidv7(),
               childId,
               familyId,
-              giftDrive: data.giftDriveId,
-              title: g.giftName,
-              productUrl: g.giftUrl,
+              giftDrive: giftDriveId,
+              title: giftName,
+              productUrl: giftUrl,
+              listedPrice: g.listedPrice,
               status: "AVAILABLE",
               backup: true,
               active: true,
               createdAt: now,
               familyPublicNotes: g.familyPublicNotes,
-            }),
-          );
+            };
+          });
 
         return [...regular, ...backup];
       },
