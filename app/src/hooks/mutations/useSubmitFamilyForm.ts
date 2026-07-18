@@ -10,8 +10,8 @@ import { toast } from "@/lib/toast";
 import {
   GIFT_PRICE_INVALID_MESSAGE,
   MAX_GIFT_PRICE,
-  isValidAmazonProductUrl,
-  normalizeAmazonProductUrl,
+  isValidGiftListingUrl,
+  normalizeGiftListingUrl,
 } from "common";
 
 export function buildFamilyFormSubmitPayload(
@@ -117,8 +117,8 @@ function cleanGiftsObjects(
       ...gift,
       giftName: gift.giftName.trim(),
       giftUrl:
-        trimmedGiftUrl !== "" && isValidAmazonProductUrl(trimmedGiftUrl)
-          ? normalizeAmazonProductUrl(trimmedGiftUrl)
+        trimmedGiftUrl !== "" && isValidGiftListingUrl(trimmedGiftUrl)
+          ? normalizeGiftListingUrl(trimmedGiftUrl)
           : trimmedGiftUrl,
       listedPrice: normalizeListedPrice(gift.listedPrice),
       familyPublicNotes: gift.familyPublicNotes?.trim() ?? "",

@@ -9,15 +9,15 @@ import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
 import {
-  AMAZON_PRODUCT_URL_INVALID_MESSAGE,
   AddressSchema,
   ChildStatusSchema,
   GiftFamilyPublicNotesSchema,
+  GIFT_LISTING_URL_WARNING_MESSAGE,
   GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
   MAX_GIFT_PRICE,
   NormalizedGiftTitleSchema,
-  isValidAmazonProductUrl,
+  isValidGiftListingUrl,
 } from "common";
 
 export const DUPLICATE_FAMILY_EMAIL_MESSAGE =
@@ -84,11 +84,11 @@ const optionalGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
         path: ["giftUrl"],
         message: URL_REQUIRED_MESSAGE,
       });
-    } else if (!isValidAmazonProductUrl(data.giftUrl ?? "")) {
+    } else if (!isValidGiftListingUrl(data.giftUrl ?? "")) {
       ctx.addIssue({
         code: "custom",
         path: ["giftUrl"],
-        message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
+        message: GIFT_LISTING_URL_WARNING_MESSAGE,
       });
     }
 
@@ -129,11 +129,11 @@ const requiredGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
         path: ["giftUrl"],
         message: URL_REQUIRED_MESSAGE,
       });
-    } else if (!isValidAmazonProductUrl(data.giftUrl ?? "")) {
+    } else if (!isValidGiftListingUrl(data.giftUrl ?? "")) {
       ctx.addIssue({
         code: "custom",
         path: ["giftUrl"],
-        message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
+        message: GIFT_LISTING_URL_WARNING_MESSAGE,
       });
     }
 

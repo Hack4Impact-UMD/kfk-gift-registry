@@ -1,13 +1,13 @@
 import { z } from "zod";
 import {
-  AMAZON_PRODUCT_URL_INVALID_MESSAGE,
   ChildStatusSchema,
+  GIFT_LISTING_URL_WARNING_MESSAGE,
   GiftFamilyPublicNotesSchema,
   GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
   GiftTitleSchema,
   MAX_GIFT_PRICE,
-  isValidAmazonProductUrl,
+  isValidGiftListingUrl,
 } from "common";
 import type { ChildStatus } from "common";
 
@@ -301,11 +301,11 @@ const optionalGiftSchema = baseGiftSchema.superRefine((data, ctx) => {
       path: ["giftUrl"],
       message: URL_REQUIRED_MESSAGE,
     });
-  } else if (!isValidAmazonProductUrl(data.giftUrl)) {
+  } else if (!isValidGiftListingUrl(data.giftUrl)) {
     ctx.addIssue({
       code: "custom",
       path: ["giftUrl"],
-      message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
+      message: GIFT_LISTING_URL_WARNING_MESSAGE,
     });
   }
 
@@ -346,11 +346,11 @@ const requiredGiftSchema = baseGiftSchema.superRefine((data, ctx) => {
       path: ["giftUrl"],
       message: URL_REQUIRED_MESSAGE,
     });
-  } else if (!isValidAmazonProductUrl(data.giftUrl)) {
+  } else if (!isValidGiftListingUrl(data.giftUrl)) {
     ctx.addIssue({
       code: "custom",
       path: ["giftUrl"],
-      message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
+      message: GIFT_LISTING_URL_WARNING_MESSAGE,
     });
   }
 

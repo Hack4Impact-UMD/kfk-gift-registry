@@ -14,6 +14,8 @@ import {
   buildFamilyFormSubmitPayload,
   useSubmitFamilyForm,
 } from "@/hooks/mutations/useSubmitFamilyForm";
+import { giftsFormSchema } from "@/lib/formSchemas";
+import { GIFT_LISTING_URL_WARNING_MESSAGE } from "common";
 
 export const Route = createFileRoute("/family/form/$formLinkId/review")({
   head: () => ({
@@ -63,6 +65,23 @@ function RouteComponent() {
   const giftsForm = useGiftsForm();
 
   const childrenNames = formState.children?.children.map((c) => c.name) ?? [];
+  const giftValidationResult = formState.gifts
+    ? giftsFormSchema.safeParse(formState.gifts)
+    : null;
+  const giftValidationError =
+    giftValidationResult && !giftValidationResult.success
+      ? (giftValidationResult.error.issues[0]?.message ?? "Invalid gift data.")
+      : null;
+  const giftValidationErrorClassName =
+    giftValidationError === GIFT_LISTING_URL_WARNING_MESSAGE
+      ? "text-yellow-600"
+      : "text-red-600";
+  const submitDisabled =
+    submitMutation.isPending ||
+    !formState.generalInfo ||
+    !formState.children ||
+    !formState.gifts ||
+    giftValidationError !== null;
 
   return (
     <div className="flex flex-col gap-10">
@@ -117,6 +136,11 @@ function RouteComponent() {
       ))}
 
       <FormItem className="flex flex-col gap-2 pt-4 mt-6">
+        {giftValidationError && (
+          <p className={`text-sm ${giftValidationErrorClassName}`}>
+            {giftValidationError}
+          </p>
+        )}
         {submitMutation.isError && (
           <p className="text-sm text-red-600">
             {submitMutation.error instanceof Error
@@ -127,7 +151,7 @@ function RouteComponent() {
         <Button
           type="button"
           size="lg"
-          disabled={submitMutation.isPending}
+          disabled={submitDisabled}
           className="flex-1 h-14 rounded-xl bg-kfk-blue text-white font-bold text-lg disabled:opacity-60"
           onClick={async () => {
             try {
