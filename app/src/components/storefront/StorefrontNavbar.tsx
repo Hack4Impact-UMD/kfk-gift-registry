@@ -22,7 +22,6 @@ export function StorefrontNavbar({
 }: StorefrontNavbarProps) {
   const { pathname } = useLocation();
   const showMobileSidebarTrigger = pathname !== "/";
-
   const { data: localCart } = useLocalCartData();
   const { data: link, isPending, error } = useStorefrontFormLink();
 
@@ -31,10 +30,19 @@ export function StorefrontNavbar({
   return (
     <div className="flex flex-col gap-1 px-4 md:px-8 md:items-center border-b border-b-gray-300 pb-4">
       {/* Mobile header row */}
-      <div className="flex md:hidden flex-col items-start pt-4 pb-2 gap-3">
-        <Link to="/">
-          <img src={KFKLogo} alt="Kisses for Kyle" className="max-w-62.5" />
-        </Link>
+      <div className="flex md:hidden flex-col items-start gap-3 pt-4 pb-2">
+        <div className="flex w-full items-start justify-between gap-3">
+          <Link to="/">
+            <img src={KFKLogo} alt="Kisses for Kyle" className="max-w-62.5" />
+          </Link>
+
+          {showMobileSidebarTrigger && (
+            <SidebarTrigger
+              className="bg-kfk-blue hover:bg-kfk-blue/90 text-white h-10 w-10 rounded-lg shrink-0"
+              openIcon={<Menu size={24} />}
+            />
+          )}
+        </div>
 
         {currentDrive && (
           <Link
@@ -43,13 +51,6 @@ export function StorefrontNavbar({
           >
             {currentDrive?.cycle} Gift Drive
           </Link>
-        )}
-
-        {showMobileSidebarTrigger && (
-          <SidebarTrigger
-            className="bg-kfk-blue hover:bg-kfk-blue/90 text-white h-10 w-10 rounded-lg shrink-0"
-            openIcon={<Menu size={24} />}
-          />
         )}
       </div>
 
