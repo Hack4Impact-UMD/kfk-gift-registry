@@ -9,7 +9,7 @@ import { Fragment } from "react";
 import type { ReactNode } from "react";
 import type { FamilyFormState } from "@/components/providers/FormProvider";
 import { useFormContext } from "@/components/providers/FormProvider";
-import { SECTION_SCHEMAS } from "@/lib/formSchemas";
+import { childGiftSchema, SECTION_SCHEMAS } from "@/lib/formSchemas";
 import { GIFT_LISTING_URL_WARNING_MESSAGE } from "common";
 
 type FormStep = {
@@ -111,17 +111,33 @@ export function FormProgressBar({ formLinkId }: { formLinkId: string }) {
   const hasBlockingGiftIssues = (issues: Array<{ message: string }>) =>
     issues.some((issue) => issue.message !== GIFT_LISTING_URL_WARNING_MESSAGE);
 
+  const areAllChildGiftSelectionsComplete = () => {
+    const children = formState.children?.children ?? [];
+    const giftSelections = formState.gifts?.giftSelections ?? [];
+
+    if (children.length === 0 || giftSelections.length !== children.length) {
+      return false;
+    }
+
+    return giftSelections.every((selection) => {
+      const result = childGiftSchema.safeParse(selection);
+      return result.success || !hasBlockingGiftIssues(result.error.issues);
+    });
+  };
+
   const isSectionComplete = (sectionKey: keyof FamilyFormState) => {
     const data = formState[sectionKey];
     if (!data) return false;
+
+    if (sectionKey === "gifts") {
+      return areAllChildGiftSelectionsComplete();
+    }
 
     const schema = SECTION_SCHEMAS[sectionKey];
     const result = schema.safeParse(data);
     if (result.success) return true;
 
-    return (
-      sectionKey === "gifts" && !hasBlockingGiftIssues(result.error.issues)
-    );
+    return false;
   };
 
   const getStepState = (step: FormStep, index: number): StepState => {
