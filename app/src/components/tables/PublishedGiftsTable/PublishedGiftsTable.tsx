@@ -99,8 +99,6 @@ export function PublishedGiftsTable({
     );
   }, [filteredData, globalSearch]);
 
-  const tableKey = `${activeFilter ?? "all"}-${giftStatusFilter ?? "all"}`;
-
   const handleExport = () => {
     const csv = serializeCsv(exportData, [
       { header: "Gift Name", value: (row) => row.giftName },
@@ -169,7 +167,6 @@ export function PublishedGiftsTable({
 
       {/* Data Table */}
       <DataTable
-        key={tableKey}
         columns={columns}
         data={filteredData}
         options={{ meta: tableMeta }}
