@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useRouteContext } from "@tanstack/react-router";
+import { UserRole } from "common";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { useDrive } from "@/context/DriveContext";
 
@@ -42,7 +43,7 @@ import {
 } from "@/components/icons";
 import { useAllGiftDrives } from "@/hooks/queries/useAllGiftDrives";
 import type { GiftDrive } from "common";
-import { UserCircleIcon } from "lucide-react";
+import { LinkIcon, UserCircleIcon } from "lucide-react";
 
 // Tooltip wrapper for sidebar menu items to show labels only when collapsed
 function SidebarMenuButtonWithTooltip({
@@ -89,6 +90,8 @@ const SidebarMenuButtonWithHovering = ({
 export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
   const { auth } = useRouteContext({ from: "/_authenticated" });
   const user = auth.authUser;
+  const canAccessAdmin =
+    user.role === UserRole.DIRECTOR || user.role === UserRole.ADMIN;
   const { activeDriveId, setActiveDriveId } = useDrive();
   const [, setIsDropdownPressed] = useState<boolean>(false);
   const { data: drives, isPending, error } = useAllGiftDrives();
@@ -235,52 +238,96 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
                 </SidebarMenuButtonWithHovering>
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
-            <SidebarMenuItem className="flex justify-center">
-              <SidebarMenuButtonWithTooltip label="User Management">
-                <SidebarMenuButtonWithHovering>
-                  <Link
-                    to="/staff/admin/users"
-                    className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
-                    activeProps={{
-                      className:
-                        "group/button flex items-center gap-2 text-kfk-green hover:text-kfk-green",
-                    }}
-                  >
-                    {" "}
-                    {/* Placeholder Link */}
-                    <UsersIcon className="transition-colors size-6" />
-                    <span className="group-data-[collapsible=icon]:hidden">
-                      User Management
-                    </span>
-                  </Link>
-                </SidebarMenuButtonWithHovering>
-              </SidebarMenuButtonWithTooltip>
-            </SidebarMenuItem>
+            {canAccessAdmin && (
+              <>
+                <SidebarMenuItem className="flex justify-center">
+                  <SidebarMenuButtonWithTooltip label="User Management">
+                    <SidebarMenuButtonWithHovering>
+                      <Link
+                        to="/staff/admin/users"
+                        className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                        activeProps={{
+                          className:
+                            "group/button flex items-center gap-2 text-kfk-green hover:text-kfk-green",
+                        }}
+                      >
+                        <UsersIcon className="transition-colors size-6" />
+                        <span className="group-data-[collapsible=icon]:hidden">
+                          User Management
+                        </span>
+                      </Link>
+                    </SidebarMenuButtonWithHovering>
+                  </SidebarMenuButtonWithTooltip>
+                </SidebarMenuItem>
+                <SidebarMenuItem className="flex justify-center">
+                  <SidebarMenuButtonWithTooltip label="Gift Drives">
+                    <SidebarMenuButtonWithHovering>
+                      <Link
+                        to="/staff/admin/drives"
+                        className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                        activeProps={{
+                          className:
+                            "group/button flex items-center gap-2 text-kfk-blue hover:text-kfk-blue",
+                        }}
+                      >
+                        <CalendarIcon className="transition-colors size-6" />
+                        <span className="group-data-[collapsible=icon]:hidden">
+                          Gift Drives
+                        </span>
+                      </Link>
+                    </SidebarMenuButtonWithHovering>
+                  </SidebarMenuButtonWithTooltip>
+                </SidebarMenuItem>
+                <SidebarMenuItem className="flex justify-center">
+                  <SidebarMenuButtonWithTooltip label="Form Links">
+                    <SidebarMenuButtonWithHovering>
+                      <Link
+                        to="/staff/admin/forms"
+                        className="group/button flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+                        activeProps={{
+                          className:
+                            "group/button flex items-center gap-2 text-kfk-green hover:text-kfk-green",
+                        }}
+                      >
+                        <LinkIcon className="transition-colors size-6" />
+                        <span className="group-data-[collapsible=icon]:hidden">
+                          Form Links
+                        </span>
+                      </Link>
+                    </SidebarMenuButtonWithHovering>
+                  </SidebarMenuButtonWithTooltip>
+                </SidebarMenuItem>
+              </>
+            )}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="px-6 py-4">
-        <SidebarMenuButtonWithTooltip label={user.displayName || "User"}>
-          <SidebarMenuButtonWithHovering>
-            <Link
-              to="/staff/profile"
-              className="group/button flex items-center gap-3 w-full text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 hover:bg-black! hover:text-white active:text-white"
-              activeProps={{
-                className:
-                  "group/button flex items-center gap-3 w-full text-left bg-black text-white group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0",
-              }}
-            >
-              <UserCircleIcon className="transition-colors size-8" />
+      <SidebarFooter className="px-6 py-4 group-data-[collapsible=icon]:px-2">
+        <SidebarMenu>
+          <SidebarMenuItem className="flex justify-center">
+            <SidebarMenuButtonWithTooltip label={user.displayName || "User"}>
+              <SidebarMenuButtonWithHovering>
+                <Link
+                  to="/staff/profile"
+                  className="group/button flex w-full items-center gap-3 text-left group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 hover:bg-black! hover:text-white active:text-white"
+                  activeProps={{
+                    className:
+                      "group/button flex w-full items-center gap-3 text-left bg-black text-white group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0",
+                  }}
+                >
+                  <UserCircleIcon className="size-8 transition-colors group-data-[collapsible=icon]:size-6" />
 
-              <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                <span className="text-base font-medium">
-                  {user.displayName || "User Name"}
-                </span>
-                <span className={`text-sm`}>{user.role}</span>
-              </div>
-            </Link>
-          </SidebarMenuButtonWithHovering>
-        </SidebarMenuButtonWithTooltip>
+                  <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+                    <span className="text-base font-medium">
+                      {user.displayName || "User Name"}
+                    </span>
+                    <span className="text-sm">{user.role}</span>
+                  </div>
+                </Link>
+              </SidebarMenuButtonWithHovering>
+            </SidebarMenuButtonWithTooltip>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

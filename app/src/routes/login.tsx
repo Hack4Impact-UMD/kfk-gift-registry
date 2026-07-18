@@ -19,7 +19,7 @@ import kfkFoundationLogo from "@/assets/kfk-logo.png";
 import MfaDialog from "@/components/auth/MfaDialog";
 import MfaMethodDialog from "@/components/auth/MfaMethodDialog";
 import { useMfaFlow } from "@/hooks/useMfaFlow";
-import { getEnrolledMFAMethods } from "@/services/authService.client";
+import { getEnrolledMFAMethods } from "@/services/authService";
 
 const searchSchema = z.object({
   redirect: z

@@ -12,7 +12,13 @@ import {
   GiftStatusFilterChips,
   getVisibleGiftStatuses,
 } from "./GiftStatusFilterChips";
-import type { GiftClaimStatus, PublishedGiftsTableRow } from "./types";
+import { StaffClaimDetailsDialog } from "./StaffClaimDetailsDialog";
+import type {
+  GiftClaimStatus,
+  PublishedGiftsTableMeta,
+  PublishedGiftsTableRow,
+} from "./types";
+import { useClaimGiftAsKFK } from "@/hooks/mutations/useStaffClaim";
 
 interface PublishedGiftsTableProps {
   data: Array<PublishedGiftsTableRow>;
@@ -37,6 +43,19 @@ export function PublishedGiftsTable({
   const [giftStatusFilter, setGiftStatusFilter] = useState<GiftStatus | null>(
     null,
   );
+  const [selectedRow, setSelectedRow] = useState<PublishedGiftsTableRow | null>(
+    null,
+  );
+
+  const claimMutation = useClaimGiftAsKFK();
+
+  const tableMeta: PublishedGiftsTableMeta = {
+    onClaimGift: (giftId) => claimMutation.mutate(giftId),
+    onOpenClaimDetails: (row) => setSelectedRow(row),
+    claimingGiftId: claimMutation.isPending
+      ? (claimMutation.variables ?? null)
+      : null,
+  };
 
   const filteredData = useMemo(() => {
     let result = data;
@@ -150,11 +169,24 @@ export function PublishedGiftsTable({
       <DataTable
         columns={columns}
         data={filteredData}
+        options={{ meta: tableMeta }}
         globalSearch={globalSearch}
         onGlobalSearchChange={setGlobalSearch}
         rowsPerPage={rowsPerPage}
         paginated={paginated}
       />
+
+      {selectedRow && (
+        <StaffClaimDetailsDialog
+          key={selectedRow.id}
+          giftId={selectedRow.id}
+          giftName={selectedRow.giftName}
+          open={!!selectedRow}
+          onOpenChange={(open) => {
+            if (!open) setSelectedRow(null);
+          }}
+        />
+      )}
     </div>
   );
 }

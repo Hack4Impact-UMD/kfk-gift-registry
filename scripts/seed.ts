@@ -5,6 +5,7 @@ import {
   type Child,
   type Family,
   type FamilyLink,
+  type FormLink,
   type Gift,
   type GiftStatus,
   type StaffInvite,
@@ -14,6 +15,7 @@ import { generateChild } from "./generators/child.generator.ts";
 import { generateClaim } from "./generators/claim.generator.ts";
 import { generateFamily } from "./generators/family.generator.ts";
 import { generateFamilyLink } from "./generators/family-link.generator.ts";
+import { generateFormLink } from "./generators/form-link.generator.ts";
 import { generateGiftDrive } from "./generators/gift-drive.generator.ts";
 import { generateGift } from "./generators/gift.generator.ts";
 import { generateInvite } from "./generators/invite.generator.ts";
@@ -128,6 +130,11 @@ function main() {
   const now = new Date();
 
   const giftDrivesData = [generateGiftDrive(0), generateGiftDrive(1)];
+  // One registration link per drive; the current drive's link is surfaced on
+  // the storefront (getStorefrontFormLink expects a single showOnStorefront).
+  const formLinksData: Array<FormLink> = giftDrivesData.map((drive, index) =>
+    generateFormLink(drive, { showOnStorefront: index === 0 }),
+  );
   const usersData: Array<UserProfile> = [
     generateUser(UserRole.DIRECTOR, {
       id: "director_1",
@@ -314,6 +321,7 @@ function main() {
     JSON.stringify(
       {
         giftDrives: giftDrivesData,
+        formLinks: formLinksData,
         users: usersData,
         invites: invitesData,
         families: familiesData,

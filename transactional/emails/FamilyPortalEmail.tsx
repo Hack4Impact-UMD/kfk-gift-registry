@@ -17,12 +17,22 @@ interface FamilyPortalEmailProps {
   contactName: string;
   familyLink: string;
   baseUrl?: string;
+  previewText?: string;
+  heading?: string;
+  introText?: string;
+  buttonLabel?: string;
+  footerText?: string;
 }
 
 export default function FamilyPortalEmail({
   contactName = "Family",
   familyLink = "https://example.com",
   baseUrl = "http://localhost:5002",
+  previewText = "Your KFK family page is ready",
+  heading = "Your family page is ready",
+  introText = "Thank you for submitting your family's gift drive form. Use the unique link below to view your family page.",
+  buttonLabel = "Open Family Page",
+  footerText = "Please save this email so you can return to your family page later.",
 }: FamilyPortalEmailProps) {
   return (
     <Tailwind
@@ -42,7 +52,7 @@ export default function FamilyPortalEmail({
     >
       <Html lang="en">
         <Head />
-        <Preview>Your KFK family page is ready</Preview>
+        <Preview>{previewText}</Preview>
         <Body className="bg-gray-50 font-sans">
           <Container className="mx-auto max-w-[560px] py-10">
             <Section className="rounded-t-lg bg-gray-200 px-8 py-5 text-center">
@@ -59,12 +69,9 @@ export default function FamilyPortalEmail({
                 Hi {contactName},
               </Text>
               <Heading className="m-0 mb-2 text-2xl font-bold text-gray-900">
-                Your family page is ready
+                {heading}
               </Heading>
-              <Text className="mt-0 text-base text-gray-500">
-                Thank you for submitting your family&apos;s gift drive form. Use
-                the unique link below to view your family page.
-              </Text>
+              <Text className="mt-0 text-base text-gray-500">{introText}</Text>
 
               <Hr className="my-6 border-gray-200" />
 
@@ -72,7 +79,7 @@ export default function FamilyPortalEmail({
                 href={familyLink}
                 className="block rounded-lg bg-kfk-blue px-6 py-3.5 text-center text-sm font-semibold text-white no-underline"
               >
-                Open Family Page
+                {buttonLabel}
               </Button>
 
               <Text className="mb-2 mt-6 text-sm font-semibold uppercase tracking-widest text-gray-400">
@@ -83,8 +90,7 @@ export default function FamilyPortalEmail({
               </Text>
 
               <Text className="mb-0 mt-6 text-sm text-gray-600">
-                Please save this email so you can return to your family page
-                later.
+                {footerText}
               </Text>
             </Section>
 

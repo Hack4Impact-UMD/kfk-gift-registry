@@ -19,6 +19,34 @@ export function closestDrive(drives: Array<GiftDrive>) {
   })[0];
 }
 
+export function getLatestCompletedDrive(
+  drives: Array<GiftDrive>,
+): GiftDrive | undefined {
+  const now = DateTime.utc().toMillis();
+
+  return [...drives]
+    .filter((drive) => DateTime.fromISO(drive.endDate).toMillis() < now)
+    .sort(
+      (a, b) =>
+        DateTime.fromISO(b.endDate).toMillis() -
+        DateTime.fromISO(a.endDate).toMillis(),
+    )[0];
+}
+
+export function getNextScheduledDrive(
+  drives: Array<GiftDrive>,
+): GiftDrive | undefined {
+  const now = DateTime.utc().toMillis();
+
+  return [...drives]
+    .filter((drive) => DateTime.fromISO(drive.startDate).toMillis() > now)
+    .sort(
+      (a, b) =>
+        DateTime.fromISO(a.startDate).toMillis() -
+        DateTime.fromISO(b.startDate).toMillis(),
+    )[0];
+}
+
 export function isDonorClaim(
   claim: Claim,
 ): claim is Extract<Claim, { claimType: "donor" }> {

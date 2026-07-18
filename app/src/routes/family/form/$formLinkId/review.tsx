@@ -15,7 +15,7 @@ import {
   useSubmitFamilyForm,
 } from "@/hooks/mutations/useSubmitFamilyForm";
 
-export const Route = createFileRoute("/family/drive/$driveId/form/review")({
+export const Route = createFileRoute("/family/form/$formLinkId/review")({
   head: () => ({
     meta: [
       { title: "Review Information - Family Registration" },
@@ -37,7 +37,7 @@ type SectionHeaderProps = {
 function SectionHeader({ title, onEdit }: SectionHeaderProps) {
   return (
     <div className="flex justify-between border-b-2 border-[var(--color-kfk-blue)] w-full mb-8">
-      <h2 className="text-xl font-bold text-[var(--color-kfk-blue)] pb-1">
+      <h2 className="text-2xl font-bold text-[var(--color-kfk-blue)] pb-1">
         {title}
       </h2>
       <button
@@ -54,7 +54,7 @@ function SectionHeader({ title, onEdit }: SectionHeaderProps) {
 function RouteComponent() {
   const { formState, resetForm } = useFormContext();
   const navigate = useNavigate();
-  const { driveId } = Route.useParams();
+  const { formLinkId } = Route.useParams();
 
   const submitMutation = useSubmitFamilyForm();
 
@@ -72,8 +72,8 @@ function RouteComponent() {
           title="General Information"
           onEdit={() =>
             navigate({
-              to: "/family/drive/$driveId/form/general-info",
-              params: { driveId },
+              to: "/family/form/$formLinkId/general-info",
+              params: { formLinkId },
             })
           }
         />
@@ -86,8 +86,8 @@ function RouteComponent() {
           title="Child Information"
           onEdit={() =>
             navigate({
-              to: "/family/drive/$driveId/form/children",
-              params: { driveId },
+              to: "/family/form/$formLinkId/children",
+              params: { formLinkId },
             })
           }
         />
@@ -101,8 +101,9 @@ function RouteComponent() {
             title={`${childName}'s Gift Selection`}
             onEdit={() =>
               navigate({
-                to: "/family/drive/$driveId/form/gift-details",
-                params: { driveId },
+                to: "/family/form/$formLinkId/gift-details",
+                params: { formLinkId },
+                search: { childIndex: index },
               })
             }
           />
@@ -130,7 +131,10 @@ function RouteComponent() {
           className="flex-1 h-14 rounded-xl bg-kfk-blue text-white font-bold text-lg disabled:opacity-60"
           onClick={async () => {
             try {
-              const payload = buildFamilyFormSubmitPayload(driveId, formState);
+              const payload = buildFamilyFormSubmitPayload(
+                formLinkId,
+                formState,
+              );
               submitMutation.mutate(
                 {
                   payload,
@@ -141,8 +145,8 @@ function RouteComponent() {
                   onSuccess: (res) => {
                     resetForm();
                     navigate({
-                      to: "/family/drive/$driveId/form/thank-you",
-                      params: { driveId },
+                      to: "/family/form/$formLinkId/thank-you",
+                      params: { formLinkId },
                       search: {
                         linkId: res.link.id,
                       },

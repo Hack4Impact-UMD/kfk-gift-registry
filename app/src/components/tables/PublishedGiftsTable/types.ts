@@ -16,3 +16,11 @@ export type PublishedGiftsTableRow = {
   dateOfFulfillment?: string;
   productUrl?: string;
 };
+
+/** Handlers passed to the table via `table.options.meta` for the action column. */
+export type PublishedGiftsTableMeta = {
+  onClaimGift: (giftId: string) => void;
+  onOpenClaimDetails: (row: PublishedGiftsTableRow) => void;
+  /** giftId currently being claimed (for per-row pending state), else null. */
+  claimingGiftId: string | null;
+};

@@ -1,8 +1,13 @@
 import { z } from "zod";
 import {
+  AMAZON_PRODUCT_URL_INVALID_MESSAGE,
   ChildStatusSchema,
   GiftFamilyPublicNotesSchema,
+  GIFT_PRICE_INVALID_MESSAGE,
+  GIFT_TITLE_REQUIRED_MESSAGE,
   GiftTitleSchema,
+  MAX_GIFT_PRICE,
+  isValidAmazonProductUrl,
 } from "common";
 import type { ChildStatus } from "common";
 
@@ -257,30 +262,120 @@ export const childrenFormSchema = z
     path: ["children"],
   });
 
-const giftSchema = z
-  .object({
-    giftName: GiftTitleSchema,
-    giftUrl: z.string(),
-    familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
-  })
-  .refine(
-    (data) => {
-      const hasName = data.giftName.trim().length > 0;
-      const hasUrl = data.giftUrl.trim().length > 0;
-      return (hasName && hasUrl) || (!hasName && !hasUrl);
-    },
-    {
-      message: "Both Name and URL are required if this gift is selected",
-    },
-  );
+const PRICE_REQUIRED_MESSAGE = "Price is required";
+const URL_REQUIRED_MESSAGE = "URL is required";
+
+function hasValidPrice(value: string) {
+  const price = Number(value);
+  return Number.isFinite(price) && price >= 0 && price <= MAX_GIFT_PRICE;
+}
+
+const baseGiftSchema = z.object({
+  giftName: GiftTitleSchema,
+  giftUrl: z.string().trim(),
+  listedPrice: z.string().trim(),
+  familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
+});
+
+const optionalGiftSchema = baseGiftSchema.superRefine((data, ctx) => {
+  const hasName = data.giftName.trim().length > 0;
+  const hasUrl = data.giftUrl.trim().length > 0;
+  const hasPrice = data.listedPrice.length > 0;
+  const hasNotes = (data.familyPublicNotes?.trim() ?? "").length > 0;
+
+  const isBlank = !hasName && !hasUrl && !hasPrice && !hasNotes;
+
+  if (isBlank) return;
+
+  if (!hasName) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["giftName"],
+      message: GIFT_TITLE_REQUIRED_MESSAGE,
+    });
+  }
+
+  if (!hasUrl) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["giftUrl"],
+      message: URL_REQUIRED_MESSAGE,
+    });
+  } else if (!isValidAmazonProductUrl(data.giftUrl)) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["giftUrl"],
+      message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
+    });
+  }
+
+  if (!hasPrice) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["listedPrice"],
+      message: PRICE_REQUIRED_MESSAGE,
+    });
+    return;
+  }
+
+  if (!hasValidPrice(data.listedPrice)) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["listedPrice"],
+      message: GIFT_PRICE_INVALID_MESSAGE,
+    });
+  }
+});
+
+const requiredGiftSchema = baseGiftSchema.superRefine((data, ctx) => {
+  const hasName = data.giftName.trim().length > 0;
+  const hasUrl = data.giftUrl.trim().length > 0;
+  const hasPrice = data.listedPrice.length > 0;
+
+  if (!hasName) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["giftName"],
+      message: GIFT_TITLE_REQUIRED_MESSAGE,
+    });
+  }
+
+  if (!hasUrl) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["giftUrl"],
+      message: URL_REQUIRED_MESSAGE,
+    });
+  } else if (!isValidAmazonProductUrl(data.giftUrl)) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["giftUrl"],
+      message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
+    });
+  }
+
+  if (!hasPrice) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["listedPrice"],
+      message: PRICE_REQUIRED_MESSAGE,
+    });
+    return;
+  }
+
+  if (!hasValidPrice(data.listedPrice)) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["listedPrice"],
+      message: GIFT_PRICE_INVALID_MESSAGE,
+    });
+  }
+});
 
 export const childGiftSchema = z.object({
   childName: z.string(),
-  gifts: z.tuple([giftSchema, giftSchema, giftSchema]),
-  backupGifts: z.tuple([giftSchema, giftSchema]),
-  verified: z.boolean().refine((val) => val === true, {
-    message: "You must agree the conditions",
-  }),
+  gifts: z.tuple([requiredGiftSchema, optionalGiftSchema, optionalGiftSchema]),
+  backupGifts: z.tuple([requiredGiftSchema, requiredGiftSchema]),
 });
 
 export const giftsFormSchema = z.object({

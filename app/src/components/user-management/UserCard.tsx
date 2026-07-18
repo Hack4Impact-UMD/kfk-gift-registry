@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DeleteUserDialog } from "./DeleteUserDialog";
 import { UpdateRoleDialog } from "./UpdateRoleDialog";
-import { formatPhoneDisplay } from "../ui/phone-input";
+import { e164ToDisplay } from "../ui/phone-input";
 
 interface UserCardProps {
   user: UserProfile;
@@ -82,7 +82,7 @@ export function UserCard({ user, currentUser }: UserCardProps) {
             {user.phone && (
               <span className="flex items-center gap-1.5">
                 <PhoneIcon className="size-3.5 shrink-0" />
-                {formatPhoneDisplay(user.phone)}
+                {e164ToDisplay(user.phone)}
               </span>
             )}
             <span className="flex items-center gap-1.5">

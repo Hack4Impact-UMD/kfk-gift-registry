@@ -155,7 +155,10 @@ export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
             )}
 
             <div className="cursor-pointer rounded-xl border-2 border-kfk-blue p-4 text-center shadow bg-card hover:bg-muted transition">
-              <p className="mb-3">Send a thank you note to your donor</p>
+              <p className="mb-3">
+                Send a thank you note to{" "}
+                {claim?.claimType === "kfk" ? "KFK staff" : "your donor"}
+              </p>
 
               <Button
                 onClick={() => {

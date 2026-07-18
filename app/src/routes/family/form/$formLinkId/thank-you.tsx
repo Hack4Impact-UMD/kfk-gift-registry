@@ -6,7 +6,7 @@ const ThankYouSchema = z.object({
   linkId: z.string(),
 });
 
-export const Route = createFileRoute("/family/drive/$driveId/form/thank-you")({
+export const Route = createFileRoute("/family/form/$formLinkId/thank-you")({
   validateSearch: ThankYouSchema,
   head: () => ({
     meta: [

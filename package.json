@@ -9,7 +9,7 @@
     "dev": "firebase emulators:start",
     "seed": "bash scripts/run-seed.sh",
     "seed:generate": "pnpm exec tsx scripts/seed.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "pnpm -r run test",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
     "lint": "pnpm -r run lint",

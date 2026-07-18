@@ -16,7 +16,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import type { AuthContext } from "@/server/functions/auth";
 import { queries } from "@/queries";
-import { getClientAppCheck } from "@/lib/firebase.client";
+import { getClientAppCheck } from "@/lib/firebase";
 import { useEffect } from "react";
 
 interface MyRouterContext {

@@ -12,6 +12,7 @@ import type {
   FamilyNotification,
   StaffInvite,
   UserProfile,
+  FormLink,
 } from "common";
 import {
   CHILD_COLLECTION,
@@ -19,6 +20,7 @@ import {
   EMAIL_COLLECTION,
   FAMILY_COLLECTION,
   FAMILY_LINK_COLLECTION,
+  FORM_LINK_COLLECTION,
   GIFT_COLLECTION,
   GIFT_DRIVE_COLLECTION,
   INVITE_COLLECTION,
@@ -50,6 +52,7 @@ type Database = {
   familyLinks: Collection<FamilyLink>;
   profileUpdates: Collection<ChildProfileUpdate>;
   notifications: Collection<FamilyNotification>;
+  formLinks: Collection<FormLink>;
   _instance: FirebaseFirestore.Firestore;
 };
 
@@ -88,6 +91,7 @@ export const getServerDB = createServerOnlyFn(() => {
     invites: collection<StaffInvite>(INVITE_COLLECTION),
     profileUpdates: collection<ChildProfileUpdate>(PROFILE_UPDATE_COLLECTION),
     notifications: collection<FamilyNotification>(NOTIFICATION_COLLECTION),
+    formLinks: collection<FormLink>(FORM_LINK_COLLECTION),
     _instance: firestore,
   };
   return db;

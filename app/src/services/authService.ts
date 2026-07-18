@@ -17,7 +17,7 @@ import {
   PhoneMultiFactorGenerator,
   getMultiFactorResolver,
 } from "firebase/auth";
-import { getClientAuth } from "@/lib/firebase.client";
+import { getClientAuth } from "@/lib/firebase";
 import type { AuthUser } from "@/server/functions/auth";
 import { loginWithToken, logoutSession } from "@/server/functions/auth";
 
