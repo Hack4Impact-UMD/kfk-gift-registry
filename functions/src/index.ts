@@ -49,7 +49,7 @@ async function claimPendingJob(jobId: string) {
     const job = jobDoc.data() as ScheduledEmailJob | undefined;
 
     if (!job) {
-      throw new Error("Email job not found");
+      return false;
     }
 
     if (job.status !== "pending") {
