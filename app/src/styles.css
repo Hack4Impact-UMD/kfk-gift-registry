@@ -3,6 +3,7 @@
 @import "@fontsource/gaegu";
 @import "react-day-picker/style.css";
 @import "tw-animate-css";
+@import "driver.js/dist/driver.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -193,5 +194,29 @@ code {
 
   .rdp-day_button:hover:not(:disabled) {
     background-color: var(--accent);
+  }
+
+  .driver-popover {
+    border-radius: 0.75rem;
+  }
+
+  .driver-popover-title {
+    font-family: var(--font-gaegu);
+    font-size: 1.35rem;
+    color: var(--color-kfk-blue);
+  }
+
+  .driver-popover-next-btn,
+  .driver-popover-done-btn {
+    background-color: var(--color-kfk-blue);
+    color: white;
+    text-shadow: none;
+    border-radius: 9999px;
+  }
+
+  .driver-popover-next-btn:hover,
+  .driver-popover-done-btn:hover {
+    background-color: var(--color-kfk-blue);
+    opacity: 0.9;
   }
 }
