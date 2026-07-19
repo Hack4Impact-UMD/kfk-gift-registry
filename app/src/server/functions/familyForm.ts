@@ -12,12 +12,10 @@ import {
   AddressSchema,
   ChildStatusSchema,
   GiftFamilyPublicNotesSchema,
-  GIFT_LISTING_URL_WARNING_MESSAGE,
   GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
   MAX_GIFT_PRICE,
   NormalizedGiftTitleSchema,
-  isValidGiftListingUrl,
 } from "common";
 
 export const DUPLICATE_FAMILY_EMAIL_MESSAGE =
@@ -84,12 +82,6 @@ const optionalGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
         path: ["giftUrl"],
         message: URL_REQUIRED_MESSAGE,
       });
-    } else if (!isValidGiftListingUrl(data.giftUrl ?? "")) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["giftUrl"],
-        message: GIFT_LISTING_URL_WARNING_MESSAGE,
-      });
     }
 
     if (!hasPrice) {
@@ -128,12 +120,6 @@ const requiredGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
         code: "custom",
         path: ["giftUrl"],
         message: URL_REQUIRED_MESSAGE,
-      });
-    } else if (!isValidGiftListingUrl(data.giftUrl ?? "")) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["giftUrl"],
-        message: GIFT_LISTING_URL_WARNING_MESSAGE,
       });
     }
 

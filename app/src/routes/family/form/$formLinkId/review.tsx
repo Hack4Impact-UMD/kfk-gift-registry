@@ -68,10 +68,17 @@ function RouteComponent() {
   const giftValidationResult = formState.gifts
     ? giftsFormSchema.safeParse(formState.gifts)
     : null;
-  const giftValidationError =
+  const giftValidationIssues =
     giftValidationResult && !giftValidationResult.success
-      ? (giftValidationResult.error.issues[0]?.message ?? "Invalid gift data.")
-      : null;
+      ? giftValidationResult.error.issues
+      : [];
+  const blockingGiftValidationIssues = giftValidationIssues.filter(
+    (issue) => issue.message !== GIFT_LISTING_URL_WARNING_MESSAGE,
+  );
+  const giftValidationError =
+    blockingGiftValidationIssues[0]?.message ??
+    giftValidationIssues[0]?.message ??
+    null;
   const giftValidationErrorClassName =
     giftValidationError === GIFT_LISTING_URL_WARNING_MESSAGE
       ? "text-yellow-600"
@@ -81,7 +88,7 @@ function RouteComponent() {
     !formState.generalInfo ||
     !formState.children ||
     !formState.gifts ||
-    giftValidationError !== null;
+    blockingGiftValidationIssues.length > 0;
 
   return (
     <div className="flex flex-col gap-10">

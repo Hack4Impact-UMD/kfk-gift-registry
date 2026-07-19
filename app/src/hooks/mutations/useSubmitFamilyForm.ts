@@ -8,6 +8,7 @@ import Compressor from "compressorjs";
 import { uploadChildPictureAppCheck } from "@/server/functions/child";
 import { toast } from "@/lib/toast";
 import {
+  GIFT_LISTING_URL_WARNING_MESSAGE,
   GIFT_PRICE_INVALID_MESSAGE,
   MAX_GIFT_PRICE,
   isValidGiftListingUrl,
@@ -26,11 +27,15 @@ export function buildFamilyFormSubmitPayload(
   }
 
   const giftsResult = giftsFormSchema.safeParse(gifts);
-  if (!giftsResult.success) {
-    throw new Error(
-      giftsResult.error.issues[0]?.message ?? "Invalid gift data.",
-    );
+  const blockingGiftIssue = !giftsResult.success
+    ? giftsResult.error.issues.find(
+        (issue) => issue.message !== GIFT_LISTING_URL_WARNING_MESSAGE,
+      )
+    : null;
+  if (blockingGiftIssue) {
+    throw new Error(blockingGiftIssue.message);
   }
+  const validatedGifts = giftsResult.success ? giftsResult.data : gifts;
 
   return {
     formLinkId,
@@ -47,7 +52,7 @@ export function buildFamilyFormSubmitPayload(
       },
     },
     children: cleanChildrenObjects(children),
-    gifts: cleanGiftsObjects(giftsResult.data),
+    gifts: cleanGiftsObjects(validatedGifts),
   };
 }
 
