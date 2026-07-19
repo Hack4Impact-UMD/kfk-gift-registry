@@ -1,12 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import type { FamilyFormState } from "@/components/providers/FormProvider";
+import { giftsFormSchema } from "@/lib/formSchemas";
 import type { GiftsFormData } from "@/lib/formSchemas";
 import type { FamilyFormInput } from "@/server/functions/familyForm";
 import { submitFamilyForm } from "@/server/functions/familyForm";
 import Compressor from "compressorjs";
 import { uploadChildPictureAppCheck } from "@/server/functions/child";
 import { toast } from "@/lib/toast";
-import { GIFT_PRICE_INVALID_MESSAGE, MAX_GIFT_PRICE } from "common";
+import {
+  GIFT_PRICE_INVALID_MESSAGE,
+  MAX_GIFT_PRICE,
+  isValidAmazonProductUrl,
+  normalizeAmazonProductUrl,
+} from "common";
 
 export function buildFamilyFormSubmitPayload(
   formLinkId: string,
@@ -17,6 +23,13 @@ export function buildFamilyFormSubmitPayload(
   const gifts = formState.gifts;
   if (!gi || !children || !gifts) {
     throw new Error("Please complete all form sections before submitting.");
+  }
+
+  const giftsResult = giftsFormSchema.safeParse(gifts);
+  if (!giftsResult.success) {
+    throw new Error(
+      giftsResult.error.issues[0]?.message ?? "Invalid gift data.",
+    );
   }
 
   return {
@@ -34,7 +47,7 @@ export function buildFamilyFormSubmitPayload(
       },
     },
     children: cleanChildrenObjects(children),
-    gifts: cleanGiftsObjects(gifts),
+    gifts: cleanGiftsObjects(giftsResult.data),
   };
 }
 
@@ -97,13 +110,20 @@ function cleanGiftsObjects(
 
   const normalizeGift = (
     gift: GiftsFormData["giftSelections"][number]["gifts"][number],
-  ) => ({
-    ...gift,
-    giftName: gift.giftName.trim(),
-    giftUrl: gift.giftUrl.trim(),
-    listedPrice: normalizeListedPrice(gift.listedPrice),
-    familyPublicNotes: gift.familyPublicNotes?.trim() ?? "",
-  });
+  ) => {
+    const trimmedGiftUrl = gift.giftUrl.trim();
+
+    return {
+      ...gift,
+      giftName: gift.giftName.trim(),
+      giftUrl:
+        trimmedGiftUrl !== "" && isValidAmazonProductUrl(trimmedGiftUrl)
+          ? normalizeAmazonProductUrl(trimmedGiftUrl)
+          : trimmedGiftUrl,
+      listedPrice: normalizeListedPrice(gift.listedPrice),
+      familyPublicNotes: gift.familyPublicNotes?.trim() ?? "",
+    };
+  };
 
   return {
     giftSelections: g.giftSelections.map((selection) => ({

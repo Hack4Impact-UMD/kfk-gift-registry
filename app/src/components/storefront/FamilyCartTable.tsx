@@ -8,12 +8,14 @@ import { AlertCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface FamilyCartTableProps {
+  index: number;
   family: CartFamilyGroup;
   onRemoveGift: (giftId: string) => void;
   containerClassName?: string;
 }
 
 export function FamilyCartTable({
+  index: familyIndex,
   family,
   onRemoveGift,
   containerClassName = "",
@@ -27,7 +29,7 @@ export function FamilyCartTable({
     <div className={cn("mb-8", containerClassName)}>
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900 font-gaegu">
-          {family.family.contactName} Family
+          Family {familyIndex + 1}
         </h3>
       </div>
 
@@ -40,9 +42,7 @@ export function FamilyCartTable({
             </span>
 
             <span className="text-kfk-red font-medium font-gaegu">
-              {gift.listedPrice !== undefined
-                ? `$${gift.listedPrice.toFixed(2)}`
-                : "N/A"}
+              {gift.childName}
             </span>
 
             <a

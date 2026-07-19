@@ -99,9 +99,6 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
                 Gift #{index + 1}
               </div>
 
-              <div className="text-kfk-red font-medium text-sm mb-1">
-                {gift.listedPrice ? `$${gift.listedPrice.toFixed(2)}` : "N/A"}
-              </div>
               <a
                 href={gift.productUrl}
                 target="_blank"
@@ -155,9 +152,8 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
                         key={header.id}
                         className={cn(
                           "font-semibold text-muted-foreground text-xs md:text-sm border-b-2 border-foreground",
-                          index === 0 && "w-[42%] md:w-[55%] pr-4 md:pr-6",
-                          index === 1 && "w-[18%] md:w-[18%] pl-4 md:pl-6",
-                          index === 2 && "w-[40%] md:w-[27%] pl-4 md:pl-10",
+                          index === 0 && "w-[60%] md:w-[73%] pr-4 md:pr-6",
+                          index === 1 && "w-[40%] md:w-[27%] pl-4 md:pl-10",
                         )}
                       >
                         {header.isPlaceholder
@@ -194,7 +190,6 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
                             "align-middle",
                             index === 0 && "max-w-0 pr-4 sm:pr-6",
                             index === 1 && "pl-4 sm:pl-6",
-                            index === 2 && "pl-4 sm:pl-6",
                           )}
                         >
                           {flexRender(

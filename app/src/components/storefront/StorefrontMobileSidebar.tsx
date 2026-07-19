@@ -18,6 +18,7 @@ import {
   ShoppingCartIcon,
   UserCircleIcon,
   ChevronDoubleLeftIcon,
+  ArrowTopRightOnSquareIcon,
 } from "@/components/icons";
 import { CircleDollarSign, FormIcon } from "lucide-react";
 import type { AuthContext } from "@/server/functions/auth";
@@ -89,11 +90,24 @@ export function StorefrontMobileSidebar({
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild size="lg">
-                {isPending ? (
+                <Link
+                  to="/"
+                  className="flex items-center gap-3 w-full text-left"
+                >
+                  <ArrowTopRightOnSquareIcon className="size-6" />
+                  <span className="text-base">Storefront Tutorial</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {isPending ? (
+              <SidebarMenuItem>
+                <SidebarMenuButton size="lg">
                   <Spinner />
-                ) : error || !link ? (
-                  <p>Failed to fetch form link</p>
-                ) : (
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ) : error || !link ? null : (
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild size="lg">
                   <Link
                     to="/family/form/$formLinkId/consent"
                     params={{
@@ -103,9 +117,9 @@ export function StorefrontMobileSidebar({
                     <FormIcon className="size-6" />
                     <span className="text-base">Go to Family Form</span>
                   </Link>
-                )}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
 
             <SidebarMenuItem>
               <StorefrontFamilyRecoveryDialog>

@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
   GiftFamilyPublicNotesSchema,
   RequiredGiftTitleSchema,
-} from "../validation";
+} from "../validation.js";
 
 export const GiftStatusSchema = z.enum([
   "AVAILABLE",

@@ -235,6 +235,7 @@ export function ChildBlock({ child }: { child: CommittedChild }) {
       <Card
         className="flex w-full flex-col items-center gap-3 px-6 py-7 text-center text-white shadow-lg md:px-8"
         style={getBlueBackground()}
+        id={child.id}
       >
         <h3 className="text-sm font-bold uppercase tracking-wider text-white/80">
           Gifts you committed for {child.firstName}:

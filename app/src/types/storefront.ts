@@ -27,4 +27,6 @@ export type StorefrontGift = Pick<
   | "familyPublicNotes"
   | "familyId"
   | "childId"
->;
+> & {
+  childName: string;
+};

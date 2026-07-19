@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { Resend } from "resend";
-import FamilyPortalEmail from "transactional/emails/FamilyPortalEmail";
+import { FamilyPortalEmail } from "transactional";
 import z from "zod";
 import { v7 as uuidv7 } from "uuid";
 import { getServerDB } from "@/lib/firebase.server";
@@ -9,6 +9,7 @@ import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
 import {
+  AMAZON_PRODUCT_URL_INVALID_MESSAGE,
   AddressSchema,
   ChildStatusSchema,
   GiftFamilyPublicNotesSchema,
@@ -16,6 +17,7 @@ import {
   GIFT_TITLE_REQUIRED_MESSAGE,
   MAX_GIFT_PRICE,
   NormalizedGiftTitleSchema,
+  isValidAmazonProductUrl,
 } from "common";
 
 export const DUPLICATE_FAMILY_EMAIL_MESSAGE =
@@ -82,6 +84,12 @@ const optionalGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
         path: ["giftUrl"],
         message: URL_REQUIRED_MESSAGE,
       });
+    } else if (!isValidAmazonProductUrl(data.giftUrl ?? "")) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftUrl"],
+        message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
+      });
     }
 
     if (!hasPrice) {
@@ -120,6 +128,12 @@ const requiredGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
         code: "custom",
         path: ["giftUrl"],
         message: URL_REQUIRED_MESSAGE,
+      });
+    } else if (!isValidAmazonProductUrl(data.giftUrl ?? "")) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["giftUrl"],
+        message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
       });
     }
 
