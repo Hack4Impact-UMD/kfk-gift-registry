@@ -168,29 +168,30 @@ export function PublishedGiftsTable({
           )}
         </div>
 
-      {/* Data Table */}
-      <DataTable
-        key={tableKey}
-        columns={columns}
-        data={filteredData}
-        options={{ meta: tableMeta }}
-        globalSearch={globalSearch}
-        onGlobalSearchChange={setGlobalSearch}
-        rowsPerPage={rowsPerPage}
-        paginated={paginated}
-      />
-
-      {selectedRow && (
-        <StaffClaimDetailsDialog
-          key={selectedRow.id}
-          giftId={selectedRow.id}
-          giftName={selectedRow.giftName}
-          open={!!selectedRow}
-          onOpenChange={(open) => {
-            if (!open) setSelectedRow(null);
-          }}
+        {/* Data Table */}
+        <DataTable
+          key={tableKey}
+          columns={columns}
+          data={filteredData}
+          options={{ meta: tableMeta }}
+          globalSearch={globalSearch}
+          onGlobalSearchChange={setGlobalSearch}
+          rowsPerPage={rowsPerPage}
+          paginated={paginated}
         />
-      )}
+
+        {selectedRow && (
+          <StaffClaimDetailsDialog
+            key={selectedRow.id}
+            giftId={selectedRow.id}
+            giftName={selectedRow.giftName}
+            open={!!selectedRow}
+            onOpenChange={(open) => {
+              if (!open) setSelectedRow(null);
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }
