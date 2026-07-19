@@ -20,6 +20,7 @@ function clickAllTourElements(name: string) {
 const steps: Array<DriveStep> = [
   {
     element: '[data-tour="gift-drive-stats"]',
+    waitForElement: 5000,
     popover: {
       title: "Track the drive's progress",
       description:
@@ -27,7 +28,17 @@ const steps: Array<DriveStep> = [
     },
   },
   {
+    element: () => getVisibleTourElement("search-filters") as Element,
+    waitForElement: 5000,
+    popover: {
+      title: "Search & sort",
+      description:
+        "Search for a child by name or diagnosis, or sort the list by age or how many gifts they still need.",
+    },
+  },
+  {
     element: '[data-tour="first-child-card"]',
+    waitForElement: 5000,
     popover: {
       title: "Browse the children",
       description:
@@ -71,7 +82,13 @@ const steps: Array<DriveStep> = [
   },
 ];
 
-export function startStorefrontTour() {
+type StorefrontNavigate = (opts: { to: string }) => void;
+
+export function startStorefrontTour(navigate: StorefrontNavigate) {
+  if (window.location.pathname !== "/") {
+    navigate({ to: "/" });
+  }
+
   driver({
     showProgress: true,
     allowClose: true,

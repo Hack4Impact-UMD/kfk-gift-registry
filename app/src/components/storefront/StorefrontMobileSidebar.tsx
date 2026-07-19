@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import LadybugIcon from "@/assets/ladybug-storefront.svg";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +45,7 @@ export function StorefrontMobileSidebar({
   const { mutate: logout, isPending: logoutPending } = useLogout();
   const { data: link, isPending, error } = useStorefrontFormLink();
   const { setOpenMobile } = useSidebar();
+  const navigate = useNavigate();
 
   return (
     <Sidebar collapsible="offcanvas" side="left" className="sm:hidden">
@@ -96,7 +97,7 @@ export function StorefrontMobileSidebar({
                 size="lg"
                 onClick={() => {
                   setOpenMobile(false);
-                  startStorefrontTour();
+                  startStorefrontTour(navigate);
                 }}
                 className="flex items-center gap-3 w-full text-left"
               >

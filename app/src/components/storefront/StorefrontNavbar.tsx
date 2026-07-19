@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { Button } from "@/components/ui/button";
 import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
@@ -25,6 +25,7 @@ export function StorefrontNavbar({
   const showMobileSidebarTrigger = pathname !== "/";
   const { data: localCart } = useLocalCartData();
   const { data: link, isPending, error } = useStorefrontFormLink();
+  const navigate = useNavigate();
 
   const cartCount = localCart?.length ?? 0;
 
@@ -69,7 +70,7 @@ export function StorefrontNavbar({
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => startStorefrontTour()}
+              onClick={() => startStorefrontTour(navigate)}
               className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline cursor-pointer"
             >
               Storefront Tutorial

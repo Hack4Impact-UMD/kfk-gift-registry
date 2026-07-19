@@ -195,28 +195,63 @@ code {
   .rdp-day_button:hover:not(:disabled) {
     background-color: var(--accent);
   }
+}
 
-  .driver-popover {
-    border-radius: 0.75rem;
-  }
+/*
+ * driver.js ships its popover/button rules unlayered with `all: unset`, so
+ * these overrides must also stay unlayered — unlayered CSS always wins over
+ * anything in `@layer`, regardless of source order or specificity.
+ */
+.driver-popover {
+  border-radius: 0.75rem;
+}
 
-  .driver-popover-title {
-    font-family: var(--font-gaegu);
-    font-size: 1.35rem;
-    color: var(--color-kfk-blue);
-  }
+.driver-popover-title {
+  font-family: var(--font-gaegu);
+  font-size: 1.35rem;
+  color: var(--color-kfk-blue);
+}
 
-  .driver-popover-next-btn,
-  .driver-popover-done-btn {
-    background-color: var(--color-kfk-blue);
-    color: white;
-    text-shadow: none;
-    border-radius: 9999px;
-  }
+.driver-popover-footer-btn {
+  border-radius: calc(var(--radius) - 2px);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.375rem 0.875rem;
+  box-shadow: none;
+  text-shadow: none;
+  transition:
+    background-color 0.15s ease,
+    filter 0.15s ease;
+}
 
-  .driver-popover-next-btn:hover,
-  .driver-popover-done-btn:hover {
-    background-color: var(--color-kfk-blue);
-    opacity: 0.9;
-  }
+.driver-popover-next-btn,
+.driver-popover-done-btn {
+  background-color: var(--color-kfk-blue);
+  color: white;
+  border: none;
+}
+
+.driver-popover-next-btn:hover,
+.driver-popover-done-btn:hover {
+  background-color: var(--color-kfk-blue);
+  filter: brightness(0.9);
+}
+
+.driver-popover-prev-btn {
+  background-color: var(--background);
+  color: var(--color-kfk-blue);
+  border: 1px solid var(--color-kfk-blue);
+}
+
+.driver-popover-prev-btn:hover {
+  background-color: color-mix(in srgb, var(--color-kfk-blue) 10%, transparent);
+}
+
+.driver-popover-close-btn {
+  color: var(--muted-foreground);
+}
+
+.driver-popover-close-btn:hover {
+  color: var(--foreground);
 }
