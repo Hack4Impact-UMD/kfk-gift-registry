@@ -11,7 +11,7 @@ export const GIFT_TITLE_TOO_LONG_MESSAGE = `Gift name must be ${MAX_GIFT_TITLE_L
 export const GIFT_TITLE_REQUIRED_MESSAGE = "Gift name is required.";
 export const GIFT_PRICE_INVALID_MESSAGE = `Price must be a valid non-negative number no greater than $${MAX_GIFT_PRICE}.`;
 export const GIFT_LISTING_URL_WARNING_MESSAGE =
-  "Double check the link to the gift listing works. If it does, you can ignore this warning for now, but you'll need a direct Amazon or Macy's listing link before continuing.";
+  "Double-check that the gift listing link works. If it does, you can continue despite this warning.";
 
 const AMAZON_ASIN_RE = /^[A-Z0-9]{10}$/i;
 const AMAZON_PRODUCT_PATH_RE =
