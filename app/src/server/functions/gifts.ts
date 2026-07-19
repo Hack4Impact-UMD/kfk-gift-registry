@@ -1,7 +1,7 @@
 /* Backend server functions relating to published gifts (per specific giftDrive) */
 import { createServerFn } from "@tanstack/react-start";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
-import type { Claim, UserProfile } from "common";
+import type { Child, Claim, Family, UserProfile } from "common";
 import { UserRole } from "common";
 import z from "zod";
 import { getServerDB } from "@/lib/firebase.server";
@@ -15,6 +15,30 @@ const driveIdSchema = z.object({
   // param for both functions
   driveId: z.string(),
 });
+
+async function batchFetchByIds<T extends FirebaseFirestore.DocumentData>(
+  ids: Array<string>,
+  docRef: (
+    id: string,
+  ) => FirebaseFirestore.DocumentReference<T, FirebaseFirestore.DocumentData>,
+  targetMap: Map<string, T>,
+  chunkSize = 300,
+) {
+  const db = getServerDB();
+  const uniqueIds = Array.from(new Set(ids));
+
+  await Promise.all(
+    chunk(uniqueIds, chunkSize).map(async (idChunk) => {
+      const refs = idChunk.map((id) => docRef(id));
+      const snapshots = await db._instance.getAll(...refs);
+      for (const snapshot of snapshots) {
+        if (snapshot.exists) {
+          targetMap.set(snapshot.id, snapshot.data() as T);
+        }
+      }
+    }),
+  );
+}
 
 export const getPublishedGifts = createServerFn({ method: "GET" })
   .middleware([
@@ -84,47 +108,43 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
     );
 
     const profileByDonorId = new Map<string, UserProfile>();
-    await Promise.all(
-      chunk(donorIds, 300).map(async (donorIdChunk) => {
-        const donorRefs = donorIdChunk.map((donorId) => db.users.doc(donorId));
-        const donorSnapshots = await db._instance.getAll(...donorRefs);
-        for (const donorSnapshot of donorSnapshots) {
-          if (donorSnapshot.exists) {
-            profileByDonorId.set(
-              donorSnapshot.id,
-              donorSnapshot.data() as UserProfile,
-            );
-          }
-        }
-      }),
-    );
+    await batchFetchByIds(donorIds, (id) => db.users.doc(id), profileByDonorId);
+
+    const childIds = gifts.map((gift) => gift.childId);
+    const childById = new Map<string, Child>();
+    await batchFetchByIds(childIds, (id) => db.children.doc(id), childById);
+
+    const familyIds = gifts.map((gift) => gift.familyId);
+    const familyById = new Map<string, Family>();
+    await batchFetchByIds(familyIds, (id) => db.families.doc(id), familyById);
 
     return gifts.map((gift) => {
       const claim = claimByGiftId.get(gift.id);
 
       let sponsorType: GiftClaimStatus = "unclaimed";
-      let sponsorName: string | undefined;
       let sponsorEmail: string | undefined;
 
       if (claim?.claimType === "kfk") {
         sponsorType = "claimed_kfk";
-        sponsorName = claim.organizationName ?? "KFK Team";
       }
 
       if (claim?.claimType === "donor") {
         sponsorType = "claimed_donor";
         const donorProfile = profileByDonorId.get(claim.donorId);
-        sponsorName = donorProfile?.name;
         sponsorEmail = donorProfile?.email;
       }
+
+      const family = familyById.get(gift.familyId);
 
       return {
         id: gift.id,
         giftName: gift.title,
         giftStatus: gift.status,
         sponsorType,
-        sponsorName,
         sponsorEmail,
+        childName: childById.get(gift.childId)?.name,
+        parentName: family?.contactName,
+        parentEmail: family?.email,
         dateOfFulfillment:
           claim?.receivedAt ??
           claim?.deliveryConfirmed?.date ??
