@@ -3,7 +3,8 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { ExternalLink, Copy } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { CopyButton } from "@/components/ui/copybutton";
 import ColumnSortButton from "../ColumnSortButton";
 import { SponsorTypeBadge } from "./SponsorTypeBadge";
 import { GiftStatusBadge } from "./GiftStatusBadge";
@@ -24,22 +25,14 @@ function formatDate(iso: string): string {
   return dateFormatter.format(date);
 }
 
-function handleCopyEmail(email: string) {
-  navigator.clipboard.writeText(email);
-}
-
 function EmailCell({ email }: { email: string | undefined }) {
   return (
     <div className="flex items-center gap-2 group">
       <span className="text-sm text-gray-600 font-sans truncate">{email}</span>
       {email && (
-        <button
-          onClick={() => handleCopyEmail(email)}
-          className="shrink-0"
-          aria-label={`Copy ${email} to clipboard`}
-        >
-          <Copy className="h-4 w-4 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer" />
-        </button>
+        <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+          <CopyButton text={email} />
+        </div>
       )}
     </div>
   );
