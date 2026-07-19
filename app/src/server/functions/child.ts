@@ -859,6 +859,7 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
             status: g.status,
             familyPublicNotes: g.familyPublicNotes,
             childId: g.childId,
+            childName: child.name.split(" ")[0],
             familyId: g.familyId,
           }) satisfies StorefrontChild["gifts"][number],
       ),
@@ -899,6 +900,7 @@ export const getStorefrontGiftsForChild = createServerFn({ method: "GET" })
         status: giftData.status,
         familyPublicNotes: giftData.familyPublicNotes,
         childId: giftData.childId,
+        childName: child.name.split(" ")[0],
         familyId: giftData.familyId,
       } satisfies StorefrontGift;
     });
@@ -969,6 +971,7 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
                 status: g.status,
                 familyPublicNotes: g.familyPublicNotes,
                 childId: g.childId,
+                childName: sibling.name.split(" ")[0],
                 familyId: g.familyId,
               }) satisfies StorefrontGift,
           ),

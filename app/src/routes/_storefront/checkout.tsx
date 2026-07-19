@@ -49,19 +49,6 @@ function CheckoutComponent() {
     () => familyGroups.reduce((sum, family) => sum + family.gifts.length, 0),
     [familyGroups],
   );
-  const totalPrice = useMemo(
-    () =>
-      familyGroups.reduce(
-        (sum, family) =>
-          sum +
-          family.gifts.reduce(
-            (familySum, gift) => familySum + (gift.listedPrice ?? 0),
-            0,
-          ),
-        0,
-      ),
-    [familyGroups],
-  );
 
   if (isPending) {
     return (
@@ -100,7 +87,6 @@ function CheckoutComponent() {
             <ConfirmationPanel
               gifts={Object.values(cartData).flatMap((g) => g.gifts)}
               totalGifts={totalGifts}
-              totalPrice={totalPrice}
               onConfirm={flow.start}
               disabledMessage={flow.disabledMessage}
             />
