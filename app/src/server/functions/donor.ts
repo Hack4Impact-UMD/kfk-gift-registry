@@ -3,11 +3,14 @@ import z from "zod";
 import admin from "firebase-admin";
 import { DateTime } from "luxon";
 import { v7 as uuidv7 } from "uuid";
-import type { Child, Claim, Gift } from "common";
+import type { Child, Claim, Gift, DonorNotification, Family } from "common";
 import { UserRole } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
 import { assertGiftDriveActive } from "@/server/services/giftDriveService.server";
+import { buildDonorPostClaimConfirmationPayload } from "@/server/services/donorEmailPayloadService.server";
+import { renderDonorPostClaimConfirmationEmail } from "@/server/services/donorEmailRenderer.server";
+import { sendEmailNow } from "@/server/services/emailService.server";
 import type { CommittedChild } from "@/components/donor/home/types";
 import {
   publishNotification,
@@ -37,6 +40,51 @@ const deliveryReceiptUploadSchema = z.object({
   giftId: z.string().min(1),
   documentationPath: z.string().min(1),
 });
+
+const donorNotificationReadStateSchema = z.object({
+  notificationId: z.string().min(1),
+  driveId: z.string().min(1),
+});
+
+function buildDonorNotificationId(type: string, claimId: string) {
+  return `${type}:${claimId}`;
+}
+
+function buildDonorNotificationTitle(type: DonorNotification["type"]) {
+  switch (type) {
+    case "PURCHASE_CONFIRMATION_NEEDED":
+      return "Purchase Confirmation Needed";
+    case "DELIVERY_CONFIRMATION_NEEDED":
+      return "Delivery Confirmation Needed";
+  }
+}
+
+function buildDonorNotificationMessage(
+  type: DonorNotification["type"],
+  giftTitle: string,
+) {
+  switch (type) {
+    case "PURCHASE_CONFIRMATION_NEEDED":
+      return `${giftTitle} has been reserved but is not yet marked as purchased. Please complete the purchase and delivery.`;
+    case "DELIVERY_CONFIRMATION_NEEDED":
+      return `After delivery is complete, please confirm ${giftTitle} has been successfully delivered.`;
+  }
+}
+
+function getDonorNotificationTypeForClaim(
+  gift: Gift,
+  claim: Claim,
+): DonorNotification["type"] | null {
+  if (gift.status === "CLAIMED" && !claim.purchaseConfirmation?.date) {
+    return "PURCHASE_CONFIRMATION_NEEDED";
+  }
+
+  if (gift.status === "PURCHASED" && !claim.deliveryConfirmed?.date) {
+    return "DELIVERY_CONFIRMATION_NEEDED";
+  }
+
+  return null;
+}
 
 export async function loadGifts(
   tx: FirebaseFirestore.Transaction,
@@ -147,6 +195,25 @@ export const getCommittedChildrenForDonor = createServerFn({ method: "GET" })
     }
 
     const committedChildrenById = new Map<string, CommittedChild>();
+    const familyIds = Array.from(
+      new Set(
+        Array.from(giftById.values())
+          .map((gift) => gift.familyId)
+          .filter((familyId) => familyId.length > 0),
+      ),
+    );
+    const familyRefs = familyIds.map((familyId) => db.families.doc(familyId));
+    const familySnapshots = familyRefs.length
+      ? await db._instance.getAll(...familyRefs)
+      : [];
+
+    const familyById = new Map<string, Family>();
+    for (const familySnapshot of familySnapshots) {
+      if (familySnapshot.exists) {
+        familyById.set(familySnapshot.id, familySnapshot.data() as Family);
+      }
+    }
+
     for (const claim of claims) {
       const gift = giftById.get(claim.giftId);
       const child = childById.get(gift?.childId ?? claim.childId);
@@ -170,6 +237,8 @@ export const getCommittedChildrenForDonor = createServerFn({ method: "GET" })
 
       committedChildrenById.get(child.id)?.gifts.push({
         id: gift.id,
+        familyId: gift.familyId,
+        familyAddress: familyById.get(gift.familyId)?.address ?? null,
         title: gift.title,
         productUrl: gift.productUrl,
         listedPrice: gift.listedPrice ?? 0,
@@ -209,7 +278,7 @@ export const claimGifts = createServerFn({ method: "POST" })
     const giftIds = Array.from(new Set(data.giftIds));
     const db = getServerDB();
 
-    return await db._instance.runTransaction(async (tx) => {
+    const result = await db._instance.runTransaction(async (tx) => {
       const { gifts, driveId } = await loadGifts(tx, db, giftIds);
 
       await assertGiftDriveActive(tx, driveId);
@@ -236,6 +305,10 @@ export const claimGifts = createServerFn({ method: "POST" })
       }
 
       const claimedAt = DateTime.utc().toISO();
+      if (!claimedAt) {
+        throw new Error("Failed to create claim timestamp");
+      }
+
       const claims: Array<Claim> = gifts.map((gift) => ({
         id: uuidv7(),
         giftId: gift.id,
@@ -282,6 +355,39 @@ export const claimGifts = createServerFn({ method: "POST" })
 
       return { claims };
     });
+
+    const donorSnapshot = await db.users.doc(donorId).get();
+    const donor = donorSnapshot.data();
+
+    if (!donor) {
+      console.warn(
+        "Skipping donor post-claim confirmation email: donor profile not found",
+      );
+      return result;
+    }
+
+    try {
+      const payload = await buildDonorPostClaimConfirmationPayload({
+        donor,
+        claims: result.claims,
+      });
+
+      const { subject, html } =
+        await renderDonorPostClaimConfirmationEmail(payload);
+
+      await sendEmailNow({
+        to: donor.email,
+        subject,
+        html,
+      });
+    } catch (error) {
+      console.error(
+        "Failed to send donor post-claim confirmation email",
+        error,
+      );
+    }
+
+    return result;
   });
 
 export const markGiftPurchased = createServerFn({ method: "POST" })
@@ -613,4 +719,121 @@ export const unclaimGifts = createServerFn({ method: "POST" })
         }
       }
     });
+  });
+
+export const getDonorNotifications = createServerFn({ method: "GET" })
+  .middleware([requireRolesMiddleware([UserRole.DONOR])])
+  .inputValidator(z.object({ driveId: z.string().min(1) }))
+  .handler(async ({ context, data }) => {
+    const donorId = context.authUser.uid;
+    const db = getServerDB();
+
+    const claimsSnapshot = await db.claims
+      .where("donorId", "==", donorId)
+      .where("active", "==", true)
+      .where("driveId", "==", data.driveId)
+      .get();
+
+    if (claimsSnapshot.empty) {
+      return { notifications: [] satisfies Array<DonorNotification> };
+    }
+
+    const claims = claimsSnapshot.docs.map((doc) => doc.data());
+    const giftIds = Array.from(new Set(claims.map((claim) => claim.giftId)));
+    const childIds = Array.from(new Set(claims.map((claim) => claim.childId)));
+
+    const [giftSnapshots, childSnapshots, donorNotificationReadsSnapshot] =
+      await Promise.all([
+        db._instance.getAll(...giftIds.map((giftId) => db.gifts.doc(giftId))),
+        db._instance.getAll(
+          ...childIds.map((childId) => db.children.doc(childId)),
+        ),
+        db._instance
+          .collection("donor-notification-reads")
+          .where("donorId", "==", donorId)
+          .where("driveId", "==", data.driveId)
+          .get(),
+      ]);
+
+    const giftsById = new Map<string, Gift>();
+    for (const snapshot of giftSnapshots) {
+      if (snapshot.exists) {
+        giftsById.set(snapshot.id, snapshot.data() as Gift);
+      }
+    }
+
+    const childrenById = new Map<string, Child>();
+    for (const snapshot of childSnapshots) {
+      if (snapshot.exists) {
+        childrenById.set(snapshot.id, snapshot.data() as Child);
+      }
+    }
+
+    const readIds = new Set<string>(
+      donorNotificationReadsSnapshot.docs
+        .map((doc) => doc.data().notificationId)
+        .filter((notificationId): notificationId is string => !!notificationId),
+    );
+
+    const notifications = claims
+      .map((claim): DonorNotification | null => {
+        const gift = giftsById.get(claim.giftId);
+        const child = childrenById.get(claim.childId);
+        if (!gift || !child) {
+          return null;
+        }
+
+        const type = getDonorNotificationTypeForClaim(gift, claim);
+        if (!type) {
+          return null;
+        }
+
+        const id = buildDonorNotificationId(type, claim.id);
+        return {
+          id,
+          donorId,
+          childId: child.id,
+          giftId: gift.id,
+          claimId: claim.id,
+          driveId: claim.driveId,
+          type,
+          title: buildDonorNotificationTitle(type),
+          message: buildDonorNotificationMessage(type, gift.title),
+          createdAt:
+            type === "DELIVERY_CONFIRMATION_NEEDED"
+              ? (claim.purchaseConfirmation?.date ?? claim.claimedAt)
+              : claim.claimedAt,
+          read: readIds.has(id),
+          actionCompleted: false,
+        };
+      })
+      .filter(
+        (notification): notification is DonorNotification =>
+          notification !== null,
+      )
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+    return { notifications };
+  });
+
+export const markDonorNotificationAsRead = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.DONOR])])
+  .inputValidator(donorNotificationReadStateSchema)
+  .handler(async ({ context, data }) => {
+    const donorId = context.authUser.uid;
+    const db = getServerDB();
+
+    await db._instance
+      .collection("donor-notification-reads")
+      .doc(`${donorId}:${data.notificationId}`)
+      .set({
+        id: `${donorId}:${data.notificationId}`,
+        donorId,
+        driveId: data.driveId,
+        notificationId: data.notificationId,
+        read: true,
+        createdAt: new Date().toISOString(),
+      });
+
+    return { success: true };
   });

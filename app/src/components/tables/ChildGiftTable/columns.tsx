@@ -32,17 +32,6 @@ export const columns = [
       );
     },
   }),
-  helper.accessor("listedPrice", {
-    header: "Price",
-    cell: ({ getValue }) => {
-      const price = getValue();
-      return (
-        <span className="text-kfk-red font-medium text-sm sm:text-base whitespace-nowrap">
-          {price ? `$${price.toFixed(2)}` : "N/A"}
-        </span>
-      );
-    },
-  }),
   helper.display({
     id: "action",
     header: "Claim Gift",

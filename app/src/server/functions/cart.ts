@@ -5,7 +5,7 @@ import { getServerDB } from "@/lib/firebase.server";
 import { CartItemSchema } from "@/local/cartCollection";
 import type { StorefrontGift } from "@/types/storefront";
 
-export type StorefrontFamily = Pick<Family, "id" | "contactName">;
+export type StorefrontFamily = Pick<Family, "id">;
 
 export type CartFamilyGroup = {
   family: StorefrontFamily;
@@ -31,22 +31,37 @@ export const getCartGiftsGroupedByFamily = createServerFn({ method: "GET" })
       giftIds.map((id) => db.gifts.doc(id).get()),
     );
 
-    const gifts = giftDocs.flatMap((doc) => {
+    const activeGifts = giftDocs.flatMap((doc) => {
       const gift = doc.data();
       if (!gift?.active) return [];
-      return [
-        {
+      return [gift];
+    });
+
+    const childIds = Array.from(new Set(activeGifts.map((g) => g.childId)));
+    const childDocs = await Promise.all(
+      childIds.map((id) => db.children.doc(id).get()),
+    );
+    const childNameById: Record<string, string> = {};
+    for (const doc of childDocs) {
+      const child = doc.data();
+      if (!child) continue;
+      childNameById[child.id] = child.name.split(" ")[0];
+    }
+
+    const gifts = activeGifts.map(
+      (gift) =>
+        ({
           id: gift.id,
           title: gift.title,
           productUrl: gift.productUrl,
           listedPrice: gift.listedPrice,
           status: gift.status,
           childId: gift.childId,
+          childName: childNameById[gift.childId] ?? "",
           familyId: gift.familyId,
           familyPublicNotes: gift.familyPublicNotes,
-        } satisfies StorefrontGift,
-      ];
-    });
+        }) satisfies StorefrontGift,
+    );
 
     const familyIds = Array.from(new Set(gifts.map((g) => g.familyId)));
     const familyDocs = await Promise.all(
@@ -59,7 +74,6 @@ export const getCartGiftsGroupedByFamily = createServerFn({ method: "GET" })
       if (!family) continue;
       familyById[family.id] = {
         id: family.id,
-        contactName: family.contactName,
       };
     }
 

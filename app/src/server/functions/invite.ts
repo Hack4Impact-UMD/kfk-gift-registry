@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { Resend } from "resend";
-import StaffInviteEmail from "transactional/emails/StaffInviteEmail";
+import { StaffInviteEmail } from "transactional";
 import { UserRole } from "common";
 import z from "zod";
 import { getServerDB } from "@/lib/firebase.server";
