@@ -12,7 +12,6 @@ import {
   getChildProfilesForFamily,
   updateChild,
   updateGift,
-  uploadChildPictureStaff,
 } from "@/server/functions/child";
 import {
   getFamilyById,
@@ -31,6 +30,8 @@ import {
   MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
   MAX_GIFT_TITLE_LENGTH,
 } from "common";
+import { uploadChildProfilePicture } from "@/services/storageService";
+import { getDownloadURL } from "firebase/storage";
 
 const UPDATABLE_CHILD_FIELDS = [
   "name",
@@ -196,9 +197,8 @@ export function createCollections(queryClient: QueryClient) {
     const isDataUrl = !!modified.photoUrl?.startsWith("data:");
 
     if (isDataUrl && modified.photoUrl) {
-      const { photoUrl } = await uploadChildPictureStaff({
-        data: { childId, dataUrl: modified.photoUrl },
-      });
+      const res = await uploadChildProfilePicture(childId, modified.photoUrl);
+      const photoUrl = await getDownloadURL(res);
       mutation.collection.utils.writeUpdate({ id: childId, photoUrl });
     }
 

@@ -11,16 +11,10 @@ import {
   RequiredGiftTitleSchema,
 } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
-import {
-  childPhotoExists,
-  deleteChildPhoto,
-  uploadChildPhoto,
-} from "../services/childPhotoService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 import type { Family, Gift, Child, Claim, UserProfile } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
-import { appCheckMiddleware } from "../middleware/appCheckMiddleware";
 import { chunk, isDonorClaim } from "@/lib/utils";
 
 export type FamilyGiftClaim = {
@@ -89,11 +83,6 @@ const tokenGiftThankYouNoteSchema = z.object({
   childId: z.string().min(1),
   giftId: z.string().min(1),
   note: z.string().trim().min(1).max(1000),
-});
-
-const uploadChildPictureSchema = z.object({
-  childId: z.string().min(1),
-  dataUrl: z.string().startsWith("data:"),
 });
 
 const updateChildSchema = z.object({
@@ -619,14 +608,14 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
           claimedAt: claim.claimedAt,
           purchaseConfirmation: claim.purchaseConfirmation
             ? {
-                date: claim.purchaseConfirmation.date,
-                trackingNumber: claim.purchaseConfirmation.trackingNumber,
-              }
+              date: claim.purchaseConfirmation.date,
+              trackingNumber: claim.purchaseConfirmation.trackingNumber,
+            }
             : undefined,
           deliveryConfirmed: claim.deliveryConfirmed
             ? {
-                date: claim.deliveryConfirmed.date,
-              }
+              date: claim.deliveryConfirmed.date,
+            }
             : undefined,
           expectedDeliveryDate: claim.expectedDeliveryDate,
           receivedAt: claim.receivedAt,
@@ -664,35 +653,35 @@ export const getFamilyChildDataByToken = createServerFn({ method: "GET" })
     const gifts = giftsSnapshot.empty
       ? []
       : giftsSnapshot.docs
-          .map((doc) => doc.data())
-          .filter((gift) => !gift.backup);
+        .map((doc) => doc.data())
+        .filter((gift) => !gift.backup);
 
     const claims = claimsSnapshot.empty
       ? []
       : claimsSnapshot.docs
-          .map((doc) => doc.data())
-          .filter((claim) => claim.active)
-          .map(
-            (claim): FamilyGiftClaim => ({
-              giftId: claim.giftId,
-              claimType: claim.claimType,
-              claimedAt: claim.claimedAt,
-              purchaseConfirmation: claim.purchaseConfirmation
-                ? {
-                    date: claim.purchaseConfirmation.date,
-                    trackingNumber: claim.purchaseConfirmation.trackingNumber,
-                  }
-                : undefined,
-              deliveryConfirmed: claim.deliveryConfirmed
-                ? {
-                    date: claim.deliveryConfirmed.date,
-                  }
-                : undefined,
-              expectedDeliveryDate: claim.expectedDeliveryDate,
-              receivedAt: claim.receivedAt,
-              thankYouNote: claim.thankYouNote,
-            }),
-          );
+        .map((doc) => doc.data())
+        .filter((claim) => claim.active)
+        .map(
+          (claim): FamilyGiftClaim => ({
+            giftId: claim.giftId,
+            claimType: claim.claimType,
+            claimedAt: claim.claimedAt,
+            purchaseConfirmation: claim.purchaseConfirmation
+              ? {
+                date: claim.purchaseConfirmation.date,
+                trackingNumber: claim.purchaseConfirmation.trackingNumber,
+              }
+              : undefined,
+            deliveryConfirmed: claim.deliveryConfirmed
+              ? {
+                date: claim.deliveryConfirmed.date,
+              }
+              : undefined,
+            expectedDeliveryDate: claim.expectedDeliveryDate,
+            receivedAt: claim.receivedAt,
+            thankYouNote: claim.thankYouNote,
+          }),
+        );
 
     return {
       child,
@@ -1009,83 +998,12 @@ export const updateChild = createServerFn({ method: "POST" })
     const normalizedUpdates =
       updates.photoUrl === ""
         ? {
-            ...updates,
-            photoUrl: admin.firestore.FieldValue.delete(),
-          }
+          ...updates,
+          photoUrl: admin.firestore.FieldValue.delete(),
+        }
         : updates;
 
     await db.children.doc(childId).update(normalizedUpdates);
-
-    const updatedChild = await db.children.doc(childId).get();
-    const updatedChildData = updatedChild.data();
-    if (!updatedChildData) throw new Error("Child not found");
-    return updatedChildData;
-  });
-
-export const uploadChildPictureStaff = createServerFn({ method: "POST" })
-  .middleware([
-    requireRolesMiddleware([
-      UserRole.ADMIN,
-      UserRole.DIRECTOR,
-      UserRole.VOLUNTEER,
-    ]),
-  ])
-  .inputValidator(uploadChildPictureSchema)
-  .handler(async ({ data }) => {
-    const { childId, dataUrl } = data;
-    const db = getServerDB();
-
-    const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) throw new Error("Child not found");
-
-    const photoUrl = await uploadChildPhoto(childId, dataUrl);
-    try {
-      await db.children.doc(childId).update({ photoUrl });
-    } catch (updateErr) {
-      try {
-        await deleteChildPhoto(childId);
-      } catch (deleteErr) {
-        console.error(
-          "Failed to delete orphaned photo after Firestore update failure:",
-          deleteErr,
-        );
-      }
-      throw updateErr;
-    }
-
-    const updatedChild = await db.children.doc(childId).get();
-    const updatedChildData = updatedChild.data();
-    if (!updatedChildData) throw new Error("Child not found");
-    return updatedChildData;
-  });
-
-export const uploadChildPictureAppCheck = createServerFn({ method: "POST" })
-  .middleware([appCheckMiddleware])
-  .inputValidator(uploadChildPictureSchema)
-  .handler(async ({ data }) => {
-    const { childId, dataUrl } = data;
-    const db = getServerDB();
-
-    const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) throw new Error("Child not found");
-
-    if (await childPhotoExists(childId))
-      throw new Error("Child already has a profile picture uploaded!");
-
-    const photoUrl = await uploadChildPhoto(childId, dataUrl);
-    try {
-      await db.children.doc(childId).update({ photoUrl });
-    } catch (updateErr) {
-      try {
-        await deleteChildPhoto(childId);
-      } catch (deleteErr) {
-        console.error(
-          "Failed to delete orphaned photo after Firestore update failure:",
-          deleteErr,
-        );
-      }
-      throw updateErr;
-    }
 
     const updatedChild = await db.children.doc(childId).get();
     const updatedChildData = updatedChild.data();

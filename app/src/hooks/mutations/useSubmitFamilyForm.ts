@@ -4,8 +4,6 @@ import { giftsFormSchema } from "@/lib/formSchemas";
 import type { GiftsFormData } from "@/lib/formSchemas";
 import type { FamilyFormInput } from "@/server/functions/familyForm";
 import { submitFamilyForm } from "@/server/functions/familyForm";
-import Compressor from "compressorjs";
-import { uploadChildPictureAppCheck } from "@/server/functions/child";
 import { toast } from "@/lib/toast";
 import {
   GIFT_PRICE_INVALID_MESSAGE,
@@ -13,6 +11,7 @@ import {
   isValidAmazonProductUrl,
   normalizeAmazonProductUrl,
 } from "common";
+import { uploadChildProfilePicture } from "@/services/storageService";
 
 export function buildFamilyFormSubmitPayload(
   formLinkId: string,
@@ -69,24 +68,6 @@ function cleanChildrenObjects(
       blurb: child.blurb?.trim() ?? "",
     })),
   };
-}
-
-async function compressImage(dataUrl?: string): Promise<string | null> {
-  if (!dataUrl) return null;
-  const blob = await (await fetch(dataUrl)).blob();
-
-  return new Promise((resolve, reject) => {
-    new Compressor(blob, {
-      quality: 0.7,
-      success: (file) => {
-        const reader = new FileReader();
-        reader.onload = () =>
-          resolve((reader.result as string | undefined) ?? null);
-        reader.readAsDataURL(file);
-      },
-      error: (err) => reject(err),
-    });
-  });
 }
 
 function cleanGiftsObjects(
@@ -158,20 +139,11 @@ export function useSubmitFamilyForm() {
         ? photos
         : [];
 
-      //NOTE: Image data is base64 encoded data URLs. Images are at most 5mb. In order to avoid possible HTTP request body size limits, we need to split up uploads over multiple requests (one per image)
       const uploadResults = await Promise.allSettled(
-        photosToUpload.map(async (p, i) => {
+        photosToUpload.map(async (photo, i) => {
           const id = res.childIds[i];
-          const compressedImage = await compressImage(p);
-
-          if (id && compressedImage) {
-            await uploadChildPictureAppCheck({
-              data: {
-                childId: id,
-                dataUrl: compressedImage,
-              },
-            });
-          }
+          if (photo)
+            await uploadChildProfilePicture(id, photo);
         }),
       );
 

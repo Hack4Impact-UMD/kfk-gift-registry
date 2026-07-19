@@ -3,7 +3,7 @@ import { ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFieldContext } from "@/hooks/family-form/fieldContext";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 interface PhotoUploadProps {
@@ -89,7 +89,7 @@ export function PhotoUpload({
       <img
         src={preview}
         alt={`${childName} photo`}
-        className="w-full h-40 object-cover rounded-lg border border-slate-200"
+        className="w-full h-40 object-contain rounded-lg border border-slate-200"
       />
     ) : null;
   }
@@ -114,7 +114,7 @@ export function PhotoUpload({
             <img
               src={preview}
               alt={`${childName} photo preview`}
-              className="w-full h-40 object-cover rounded-lg border border-slate-200"
+              className="w-full h-40 object-contain rounded-lg border border-slate-200"
             />
             <button
               type="button"
@@ -137,24 +137,25 @@ export function PhotoUpload({
           </Button>
         </div>
       ) : (
-        // Drag-and-drop target — visually just the button, but the whole area accepts drops
-        <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-            className={`w-full border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] hover:bg-blue-50 hover:text-[var(--color-kfk-blue)] transition-colors ${
-              isDragging ? "bg-blue-50 border-blue-600" : ""
-            }`}
+        <>
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
           >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Upload Photo
-          </Button>
-        </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              className={`w-full border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] hover:bg-blue-50 hover:text-[var(--color-kfk-blue)] transition-colors ${isDragging ? "bg-blue-50 border-blue-600" : ""
+                }`}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Upload Photo
+            </Button>
+          </div>
+        </>
+
       )}
 
       {error && <p className="text-xs text-red-600">{error}</p>}
