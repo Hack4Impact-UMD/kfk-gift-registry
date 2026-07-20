@@ -11,16 +11,10 @@ import {
   RequiredGiftTitleSchema,
 } from "common";
 import { getFamilyLinkById } from "../services/familyLinkService.server";
-import {
-  childPhotoExists,
-  deleteChildPhoto,
-  uploadChildPhoto,
-} from "../services/childPhotoService.server";
 import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfilesTable/types";
 import type { Family, Gift, Child, Claim, UserProfile } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
-import { appCheckMiddleware } from "../middleware/appCheckMiddleware";
 import { chunk, isDonorClaim } from "@/lib/utils";
 
 export type FamilyGiftClaim = {
@@ -89,11 +83,6 @@ const tokenGiftThankYouNoteSchema = z.object({
   childId: z.string().min(1),
   giftId: z.string().min(1),
   note: z.string().trim().min(1).max(1000),
-});
-
-const uploadChildPictureSchema = z.object({
-  childId: z.string().min(1),
-  dataUrl: z.string().startsWith("data:"),
 });
 
 const updateChildSchema = z.object({
@@ -1015,77 +1004,6 @@ export const updateChild = createServerFn({ method: "POST" })
         : updates;
 
     await db.children.doc(childId).update(normalizedUpdates);
-
-    const updatedChild = await db.children.doc(childId).get();
-    const updatedChildData = updatedChild.data();
-    if (!updatedChildData) throw new Error("Child not found");
-    return updatedChildData;
-  });
-
-export const uploadChildPictureStaff = createServerFn({ method: "POST" })
-  .middleware([
-    requireRolesMiddleware([
-      UserRole.ADMIN,
-      UserRole.DIRECTOR,
-      UserRole.VOLUNTEER,
-    ]),
-  ])
-  .inputValidator(uploadChildPictureSchema)
-  .handler(async ({ data }) => {
-    const { childId, dataUrl } = data;
-    const db = getServerDB();
-
-    const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) throw new Error("Child not found");
-
-    const photoUrl = await uploadChildPhoto(childId, dataUrl);
-    try {
-      await db.children.doc(childId).update({ photoUrl });
-    } catch (updateErr) {
-      try {
-        await deleteChildPhoto(childId);
-      } catch (deleteErr) {
-        console.error(
-          "Failed to delete orphaned photo after Firestore update failure:",
-          deleteErr,
-        );
-      }
-      throw updateErr;
-    }
-
-    const updatedChild = await db.children.doc(childId).get();
-    const updatedChildData = updatedChild.data();
-    if (!updatedChildData) throw new Error("Child not found");
-    return updatedChildData;
-  });
-
-export const uploadChildPictureAppCheck = createServerFn({ method: "POST" })
-  .middleware([appCheckMiddleware])
-  .inputValidator(uploadChildPictureSchema)
-  .handler(async ({ data }) => {
-    const { childId, dataUrl } = data;
-    const db = getServerDB();
-
-    const childDoc = await db.children.doc(childId).get();
-    if (!childDoc.exists) throw new Error("Child not found");
-
-    if (await childPhotoExists(childId))
-      throw new Error("Child already has a profile picture uploaded!");
-
-    const photoUrl = await uploadChildPhoto(childId, dataUrl);
-    try {
-      await db.children.doc(childId).update({ photoUrl });
-    } catch (updateErr) {
-      try {
-        await deleteChildPhoto(childId);
-      } catch (deleteErr) {
-        console.error(
-          "Failed to delete orphaned photo after Firestore update failure:",
-          deleteErr,
-        );
-      }
-      throw updateErr;
-    }
 
     const updatedChild = await db.children.doc(childId).get();
     const updatedChildData = updatedChild.data();

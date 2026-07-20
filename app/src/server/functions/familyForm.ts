@@ -4,7 +4,10 @@ import { FamilyPortalEmail } from "transactional";
 import z from "zod";
 import { v7 as uuidv7 } from "uuid";
 import { getServerDB } from "@/lib/firebase.server";
-import { createFamilyLink } from "@/server/services/familyLinkService.server";
+import {
+  createFamilyLink,
+  getFamilyLinkById,
+} from "@/server/services/familyLinkService.server";
 import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
@@ -19,6 +22,8 @@ import {
   NormalizedGiftTitleSchema,
   isValidAmazonProductUrl,
 } from "common";
+import { getDownloadURL } from "firebase-admin/storage";
+import admin from "firebase-admin";
 
 export const DUPLICATE_FAMILY_EMAIL_MESSAGE =
   "An account with this email already exists. If you need to modify or resubmit, contact KFK directly.";
@@ -184,6 +189,14 @@ const familyEmailSchema = z.object({
   email: z.email(),
 });
 
+const setChildPhotoUrlsSchema = z.object({
+  token: z.string().min(1),
+  childIds: z
+    .array(z.string().min(1))
+    .max(500)
+    .transform((ids) => Array.from(new Set(ids))),
+});
+
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
 
 function hasGiftIdentity<T extends { giftName?: string; giftUrl?: string }>(
@@ -255,6 +268,45 @@ export const checkFamilyEmailAvailability = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await assertFamilyEmailAvailable(normalizeFamilyEmail(data.email));
     return { available: true };
+  });
+
+export const setChildPhotoUrls = createServerFn({ method: "POST" })
+  .middleware([appCheckMiddleware])
+  .inputValidator(setChildPhotoUrlsSchema)
+  .handler(async ({ data }) => {
+    const link = await getFamilyLinkById(data.token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
+    const bucket = admin.storage().bucket();
+    const db = getServerDB();
+
+    // Verify every requested child belongs to the token's family before
+    // touching storage or Firestore — reject the whole request rather than
+    // committing partial updates for a mix of authorized/unauthorized ids.
+    const children = await Promise.all(
+      data.childIds.map((childId) => db.children.doc(childId).get()),
+    );
+    children.forEach((snap, i) => {
+      const child = snap.data();
+      if (!child || child.familyId !== link.familyId) {
+        throw new Error(
+          `Unauthorized: child ${data.childIds[i]} does not belong to this family`,
+        );
+      }
+    });
+
+    const batch = db._instance.batch();
+    await Promise.all(
+      data.childIds.map(async (childId) => {
+        const photoUrl = await getDownloadURL(
+          bucket.file(`children/pfps/${childId}`),
+        );
+        batch.update(db.children.doc(childId), { photoUrl });
+      }),
+    );
+    await batch.commit();
   });
 //TODO: rate limit
 export const submitFamilyForm = createServerFn({ method: "POST" })
