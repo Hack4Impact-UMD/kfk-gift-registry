@@ -199,7 +199,7 @@ export function createCollections(queryClient: QueryClient) {
     // the same path, so a cache-busting query param is required or the
     // browser will keep showing the previous image for that URL.
     let photoUrl = modified.photoUrl;
-    if (photoUrl) {
+    if (photoUrl?.startsWith("data:")) {
       const res = await uploadChildProfilePicture(childId, photoUrl);
       photoUrl = (await getDownloadURL(res)) + `&cb=${Date.now()}`;
       mutation.collection.utils.writeUpdate({ id: childId, photoUrl });

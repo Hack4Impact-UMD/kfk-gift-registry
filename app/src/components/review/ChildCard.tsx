@@ -169,7 +169,7 @@ export function ChildCard({ child }: ChildCardProps) {
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setPhotoError("File size must be less than 5MB.");
+      setPhotoError("File size must be 50MB or less.");
       event.target.value = "";
       return;
     }

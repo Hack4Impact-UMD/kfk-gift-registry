@@ -36,7 +36,7 @@ export function PhotoUpload({
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setError("File size must be less than 5MB");
+      setError("File size must be 50MB or less");
       return;
     }
 
@@ -74,7 +74,7 @@ export function PhotoUpload({
     e.stopPropagation();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    handleFile(file);
+    if (file) handleFile(file);
   };
 
   const handleRemovePhoto = () => {

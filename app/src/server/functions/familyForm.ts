@@ -191,7 +191,10 @@ const familyEmailSchema = z.object({
 
 const setChildPhotoUrlsSchema = z.object({
   token: z.string().min(1),
-  childIds: z.array(z.string().min(1)),
+  childIds: z
+    .array(z.string().min(1))
+    .max(500)
+    .transform((ids) => Array.from(new Set(ids))),
 });
 
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
