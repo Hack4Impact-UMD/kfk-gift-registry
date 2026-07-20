@@ -147,15 +147,15 @@ export function PhotoUpload({
               type="button"
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
-              className={`w-full border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] hover:bg-blue-50 hover:text-[var(--color-kfk-blue)] transition-colors ${isDragging ? "bg-blue-50 border-blue-600" : ""
-                }`}
+              className={`w-full border-[var(--color-kfk-blue)] text-[var(--color-kfk-blue)] hover:bg-blue-50 hover:text-[var(--color-kfk-blue)] transition-colors ${
+                isDragging ? "bg-blue-50 border-blue-600" : ""
+              }`}
             >
               <ExternalLink className="w-4 h-4 mr-2" />
               Upload Photo
             </Button>
           </div>
         </>
-
       )}
 
       {error && <p className="text-xs text-red-600">{error}</p>}

@@ -608,14 +608,14 @@ export const getChildClaimsByChildIdWithToken = createServerFn({
           claimedAt: claim.claimedAt,
           purchaseConfirmation: claim.purchaseConfirmation
             ? {
-              date: claim.purchaseConfirmation.date,
-              trackingNumber: claim.purchaseConfirmation.trackingNumber,
-            }
+                date: claim.purchaseConfirmation.date,
+                trackingNumber: claim.purchaseConfirmation.trackingNumber,
+              }
             : undefined,
           deliveryConfirmed: claim.deliveryConfirmed
             ? {
-              date: claim.deliveryConfirmed.date,
-            }
+                date: claim.deliveryConfirmed.date,
+              }
             : undefined,
           expectedDeliveryDate: claim.expectedDeliveryDate,
           receivedAt: claim.receivedAt,
@@ -653,35 +653,35 @@ export const getFamilyChildDataByToken = createServerFn({ method: "GET" })
     const gifts = giftsSnapshot.empty
       ? []
       : giftsSnapshot.docs
-        .map((doc) => doc.data())
-        .filter((gift) => !gift.backup);
+          .map((doc) => doc.data())
+          .filter((gift) => !gift.backup);
 
     const claims = claimsSnapshot.empty
       ? []
       : claimsSnapshot.docs
-        .map((doc) => doc.data())
-        .filter((claim) => claim.active)
-        .map(
-          (claim): FamilyGiftClaim => ({
-            giftId: claim.giftId,
-            claimType: claim.claimType,
-            claimedAt: claim.claimedAt,
-            purchaseConfirmation: claim.purchaseConfirmation
-              ? {
-                date: claim.purchaseConfirmation.date,
-                trackingNumber: claim.purchaseConfirmation.trackingNumber,
-              }
-              : undefined,
-            deliveryConfirmed: claim.deliveryConfirmed
-              ? {
-                date: claim.deliveryConfirmed.date,
-              }
-              : undefined,
-            expectedDeliveryDate: claim.expectedDeliveryDate,
-            receivedAt: claim.receivedAt,
-            thankYouNote: claim.thankYouNote,
-          }),
-        );
+          .map((doc) => doc.data())
+          .filter((claim) => claim.active)
+          .map(
+            (claim): FamilyGiftClaim => ({
+              giftId: claim.giftId,
+              claimType: claim.claimType,
+              claimedAt: claim.claimedAt,
+              purchaseConfirmation: claim.purchaseConfirmation
+                ? {
+                    date: claim.purchaseConfirmation.date,
+                    trackingNumber: claim.purchaseConfirmation.trackingNumber,
+                  }
+                : undefined,
+              deliveryConfirmed: claim.deliveryConfirmed
+                ? {
+                    date: claim.deliveryConfirmed.date,
+                  }
+                : undefined,
+              expectedDeliveryDate: claim.expectedDeliveryDate,
+              receivedAt: claim.receivedAt,
+              thankYouNote: claim.thankYouNote,
+            }),
+          );
 
     return {
       child,
@@ -998,9 +998,9 @@ export const updateChild = createServerFn({ method: "POST" })
     const normalizedUpdates =
       updates.photoUrl === ""
         ? {
-          ...updates,
-          photoUrl: admin.firestore.FieldValue.delete(),
-        }
+            ...updates,
+            photoUrl: admin.firestore.FieldValue.delete(),
+          }
         : updates;
 
     await db.children.doc(childId).update(normalizedUpdates);

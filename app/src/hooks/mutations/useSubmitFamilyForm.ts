@@ -3,7 +3,10 @@ import type { FamilyFormState } from "@/components/providers/FormProvider";
 import { giftsFormSchema } from "@/lib/formSchemas";
 import type { GiftsFormData } from "@/lib/formSchemas";
 import type { FamilyFormInput } from "@/server/functions/familyForm";
-import { submitFamilyForm } from "@/server/functions/familyForm";
+import {
+  submitFamilyForm,
+  setChildPhotoUrls,
+} from "@/server/functions/familyForm";
 import { toast } from "@/lib/toast";
 import {
   GIFT_PRICE_INVALID_MESSAGE,
@@ -142,8 +145,10 @@ export function useSubmitFamilyForm() {
       const uploadResults = await Promise.allSettled(
         photosToUpload.map(async (photo, i) => {
           const id = res.childIds[i];
-          if (photo)
+          if (photo) {
             await uploadChildProfilePicture(id, photo);
+            return id;
+          }
         }),
       );
 
@@ -154,6 +159,23 @@ export function useSubmitFamilyForm() {
         toast.error(
           `Your form was submitted, but ${failedUploads.length} photo(s) failed to upload. Please contact us to resolve the issue.`,
         );
+      }
+
+      const uploadedChildIds = uploadResults
+        .filter(
+          (r): r is PromiseFulfilledResult<string> =>
+            r.status === "fulfilled" && r.value !== undefined,
+        )
+        .map((r) => r.value);
+
+      if (uploadedChildIds.length > 0) {
+        await setChildPhotoUrls({
+          data: { childIds: uploadedChildIds },
+        }).catch(() => {
+          toast.error(
+            "Your form was submitted, but we couldn't finalize the photo(s). Please contact us to resolve the issue.",
+          );
+        });
       }
 
       return res;

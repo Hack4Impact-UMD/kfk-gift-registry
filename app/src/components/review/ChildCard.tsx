@@ -35,7 +35,7 @@ const timePeriodOptions: Array<TimePeriod> = [
   "3-4y",
   "5+y",
 ];
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 function parsePriceInput(raw: string): number | undefined {

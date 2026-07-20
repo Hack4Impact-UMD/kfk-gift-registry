@@ -1,19 +1,29 @@
 import { getClientStorage } from "@/lib/firebase";
-import type { StorageReference, UploadTaskSnapshot } from "firebase/storage"
+import type { StorageReference, UploadTaskSnapshot } from "firebase/storage";
 import { ref, uploadBytesResumable } from "firebase/storage";
-import Compressor from "compressorjs"
+import Compressor from "compressorjs";
 
-export async function uploadFile(file: Blob, path: string, metadata: Record<string, string>, onProgress?: (snap: UploadTaskSnapshot) => void): Promise<StorageReference> {
+export async function uploadFile(
+  file: Blob,
+  path: string,
+  metadata: Record<string, string>,
+  onProgress?: (snap: UploadTaskSnapshot) => void,
+): Promise<StorageReference> {
   const storage = await getClientStorage();
 
   const uploadRef = ref(storage, path);
   const task = uploadBytesResumable(uploadRef, file, {
-    customMetadata: metadata
-  })
+    customMetadata: metadata,
+  });
 
   return new Promise((resolve, reject) => {
-    task.on('state_changed', onProgress, err => reject(err), () => resolve(uploadRef))
-  })
+    task.on(
+      "state_changed",
+      onProgress,
+      (err) => reject(err),
+      () => resolve(uploadRef),
+    );
+  });
 }
 
 async function compressImage(dataUrl?: string): Promise<Blob | null> {
@@ -31,10 +41,15 @@ async function compressImage(dataUrl?: string): Promise<Blob | null> {
   });
 }
 
-export async function uploadChildProfilePicture(childId: string, imageDataURL: string) {
+export async function uploadChildProfilePicture(
+  childId: string,
+  imageDataURL: string,
+) {
   const compressedImage = await compressImage(imageDataURL);
-  const path = `children/pfps/${childId}`
+  const path = `children/pfps/${childId}`;
 
   if (!compressedImage) throw new Error("Failed to compress image");
-  return await uploadFile(compressedImage, path, {}, snap => console.log(snap));
+  return await uploadFile(compressedImage, path, {}, (snap) =>
+    console.log(snap),
+  );
 }

@@ -19,6 +19,8 @@ import {
   NormalizedGiftTitleSchema,
   isValidAmazonProductUrl,
 } from "common";
+import { getDownloadURL } from "firebase-admin/storage";
+import admin from "firebase-admin";
 
 export const DUPLICATE_FAMILY_EMAIL_MESSAGE =
   "An account with this email already exists. If you need to modify or resubmit, contact KFK directly.";
@@ -184,6 +186,10 @@ const familyEmailSchema = z.object({
   email: z.email(),
 });
 
+const setChildPhotoUrlsSchema = z.object({
+  childIds: z.array(z.string().min(1)),
+});
+
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
 
 function hasGiftIdentity<T extends { giftName?: string; giftUrl?: string }>(
@@ -255,6 +261,25 @@ export const checkFamilyEmailAvailability = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await assertFamilyEmailAvailable(normalizeFamilyEmail(data.email));
     return { available: true };
+  });
+
+export const setChildPhotoUrls = createServerFn({ method: "POST" })
+  .middleware([appCheckMiddleware])
+  .inputValidator(setChildPhotoUrlsSchema)
+  .handler(async ({ data }) => {
+    const bucket = admin.storage().bucket();
+    const db = getServerDB();
+
+    const batch = db._instance.batch();
+    await Promise.all(
+      data.childIds.map(async (childId) => {
+        const photoUrl = await getDownloadURL(
+          bucket.file(`children/pfps/${childId}`),
+        );
+        batch.update(db.children.doc(childId), { photoUrl });
+      }),
+    );
+    await batch.commit();
   });
 //TODO: rate limit
 export const submitFamilyForm = createServerFn({ method: "POST" })
