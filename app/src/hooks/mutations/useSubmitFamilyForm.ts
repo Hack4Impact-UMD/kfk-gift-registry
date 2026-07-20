@@ -170,7 +170,7 @@ export function useSubmitFamilyForm() {
 
       if (uploadedChildIds.length > 0) {
         await setChildPhotoUrls({
-          data: { childIds: uploadedChildIds },
+          data: { token: res.link.id, childIds: uploadedChildIds },
         }).catch(() => {
           toast.error(
             "Your form was submitted, but we couldn't finalize the photo(s). Please contact us to resolve the issue.",

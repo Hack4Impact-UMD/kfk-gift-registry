@@ -4,7 +4,10 @@ import { FamilyPortalEmail } from "transactional";
 import z from "zod";
 import { v7 as uuidv7 } from "uuid";
 import { getServerDB } from "@/lib/firebase.server";
-import { createFamilyLink } from "@/server/services/familyLinkService.server";
+import {
+  createFamilyLink,
+  getFamilyLinkById,
+} from "@/server/services/familyLinkService.server";
 import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
@@ -187,6 +190,7 @@ const familyEmailSchema = z.object({
 });
 
 const setChildPhotoUrlsSchema = z.object({
+  token: z.string().min(1),
   childIds: z.array(z.string().min(1)),
 });
 
@@ -267,8 +271,28 @@ export const setChildPhotoUrls = createServerFn({ method: "POST" })
   .middleware([appCheckMiddleware])
   .inputValidator(setChildPhotoUrlsSchema)
   .handler(async ({ data }) => {
+    const link = await getFamilyLinkById(data.token);
+    if (!link || !link.active) {
+      throw new Error("Invalid or expired link");
+    }
+
     const bucket = admin.storage().bucket();
     const db = getServerDB();
+
+    // Verify every requested child belongs to the token's family before
+    // touching storage or Firestore — reject the whole request rather than
+    // committing partial updates for a mix of authorized/unauthorized ids.
+    const children = await Promise.all(
+      data.childIds.map((childId) => db.children.doc(childId).get()),
+    );
+    children.forEach((snap, i) => {
+      const child = snap.data();
+      if (!child || child.familyId !== link.familyId) {
+        throw new Error(
+          `Unauthorized: child ${data.childIds[i]} does not belong to this family`,
+        );
+      }
+    });
 
     const batch = db._instance.batch();
     await Promise.all(
