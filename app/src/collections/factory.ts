@@ -212,7 +212,7 @@ export function createCollections(queryClient: QueryClient) {
             !(k === "photoUrl"),
         ).map((k) => [k, modified[k]]),
       ) as Pick<Child, Exclude<UpdatableChildField, "photoUrl">>),
-      ...(photoUrl ? { photoUrl } : {}),
+      ...(photoUrl !== undefined ? { photoUrl } : {}),
     };
 
     await updateChild({ data: { childId, updates } });
