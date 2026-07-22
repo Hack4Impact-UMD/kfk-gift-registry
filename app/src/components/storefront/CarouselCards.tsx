@@ -43,14 +43,14 @@ export function CarouselCard({ sibling, className }: CarouselCardProps) {
       )}
     >
       <div className="flex min-h-0 w-[44%] shrink-0 flex-col items-stretch gap-[clamp(0.25rem,1.5cqw,0.5rem)] self-stretch">
-        <div className="aspect-[128.8/108] w-full shrink-0 overflow-hidden rounded-[clamp(0.5rem,2.5cqw,1rem)] border border-black bg-muted">
+        <div className="aspect-[128.8/108] w-full min-h-0 shrink overflow-hidden rounded-[clamp(0.5rem,2.5cqw,1rem)] border border-black bg-muted">
           <img
             src={sibling.photoUrl || defaultProfilePhoto}
             alt=""
             className="h-full w-full object-cover"
           />
         </div>
-        <div className="flex min-h-0 flex-1 flex-col justify-center">
+        <div className="flex min-h-[1.5rem] flex-1 shrink-0 flex-col justify-center">
           <div className="flex w-full items-center justify-center gap-[clamp(0.25rem,1.25cqw,0.5rem)] text-center text-foreground">
             <FilledGiftIcon
               className="block shrink-0 [width:clamp(11px,min(8.4cqw,4vw),21px)] [height:clamp(11px,min(8.4cqw,4vw),21px)]"

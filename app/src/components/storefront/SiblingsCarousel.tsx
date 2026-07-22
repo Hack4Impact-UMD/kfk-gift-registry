@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -13,9 +14,53 @@ import { Button } from "@/components/ui/button";
 
 type SiblingsCarouselProps = {
   siblings: Array<CarouselCardSibling>;
+  orientation?: "horizontal" | "vertical";
 };
 
-export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
+const chevronIconProps = {
+  className: "size-9 shrink-0 text-black",
+  strokeWidth: 2.25 as const,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
+
+type NavButtonProps = {
+  label: string;
+  disabled: boolean;
+  onClick: () => void;
+  className?: string;
+  children: ReactNode;
+};
+
+function NavButton({
+  label,
+  disabled,
+  onClick,
+  className,
+  children,
+}: NavButtonProps) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        "shrink-0 cursor-pointer rounded-md p-1 text-black",
+        "disabled:pointer-events-none disabled:cursor-default",
+        className,
+      )}
+    >
+      {children}
+    </Button>
+  );
+}
+
+export function SiblingsCarousel({
+  siblings,
+  orientation = "horizontal",
+}: SiblingsCarouselProps) {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
@@ -44,6 +89,10 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
   }, [carouselApi]);
 
   useEffect(() => {
+    // Only the horizontal carousel hijacks the wheel to scroll cards. The
+    // vertical (side-panel) variant must leave vertical wheel events alone so
+    // the page keeps scrolling normally; it relies on drag + up/down arrows.
+    if (orientation !== "horizontal") return;
     if (!carouselApi) return;
 
     const onWheel = (e: WheelEvent) => {
@@ -67,7 +116,7 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
     const node = carouselApi.rootNode();
     node.addEventListener("wheel", onWheel, { passive: false });
     return () => node.removeEventListener("wheel", onWheel);
-  }, [carouselApi]);
+  }, [carouselApi, orientation]);
 
   if (siblings.length === 0) {
     return (
@@ -77,30 +126,57 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
     );
   }
 
-  const chevronIconProps = {
-    className: "size-9 shrink-0 text-black",
-    strokeWidth: 2.25 as const,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-  };
-
   const isCentered = siblings.length < 3;
+
+  if (orientation === "vertical") {
+    return (
+      <div className="flex h-full w-full flex-col items-center gap-2">
+        <div className="min-h-0 w-full flex-1">
+          <Carousel
+            setApi={setCarouselApi}
+            orientation="vertical"
+            opts={{ align: "start", loop: false }}
+            className="h-full w-full p-2"
+          >
+            <CarouselContent
+              className={cn(
+                "h-[clamp(26rem,58vh,36rem)]",
+                isCentered && "justify-center",
+              )}
+            >
+              {siblings.map((sibling) => (
+                <CarouselItem
+                  key={sibling.id}
+                  className="flex min-h-0 basis-1/3"
+                >
+                  <CarouselCard sibling={sibling} className="h-full w-full" />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        </div>
+
+        <NavButton
+          label="Next siblings"
+          disabled={!canScrollNext}
+          onClick={() => carouselApi?.scrollNext()}
+        >
+          <ChevronDown {...chevronIconProps} />
+        </NavButton>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col sm:flex-row w-full items-center gap-1 sm:gap-2 md:gap-4">
-      <Button
-        type="button"
-        variant="ghost"
-        aria-label="Previous siblings"
+      <NavButton
+        label="Previous siblings"
         disabled={!canScrollPrev}
         onClick={() => carouselApi?.scrollPrev()}
-        className={cn(
-          "hidden sm:block shrink-0 cursor-pointer rounded-md p-1 text-black",
-          "disabled:pointer-events-none disabled:cursor-default",
-        )}
+        className="hidden sm:block"
       >
         <ChevronLeft {...chevronIconProps} />
-      </Button>
+      </NavButton>
 
       <div className="min-w-64 flex-1">
         <Carousel
@@ -121,19 +197,14 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
         </Carousel>
       </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        aria-label="Next siblings"
+      <NavButton
+        label="Next siblings"
         disabled={!canScrollNext}
         onClick={() => carouselApi?.scrollNext()}
-        className={cn(
-          "hidden sm:block shrink-0 cursor-pointer rounded-md p-1 text-black",
-          "disabled:pointer-events-none disabled:cursor-default",
-        )}
+        className="hidden sm:block"
       >
         <ChevronRight {...chevronIconProps} />
-      </Button>
+      </NavButton>
       <div className="flex justify-center gap-2 mt-4 sm:hidden">
         {scrollSnaps.map((_, index) => (
           <button

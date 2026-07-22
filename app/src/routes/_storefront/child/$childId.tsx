@@ -15,6 +15,7 @@ import { useStorefrontChild } from "@/hooks/queries/useStorefrontChild";
 import { useStorefrontSiblings } from "@/hooks/queries/useStorefrontSiblings";
 import { useMemo } from "react";
 import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
 import { queries } from "@/queries";
 
 export const Route = createFileRoute("/_storefront/child/$childId")({
@@ -110,42 +111,69 @@ function RouteComponent() {
   }
 
   const firstName = child.name.trim().split(" ")[0] || child.name;
+  const hasSiblings = siblingsCarouselData.length > 0;
 
   return (
     <div className="w-full min-h-screen bg-background">
       <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
-        <div className="max-w-7xl mx-auto">
-          <div
-            className="w-full p-3 md:p-8 rounded-3xl bg-cover bg-center flex items-center justify-center"
-            style={{ backgroundImage: `url(${redStripedBackground})` }}
-          >
-            <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 items-center md:items-stretch w-full">
-              <div className="w-full max-w-sm md:max-w-none md:flex-1 md:min-w-0">
-                <ChildInfoCard child={child} className="h-full" />
-              </div>
+        <div
+          className={cn(
+            "mx-auto",
+            // Widen the container when the vertical sibling rail is present so
+            // the main card/wishlist keeps its size instead of shrinking.
+            hasSiblings ? "max-w-7xl lg:max-w-[88rem]" : "max-w-7xl",
+          )}
+        >
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch">
+            <div className="flex-1 min-w-0">
+              <div
+                className="w-full p-3 md:p-8 rounded-3xl bg-cover bg-center flex items-center justify-center"
+                style={{ backgroundImage: `url(${redStripedBackground})` }}
+              >
+                <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 items-center md:items-stretch w-full">
+                  <div className="w-full max-w-sm md:max-w-none md:flex-1 md:min-w-0">
+                    <ChildInfoCard child={child} className="h-full" />
+                  </div>
 
-              <div className="w-full md:max-w-none md:flex-2 md:min-w-0">
-                <Card className="w-full h-full">
-                  <CardHeader className="py-2 sm:py-6">
-                    <CardTitle className="text-2xl sm:text-3xl text-center font-gaegu">
-                      {firstName}'s Wish List
-                    </CardTitle>
-                    <CardDescription className="font-gaegu text-center text-muted-foreground md:text-lg">
-                      Please check links before claiming as prices may change
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="px-3 sm:px-6">
-                    <ChildGiftTable gifts={child.gifts} />
-                  </CardContent>
-                </Card>
+                  <div className="w-full md:max-w-none md:flex-2 md:min-w-0">
+                    <Card className="w-full h-full">
+                      <CardHeader className="py-2 sm:py-6">
+                        <CardTitle className="text-2xl sm:text-3xl text-center font-gaegu">
+                          {firstName}'s Wish List
+                        </CardTitle>
+                        <CardDescription className="font-gaegu text-center text-muted-foreground md:text-lg">
+                          Please check links before claiming as prices may
+                          change
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="px-3 sm:px-6">
+                        <ChildGiftTable gifts={child.gifts} />
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {hasSiblings && (
+              <div className="hidden lg:flex lg:flex-col shrink-0 lg:w-[clamp(16rem,22vw,20rem)]">
+                <h2 className="text-2xl font-bold text-center mb-4 font-gaegu">
+                  {firstName}'s Siblings
+                </h2>
+                <div className="min-h-0 flex-1">
+                  <SiblingsCarousel
+                    siblings={siblingsCarouselData}
+                    orientation="vertical"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {siblingsCarouselData.length > 0 && (
-        <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
+      {hasSiblings && (
+        <div className="w-full px-4 py-8 lg:px-8 lg:py-12 lg:hidden">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-8 font-gaegu">
               {firstName}'s Siblings
