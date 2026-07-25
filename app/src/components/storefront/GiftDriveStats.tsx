@@ -86,7 +86,10 @@ export function GiftDriveStats({
   const ladybugClampedPosition = Math.min(Math.max(progressPercentage, 2), 98);
 
   return (
-    <div className="bg-kfk-blue text-white font-gaegu py-7">
+    <div
+      className="bg-kfk-blue text-white font-gaegu py-7"
+      data-tour="gift-drive-stats"
+    >
       <div className="flex flex-col gap-5 w-full max-w-6xl mx-auto px-4">
         <h2 className="text-center text-2xl font-bold">{timeLabel}</h2>
         <div className="relative w-full p-2 bg-[#FFF8C2] rounded-full">

@@ -117,6 +117,7 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
                   handleToggleClaimGift(gift.id, gift.childId, gift.familyId)
                 }
                 disabled={isAlreadyClaimed}
+                data-tour={index === 0 ? "claim-gift-button" : undefined}
                 className={`rounded-full mt-3 w-full ${
                   isAlreadyClaimed
                     ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white h-auto whitespace-nowrap"
