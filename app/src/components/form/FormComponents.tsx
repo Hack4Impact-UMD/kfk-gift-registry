@@ -339,7 +339,7 @@ export const FormFieldInput = ({
         </span>
       )}
       {helperText && !errorMessage && (
-        <p className="text-s italic text-slate-500 mt-1 pl-1">{helperText}</p>
+        <p className="text-sm italic text-slate-500 mt-1 pl-1">{helperText}</p>
       )}
       {characterLimit !== undefined && !disabled && (
         <p
