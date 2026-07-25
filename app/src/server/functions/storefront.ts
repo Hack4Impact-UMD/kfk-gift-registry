@@ -124,8 +124,13 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
       return (a.treatmentLevel ?? 0) - (b.treatmentLevel ?? 0);
     });
 
-    const results: Array<StorefrontChildWithGifts> = sortedChildren.map(
-      (child) => {
+    const results: Array<StorefrontChildWithGifts> = sortedChildren
+      .filter((child) =>
+        (giftsByChildId.get(child.id) ?? []).some(
+          (gift) => gift.status === "AVAILABLE",
+        ),
+      )
+      .map((child) => {
         const childGifts = giftsByChildId.get(child.id) ?? [];
 
         const gifts: Array<StorefrontGift> = childGifts.map((gift) => ({
@@ -152,8 +157,7 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
           familyId: child.familyId,
           gifts,
         };
-      },
-    );
+      });
 
     return results;
   });

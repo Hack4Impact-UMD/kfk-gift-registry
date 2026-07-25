@@ -236,6 +236,7 @@ interface FormFieldInputProps {
   disabled?: boolean;
   className?: string;
   warningMessages?: Array<string>;
+  helperText?: string;
 }
 
 export const FormFieldInput = ({
@@ -253,6 +254,7 @@ export const FormFieldInput = ({
   disabled,
   className = "",
   warningMessages,
+  helperText,
 }: FormFieldInputProps) => {
   const field = useFieldContext<string>();
   const characterCount = (field.state.value || value || "").length;
@@ -349,6 +351,9 @@ export const FormFieldInput = ({
         )}
       </div>
       {errorMessage && <span className={messageClassName}>{errorMessage}</span>}
+      {helperText && !errorMessage && (
+        <p className="text-sm italic text-slate-500 mt-1 pl-1">{helperText}</p>
+      )}
       {characterLimit !== undefined && !disabled && (
         <p
           className={`text-xs text-right ${
