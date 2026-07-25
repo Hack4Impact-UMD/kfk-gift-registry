@@ -19,6 +19,7 @@ import {
   GIFT_TITLE_REQUIRED_MESSAGE,
   MAX_GIFT_PRICE,
   NormalizedGiftTitleSchema,
+  normalizeGiftListingUrl,
 } from "common";
 import { getDownloadURL } from "firebase-admin/storage";
 import admin from "firebase-admin";
@@ -58,7 +59,11 @@ const PRICE_REQUIRED_MESSAGE = "Price is required";
 const URL_REQUIRED_MESSAGE = "URL is required";
 
 const baseGiftSelectionSchema = z.object({
-  giftUrl: z.url().optional().or(z.literal("")),
+  giftUrl: z
+    .string()
+    .trim()
+    .transform((value) => (value ? normalizeGiftListingUrl(value) : value))
+    .optional(),
   giftName: NormalizedGiftTitleSchema.optional(),
   listedPrice: z.number().min(0).max(MAX_GIFT_PRICE).optional(),
   familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),

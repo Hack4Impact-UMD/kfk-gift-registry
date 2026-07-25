@@ -12,7 +12,6 @@ import {
   GIFT_LISTING_URL_WARNING_MESSAGE,
   GIFT_PRICE_INVALID_MESSAGE,
   MAX_GIFT_PRICE,
-  isValidGiftListingUrl,
   normalizeGiftListingUrl,
 } from "common";
 import { uploadChildProfilePicture } from "@/services/storageService";
@@ -106,9 +105,7 @@ function cleanGiftsObjects(
       ...gift,
       giftName: gift.giftName.trim(),
       giftUrl:
-        trimmedGiftUrl !== "" && isValidGiftListingUrl(trimmedGiftUrl)
-          ? normalizeGiftListingUrl(trimmedGiftUrl)
-          : trimmedGiftUrl,
+        trimmedGiftUrl !== "" ? normalizeGiftListingUrl(trimmedGiftUrl) : "",
       listedPrice: normalizeListedPrice(gift.listedPrice),
       familyPublicNotes: gift.familyPublicNotes?.trim() ?? "",
     };
