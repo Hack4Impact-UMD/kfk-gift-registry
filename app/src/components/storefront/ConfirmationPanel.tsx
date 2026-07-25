@@ -23,7 +23,7 @@ export function ConfirmationPanel({
     [gifts],
   );
   return (
-    <div className={cn("", className)}>
+    <div className={cn("", className)} data-tour="confirmation-panel">
       {/* Header */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Review Gifts</h2>

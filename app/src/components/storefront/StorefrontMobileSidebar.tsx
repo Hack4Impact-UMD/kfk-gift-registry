@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import LadybugIcon from "@/assets/ladybug-storefront.svg";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   HomeIcon,
@@ -26,6 +27,7 @@ import { useLogout } from "@/hooks/mutations/logoutMutation";
 import { Spinner } from "../ui/spinner";
 import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
 import { StorefrontFamilyRecoveryDialog } from "@/components/storefront/StorefrontFamilyRecoveryDialog";
+import { startStorefrontTour } from "@/components/storefront/storefrontTour";
 
 type StorefrontMobileSidebarProps = {
   auth: AuthContext;
@@ -42,6 +44,8 @@ export function StorefrontMobileSidebar({
   const isCheckoutPage = pathname === "/checkout";
   const { mutate: logout, isPending: logoutPending } = useLogout();
   const { data: link, isPending, error } = useStorefrontFormLink();
+  const { setOpenMobile } = useSidebar();
+  const navigate = useNavigate();
 
   return (
     <Sidebar collapsible="offcanvas" side="left" className="sm:hidden">
@@ -89,14 +93,16 @@ export function StorefrontMobileSidebar({
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild size="lg">
-                <Link
-                  to="/"
-                  className="flex items-center gap-3 w-full text-left"
-                >
-                  <ArrowTopRightOnSquareIcon className="size-6" />
-                  <span className="text-base">Storefront Tutorial</span>
-                </Link>
+              <SidebarMenuButton
+                size="lg"
+                onClick={() => {
+                  setOpenMobile(false);
+                  startStorefrontTour(navigate);
+                }}
+                className="flex items-center gap-3 w-full text-left"
+              >
+                <ArrowTopRightOnSquareIcon className="size-6" />
+                <span className="text-base">Storefront Tutorial</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             {isPending ? (
@@ -135,7 +141,12 @@ export function StorefrontMobileSidebar({
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton asChild size="lg" isActive={isCheckoutPage}>
+              <SidebarMenuButton
+                asChild
+                size="lg"
+                isActive={isCheckoutPage}
+                data-tour="nav-cart-link"
+              >
                 <Link
                   to="/checkout"
                   className="relative flex items-center gap-3 w-full text-left"

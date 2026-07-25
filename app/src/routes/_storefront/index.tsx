@@ -229,7 +229,7 @@ function App() {
 
       <div className="py-4 px-2 sm:px-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
-          {currentChildrenProfiles.map((child) => {
+          {currentChildrenProfiles.map((child, index) => {
             const familyIndex = uniqueFamilyIds.indexOf(child.familyId);
             const color = familyColors[familyIndex % familyColors.length];
 
@@ -239,6 +239,7 @@ function App() {
                 to="/child/$childId"
                 params={{ childId: child.id }}
                 className="block transition-transform duration-200 ease-out hover:scale-105 hover:z-10"
+                data-tour={index === 0 ? "first-child-card" : undefined}
               >
                 <ChildCard child={child} color={color} />
               </Link>
