@@ -11,29 +11,13 @@ function getVisibleTourElement(name: string): Element | undefined {
   return undefined;
 }
 
-function clickAllTourElements(name: string) {
-  document
-    .querySelectorAll<HTMLElement>(`[data-tour="${name}"]`)
-    .forEach((el) => el.click());
-}
-
-const steps: Array<DriveStep> = [
-  {
-    element: '[data-tour="gift-drive-stats"]',
-    waitForElement: 5000,
-    popover: {
-      title: "Track the drive's progress",
-      description:
-        "See how many gifts have been claimed, how many children have been helped, and how many people have donated so far.",
-    },
-  },
+const getSteps = (navigate: StorefrontNavigate): Array<DriveStep> => [
   {
     element: () => getVisibleTourElement("search-filters") as Element,
     waitForElement: 5000,
     popover: {
       title: "Search & sort",
-      description:
-        "Search for a child by name or diagnosis, or sort the list by age or how many gifts they still need.",
+      description: "Search for a child or sort the list to find gifts faster.",
     },
   },
   {
@@ -42,7 +26,7 @@ const steps: Array<DriveStep> = [
     popover: {
       title: "Browse the children",
       description:
-        "Each card shows a child and how many of their requested gifts have been fulfilled. Click Next to see what a profile looks like.",
+        "Each card shows a child and how many gifts still need to be claimed.",
       onNextClick: (element, _step, { driver: tourDriver }) => {
         (element as HTMLElement | undefined)?.click();
         tourDriver.moveNext();
@@ -54,7 +38,15 @@ const steps: Array<DriveStep> = [
     waitForElement: 5000,
     popover: {
       title: "Meet the child",
-      description: "Read a bit about them before browsing their wish list.",
+      description: "Read a little about the child before choosing a gift.",
+    },
+  },
+  {
+    element: '[data-tour="child-wishlist"]',
+    waitForElement: 5000,
+    popover: {
+      title: "Child wish list",
+      description: "This section shows the child's requested gifts.",
     },
   },
   {
@@ -62,12 +54,19 @@ const steps: Array<DriveStep> = [
     waitForElement: 5000,
     popover: {
       title: "Claim a gift",
-      description:
-        'Click "Claim Gift!" to reserve a gift for this child — it\'s added to your cart, not purchased yet.',
+      description: 'Click "Claim Gift!" to add a gift to your cart.',
       onNextClick: (_element, _step, { driver: tourDriver }) => {
-        clickAllTourElements("nav-cart-link");
+        navigate({ to: "/checkout" });
         tourDriver.moveNext();
       },
+    },
+  },
+  {
+    element: '[data-tour="gift-drive-cart"]',
+    waitForElement: 5000,
+    popover: {
+      title: "Your cart",
+      description: "Review the gifts you added and remove any you do not want.",
     },
   },
   {
@@ -76,7 +75,7 @@ const steps: Array<DriveStep> = [
     popover: {
       title: "Review & confirm",
       description:
-        'Review your claimed gifts here, then click "Claim Gifts" to confirm your commitment. That\'s the whole flow — thanks for helping make the holidays brighter!',
+        'When everything looks right, click "Claim Gifts" to confirm.',
       doneBtnText: "Got it!",
     },
   },
@@ -93,6 +92,6 @@ export function startStorefrontTour(navigate: StorefrontNavigate) {
     showProgress: true,
     allowClose: true,
     stagePadding: 6,
-    steps,
+    steps: getSteps(navigate),
   }).drive();
 }

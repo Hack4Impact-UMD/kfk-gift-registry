@@ -16,7 +16,7 @@ export function CartContainer({
   onRemoveGift,
 }: CartContainerProps) {
   const content = (
-    <>
+    <div data-tour="gift-drive-cart">
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-2 font-gaegu">
           Your Gift Drive Cart
@@ -39,7 +39,7 @@ export function CartContainer({
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 
   if (!showWrapper) {
