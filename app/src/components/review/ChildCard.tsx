@@ -35,7 +35,7 @@ const timePeriodOptions: Array<TimePeriod> = [
   "3-4y",
   "5+y",
 ];
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 function parsePriceInput(raw: string): number | undefined {
@@ -169,7 +169,7 @@ export function ChildCard({ child }: ChildCardProps) {
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setPhotoError("File size must be less than 5MB.");
+      setPhotoError("File size must be 50MB or less.");
       event.target.value = "";
       return;
     }

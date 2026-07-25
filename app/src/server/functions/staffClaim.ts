@@ -299,6 +299,7 @@ export type StaffGiftClaimDetails = {
     phone: string;
     address: Address;
   } | null;
+  donor: { name: string; phone?: string } | null;
 };
 
 export const getStaffGiftClaimDetails = createServerFn({ method: "GET" })
@@ -327,6 +328,11 @@ export const getStaffGiftClaimDetails = createServerFn({ method: "GET" })
       .get();
     const claim = claimSnapshot.docs[0]?.data() ?? null;
 
+    const donorProfile =
+      claim?.claimType === "donor"
+        ? (await db.users.doc(claim.donorId).get()).data()
+        : undefined;
+
     return {
       gift,
       claim,
@@ -339,5 +345,12 @@ export const getStaffGiftClaimDetails = createServerFn({ method: "GET" })
             address: family.address,
           }
         : null,
+      donor:
+        claim?.claimType === "donor"
+          ? {
+              name: donorProfile?.name ?? claim.organizationName ?? "Donor",
+              phone: donorProfile?.phone,
+            }
+          : null,
     };
   });

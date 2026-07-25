@@ -14,10 +14,6 @@ const sponsorTypeConfig: Record<
     label: "",
     className: "hidden",
   },
-  claimed: {
-    label: "",
-    className: "hidden",
-  },
   claimed_kfk: {
     label: "KFK Team",
     className: "text-white border-0",

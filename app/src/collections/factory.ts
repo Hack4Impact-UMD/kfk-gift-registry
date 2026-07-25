@@ -12,7 +12,6 @@ import {
   getChildProfilesForFamily,
   updateChild,
   updateGift,
-  uploadChildPictureStaff,
 } from "@/server/functions/child";
 import {
   getFamilyById,
@@ -31,6 +30,8 @@ import {
   MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
   MAX_GIFT_TITLE_LENGTH,
 } from "common";
+import { uploadChildProfilePicture } from "@/services/storageService";
+import { getDownloadURL } from "firebase/storage";
 
 const UPDATABLE_CHILD_FIELDS = [
   "name",
@@ -193,21 +194,26 @@ export function createCollections(queryClient: QueryClient) {
   ) {
     const childId = mutation.key as string;
     const modified = mutation.modified;
-    const isDataUrl = !!modified.photoUrl?.startsWith("data:");
 
-    if (isDataUrl && modified.photoUrl) {
-      const { photoUrl } = await uploadChildPictureStaff({
-        data: { childId, dataUrl: modified.photoUrl },
-      });
+    // Firebase Storage returns the same download URL/token on re-upload to
+    // the same path, so a cache-busting query param is required or the
+    // browser will keep showing the previous image for that URL.
+    let photoUrl = modified.photoUrl;
+    if (photoUrl?.startsWith("data:")) {
+      const res = await uploadChildProfilePicture(childId, photoUrl);
+      photoUrl = (await getDownloadURL(res)) + `&cb=${Date.now()}`;
       mutation.collection.utils.writeUpdate({ id: childId, photoUrl });
     }
 
-    const updates = Object.fromEntries(
-      UPDATABLE_CHILD_FIELDS.filter(
-        (k): k is Exclude<UpdatableChildField, "photoUrl"> =>
-          !(isDataUrl && k === "photoUrl"),
-      ).map((k) => [k, modified[k]]),
-    ) as Pick<Child, Exclude<UpdatableChildField, "photoUrl">>;
+    const updates = {
+      ...(Object.fromEntries(
+        UPDATABLE_CHILD_FIELDS.filter(
+          (k): k is Exclude<UpdatableChildField, "photoUrl"> =>
+            !(k === "photoUrl"),
+        ).map((k) => [k, modified[k]]),
+      ) as Pick<Child, Exclude<UpdatableChildField, "photoUrl">>),
+      ...(photoUrl ? { photoUrl } : {}),
+    };
 
     await updateChild({ data: { childId, updates } });
   }
