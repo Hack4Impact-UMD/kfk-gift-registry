@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { GiftStatusBadge } from "./GiftStatusBadge";
 import { useStaffClaimDialog } from "./useStaffClaimDialog";
@@ -180,6 +181,21 @@ export function StaffClaimDetailsDialog({
                 </p>
               )}
             </section>
+
+            {claim.details.donor && (
+              <>
+                <Separator />
+
+                {/* Donor info */}
+                <section className="space-y-1">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Donor Info
+                  </h3>
+                  <InfoRow label="Name" value={claim.details.donor.name} />
+                  <InfoRow label="Phone" value={claim.details.donor.phone} />
+                </section>
+              </>
+            )}
 
             {/* Status */}
             <section className="flex items-center gap-2">

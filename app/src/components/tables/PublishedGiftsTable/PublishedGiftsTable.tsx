@@ -33,7 +33,7 @@ export function PublishedGiftsTable({
   data,
   className = "",
   sponsorTypeFilter = null,
-  rowsPerPage = 10,
+  rowsPerPage = 20,
   paginated = true,
 }: PublishedGiftsTableProps) {
   const [globalSearch, setGlobalSearch] = useState("");
