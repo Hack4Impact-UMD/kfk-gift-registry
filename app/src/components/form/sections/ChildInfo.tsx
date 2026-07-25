@@ -151,13 +151,14 @@ export function ChildInfoForm({
                         <field.FormFieldInput
                           label={
                             displayCount > 1
-                              ? `Child #${index + 1} Name`
-                              : "Child's Name"
+                              ? `Child #${index + 1} Full Name`
+                              : "Child's Full Name"
                           }
                           placeholder="e.g. Jake Doe"
                           required
                           disabled={disabled}
                           Icon={User}
+                          helperText="Only your child's first name and last initial will be displayed."
                         />
                       )}
                     </form.AppField>
