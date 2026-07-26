@@ -16,6 +16,7 @@ export interface ReviewGiftProps {
   onTitleChange: (value: string) => void;
   onPriceChange: (value: string) => void;
   onNotesChange: (value: string) => void;
+  onProductUrlChange: (value: string) => void;
 }
 
 function formatPrice(value: number | undefined): string {
@@ -33,6 +34,7 @@ export function ReviewGift({
   onTitleChange,
   onPriceChange,
   onNotesChange,
+  onProductUrlChange,
 }: ReviewGiftProps) {
   const [priceStr, setPriceStr] = useState(formatPrice(gift.listedPrice));
   useEffect(() => {
@@ -96,7 +98,19 @@ export function ReviewGift({
           />
         </div>
 
-        <div className="col-start-2 row-start-2 min-w-0">
+        {editable && (
+          <div className="col-start-2 row-start-2 min-w-0">
+            <Input
+              type="url"
+              placeholder="Gift Link"
+              value={gift.productUrl}
+              onChange={(e) => onProductUrlChange(e.target.value)}
+              className="w-full min-w-0 border-foreground"
+            />
+          </div>
+        )}
+
+        <div className="col-start-2 row-start-3 min-w-0">
           {editable ? (
             <EditableField
               placeholder="Gift Notes"

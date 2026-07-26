@@ -1,8 +1,11 @@
 import * as React from "react";
+import type { ApplicationStatus } from "@/components/tables/PendingProfilesTable/types";
 
 interface ReviewOrderContextValue {
   reviewOrder: Array<string>;
   setReviewOrder: (nextReviewOrder: Array<string>) => void;
+  activeFilter: ApplicationStatus | null;
+  setActiveFilter: (nextActiveFilter: ApplicationStatus | null) => void;
 }
 
 const ReviewOrderContext = React.createContext<
@@ -28,6 +31,8 @@ export function ReviewOrderProvider({
   const [reviewOrderState, setReviewOrderState] = React.useState<Array<string>>(
     [],
   );
+  const [activeFilter, setActiveFilter] =
+    React.useState<ApplicationStatus | null>(null);
 
   const setReviewOrder = React.useCallback((nextReviewOrder: Array<string>) => {
     setReviewOrderState((currentOrder) =>
@@ -42,6 +47,8 @@ export function ReviewOrderProvider({
       value={{
         reviewOrder: reviewOrderState,
         setReviewOrder,
+        activeFilter,
+        setActiveFilter,
       }}
     >
       {children}

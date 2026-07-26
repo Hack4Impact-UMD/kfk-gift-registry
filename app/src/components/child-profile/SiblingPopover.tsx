@@ -115,7 +115,7 @@ export function SiblingPopover({
           ) : (
             <div className="flex items-center gap-3">
               <img
-                src={sibling.photoUrl ?? DefaultPhoto}
+                src={sibling.photoUrl || DefaultPhoto}
                 alt={sibling.name}
                 className="w-auto h-[96px] border-4 border-card rounded-xl shadow-xl"
               />
