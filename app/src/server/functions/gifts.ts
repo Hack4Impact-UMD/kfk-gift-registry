@@ -218,9 +218,8 @@ export const getAdminDashboardMetrics = createServerFn({ method: "GET" })
       }
 
       if (isPurchased) {
-        donationAmount += gift.listedPrice ?? 0;
-
         if (claim?.claimType === "donor") {
+          donationAmount += gift.listedPrice ?? 0;
           giftBreakdown.purchasedByDonors += 1;
           uniqueDonorIds.add(claim.donorId);
         } else if (claim?.claimType === "kfk") {
