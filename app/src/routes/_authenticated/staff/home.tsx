@@ -283,6 +283,108 @@ function GiftStatusCard({
   );
 }
 
+function formatPercent(value: number, total: number) {
+  if (total === 0) {
+    return 0;
+  }
+  return Math.round((value / total) * 100);
+}
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function FamilyProfilesCard({
+  total,
+  breakdown,
+  lastUpdatedAt,
+}: {
+  total: number;
+  breakdown: {
+    approved: number;
+    pending: number;
+    holdfile: number;
+  };
+  lastUpdatedAt: string;
+}) {
+  const approvedWidth = formatPercent(breakdown.approved, total);
+  const pendingWidth = formatPercent(breakdown.pending, total);
+  const holdfileWidth = Math.max(0, 100 - approvedWidth - pendingWidth);
+
+  return (
+    <MetricCard title="Family Profiles" lastUpdatedAt={lastUpdatedAt}>
+      <div className="space-y-6">
+        <div className="overflow-hidden rounded-full border-2 border-black/80 bg-muted">
+          <div className="flex h-8 w-full">
+            <div
+              className="bg-kfk-green"
+              style={{ width: `${approvedWidth}%` }}
+            />
+            <div
+              className="bg-kfk-yellow"
+              style={{ width: `${pendingWidth}%` }}
+            />
+            <div
+              className="bg-kfk-red"
+              style={{ width: `${holdfileWidth}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
+            <span className="h-3 w-3 rounded-full bg-kfk-green" />
+            <span>Approved: {breakdown.approved}</span>
+          </div>
+          <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
+            <span className="h-3 w-3 rounded-full bg-kfk-yellow" />
+            <span>Pending: {breakdown.pending}</span>
+          </div>
+          <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
+            <span className="h-3 w-3 rounded-full bg-kfk-red" />
+            <span>Holdfile: {breakdown.holdfile}</span>
+          </div>
+        </div>
+      </div>
+    </MetricCard>
+  );
+}
+
+function SummaryStatCard({
+  value,
+  label,
+  accentClassName,
+  backgroundClassName,
+}: {
+  value: string;
+  label: string;
+  accentClassName: string;
+  backgroundClassName: string;
+}) {
+  return (
+    <Card className="border-0 shadow-sm">
+      <CardContent className="flex items-center justify-center pt-6">
+        <div
+          className={cn(
+            "flex min-h-36 w-full max-w-[320px] flex-col items-center justify-center rounded-xl border-3 px-6 py-8 text-center shadow-sm",
+            accentClassName,
+            backgroundClassName,
+          )}
+        >
+          <div className="text-5xl font-bold text-foreground">{value}</div>
+          <div className="mt-2 text-lg font-semibold text-foreground">
+            {label}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function RouteComponent() {
   const routeContext = Route.useRouteContext();
   const { activeDriveId } = useDrive();
@@ -357,18 +459,25 @@ function RouteComponent() {
           />
         </div>
 
+        <FamilyProfilesCard
+          total={data.familyProfiles.total}
+          breakdown={data.familyProfiles.breakdown}
+          lastUpdatedAt={data.lastUpdatedAt}
+        />
+
         <div className="grid gap-6 lg:grid-cols-2">
-          <Card className="border-0 shadow-sm lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Dashboard metrics connected</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-3 text-sm text-muted-foreground md:grid-cols-2 xl:grid-cols-4">
-              <div>Total gifts: {data.gifts.total}</div>
-              <div>Total families: {data.familyProfiles.total}</div>
-              <div>Published child profiles: {data.approvedChildProfiles.published}</div>
-              <div>People donated: {data.peopleDonated}</div>
-            </CardContent>
-          </Card>
+          <SummaryStatCard
+            value={formatCurrency(data.donationAmount)}
+            label="Donation Amount"
+            accentClassName="border-kfk-green"
+            backgroundClassName="bg-kfk-muted-green/35"
+          />
+          <SummaryStatCard
+            value={String(data.peopleDonated)}
+            label="People Donated"
+            accentClassName="border-kfk-blue"
+            backgroundClassName="bg-kfk-light-blue/55"
+          />
         </div>
       </div>
     </div>
