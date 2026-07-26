@@ -2,13 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
-import {
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { useState } from "react";
 import RedGift from "@/assets/red-gift.png";
 import { XIcon } from "lucide-react";
@@ -110,7 +104,11 @@ export function ThankYouBanner() {
           </p>
         </div>
         <div className="relative z-10 flex items-center justify-center self-end pr-10 md:self-auto md:pr-12">
-          <img src={RedGift} alt="Red gift" className="h-28 w-28 object-contain" />
+          <img
+            src={RedGift}
+            alt="Red gift"
+            className="h-28 w-28 object-contain"
+          />
         </div>
       </CardContent>
     </Card>
@@ -232,7 +230,15 @@ function renderPieLabel({
             <tspan
               key={`${labelText}-${word}-${index}`}
               x={x}
-              dy={showPercent ? (index === 0 ? "1.25em" : "1.1em") : index === 0 ? "0" : "1.1em"}
+              dy={
+                showPercent
+                  ? index === 0
+                    ? "1.25em"
+                    : "1.1em"
+                  : index === 0
+                    ? "0"
+                    : "1.1em"
+              }
               style={{ fontSize: 12, fontWeight: 500 }}
             >
               {word}
@@ -319,7 +325,10 @@ export function GiftsPurchasedCard({
   ];
 
   return (
-    <MetricCard title="Gifts Purchased/Unpurchased" lastUpdatedAt={lastUpdatedAt}>
+    <MetricCard
+      title="Gifts Purchased/Unpurchased"
+      lastUpdatedAt={lastUpdatedAt}
+    >
       <FullPieChart slices={slices} />
     </MetricCard>
   );

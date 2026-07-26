@@ -148,11 +148,12 @@ export const getAdminDashboardMetrics = createServerFn({ method: "GET" })
     const db = getServerDB();
     const { driveId } = data;
 
-    const [publishedGifts, familiesSnapshot, childrenSnapshot] = await Promise.all([
-      getPublishedGifts({ data }),
-      db.families.where("giftDrive", "==", driveId).get(),
-      db.children.where("giftDrive", "==", driveId).get(),
-    ]);
+    const [publishedGifts, familiesSnapshot, childrenSnapshot] =
+      await Promise.all([
+        getPublishedGifts({ data }),
+        db.families.where("giftDrive", "==", driveId).get(),
+        db.children.where("giftDrive", "==", driveId).get(),
+      ]);
 
     const giftIds = publishedGifts.map((gift) => gift.id);
     const claimByGiftId = new Map<string, Claim>();
@@ -246,7 +247,9 @@ export const getAdminDashboardMetrics = createServerFn({ method: "GET" })
     }
 
     const children = childrenSnapshot.docs.map((doc) => doc.data());
-    const publishedChildren = children.filter((child) => child.published).length;
+    const publishedChildren = children.filter(
+      (child) => child.published,
+    ).length;
     const totalChildren = children.length;
 
     return {
