@@ -194,6 +194,7 @@ export function createCollections(queryClient: QueryClient) {
   ) {
     const childId = mutation.key as string;
     const modified = mutation.modified;
+    const deletedPhoto = modified.photoUrl === "";
 
     // Firebase Storage returns the same download URL/token on re-upload to
     // the same path, so a cache-busting query param is required or the
@@ -216,6 +217,10 @@ export function createCollections(queryClient: QueryClient) {
     };
 
     await updateChild({ data: { childId, updates } });
+
+    if (deletedPhoto) {
+      mutation.collection.utils.writeUpdate({ id: childId, photoUrl: undefined });
+    }
   }
 
   async function persistFamilyUpdate(

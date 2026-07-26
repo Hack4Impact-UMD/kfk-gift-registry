@@ -345,7 +345,7 @@ export function ChildCard({ child }: ChildCardProps) {
                   }`}
                 >
                   <AvatarImage
-                    src={child.photoUrl ?? ProfileHeader}
+                    src={child.photoUrl || ProfileHeader}
                   ></AvatarImage>
                   <AvatarFallback className="bg-kfk-light-blue text-kfk-blue">
                     <PhotoIcon className="size-6" />
