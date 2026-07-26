@@ -106,7 +106,7 @@ function ChildPage() {
           <div className="flex flex-col items-center gap-3 max-w-[180px] w-full">
             <div className="w-28 h-32">
               <img
-                src={child.photoUrl ?? ProfilePhoto}
+                src={child.photoUrl || ProfilePhoto}
                 alt={child.name}
                 className="w-full h-full object-cover rounded-3xl border-4 border-white"
               />

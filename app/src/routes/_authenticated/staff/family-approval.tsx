@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 import { PendingProfilesTable } from "@/components/tables/PendingProfilesTable/PendingProfilesTable";
 import { StatusSummaryHeader } from "@/components/tables/PendingProfilesTable/StatusSummaryHeader";
-import type { ApplicationStatus } from "@/components/tables/PendingProfilesTable/types";
 import { usePendingProfileTableRows } from "@/hooks/queries/usePendingProfileTableRows";
 import { useDrive } from "@/context/DriveContext";
+import { useReviewOrder } from "@/context/ReviewOrderContext";
 import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/_authenticated/staff/family-approval")({
@@ -23,9 +22,7 @@ export const Route = createFileRoute("/_authenticated/staff/family-approval")({
 function RouteComponent() {
   const { activeDriveId } = useDrive();
   const { data, isPending, error } = usePendingProfileTableRows(activeDriveId);
-  const [activeFilter, setActiveFilter] = useState<ApplicationStatus | null>(
-    null,
-  );
+  const { activeFilter, setActiveFilter } = useReviewOrder();
 
   if (isPending) {
     return (

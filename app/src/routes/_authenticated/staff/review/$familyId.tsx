@@ -10,10 +10,20 @@ import { ChildCard } from "@/components/review/ChildCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
 import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
+import { ArrowLeftIcon } from "@/components/icons/ArrowLeftIcon";
 import type { Child } from "common";
 import { useDrive } from "@/context/DriveContext";
 import { useReviewOrder } from "@/context/ReviewOrderContext";
 import { usePendingProfileTableRows } from "@/hooks/queries/usePendingProfileTableRows";
+import type { ApplicationStatus } from "@/components/tables/PendingProfilesTable/types";
+
+const FILTER_LABELS: Record<ApplicationStatus | "all", string> = {
+  all: "All Profiles",
+  pending: "Pending Review",
+  approved: "Approved",
+  holdfile: "Hold Files",
+};
 
 export const Route = createFileRoute("/_authenticated/staff/review/$familyId")({
   beforeLoad: async ({ params, context }) => {
@@ -44,7 +54,7 @@ function RouteComponent() {
   const navigate = useNavigate();
   const collections = useCollections();
   const { activeDriveId } = useDrive();
-  const { reviewOrder } = useReviewOrder();
+  const { reviewOrder, activeFilter } = useReviewOrder();
   const { data: familyRows } = usePendingProfileTableRows(activeDriveId);
 
   const {
@@ -95,9 +105,13 @@ function RouteComponent() {
     );
   }
 
+  const eligibleFamilyIds =
+    familyRows
+      ?.filter((row) => !activeFilter || row.status === activeFilter)
+      .map((row) => row.id) ?? [];
   const familyOrder = reviewOrder.includes(familyId)
-    ? reviewOrder
-    : (familyRows?.map((row) => row.id) ?? []);
+    ? reviewOrder.filter((id) => eligibleFamilyIds.includes(id))
+    : eligibleFamilyIds;
   const currentFamilyIndex = familyOrder.findIndex((id) => id === familyId);
   const previousFamilyId =
     currentFamilyIndex > 0 ? familyOrder[currentFamilyIndex - 1] : undefined;
@@ -116,6 +130,12 @@ function RouteComponent() {
     });
   };
 
+  const handleBackToList = () => {
+    navigate({ to: "/staff/family-approval", search: (prev) => prev });
+  };
+
+  const backLabel = FILTER_LABELS[activeFilter ?? "all"];
+
   const sortedChildren = [...children].sort((a, b) => {
     const rank = (c: Child) => (c.category === "warrior" ? 0 : 1);
     return rank(a) - rank(b);
@@ -128,7 +148,22 @@ function RouteComponent() {
           className="w-full max-w-3xl min-w-0 lg:self-stretch"
           aria-label="Family information"
         >
-          <h1 className="text-4xl font-bold mb-2">{lastName}'s Family</h1>
+          <Button
+            type="button"
+            variant="default"
+            onClick={handleBackToList}
+            className="mb-4 h-10 rounded-md bg-kfk-blue text-white hover:bg-kfk-blue/90"
+          >
+            <ArrowLeftIcon className="size-4" aria-hidden />
+            Back to {backLabel}
+          </Button>
+          <div className="mb-2 flex items-center gap-3">
+            <h1 className="text-4xl font-bold">{lastName}'s Family</h1>
+            <span className="rounded-xl bg-muted px-4 py-2 text-2xl font-semibold text-foreground">
+              {sortedChildren.length}{" "}
+              {sortedChildren.length === 1 ? "child" : "children"}
+            </span>
+          </div>
           <ScrollArea className="h-full min-h-[40rem] w-full rounded-md border p-4 shadow-xl">
             <div className="flex flex-col gap-7 pr-4">
               <GuardianInfoCard family={family} />
