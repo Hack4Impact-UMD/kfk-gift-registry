@@ -6,6 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import {
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 
 export const Route = createFileRoute("/_authenticated/staff/home")({
   head: () => ({
@@ -112,11 +119,6 @@ function ThankYouBanner() {
   );
 }
 
-function formatPercent(value: number, total: number) {
-  if (total === 0) return 0;
-  return Math.round((value / total) * 100);
-}
-
 function MetricCard({
   title,
   lastUpdatedAt,
@@ -141,42 +143,18 @@ function MetricCard({
   );
 }
 
-function polarToCartesian(cx: number, cy: number, radius: number, angle: number) {
-  const radians = ((angle - 90) * Math.PI) / 180;
-  return {
-    x: cx + radius * Math.cos(radians),
-    y: cy + radius * Math.sin(radians),
-  };
-}
+function PieTooltip({ active, payload }: { active?: boolean; payload?: Array<{ name?: string; value?: number }> }) {
+  if (!active || !payload?.length) {
+    return null;
+  }
 
-function describeWedgePath(
-  cx: number,
-  cy: number,
-  radius: number,
-  startAngle: number,
-  endAngle: number,
-) {
-  const start = polarToCartesian(cx, cy, radius, endAngle);
-  const end = polarToCartesian(cx, cy, radius, startAngle);
-  const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
-
-  return [
-    `M ${cx} ${cy}`,
-    `L ${start.x} ${start.y}`,
-    `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
-    "Z",
-  ].join(" ");
-}
-
-function getSliceLabelPosition(
-  cx: number,
-  cy: number,
-  radius: number,
-  startAngle: number,
-  endAngle: number,
-) {
-  const midAngle = (startAngle + endAngle) / 2;
-  return polarToCartesian(cx, cy, radius * 0.58, midAngle);
+  const item = payload[0];
+  return (
+    <div className="rounded-md border bg-white px-3 py-2 text-sm shadow-md">
+      <div className="font-medium text-foreground">{item.name}</div>
+      <div className="text-muted-foreground">{item.value ?? 0}</div>
+    </div>
+  );
 }
 
 function FullPieChart({
@@ -186,61 +164,35 @@ function FullPieChart({
     label: string;
     value: number;
     color: string;
-    textColor?: string;
   }>;
 }) {
-  const total = slices.reduce((sum, slice) => sum + slice.value, 0);
-  let currentAngle = 0;
+  const chartData = slices.map((slice) => ({
+    name: slice.label,
+    value: slice.value,
+    fill: slice.color,
+  }));
 
   return (
-    <div className="mx-auto flex w-full max-w-[520px] justify-center">
-      <svg viewBox="0 0 320 320" className="h-auto w-full max-w-[420px]">
-        {slices.map((slice) => {
-          const angle = total === 0 ? 0 : (slice.value / total) * 360;
-          const startAngle = currentAngle;
-          const endAngle = currentAngle + angle;
-          currentAngle = endAngle;
-
-          if (slice.value === 0) {
-            return null;
-          }
-
-          const path = describeWedgePath(160, 160, 140, startAngle, endAngle);
-          const labelPosition = getSliceLabelPosition(
-            160,
-            160,
-            140,
-            startAngle,
-            endAngle,
-          );
-          const percent = formatPercent(slice.value, total);
-          const isSmallSlice = percent < 8;
-
-          return (
-            <g key={slice.label}>
-              <path d={path} fill={slice.color} />
-              <text
-                x={labelPosition.x}
-                y={labelPosition.y - (isSmallSlice ? 2 : 10)}
-                textAnchor="middle"
-                className="fill-current text-[14px] font-bold"
-                style={{ color: slice.textColor ?? "white" }}
-              >
-                {percent}%
-              </text>
-              <text
-                x={labelPosition.x}
-                y={labelPosition.y + (isSmallSlice ? 14 : 12)}
-                textAnchor="middle"
-                className="fill-current text-[10px] font-medium"
-                style={{ color: slice.textColor ?? "white" }}
-              >
-                {slice.label}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
+    <div className="mx-auto h-[360px] w-full max-w-[520px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={chartData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius="88%"
+            labelLine={false}
+            isAnimationActive={false}
+          >
+            {chartData.map((entry) => (
+              <Cell key={entry.name} fill={entry.fill} />
+            ))}
+          </Pie>
+          <Tooltip content={<PieTooltip />} />
+        </PieChart>
+      </ResponsiveContainer>
     </div>
   );
 }
