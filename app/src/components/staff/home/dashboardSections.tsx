@@ -7,6 +7,9 @@ import { useState } from "react";
 import RedGift from "@/assets/red-gift.png";
 import { XIcon } from "lucide-react";
 
+const bannerPatternClass =
+  "absolute inset-0 opacity-15 bg-[repeating-linear-gradient(135deg,transparent_0px,transparent_34px,white_34px,white_42px,transparent_42px,transparent_76px)]";
+
 export function DashboardShell({
   displayName,
   driveLabel,
@@ -16,84 +19,38 @@ export function DashboardShell({
 }) {
   return (
     <>
-      <div className="flex flex-col gap-4">
-        <Card className="border-0 shadow-sm">
-          <CardContent className="flex flex-col gap-4 pt-6 md:flex-row md:items-center">
-            <Skeleton className="h-16 w-16 rounded-full bg-kfk-blue/20" />
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-foreground">
-                Welcome, {displayName ?? "User"}!
-              </div>
-              <Skeleton className="h-4 w-20" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-sm">
-          <CardContent className="py-5 text-center">
-            <h2 className="text-2xl font-semibold text-foreground">
-              Kisses For Kyle {driveLabel} Stats
-            </h2>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="overflow-hidden border-0 bg-kfk-blue text-white shadow-sm">
-        <CardContent className="relative flex flex-col gap-6 px-8 py-8 md:flex-row md:items-center md:justify-between">
-          <div
-            className={cn(
-              "absolute inset-0 opacity-15",
-              "bg-[repeating-linear-gradient(135deg,transparent_0px,transparent_34px,white_34px,white_42px,transparent_42px,transparent_76px)]",
-            )}
-          />
-          <div className="relative z-10 flex-1 space-y-3">
-            <Skeleton className="h-10 w-36 bg-white/20" />
-            <Skeleton className="h-4 w-full max-w-2xl bg-white/15" />
-            <Skeleton className="h-4 w-full max-w-xl bg-white/15" />
-          </div>
-          <Skeleton className="relative z-10 h-28 w-28 rounded-2xl bg-white/15" />
-        </CardContent>
-      </Card>
+      <DashboardHeaderSkeleton
+        displayName={displayName}
+        driveLabel={driveLabel}
+      />
+      <ThankYouBannerSkeleton />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {Array.from({ length: 2 }).map((_, index) => (
-          <Card
-            key={`chart-shell-${index}`}
-            className="rounded-[28px] border-0 bg-white shadow-sm"
-          >
-            <CardHeader className="pb-0">
-              <Skeleton className="mx-auto h-8 w-52" />
-            </CardHeader>
-            <CardContent className="space-y-6 px-6 pb-6 pt-2 md:px-8">
-              <Skeleton className="mx-auto h-[360px] w-full max-w-[560px] rounded-full" />
-              <Skeleton className="mx-auto h-5 w-40" />
-            </CardContent>
-          </Card>
+          <MetricCardSkeleton key={`chart-shell-${index}`} titleWidth="w-52">
+            <Skeleton className="mx-auto h-[360px] w-full max-w-[560px] rounded-full" />
+            <LastUpdatedSkeleton />
+          </MetricCardSkeleton>
         ))}
       </div>
 
-      <Card className="rounded-[28px] border-0 bg-white shadow-sm">
-        <CardHeader className="pb-0">
-          <Skeleton className="mx-auto h-8 w-48" />
-        </CardHeader>
-        <CardContent className="space-y-6 px-6 pb-6 pt-2 md:px-8">
-          <div className="space-y-6 px-2">
-            <Skeleton className="h-9 w-full rounded-full" />
-            <div className="grid gap-4 md:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div
-                  key={`family-shell-${index}`}
-                  className="flex items-center justify-center gap-2"
-                >
-                  <Skeleton className="h-3.5 w-3.5 rounded-full" />
-                  <Skeleton className="h-5 w-28" />
-                </div>
-              ))}
-            </div>
+      <MetricCardSkeleton titleWidth="w-48">
+        <div className="space-y-6 px-2">
+          <Skeleton className="h-9 w-full rounded-full" />
+          <div className="grid gap-4 md:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={`family-shell-${index}`}
+                className="flex items-center justify-center gap-2"
+              >
+                <Skeleton className="h-3.5 w-3.5 rounded-full" />
+                <Skeleton className="h-5 w-28" />
+              </div>
+            ))}
           </div>
-          <Skeleton className="mx-auto h-5 w-40" />
-        </CardContent>
-      </Card>
+        </div>
+        <LastUpdatedSkeleton />
+      </MetricCardSkeleton>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {[
@@ -123,13 +80,84 @@ export function DashboardShell({
                   <Skeleton className="mt-3 h-6 w-40 bg-white/60" />
                 </div>
               </div>
-              <Skeleton className="mx-auto h-5 w-40" />
+              <LastUpdatedSkeleton />
             </CardContent>
           </Card>
         ))}
       </div>
     </>
   );
+}
+
+function DashboardHeaderSkeleton({
+  displayName,
+  driveLabel,
+}: {
+  displayName?: string;
+  driveLabel: string;
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <Card className="border-0 shadow-sm">
+        <CardContent className="flex flex-col gap-4 pt-6 md:flex-row md:items-center">
+          <Skeleton className="h-16 w-16 rounded-full bg-kfk-blue/20" />
+          <div className="space-y-2">
+            <div className="text-3xl font-bold text-foreground">
+              Welcome, {displayName ?? "User"}!
+            </div>
+            <Skeleton className="h-4 w-20" />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-0 shadow-sm">
+        <CardContent className="py-5 text-center">
+          <h2 className="text-2xl font-semibold text-foreground">
+            Kisses For Kyle {driveLabel} Stats
+          </h2>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ThankYouBannerSkeleton() {
+  return (
+    <Card className="overflow-hidden border-0 bg-kfk-blue text-white shadow-sm">
+      <CardContent className="relative flex flex-col gap-6 px-8 py-8 md:flex-row md:items-center md:justify-between">
+        <div className={bannerPatternClass} />
+        <div className="relative z-10 flex-1 space-y-3">
+          <Skeleton className="h-10 w-36 bg-white/20" />
+          <Skeleton className="h-4 w-full max-w-2xl bg-white/15" />
+          <Skeleton className="h-4 w-full max-w-xl bg-white/15" />
+        </div>
+        <Skeleton className="relative z-10 h-28 w-28 rounded-2xl bg-white/15" />
+      </CardContent>
+    </Card>
+  );
+}
+
+function MetricCardSkeleton({
+  titleWidth,
+  children,
+}: {
+  titleWidth: string;
+  children: ReactNode;
+}) {
+  return (
+    <Card className="rounded-[28px] border-0 bg-white shadow-sm">
+      <CardHeader className="pb-0">
+        <Skeleton className={cn("mx-auto h-8", titleWidth)} />
+      </CardHeader>
+      <CardContent className="space-y-6 px-6 pb-6 pt-2 md:px-8">
+        {children}
+      </CardContent>
+    </Card>
+  );
+}
+
+function LastUpdatedSkeleton() {
+  return <Skeleton className="mx-auto h-5 w-40" />;
 }
 
 function getInitials(displayName?: string) {
@@ -193,12 +221,7 @@ export function ThankYouBanner() {
         >
           <XIcon className="h-8 w-8" strokeWidth={2.5} />
         </button>
-        <div
-          className={cn(
-            "absolute inset-0 opacity-15",
-            "bg-[repeating-linear-gradient(135deg,transparent_0px,transparent_34px,white_34px,white_42px,transparent_42px,transparent_76px)]",
-          )}
-        />
+        <div className={bannerPatternClass} />
         <div className="relative z-10 max-w-3xl space-y-3">
           <h3 className="font-['Gaegu'] text-4xl font-bold tracking-wide">
             Thank you!
