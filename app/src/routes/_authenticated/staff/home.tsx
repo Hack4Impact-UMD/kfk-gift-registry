@@ -94,8 +94,8 @@ function ThankYouBanner() {
       <CardContent className="relative flex flex-col gap-6 px-8 py-8 md:flex-row md:items-center md:justify-between">
         <div
           className={cn(
-            "absolute inset-0 opacity-10",
-            "bg-[linear-gradient(135deg,transparent_0%,transparent_35%,white_35%,white_42%,transparent_42%,transparent_100%)]",
+            "absolute inset-0 opacity-15",
+            "bg-[repeating-linear-gradient(135deg,transparent_0px,transparent_34px,white_34px,white_42px,transparent_42px,transparent_76px)]",
           )}
         />
         <div className="relative z-10 max-w-3xl space-y-3">
@@ -129,31 +129,119 @@ function MetricCard({
   children: ReactNode;
 }) {
   return (
-    <Card className="border-0 shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-center text-xl">{title}</CardTitle>
+    <Card className="rounded-[28px] border-0 bg-white shadow-sm">
+      <CardHeader className="pb-0">
+        <CardTitle className="text-center text-[1.9rem] font-semibold text-foreground">
+          {title}
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 px-6 pb-6 pt-2 md:px-8">
         {children}
-        <p className="text-center text-sm text-muted-foreground">
-          Last Updated: {new Date(lastUpdatedAt).toLocaleDateString()}
+        <p className="text-center text-sm text-muted-foreground/80 md:text-base">
+          Last Updated: {new Date(lastUpdatedAt).toLocaleDateString("en-US")}
         </p>
       </CardContent>
     </Card>
   );
 }
 
-function PieTooltip({ active, payload }: { active?: boolean; payload?: Array<{ name?: string; value?: number }> }) {
+function PieTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ name?: string; value?: number }>;
+}) {
   if (!active || !payload?.length) {
     return null;
   }
 
   const item = payload[0];
   return (
-    <div className="rounded-md border bg-white px-3 py-2 text-sm shadow-md">
-      <div className="font-medium text-foreground">{item.name}</div>
+    <div className="rounded-xl border border-black/20 bg-white px-3 py-2 text-sm shadow-lg">
+      <div className="font-semibold text-foreground">{item.name}</div>
       <div className="text-muted-foreground">{item.value ?? 0}</div>
     </div>
+  );
+}
+
+function renderPieLabel({
+  cx,
+  cy,
+  midAngle,
+  outerRadius,
+  percent,
+  name,
+  fill,
+  payload,
+}: {
+  cx?: number;
+  cy?: number;
+  midAngle?: number;
+  outerRadius?: number;
+  percent?: number;
+  name?: string;
+  fill?: string;
+  payload?: { shortName?: string };
+}) {
+  if (
+    cx == null ||
+    cy == null ||
+    midAngle == null ||
+    outerRadius == null ||
+    percent == null ||
+    !name ||
+    percent <= 0
+  ) {
+    return null;
+  }
+
+  const percentage = Math.round(percent * 100);
+  const showPercent = percentage >= 5;
+  const showWords = percentage >= 12;
+
+  if (!showPercent && !showWords) {
+    return null;
+  }
+
+  const radius = outerRadius * (showWords ? 0.58 : 0.76);
+  const x = cx + radius * Math.cos((-midAngle * Math.PI) / 180);
+  const y = cy + radius * Math.sin((-midAngle * Math.PI) / 180);
+  const textColor = fill === "#fbbf24" ? "#111827" : "#ffffff";
+  const labelText = percentage < 20 ? (payload?.shortName ?? name) : name;
+  const words = labelText.split(" ");
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill={textColor}
+      textAnchor="middle"
+      dominantBaseline="middle"
+      className="pointer-events-none"
+    >
+      {showPercent ? (
+        <tspan
+          x={x}
+          dy={showWords ? "-0.45em" : "0"}
+          style={{ fontSize: 16, fontWeight: 700 }}
+        >
+          {percentage}%
+        </tspan>
+      ) : null}
+      {showWords
+        ? words.map((word, index) => (
+            <tspan
+              key={`${labelText}-${word}-${index}`}
+              x={x}
+              dy={showPercent ? (index === 0 ? "1.25em" : "1.1em") : index === 0 ? "0" : "1.1em"}
+              style={{ fontSize: 12, fontWeight: 500 }}
+            >
+              {word}
+            </tspan>
+          ))
+        : null}
+    </text>
   );
 }
 
@@ -162,18 +250,20 @@ function FullPieChart({
 }: {
   slices: Array<{
     label: string;
+    shortLabel?: string;
     value: number;
     color: string;
   }>;
 }) {
   const chartData = slices.map((slice) => ({
     name: slice.label,
+    shortName: slice.shortLabel,
     value: slice.value,
     fill: slice.color,
   }));
 
   return (
-    <div className="mx-auto h-[360px] w-full max-w-[520px]">
+    <div className="mx-auto h-[360px] w-full max-w-[560px] md:h-[420px]">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -182,9 +272,11 @@ function FullPieChart({
             nameKey="name"
             cx="50%"
             cy="50%"
-            outerRadius="88%"
+            outerRadius="92%"
+            label={renderPieLabel}
             labelLine={false}
             isAnimationActive={false}
+            stroke="none"
           >
             {chartData.map((entry) => (
               <Cell key={entry.name} fill={entry.fill} />
@@ -217,11 +309,13 @@ function GiftsPurchasedCard({
     },
     {
       label: "Purchased By Donors",
+      shortLabel: "Donors",
       value: breakdown.purchasedByDonors,
       color: "#ff0000",
     },
     {
       label: "Purchased By Admins",
+      shortLabel: "Admins",
       value: breakdown.purchasedByAdmins,
       color: "#1d4ed8",
     },
@@ -317,9 +411,9 @@ function FamilyProfilesCard({
 
   return (
     <MetricCard title="Family Profiles" lastUpdatedAt={lastUpdatedAt}>
-      <div className="space-y-6">
+      <div className="space-y-6 px-2">
         <div className="overflow-hidden rounded-full border-2 border-black/80 bg-muted">
-          <div className="flex h-8 w-full">
+          <div className="flex h-9 w-full">
             <div
               className="bg-kfk-green"
               style={{ width: `${approvedWidth}%` }}
@@ -336,16 +430,16 @@ function FamilyProfilesCard({
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
-            <span className="h-3 w-3 rounded-full bg-kfk-green" />
+          <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground md:text-base">
+            <span className="h-3.5 w-3.5 rounded-full bg-kfk-green" />
             <span>Approved: {breakdown.approved}</span>
           </div>
-          <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
-            <span className="h-3 w-3 rounded-full bg-kfk-yellow" />
+          <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground md:text-base">
+            <span className="h-3.5 w-3.5 rounded-full bg-kfk-yellow" />
             <span>Pending: {breakdown.pending}</span>
           </div>
-          <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
-            <span className="h-3 w-3 rounded-full bg-kfk-red" />
+          <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground md:text-base">
+            <span className="h-3.5 w-3.5 rounded-full bg-kfk-red" />
             <span>Holdfile: {breakdown.holdfile}</span>
           </div>
         </div>
@@ -359,27 +453,36 @@ function SummaryStatCard({
   label,
   accentClassName,
   backgroundClassName,
+  lastUpdatedAt,
 }: {
   value: string;
   label: string;
   accentClassName: string;
   backgroundClassName: string;
+  lastUpdatedAt: string;
 }) {
   return (
-    <Card className="border-0 shadow-sm">
-      <CardContent className="flex items-center justify-center pt-6">
-        <div
-          className={cn(
-            "flex min-h-36 w-full max-w-[320px] flex-col items-center justify-center rounded-xl border-3 px-6 py-8 text-center shadow-sm",
-            accentClassName,
-            backgroundClassName,
-          )}
-        >
-          <div className="text-5xl font-bold text-foreground">{value}</div>
-          <div className="mt-2 text-lg font-semibold text-foreground">
-            {label}
+    <Card className="rounded-[28px] border-0 bg-white shadow-sm">
+      <CardContent className="space-y-6 px-6 pb-6 pt-8">
+        <div className="flex items-center justify-center">
+          <div
+            className={cn(
+              "flex min-h-40 w-full max-w-[360px] flex-col items-center justify-center rounded-2xl border-[3px] px-6 py-8 text-center shadow-sm",
+              accentClassName,
+              backgroundClassName,
+            )}
+          >
+            <div className="text-5xl font-bold text-foreground md:text-6xl">
+              {value}
+            </div>
+            <div className="mt-2 text-lg font-semibold text-foreground md:text-xl">
+              {label}
+            </div>
           </div>
         </div>
+        <p className="text-center text-sm text-muted-foreground/80 md:text-base">
+          Last Updated: {new Date(lastUpdatedAt).toLocaleDateString("en-US")}
+        </p>
       </CardContent>
     </Card>
   );
@@ -471,12 +574,14 @@ function RouteComponent() {
             label="Donation Amount"
             accentClassName="border-kfk-green"
             backgroundClassName="bg-kfk-muted-green/35"
+            lastUpdatedAt={data.lastUpdatedAt}
           />
           <SummaryStatCard
             value={String(data.peopleDonated)}
             label="People Donated"
             accentClassName="border-kfk-blue"
             backgroundClassName="bg-kfk-light-blue/55"
+            lastUpdatedAt={data.lastUpdatedAt}
           />
         </div>
       </div>
