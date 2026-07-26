@@ -9,6 +9,9 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { useState } from "react";
+import RedGift from "@/assets/red-gift.png";
+import { XIcon } from "lucide-react";
 
 export function DashboardShell() {
   return (
@@ -72,9 +75,23 @@ export function DashboardHeader({
 }
 
 export function ThankYouBanner() {
+  const [isVisible, setIsVisible] = useState(true);
+
+  if (!isVisible) {
+    return null;
+  }
+
   return (
     <Card className="overflow-hidden border-0 bg-kfk-blue text-white shadow-sm">
       <CardContent className="relative flex flex-col gap-6 px-8 py-8 md:flex-row md:items-center md:justify-between">
+        <button
+          type="button"
+          aria-label="Close thank you banner"
+          onClick={() => setIsVisible(false)}
+          className="absolute right-3 top-3 z-20 p-1 text-white transition hover:opacity-80"
+        >
+          <XIcon className="h-8 w-8" strokeWidth={2.5} />
+        </button>
         <div
           className={cn(
             "absolute inset-0 opacity-15",
@@ -92,10 +109,8 @@ export function ThankYouBanner() {
             and volunteers. Let&apos;s keep spreading joy to our KFK families!
           </p>
         </div>
-        <div className="relative z-10 flex items-center justify-center self-end md:self-auto">
-          <div className="rounded-full bg-white/10 p-5 shadow-inner">
-            <div className="text-7xl leading-none">🎁</div>
-          </div>
+        <div className="relative z-10 flex items-center justify-center self-end pr-10 md:self-auto md:pr-12">
+          <img src={RedGift} alt="Red gift" className="h-28 w-28 object-contain" />
         </div>
       </CardContent>
     </Card>
