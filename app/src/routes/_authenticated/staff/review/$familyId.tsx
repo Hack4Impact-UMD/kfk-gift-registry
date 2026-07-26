@@ -105,9 +105,13 @@ function RouteComponent() {
     );
   }
 
+  const eligibleFamilyIds =
+    familyRows
+      ?.filter((row) => !activeFilter || row.status === activeFilter)
+      .map((row) => row.id) ?? [];
   const familyOrder = reviewOrder.includes(familyId)
-    ? reviewOrder
-    : (familyRows?.map((row) => row.id) ?? []);
+    ? reviewOrder.filter((id) => eligibleFamilyIds.includes(id))
+    : eligibleFamilyIds;
   const currentFamilyIndex = familyOrder.findIndex((id) => id === familyId);
   const previousFamilyId =
     currentFamilyIndex > 0 ? familyOrder[currentFamilyIndex - 1] : undefined;
@@ -156,7 +160,8 @@ function RouteComponent() {
           <div className="mb-2 flex items-center gap-3">
             <h1 className="text-4xl font-bold">{lastName}'s Family</h1>
             <span className="rounded-xl bg-muted px-4 py-2 text-2xl font-semibold text-foreground">
-              {sortedChildren.length} Kid(s)
+              {sortedChildren.length}{" "}
+              {sortedChildren.length === 1 ? "child" : "children"}
             </span>
           </div>
           <ScrollArea className="h-full min-h-[40rem] w-full rounded-md border p-4 shadow-xl">

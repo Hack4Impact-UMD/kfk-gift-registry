@@ -219,7 +219,10 @@ export function createCollections(queryClient: QueryClient) {
     await updateChild({ data: { childId, updates } });
 
     if (deletedPhoto) {
-      mutation.collection.utils.writeUpdate({ id: childId, photoUrl: undefined });
+      mutation.collection.utils.writeUpdate({
+        id: childId,
+        photoUrl: undefined,
+      });
     }
   }
 
