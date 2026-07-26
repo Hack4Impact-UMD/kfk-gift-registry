@@ -32,17 +32,6 @@ export const columns = [
       );
     },
   }),
-  helper.accessor("listedPrice", {
-    header: "Price",
-    cell: ({ getValue }) => {
-      const price = getValue();
-      return (
-        <span className="text-kfk-red font-medium text-sm sm:text-base whitespace-nowrap">
-          {price ? `$${price.toFixed(2)}` : "N/A"}
-        </span>
-      );
-    },
-  }),
   helper.display({
     id: "action",
     header: "Claim Gift",
@@ -59,6 +48,7 @@ export const columns = [
             meta?.onToggleClaimGift(giftId, gift.childId, gift.familyId)
           }
           disabled={isAlreadyClaimed}
+          data-tour={row.index === 0 ? "claim-gift-button" : undefined}
           className={`rounded-full min-w-[132px] my-4 ${
             isAlreadyClaimed
               ? "bg-kfk-green hover:bg-kfk-green cursor-not-allowed text-white text-[10px] sm:text-xs lg:text-sm px-2 py-1 sm:px-3 sm:py-1.5 h-auto whitespace-nowrap"

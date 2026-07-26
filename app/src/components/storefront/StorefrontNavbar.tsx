@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { Button } from "@/components/ui/button";
 import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
@@ -11,6 +11,7 @@ import { useLocalCartData } from "@/hooks/queries/useCartGifts";
 import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
 import { StorefrontFamilyRecoveryDialog } from "@/components/storefront/StorefrontFamilyRecoveryDialog";
 import { Spinner } from "../ui/spinner";
+import { startStorefrontTour } from "@/components/storefront/storefrontTour";
 
 type StorefrontNavbarProps = {
   currentDrive?: GiftDrive;
@@ -24,6 +25,7 @@ export function StorefrontNavbar({
   const showMobileSidebarTrigger = pathname !== "/";
   const { data: localCart } = useLocalCartData();
   const { data: link, isPending, error } = useStorefrontFormLink();
+  const navigate = useNavigate();
 
   const cartCount = localCart?.length ?? 0;
 
@@ -66,13 +68,14 @@ export function StorefrontNavbar({
           </Link>
 
           <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline"
+            <button
+              type="button"
+              onClick={() => startStorefrontTour(navigate)}
+              className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline cursor-pointer"
             >
               Storefront Tutorial
               <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-1 shrink-0" />
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -114,7 +117,12 @@ export function StorefrontNavbar({
               )}
             </Button>
 
-            <Button asChild variant="outline" className="relative">
+            <Button
+              asChild
+              variant="outline"
+              className="relative"
+              data-tour="nav-cart-link"
+            >
               <Link to="/checkout">
                 Your Cart
                 <ShoppingCartIcon className="ml-2" />

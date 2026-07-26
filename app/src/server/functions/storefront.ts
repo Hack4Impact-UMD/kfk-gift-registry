@@ -59,6 +59,7 @@ export const getStorefrontGift = createServerFn({ method: "GET" })
       status: gift.status,
       familyId: gift.familyId,
       childId: gift.childId,
+      childName: child.name.split(" ")[0],
       familyPublicNotes: gift.familyPublicNotes,
     } satisfies StorefrontGift;
   });
@@ -123,8 +124,13 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
       return (a.treatmentLevel ?? 0) - (b.treatmentLevel ?? 0);
     });
 
-    const results: Array<StorefrontChildWithGifts> = sortedChildren.map(
-      (child) => {
+    const results: Array<StorefrontChildWithGifts> = sortedChildren
+      .filter((child) =>
+        (giftsByChildId.get(child.id) ?? []).some(
+          (gift) => gift.status === "AVAILABLE",
+        ),
+      )
+      .map((child) => {
         const childGifts = giftsByChildId.get(child.id) ?? [];
 
         const gifts: Array<StorefrontGift> = childGifts.map((gift) => ({
@@ -134,12 +140,13 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
           listedPrice: gift.listedPrice,
           status: gift.status,
           childId: gift.childId,
+          childName: child.name.split(" ")[0],
           familyId: gift.familyId,
         }));
 
         return {
           id: child.id,
-          name: child.name,
+          name: child.name.split(" ")[0],
           status: child.status,
           photoUrl: child.photoUrl,
           category: child.category,
@@ -150,8 +157,7 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
           familyId: child.familyId,
           gifts,
         };
-      },
-    );
+      });
 
     return results;
   });

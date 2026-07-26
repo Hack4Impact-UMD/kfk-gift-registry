@@ -5,7 +5,8 @@ packages:
   - transactional
 
 onlyBuiltDependencies:
-  - esbuild
   - "@firebase/util"
+  - esbuild
   - protobufjs
+  - sharp
   - unrs-resolver

@@ -43,10 +43,11 @@ function RouteComponent() {
   }
 
   return (
-    <div className="w-full p-6">
-      <div className="space-y-6">
-        <PublishedGiftsTable data={tableRows} rowsPerPage={10} />
+    <div className="flex flex-col gap-6 p-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Published Gifts</h1>
       </div>
+      <PublishedGiftsTable data={tableRows} rowsPerPage={20} />
     </div>
   );
 }

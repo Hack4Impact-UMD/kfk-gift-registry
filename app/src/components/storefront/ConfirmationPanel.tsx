@@ -6,7 +6,6 @@ import { useMemo } from "react";
 interface ConfirmationPanelProps {
   gifts: Array<StorefrontGift>;
   totalGifts: number;
-  totalPrice: number;
   onConfirm?: () => void;
   className?: string;
   disabledMessage?: string | null;
@@ -15,7 +14,6 @@ interface ConfirmationPanelProps {
 export function ConfirmationPanel({
   gifts,
   totalGifts,
-  totalPrice,
   onConfirm,
   className = "",
   disabledMessage = null,
@@ -25,7 +23,7 @@ export function ConfirmationPanel({
     [gifts],
   );
   return (
-    <div className={cn("", className)}>
+    <div className={cn("", className)} data-tour="confirmation-panel">
       {/* Header */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Review Gifts</h2>
@@ -51,17 +49,7 @@ export function ConfirmationPanel({
         </div>
 
         {/* Divider */}
-        <div className="border-b border-black mb-4" />
-
-        {/* Total Price */}
-        <div className="flex justify-between items-center mb-6">
-          <span className="text-lg font-bold text-gray-900 font-gaegu">
-            Total Price:
-          </span>
-          <span className="text-lg font-bold text-kfk-red font-gaegu">
-            ${totalPrice.toFixed(2)}
-          </span>
-        </div>
+        <div className="border-b border-black mb-6" />
 
         {/* Info Text */}
         <p className="text-sm text-gray-500 mb-4">

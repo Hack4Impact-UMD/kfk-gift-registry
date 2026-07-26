@@ -41,17 +41,13 @@ export const createCartColumns = (
       </div>
     ),
   }) as ColumnDef<CartColumnGift>,
-  columnHelper.accessor("listedPrice", {
-    header: "Price",
-    cell: (info) => {
-      const price = info.getValue();
-
-      return (
-        <span className="text-kfk-red font-semibold font-gaegu">
-          {price !== undefined ? `$${price.toFixed(2)}` : "N/A"}
-        </span>
-      );
-    },
+  columnHelper.accessor("childName", {
+    header: "Child",
+    cell: (info) => (
+      <span className="text-kfk-red font-semibold font-gaegu">
+        {info.getValue()}
+      </span>
+    ),
   }) as ColumnDef<CartColumnGift>,
   columnHelper.display({
     id: "actions",

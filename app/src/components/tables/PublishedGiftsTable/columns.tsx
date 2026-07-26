@@ -3,7 +3,8 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { ExternalLink, Copy } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { CopyButton } from "@/components/ui/copybutton";
 import ColumnSortButton from "../ColumnSortButton";
 import { SponsorTypeBadge } from "./SponsorTypeBadge";
 import { GiftStatusBadge } from "./GiftStatusBadge";
@@ -24,8 +25,17 @@ function formatDate(iso: string): string {
   return dateFormatter.format(date);
 }
 
-function handleCopyEmail(email: string) {
-  navigator.clipboard.writeText(email);
+function EmailCell({ email }: { email: string | undefined }) {
+  return (
+    <div className="flex items-center gap-2 group">
+      <span className="text-sm text-gray-600 font-sans truncate">{email}</span>
+      {email && (
+        <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+          <CopyButton text={email} />
+        </div>
+      )}
+    </div>
+  );
 }
 
 export const columns = [
@@ -101,11 +111,20 @@ export const columns = [
     cell: ({ getValue }) => <SponsorTypeBadge sponsorType={getValue()} />,
   }),
 
-  helper.accessor("sponsorName", {
+  helper.accessor("sponsorEmail", {
     size: 140,
     enableGlobalFilter: true,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>Sponsor Name</ColumnSortButton>
+      <ColumnSortButton column={column}>Sponsor Email</ColumnSortButton>
+    ),
+    cell: ({ getValue }) => <EmailCell email={getValue()} />,
+  }),
+
+  helper.accessor("childName", {
+    size: 140,
+    enableGlobalFilter: true,
+    header: ({ column }) => (
+      <ColumnSortButton column={column}>Child Name</ColumnSortButton>
     ),
     cell: ({ getValue }) => {
       const name = getValue();
@@ -113,31 +132,25 @@ export const columns = [
     },
   }),
 
-  helper.accessor("sponsorEmail", {
+  helper.accessor("parentName", {
     size: 140,
     enableGlobalFilter: true,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>Sponsor Email</ColumnSortButton>
+      <ColumnSortButton column={column}>Parent Name</ColumnSortButton>
     ),
     cell: ({ getValue }) => {
-      const email = getValue();
-      return (
-        <div className="flex items-center gap-2 group">
-          <span className="text-sm text-gray-600 font-sans truncate">
-            {email}
-          </span>
-          {email && (
-            <button
-              onClick={() => handleCopyEmail(email)}
-              className="flex-shrink-0"
-              aria-label={`Copy ${email} to clipboard`}
-            >
-              <Copy className="h-4 w-4 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer" />
-            </button>
-          )}
-        </div>
-      );
+      const name = getValue();
+      return <span className="text-sm text-gray-600 font-sans">{name}</span>;
     },
+  }),
+
+  helper.accessor("parentEmail", {
+    size: 140,
+    enableGlobalFilter: true,
+    header: ({ column }) => (
+      <ColumnSortButton column={column}>Parent Email</ColumnSortButton>
+    ),
+    cell: ({ getValue }) => <EmailCell email={getValue()} />,
   }),
 
   helper.accessor("dateOfFulfillment", {

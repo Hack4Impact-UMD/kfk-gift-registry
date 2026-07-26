@@ -125,7 +125,7 @@ function RouteComponent() {
               </div>
 
               <div className="w-full md:max-w-none md:flex-2 md:min-w-0">
-                <Card className="w-full h-full">
+                <Card className="w-full h-full" data-tour="child-wishlist">
                   <CardHeader className="py-2 sm:py-6">
                     <CardTitle className="text-2xl sm:text-3xl text-center font-gaegu">
                       {firstName}'s Wish List
