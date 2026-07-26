@@ -51,7 +51,10 @@ function RouteComponent() {
     return (
       <div className="bg-muted/20 px-4 py-6 md:px-6 md:py-8">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-          <DashboardShell />
+          <DashboardShell
+            displayName={routeContext.auth.authUser.displayName}
+            driveLabel={driveLabel}
+          />
         </div>
       </div>
     );
