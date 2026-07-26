@@ -5,6 +5,7 @@ import { useAllGiftDrives } from "@/hooks/queries/useAllGiftDrives";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 export const Route = createFileRoute("/_authenticated/staff/home")({
   head: () => ({
@@ -111,6 +112,225 @@ function ThankYouBanner() {
   );
 }
 
+function formatPercent(value: number, total: number) {
+  if (total === 0) return 0;
+  return Math.round((value / total) * 100);
+}
+
+function MetricCard({
+  title,
+  lastUpdatedAt,
+  children,
+}: {
+  title: string;
+  lastUpdatedAt: string;
+  children: ReactNode;
+}) {
+  return (
+    <Card className="border-0 shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-center text-xl">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {children}
+        <p className="text-center text-sm text-muted-foreground">
+          Last Updated: {new Date(lastUpdatedAt).toLocaleDateString()}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function polarToCartesian(cx: number, cy: number, radius: number, angle: number) {
+  const radians = ((angle - 90) * Math.PI) / 180;
+  return {
+    x: cx + radius * Math.cos(radians),
+    y: cy + radius * Math.sin(radians),
+  };
+}
+
+function describeWedgePath(
+  cx: number,
+  cy: number,
+  radius: number,
+  startAngle: number,
+  endAngle: number,
+) {
+  const start = polarToCartesian(cx, cy, radius, endAngle);
+  const end = polarToCartesian(cx, cy, radius, startAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+
+  return [
+    `M ${cx} ${cy}`,
+    `L ${start.x} ${start.y}`,
+    `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
+    "Z",
+  ].join(" ");
+}
+
+function getSliceLabelPosition(
+  cx: number,
+  cy: number,
+  radius: number,
+  startAngle: number,
+  endAngle: number,
+) {
+  const midAngle = (startAngle + endAngle) / 2;
+  return polarToCartesian(cx, cy, radius * 0.58, midAngle);
+}
+
+function FullPieChart({
+  slices,
+}: {
+  slices: Array<{
+    label: string;
+    value: number;
+    color: string;
+    textColor?: string;
+  }>;
+}) {
+  const total = slices.reduce((sum, slice) => sum + slice.value, 0);
+  let currentAngle = 0;
+
+  return (
+    <div className="mx-auto flex w-full max-w-[520px] justify-center">
+      <svg viewBox="0 0 320 320" className="h-auto w-full max-w-[420px]">
+        {slices.map((slice) => {
+          const angle = total === 0 ? 0 : (slice.value / total) * 360;
+          const startAngle = currentAngle;
+          const endAngle = currentAngle + angle;
+          currentAngle = endAngle;
+
+          if (slice.value === 0) {
+            return null;
+          }
+
+          const path = describeWedgePath(160, 160, 140, startAngle, endAngle);
+          const labelPosition = getSliceLabelPosition(
+            160,
+            160,
+            140,
+            startAngle,
+            endAngle,
+          );
+          const percent = formatPercent(slice.value, total);
+          const isSmallSlice = percent < 8;
+
+          return (
+            <g key={slice.label}>
+              <path d={path} fill={slice.color} />
+              <text
+                x={labelPosition.x}
+                y={labelPosition.y - (isSmallSlice ? 2 : 10)}
+                textAnchor="middle"
+                className="fill-current text-[14px] font-bold"
+                style={{ color: slice.textColor ?? "white" }}
+              >
+                {percent}%
+              </text>
+              <text
+                x={labelPosition.x}
+                y={labelPosition.y + (isSmallSlice ? 14 : 12)}
+                textAnchor="middle"
+                className="fill-current text-[10px] font-medium"
+                style={{ color: slice.textColor ?? "white" }}
+              >
+                {slice.label}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+function GiftsPurchasedCard({
+  breakdown,
+  lastUpdatedAt,
+}: {
+  breakdown: {
+    unpurchased: number;
+    purchasedByDonors: number;
+    purchasedByAdmins: number;
+  };
+  lastUpdatedAt: string;
+}) {
+  const slices = [
+    {
+      label: "Unpurchased",
+      value: breakdown.unpurchased,
+      color: "#fbbf24",
+      textColor: "#111827",
+    },
+    {
+      label: "Purchased By Donors",
+      value: breakdown.purchasedByDonors,
+      color: "#ff0000",
+    },
+    {
+      label: "Purchased By Admins",
+      value: breakdown.purchasedByAdmins,
+      color: "#1d4ed8",
+    },
+  ];
+
+  return (
+    <MetricCard title="Gifts Purchased/Unpurchased" lastUpdatedAt={lastUpdatedAt}>
+      <FullPieChart slices={slices} />
+    </MetricCard>
+  );
+}
+
+function GiftStatusCard({
+  breakdown,
+  lastUpdatedAt,
+}: {
+  breakdown: {
+    unclaimed: number;
+    unordered: number;
+    inTransit: number;
+    delivered: number;
+    received: number;
+  };
+  lastUpdatedAt: string;
+}) {
+  const slices = [
+    {
+      label: "Received",
+      value: breakdown.received,
+      color: "#6d8fe9",
+    },
+    {
+      label: "Unclaimed",
+      value: breakdown.unclaimed,
+      color: "#ff0000",
+    },
+    {
+      label: "Unordered",
+      value: breakdown.unordered,
+      color: "#fbbf24",
+      textColor: "#111827",
+    },
+    {
+      label: "Delivered",
+      value: breakdown.delivered,
+      color: "#102a72",
+    },
+    {
+      label: "In-Transit",
+      value: breakdown.inTransit,
+      color: "#3f69d8",
+    },
+  ];
+
+  return (
+    <MetricCard title="Gift Status" lastUpdatedAt={lastUpdatedAt}>
+      <FullPieChart slices={slices} />
+    </MetricCard>
+  );
+}
+
 function RouteComponent() {
   const routeContext = Route.useRouteContext();
   const { activeDriveId } = useDrive();
@@ -173,6 +393,17 @@ function RouteComponent() {
           driveLabel={driveLabel}
         />
         <ThankYouBanner />
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <GiftsPurchasedCard
+            breakdown={data.gifts.breakdown}
+            lastUpdatedAt={data.lastUpdatedAt}
+          />
+          <GiftStatusCard
+            breakdown={data.gifts.statusBreakdown}
+            lastUpdatedAt={data.lastUpdatedAt}
+          />
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <Card className="border-0 shadow-sm lg:col-span-2">
