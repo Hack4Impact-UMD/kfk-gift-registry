@@ -441,6 +441,106 @@ export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
     );
   });
 
+const approveFamiliesSchema = z.array(z.string().nonempty());
+
+export const approveFamilies = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.ADMIN, UserRole.DIRECTOR])])
+  .inputValidator(approveFamiliesSchema)
+  .handler(async ({ data: familyIds, context }) => {
+    const db = getServerDB();
+    const staffId = context.authUser.uid;
+    const lastReviewedAt = new Date().toISOString();
+
+    await db._instance.runTransaction(async (tx) => {
+      const familyDocs = await Promise.all(
+        familyIds.map((id) => tx.get(db.families.doc(id))),
+      );
+      familyDocs.forEach((doc) => {
+        if (!doc.exists) {
+          throw new Error("Family not found");
+        }
+      });
+      familyDocs.forEach((doc) => {
+        tx.update(doc.ref, {
+          "reviewStatus.approved": true,
+          "reviewStatus.held": false,
+          "reviewStatus.reviewedBy": staffId ?? "",
+          "reviewStatus.lastReviewedAt": lastReviewedAt,
+        });
+      });
+    });
+  });
+
+const deleteFamiliesSchema = z.array(z.string().nonempty());
+
+export const deleteFamilies = createServerFn({ method: "POST" })
+  .middleware([requireRolesMiddleware([UserRole.DIRECTOR])])
+  .inputValidator(deleteFamiliesSchema)
+  .handler(async ({ data: familyIds }) => {
+    const db = getServerDB();
+
+    const childrenByFamily = await Promise.all(
+      familyIds.map(
+        async (familyId) => await getChildrenForFamily({ data: { familyId } }),
+      ),
+    );
+    const children = childrenByFamily.flatMap((cs) => cs);
+
+    if (children.some((c) => c.published)) {
+      throw new Error(
+        "Can't delete a family with published children or claimed gifts",
+      );
+    }
+
+    const childIds = children.map((c) => c.id);
+    const activeClaims = (
+      await Promise.all(
+        chunk(childIds, 10).map((batch) =>
+          db.claims
+            .where("childId", "in", batch)
+            .where("active", "==", true)
+            .get(),
+        ),
+      )
+    ).flatMap((snap) => snap.docs);
+
+    if (activeClaims.length > 0) {
+      throw new Error(
+        "Can't delete a family with published children or claimed gifts",
+      );
+    }
+
+    const familyLinkSnaps = await Promise.all(
+      familyIds.map((familyId) =>
+        db.familyLinks.where("familyId", "==", familyId).get(),
+      ),
+    );
+    const giftSnaps = await Promise.all(
+      chunk(childIds, 10).map((batch) =>
+        db.gifts.where("childId", "in", batch).get(),
+      ),
+    );
+
+    await db._instance.runTransaction(async (tx) => {
+      giftSnaps
+        .flatMap((snap) => snap.docs)
+        .forEach((doc) => tx.delete(doc.ref));
+      children.forEach((c) => tx.delete(db.children.doc(c.id)));
+      familyLinkSnaps
+        .flatMap((snap) => snap.docs)
+        .forEach((doc) => tx.delete(doc.ref));
+      familyIds.forEach((id) => tx.delete(db.families.doc(id)));
+    });
+  });
+
+function chunk<T>(items: Array<T>, size: number): Array<Array<T>> {
+  const chunks: Array<Array<T>> = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
 const publishFamiliesSchema = z.array(z.string().nonempty());
 
 export const publishFamilies = createServerFn({ method: "POST" })
