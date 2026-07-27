@@ -485,7 +485,9 @@ export const deleteFamilies = createServerFn({ method: "POST" })
           tx.get(db.children.where("familyId", "==", familyId)),
         ),
       );
-      const children = childSnaps.flatMap((snap) => snap.docs.map((d) => d.data()));
+      const children = childSnaps.flatMap((snap) =>
+        snap.docs.map((d) => d.data()),
+      );
 
       if (children.some((c) => c.published)) {
         throw new Error(
@@ -497,9 +499,7 @@ export const deleteFamilies = createServerFn({ method: "POST" })
       const activeClaimSnaps = await Promise.all(
         chunk(childIds, 10).map((batch) =>
           tx.get(
-            db.claims
-              .where("childId", "in", batch)
-              .where("active", "==", true),
+            db.claims.where("childId", "in", batch).where("active", "==", true),
           ),
         ),
       );
