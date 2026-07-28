@@ -1,12 +1,17 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { Button } from "@/components/ui/button";
-import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
+import {
+  ArrowTopRightOnSquareIcon,
+  ShoppingCartIcon,
+  UserCircleIcon,
+} from "../icons";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 import type { GiftDrive } from "common";
 import { UserRole } from "common";
 import type { AuthContext } from "@/server/functions/auth";
+import { useLogout } from "@/hooks/mutations/logoutMutation";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
 import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
 import { StorefrontFamilyRecoveryDialog } from "@/components/storefront/StorefrontFamilyRecoveryDialog";
@@ -25,6 +30,7 @@ export function StorefrontNavbar({
   const showMobileSidebarTrigger = pathname !== "/";
   const { data: localCart } = useLocalCartData();
   const { data: link, isPending, error } = useStorefrontFormLink();
+  const { mutate: logout, isPending: logoutPending } = useLogout();
   const navigate = useNavigate();
 
   const cartCount = localCart?.length ?? 0;
@@ -107,6 +113,15 @@ export function StorefrontNavbar({
               </Button>
             )}
 
+            {auth.isAuthed && (
+              <div className="flex items-center gap-2 text-kfk-blue">
+                <UserCircleIcon className="size-6" />
+                <span className="max-w-32 truncate text-sm font-medium">
+                  {auth.authUser.displayName}
+                </span>
+              </div>
+            )}
+
             <Button asChild variant="outline">
               {!auth.isAuthed ? (
                 <Link to="/login">Log-in</Link>
@@ -116,6 +131,16 @@ export function StorefrontNavbar({
                 <Link to="/staff/home">Go to Staff Home</Link>
               )}
             </Button>
+
+            {auth.isAuthed && (
+              <Button
+                variant="outline"
+                onClick={() => logout()}
+                disabled={logoutPending}
+              >
+                Logout
+              </Button>
+            )}
 
             <Button
               asChild
