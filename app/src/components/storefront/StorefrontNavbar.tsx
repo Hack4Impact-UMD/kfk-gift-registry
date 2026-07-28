@@ -67,13 +67,15 @@ export function StorefrontNavbar({
             />
           </Link>
 
-          {auth.isAuthed ? (
-            <StorefrontProfileMenu auth={auth} />
-          ) : (
-            <Button asChild variant="outline">
-              <Link to="/login">Log-in</Link>
-            </Button>
-          )}
+          <div className="mt-7">
+            {auth.isAuthed ? (
+              <StorefrontProfileMenu auth={auth} />
+            ) : (
+              <Button asChild variant="outline">
+                <Link to="/login">Log-in</Link>
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="hidden md:flex items-center justify-between gap-4">
