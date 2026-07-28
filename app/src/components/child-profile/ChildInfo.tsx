@@ -78,7 +78,7 @@ export function ChildInfo({
               }
             />
           </div>
-          <div className="min-w-0 truncate flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex flex-col">
             <span className="shrink-0 font-semibold">Social Worker Name:</span>
             <EditableField
               value={child.childSocialWorker}
@@ -88,7 +88,7 @@ export function ChildInfo({
               }
             />
           </div>
-          <div className="min-w-0 truncate flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex flex-col">
             <span className="font-semibold">Hospital:</span>
             <EditableField
               value={child.hospital}
