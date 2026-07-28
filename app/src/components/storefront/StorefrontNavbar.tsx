@@ -46,6 +46,15 @@ export function StorefrontNavbar({
           )}
         </div>
 
+        {auth.isAuthed && auth.authUser.role === UserRole.DONOR ? (
+          <Button
+            asChild
+            className="md:hidden bg-white text-kfk-blue border border-kfk-blue hover:bg-kfk-yellow/30"
+          >
+            <Link to="/donor/home">Back to Home</Link>
+          </Button>
+        ) : null}
+
         {currentDrive && (
           <Link
             to="/"
@@ -58,16 +67,18 @@ export function StorefrontNavbar({
 
       {/* Desktop header rows */}
       <div className="hidden md:block w-full max-w-7xl">
-        <div className="hidden md:flex items-center justify-between">
-          <Link to="/">
-            <img
-              src={KFKLogo}
-              alt="Kisses for Kyle"
-              className="max-w-[288px] mt-2"
-            />
-          </Link>
+        <div className="hidden md:flex items-start justify-between">
+          <div className="flex flex-col items-start gap-3">
+            <Link to="/">
+              <img
+                src={KFKLogo}
+                alt="Kisses for Kyle"
+                className="max-w-[288px] mt-2"
+              />
+            </Link>
+          </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 pt-2">
             <button
               type="button"
               onClick={() => startStorefrontTour(navigate)}
@@ -95,16 +106,26 @@ export function StorefrontNavbar({
             ) : error || !link ? (
               <></>
             ) : (
-              <Button asChild>
-                <Link
-                  to="/family/form/$formLinkId/consent"
-                  params={{
-                    formLinkId: link.id,
-                  }}
-                >
-                  Go to Family Form
-                </Link>
-              </Button>
+              <>
+                {auth.isAuthed && auth.authUser.role === UserRole.DONOR ? (
+                  <Button
+                    asChild
+                    className="bg-white text-kfk-blue border border-kfk-blue hover:bg-kfk-yellow/30"
+                  >
+                    <Link to="/donor/home">Back to Home</Link>
+                  </Button>
+                ) : null}
+                <Button asChild>
+                  <Link
+                    to="/family/form/$formLinkId/consent"
+                    params={{
+                      formLinkId: link.id,
+                    }}
+                  >
+                    Go to Family Form
+                  </Link>
+                </Button>
+              </>
             )}
 
             <Button asChild variant="outline">
