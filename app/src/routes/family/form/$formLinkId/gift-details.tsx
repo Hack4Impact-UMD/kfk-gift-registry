@@ -140,6 +140,10 @@ function GiftsStep() {
                   Macy's.com
                 </a>
               </li>
+              <li>
+                🔁 Please make sure to select <strong>2 backup gifts</strong>
+                for each child.
+              </li>
             </ul>
           </div>
           <p className="text-sm font-bold text-center text-green-900">
