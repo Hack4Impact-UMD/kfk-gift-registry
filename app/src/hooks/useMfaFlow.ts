@@ -45,13 +45,17 @@ function useRecaptchaVerifier() {
 
   useEffect(() => {
     if (!recaptchaVerifierRef.current) {
-      initRecaptchaVerifier()
+      initRecaptchaVerifier((message) => {
+        toast.error(message);
+      })
         .then((v) => {
           recaptchaVerifierRef.current = v;
         })
         .catch((err) => {
           toast.error(
-            "Failed to initialize ReCAPTCHA verifier. Refresh to try again.",
+            err instanceof Error
+              ? err.message
+              : "Failed to initialize ReCAPTCHA verifier. Refresh to try again.",
           );
           console.error(err);
         });
@@ -212,7 +216,11 @@ export function useMfaFlow(
             }
           };
         } catch (error) {
-          toast.error("Failed to send SMS 2FA code!");
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Failed to send SMS 2FA code!",
+          );
           console.error(error);
         }
       };
