@@ -21,13 +21,15 @@ import {
   isChildPublicBlurbTooLong,
   isGiftFamilyPublicNotesTooLong,
   isGiftTitleTooLong,
+  letterToTreatmentLevel,
+  treatmentLevelToLetter,
 } from "common";
 
 interface ChildCardProps {
   child: Child;
 }
 
-const levelOptions: Array<"1" | "2" | "3"> = ["1", "2", "3"];
+const levelOptions: Array<"A" | "B" | "C" | "D"> = ["A", "B", "C", "D"];
 const timePeriodOptions: Array<TimePeriod> = [
   "<6m",
   "6m-1y",
@@ -509,13 +511,17 @@ export function ChildCard({ child }: ChildCardProps) {
               <p className="font-bold whitespace-nowrap">Level:</p>
               <div className="min-w-0 flex-1">
                 <EditableField
-                  value={child.treatmentLevel}
+                  value={
+                    child.treatmentLevel !== undefined
+                      ? treatmentLevelToLetter(child.treatmentLevel)
+                      : "Unknown"
+                  }
                   editable={editing}
                   fieldType="select"
                   selectOptions={levelOptions}
                   onChange={(value: string) =>
                     editChild((draft) => {
-                      draft.treatmentLevel = Number(value);
+                      draft.treatmentLevel = letterToTreatmentLevel(value);
                     })
                   }
                 />
@@ -523,19 +529,22 @@ export function ChildCard({ child }: ChildCardProps) {
             </div>
           </div>
           <div className="flex flex-col">
-            <EditableField
-              value={child.publicBlurb}
-              editable={editing}
-              fieldType={"textarea"}
-              characterLimit={MAX_CHILD_PUBLIC_BLURB_LENGTH}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                editChild((draft) => {
-                  draft.publicBlurb = e.target.value;
-                })
-              }
-            >
-              Personal Blurb:
-            </EditableField>
+            {child.publicBlurb && (
+              <>
+                <span className="font-bold">Personal Blurb:</span>
+                <EditableField
+                  value={child.publicBlurb}
+                  editable={editing}
+                  fieldType={"textarea"}
+                  characterLimit={MAX_CHILD_PUBLIC_BLURB_LENGTH}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    editChild((draft) => {
+                      draft.publicBlurb = e.target.value;
+                    })
+                  }
+                ></EditableField>
+              </>
+            )}
           </div>
         </div>
 
@@ -568,7 +577,7 @@ export function ChildCard({ child }: ChildCardProps) {
 
         {child.category == "warrior" && (
           <div className="flex flex-row rounded-b-xl bg-slate-100 px-4 sm:px-6 py-4 gap-3 -mx-6">
-            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex flex-col grow">
               <span className="font-semibold whitespace-nowrap shrink-0">
                 Social Worker Name:
               </span>
@@ -585,7 +594,7 @@ export function ChildCard({ child }: ChildCardProps) {
                 />
               </div>
             </div>
-            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex flex-col grow">
               <span className="font-semibold whitespace-nowrap shrink-0">
                 Hospital:
               </span>

@@ -143,7 +143,7 @@ function RouteComponent() {
 
   return (
     <div className="flex h-full flex-col p-4 ">
-      <div className=" flex min-h-0 w-full flex-1 flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
+      <div className="justify-end flex min-h-0 w-full flex-1 flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
         <section
           className="w-full max-w-3xl min-w-0 lg:self-stretch"
           aria-label="Family information"
