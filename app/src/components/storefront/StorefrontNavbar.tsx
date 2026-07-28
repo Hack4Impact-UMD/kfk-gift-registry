@@ -1,20 +1,15 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowTopRightOnSquareIcon,
-  ShoppingCartIcon,
-  UserCircleIcon,
-} from "../icons";
+import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 import type { GiftDrive } from "common";
-import { UserRole } from "common";
 import type { AuthContext } from "@/server/functions/auth";
-import { useLogout } from "@/hooks/mutations/logoutMutation";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
 import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
 import { StorefrontFamilyRecoveryDialog } from "@/components/storefront/StorefrontFamilyRecoveryDialog";
+import { StorefrontProfileMenu } from "@/components/storefront/StorefrontProfileMenu";
 import { Spinner } from "../ui/spinner";
 import { startStorefrontTour } from "@/components/storefront/storefrontTour";
 
@@ -30,7 +25,6 @@ export function StorefrontNavbar({
   const showMobileSidebarTrigger = pathname !== "/";
   const { data: localCart } = useLocalCartData();
   const { data: link, isPending, error } = useStorefrontFormLink();
-  const { mutate: logout, isPending: logoutPending } = useLogout();
   const navigate = useNavigate();
 
   const cartCount = localCart?.length ?? 0;
@@ -73,16 +67,13 @@ export function StorefrontNavbar({
             />
           </Link>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => startStorefrontTour(navigate)}
-              className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline cursor-pointer"
-            >
-              Storefront Tutorial
-              <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-1 shrink-0" />
-            </button>
-          </div>
+          {auth.isAuthed ? (
+            <StorefrontProfileMenu auth={auth} />
+          ) : (
+            <Button asChild variant="outline">
+              <Link to="/login">Log-in</Link>
+            </Button>
+          )}
         </div>
 
         <div className="hidden md:flex items-center justify-between gap-4">
@@ -96,6 +87,15 @@ export function StorefrontNavbar({
           )}
 
           <div className="flex items-center gap-3 ml-auto">
+            <button
+              type="button"
+              onClick={() => startStorefrontTour(navigate)}
+              className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline cursor-pointer"
+            >
+              Storefront Tutorial
+              <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-1 shrink-0" />
+            </button>
+
             {isPending ? (
               <Spinner />
             ) : error || !link ? (
@@ -110,35 +110,6 @@ export function StorefrontNavbar({
                 >
                   Go to Family Form
                 </Link>
-              </Button>
-            )}
-
-            {auth.isAuthed && (
-              <div className="flex items-center gap-2 text-kfk-blue">
-                <UserCircleIcon className="size-6" />
-                <span className="max-w-32 truncate text-sm font-medium">
-                  {auth.authUser.displayName}
-                </span>
-              </div>
-            )}
-
-            <Button asChild variant="outline">
-              {!auth.isAuthed ? (
-                <Link to="/login">Log-in</Link>
-              ) : auth.authUser.role === UserRole.DONOR ? (
-                <Link to="/donor/home">Go to Donor Home</Link>
-              ) : (
-                <Link to="/staff/home">Go to Staff Home</Link>
-              )}
-            </Button>
-
-            {auth.isAuthed && (
-              <Button
-                variant="outline"
-                onClick={() => logout()}
-                disabled={logoutPending}
-              >
-                Logout
               </Button>
             )}
 
