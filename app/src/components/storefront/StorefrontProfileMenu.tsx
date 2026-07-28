@@ -60,18 +60,18 @@ export function StorefrontProfileMenu({ auth }: StorefrontProfileMenuProps) {
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
-            variant="outline"
-            className="h-auto gap-2 rounded-full px-2 py-1.5 text-kfk-blue"
+            variant="ghost"
+            className="h-auto gap-1.5 rounded-full px-1.5 py-1 text-kfk-blue hover:bg-kfk-blue/10"
           >
-            <Avatar className="size-8">
               <AvatarFallback className="bg-kfk-blue text-xs font-semibold text-white">
+            <Avatar className="size-6">
                 {initials || "U"}
               </AvatarFallback>
             </Avatar>
-            <span className="max-w-32 truncate text-sm font-semibold">
+            <span className="max-w-32 truncate text-sm font-medium">
               {displayName}
             </span>
-            <ChevronDown className="size-4" />
+            <ChevronDown className="size-3.5" />
           </Button>
         </DropdownMenuTrigger>
 
