@@ -1,16 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useLogout } from "@/hooks/mutations/logoutMutation";
+import { LogoutConfirmDialog } from "@/components/auth/LogoutConfirmDialog";
 
 type DonorProfileMenuProps = {
   displayName: string;
@@ -36,19 +26,7 @@ function getInitials(displayName: string) {
 
 export function DonorProfileMenu({ displayName }: DonorProfileMenuProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const { mutate: logout, isPending } = useLogout();
   const initials = getInitials(displayName);
-
-  function handleConfirmOpenChange(open: boolean) {
-    if (isPending) return;
-    setConfirmOpen(open);
-  }
-
-  function handleLogout() {
-    logout(undefined, {
-      onSuccess: () => setConfirmOpen(false),
-    });
-  }
 
   return (
     <>
@@ -82,34 +60,7 @@ export function DonorProfileMenu({ displayName }: DonorProfileMenuProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={confirmOpen} onOpenChange={handleConfirmOpenChange}>
-        <AlertDialogContent size="sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm logout</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to log out of your account?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              className="border-kfk-blue text-kfk-blue hover:bg-kfk-blue/10"
-              disabled={isPending}
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(event) => {
-                event.preventDefault();
-                handleLogout();
-              }}
-              className="bg-kfk-blue text-white hover:bg-kfk-blue/90"
-              disabled={isPending}
-            >
-              {isPending ? "Logging out..." : "Logout"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <LogoutConfirmDialog open={confirmOpen} onOpenChange={setConfirmOpen} />
     </>
   );
 }
