@@ -228,7 +228,7 @@ export function GiftDetailsForm({
               {(field) => (
                 <field.FormTextarea
                   className="mt-2"
-                  label={`Gift #${i + 1} Public Notes`}
+                  label={`Gift #${i + 1} Additional Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
                   maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
                   maxCharactersErrorMessage={
@@ -358,7 +358,7 @@ export function GiftDetailsForm({
               {(field) => (
                 <field.FormTextarea
                   className="mt-2"
-                  label={`Backup Gift #${i + 1} Public Notes`}
+                  label={`Backup Gift #${i + 1} Additionals Notes`}
                   placeholder="Add any additional information to be displayed alongside the gift listing"
                   maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
                   maxCharactersErrorMessage={
