@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import LadybugIcon from "@/assets/ladybug-storefront.svg";
 import { Button } from "@/components/ui/button";
+import { LogoutConfirmDialog } from "@/components/auth/LogoutConfirmDialog";
 import {
   Sidebar,
   SidebarContent,
@@ -23,7 +25,6 @@ import {
 } from "@/components/icons";
 import { CircleDollarSign, FormIcon } from "lucide-react";
 import type { AuthContext } from "@/server/functions/auth";
-import { useLogout } from "@/hooks/mutations/logoutMutation";
 import { Spinner } from "../ui/spinner";
 import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
 import { StorefrontFamilyRecoveryDialog } from "@/components/storefront/StorefrontFamilyRecoveryDialog";
@@ -42,10 +43,10 @@ export function StorefrontMobileSidebar({
   // Add more page checks as needed
   const isHomePage = pathname === "/" || pathname.startsWith("/child/");
   const isCheckoutPage = pathname === "/checkout";
-  const { mutate: logout, isPending: logoutPending } = useLogout();
   const { data: link, isPending, error } = useStorefrontFormLink();
   const { setOpenMobile } = useSidebar();
   const navigate = useNavigate();
+  const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false);
 
   return (
     <Sidebar collapsible="offcanvas" side="left" className="sm:hidden">
@@ -182,8 +183,7 @@ export function StorefrontMobileSidebar({
           <Button
             variant="default"
             className="w-full bg-kfk-blue hover:bg-kfk-blue/90"
-            onClick={() => logout()}
-            disabled={logoutPending}
+            onClick={() => setConfirmLogoutOpen(true)}
           >
             Logout
           </Button>
@@ -204,6 +204,11 @@ export function StorefrontMobileSidebar({
           </Button>
         )}
       </SidebarFooter>
+
+      <LogoutConfirmDialog
+        open={confirmLogoutOpen}
+        onOpenChange={setConfirmLogoutOpen}
+      />
     </Sidebar>
   );
 }

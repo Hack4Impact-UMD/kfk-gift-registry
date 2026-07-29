@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import ProfileHeader from "@/assets/default-profile-photo.png";
-import { PencilIcon, PhotoIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, PhotoIcon, TrashIcon } from "@heroicons/react/24/solid";
 import type { Child, Gift, TimePeriod } from "common";
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
@@ -21,13 +21,15 @@ import {
   isChildPublicBlurbTooLong,
   isGiftFamilyPublicNotesTooLong,
   isGiftTitleTooLong,
+  letterToTreatmentLevel,
+  treatmentLevelToLetter,
 } from "common";
 
 interface ChildCardProps {
   child: Child;
 }
 
-const levelOptions: Array<"1" | "2" | "3"> = ["1", "2", "3"];
+const levelOptions: Array<"A" | "B" | "C" | "D"> = ["A", "B", "C", "D"];
 const timePeriodOptions: Array<TimePeriod> = [
   "<6m",
   "6m-1y",
@@ -155,6 +157,15 @@ export function ChildCard({ child }: ChildCardProps) {
     fileInputRef.current?.click();
   };
 
+  const handleDeletePhoto = () => {
+    invalidatePhotoRead();
+    resetPhotoInput();
+    setPhotoError(null);
+    editChild((draft) => {
+      draft.photoUrl = "";
+    });
+  };
+
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -258,6 +269,55 @@ export function ChildCard({ child }: ChildCardProps) {
     });
   };
 
+  const renderGift = (gift: Gift) => (
+    <ReviewGift
+      key={gift.id}
+      gift={gift}
+      editable={editing}
+      onTitleChange={(value) =>
+        editGift(gift.id, (draft) => {
+          draft.title = value;
+        })
+      }
+      onPriceChange={async (value) => {
+        const trimmedValue = value.trim();
+        if (trimmedValue === "") {
+          if (editing) {
+            editGift(gift.id, (draft) => {
+              draft.listedPrice = undefined;
+            });
+          } else {
+            await saveGiftPrice(gift.id, undefined);
+          }
+          return;
+        }
+
+        const price = parsePriceInput(value);
+        if (hasValidListedPrice(price)) {
+          if (editing) {
+            editGift(gift.id, (draft) => {
+              draft.listedPrice = price;
+            });
+          } else {
+            await saveGiftPrice(gift.id, price);
+          }
+        } else if (value.trim() !== "") {
+          toast.warning("Invalid price!");
+        }
+      }}
+      onNotesChange={(value) =>
+        editGift(gift.id, (draft) => {
+          draft.familyPublicNotes = value;
+        })
+      }
+      onProductUrlChange={(value) =>
+        editGift(gift.id, (draft) => {
+          draft.productUrl = value;
+        })
+      }
+    />
+  );
+
   return (
     <Card className="w-full max-w-2xl bg-kfk-blue/5 border border-foreground pb-0">
       <CardContent className="flex flex-col py-0">
@@ -287,7 +347,7 @@ export function ChildCard({ child }: ChildCardProps) {
                   }`}
                 >
                   <AvatarImage
-                    src={child.photoUrl ?? ProfileHeader}
+                    src={child.photoUrl || ProfileHeader}
                   ></AvatarImage>
                   <AvatarFallback className="bg-kfk-light-blue text-kfk-blue">
                     <PhotoIcon className="size-6" />
@@ -302,6 +362,16 @@ export function ChildCard({ child }: ChildCardProps) {
                   aria-label={`Upload photo for ${child.name}`}
                 >
                   <PencilIcon className="size-4 text-white" />
+                </button>
+              )}
+              {editing && child.photoUrl && (
+                <button
+                  type="button"
+                  className="absolute bg-kfk-red rounded-full h-fit p-1 -top-1 -right-1"
+                  onClick={handleDeletePhoto}
+                  aria-label={`Remove photo for ${child.name}`}
+                >
+                  <TrashIcon className="size-4 text-white" />
                 </button>
               )}
             </div>
@@ -441,13 +511,17 @@ export function ChildCard({ child }: ChildCardProps) {
               <p className="font-bold whitespace-nowrap">Level:</p>
               <div className="min-w-0 flex-1">
                 <EditableField
-                  value={child.treatmentLevel}
+                  value={
+                    child.treatmentLevel !== undefined
+                      ? treatmentLevelToLetter(child.treatmentLevel)
+                      : "Unknown"
+                  }
                   editable={editing}
                   fieldType="select"
                   selectOptions={levelOptions}
                   onChange={(value: string) =>
                     editChild((draft) => {
-                      draft.treatmentLevel = Number(value);
+                      draft.treatmentLevel = letterToTreatmentLevel(value);
                     })
                   }
                 />
@@ -455,19 +529,22 @@ export function ChildCard({ child }: ChildCardProps) {
             </div>
           </div>
           <div className="flex flex-col">
-            <EditableField
-              value={child.publicBlurb}
-              editable={editing}
-              fieldType={"textarea"}
-              characterLimit={MAX_CHILD_PUBLIC_BLURB_LENGTH}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                editChild((draft) => {
-                  draft.publicBlurb = e.target.value;
-                })
-              }
-            >
-              Personal Blurb:
-            </EditableField>
+            {child.publicBlurb && (
+              <>
+                <span className="font-bold">Personal Blurb:</span>
+                <EditableField
+                  value={child.publicBlurb}
+                  editable={editing}
+                  fieldType={"textarea"}
+                  characterLimit={MAX_CHILD_PUBLIC_BLURB_LENGTH}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    editChild((draft) => {
+                      draft.publicBlurb = e.target.value;
+                    })
+                  }
+                ></EditableField>
+              </>
+            )}
           </div>
         </div>
 
@@ -482,58 +559,25 @@ export function ChildCard({ child }: ChildCardProps) {
           </div>
         )}
         {!giftsIsError && !giftsLoading && gifts.length > 0 && (
-          <div className="w-full py-4">
-            <div className="rounded-md bg-slate-100 py-1">
-              {gifts.map((gift) => (
-                <ReviewGift
-                  key={gift.id}
-                  gift={gift}
-                  editable={editing}
-                  onTitleChange={(value) =>
-                    editGift(gift.id, (draft) => {
-                      draft.title = value;
-                    })
-                  }
-                  onPriceChange={async (value) => {
-                    const trimmedValue = value.trim();
-                    if (trimmedValue === "") {
-                      if (editing) {
-                        editGift(gift.id, (draft) => {
-                          draft.listedPrice = undefined;
-                        });
-                      } else {
-                        await saveGiftPrice(gift.id, undefined);
-                      }
-                      return;
-                    }
-
-                    const price = parsePriceInput(value);
-                    if (hasValidListedPrice(price)) {
-                      if (editing) {
-                        editGift(gift.id, (draft) => {
-                          draft.listedPrice = price;
-                        });
-                      } else {
-                        await saveGiftPrice(gift.id, price);
-                      }
-                    } else if (value.trim() !== "") {
-                      toast.warning("Invalid price!");
-                    }
-                  }}
-                  onNotesChange={(value) =>
-                    editGift(gift.id, (draft) => {
-                      draft.familyPublicNotes = value;
-                    })
-                  }
-                />
-              ))}
+          <div className="flex w-full flex-col">
+            <div className="-mx-6 bg-slate-100 px-4 py-2 text-center font-semibold text-muted-foreground sm:px-6">
+              Main Gifts
+            </div>
+            <div className="-mx-6 bg-card px-4 py-1 sm:px-6">
+              {gifts.filter((gift) => gift.active).map(renderGift)}
+            </div>
+            <div className="-mx-6 bg-slate-100 px-4 py-2 text-center font-semibold text-muted-foreground sm:px-6">
+              Backup Gifts
+            </div>
+            <div className="-mx-6 bg-card px-4 py-1 sm:px-6">
+              {gifts.filter((gift) => !gift.active).map(renderGift)}
             </div>
           </div>
         )}
 
         {child.category == "warrior" && (
-          <div className="flex flex-row rounded-b-xl bg-card px-4 sm:px-6 py-4 gap-3 -mx-6">
-            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex flex-row rounded-b-xl bg-slate-100 px-4 sm:px-6 py-4 gap-3 -mx-6">
+            <div className="flex flex-col grow">
               <span className="font-semibold whitespace-nowrap shrink-0">
                 Social Worker Name:
               </span>
@@ -550,7 +594,7 @@ export function ChildCard({ child }: ChildCardProps) {
                 />
               </div>
             </div>
-            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex flex-col grow">
               <span className="font-semibold whitespace-nowrap shrink-0">
                 Hospital:
               </span>

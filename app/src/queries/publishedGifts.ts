@@ -1,6 +1,7 @@
 import {
   getPublishedGifts,
   getPublishedGiftsTableRows,
+  getAdminDashboardMetrics,
 } from "@/server/functions/gifts";
 import { getStaffGiftClaimDetails } from "@/server/functions/staffClaim";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
@@ -17,6 +18,10 @@ const publishedGiftsQueries = createQueryKeys("publishedGifts", {
   claimDetailsByGift: (giftId: string) => ({
     queryKey: ["claimDetailsByGift", giftId],
     queryFn: () => getStaffGiftClaimDetails({ data: { giftId } }),
+  }),
+  dashboardMetrics: (driveId: string) => ({
+    queryKey: ["dashboardMetrics", driveId],
+    queryFn: () => getAdminDashboardMetrics({ data: { driveId } }),
   }),
 });
 
