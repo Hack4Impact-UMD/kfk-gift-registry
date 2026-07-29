@@ -11,6 +11,33 @@ import { formatUsd } from "./utils";
 import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup";
 import { getGiftStatusClass, getGiftStatusLabel } from "./homeRouteUtils";
 
+function getDetailGiftStatus(state: GiftFormState, giftStatus: CommittedGift["status"]) {
+  if (state.delivered) {
+    return "DELIVERED";
+  }
+
+  if (state.ordered) {
+    return "PURCHASED";
+  }
+
+  return giftStatus;
+}
+
+function hasPurchaseConfirmation(
+  state: GiftFormState,
+  giftStatus: CommittedGift["status"],
+) {
+  return (
+    giftStatus === "PURCHASED" ||
+    giftStatus === "DELIVERED" ||
+    giftStatus === "RECEIVED" ||
+    !!state.receiptFileName ||
+    !!state.receiptPath ||
+    !!state.tracking.trim() ||
+    !!state.savedTracking.trim()
+  );
+}
+
 export function DetailGiftCard({
   gift,
   state,
@@ -26,6 +53,7 @@ export function DetailGiftCard({
   onTrackingChange,
   onUnclaimRequest,
   onSave,
+  defaultExpanded = true,
 }: {
   gift: CommittedGift;
   state: GiftFormState;
@@ -41,11 +69,15 @@ export function DetailGiftCard({
   onTrackingChange: (value: string) => void;
   onUnclaimRequest: () => void;
   onSave: () => void | Promise<void>;
+  defaultExpanded?: boolean;
 }) {
-  const [purchaseOpen, setPurchaseOpen] = useState(true);
-  const [deliveryOpen, setDeliveryOpen] = useState(true);
+  const [purchaseOpen, setPurchaseOpen] = useState(defaultExpanded);
+  const [deliveryOpen, setDeliveryOpen] = useState(defaultExpanded);
+  const [cardOpen, setCardOpen] = useState(defaultExpanded);
   const [orderConfirmOpen, setOrderConfirmOpen] = useState(false);
   const [deliveryConfirmOpen, setDeliveryConfirmOpen] = useState(false);
+  const displayStatus = getDetailGiftStatus(state, gift.status);
+  const purchaseConfirmed = hasPurchaseConfirmation(state, gift.status);
 
   if (state.unclaimed || state.receivedByFamily) {
     return null;
@@ -55,43 +87,53 @@ export function DetailGiftCard({
     <Card className="overflow-hidden rounded-[10px] border border-[#CFCFCF] bg-white shadow-none">
       <div className="px-3 pb-3 pt-2">
         <div className="mb-2 flex items-center justify-start">
-          <span className={getGiftStatusClass(gift.status)}>
-            {getGiftStatusLabel(gift.status)}
+          <span className={getGiftStatusClass(displayStatus)}>
+            {getGiftStatusLabel(displayStatus)}
           </span>
         </div>
 
-        <div className="flex items-start gap-2">
+        <button
+          type="button"
+          className="flex w-full items-start gap-2 text-left"
+          onClick={() => setCardOpen((prev) => !prev)}
+        >
           <Gift className="mt-0.5 size-4 shrink-0 text-[#1D4ED8]" strokeWidth={2.2} />
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
-              <a
-                href={gift.productUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="min-w-0 text-[15px] font-semibold leading-5 text-[#1F2937]"
-              >
-                <span className="line-clamp-2">{gift.title}</span>
-              </a>
-              <span className="shrink-0 text-[15px] text-[#4B5563]">
-                {formatUsd(gift.listedPrice)}
-              </span>
-            </div>
-            <div className="mt-1 flex items-center gap-1 text-[13px] text-[#4B5563]">
-              <ExternalLink className="size-3.5" />
+              <div className="min-w-0">
+                <div className="min-w-0 text-[15px] font-semibold leading-5 text-[#1F2937]">
+                  <span className="line-clamp-2">{gift.title}</span>
+                </div>
+                <div className="mt-1 flex items-center gap-1 text-[13px] text-[#4B5563]">
+                  <ExternalLink className="size-3.5" />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="shrink-0 text-[15px] text-[#4B5563]">
+                  {formatUsd(gift.listedPrice)}
+                </span>
+                {cardOpen ? (
+                  <ChevronUp className="mt-0.5 size-4 shrink-0 text-[#1F2937]" />
+                ) : (
+                  <ChevronDown className="mt-0.5 size-4 shrink-0 text-[#1F2937]" />
+                )}
+              </div>
             </div>
             {gift.additionalInfo ? (
               <p className="mt-2 text-[12px] leading-4 text-[#4B5563]">
                 {gift.additionalInfo}
               </p>
             ) : null}
-            <button type="button" className="mt-2 text-[12px] text-[#4B5563]">
+            <span className="mt-2 inline-block text-[12px] text-[#4B5563]">
               Copy delivery address ⧉
-            </button>
+            </span>
           </div>
-        </div>
+        </button>
 
-        <Separator className="my-3 bg-[#E5E7EB]" />
+        {cardOpen ? <Separator className="my-3 bg-[#E5E7EB]" /> : null}
 
+        {cardOpen ? (
+          <>
         <div>
           <button
             type="button"
@@ -113,7 +155,7 @@ export function DetailGiftCard({
 
           {purchaseOpen ? (
             <div className="pt-4">
-              {!state.ordered ? (
+              {!purchaseConfirmed ? (
                 <div className="flex items-center justify-between gap-3">
                   <p className="max-w-[120px] text-[14px] leading-5 text-[#4B5563]">
                     Did you order the gift?
@@ -281,6 +323,8 @@ export function DetailGiftCard({
             Unclaim gift
           </button>
         </div>
+          </>
+        ) : null}
       </div>
 
       <ConfirmGiftsModal
@@ -291,9 +335,8 @@ export function DetailGiftCard({
           setOrderConfirmOpen(false);
         }}
         isLoading={isOrdering}
-        title="Are you sure you ordered this gift?"
-        description="You cannot undo this once you click confirm."
-        confirmLabel="Yes, I ordered it!"
+        title="Are you sure you want to confirm your gift purchase?"
+        confirmLabel="Yes, I am sure!"
       />
       <ConfirmGiftsModal
         isOpen={deliveryConfirmOpen}
@@ -303,9 +346,8 @@ export function DetailGiftCard({
           setDeliveryConfirmOpen(false);
         }}
         isLoading={isDelivering}
-        title="Are you sure this gift was delivered?"
-        description="You cannot undo this once you click confirm."
-        confirmLabel="Yes, it was delivered!"
+        title="Are you sure you want to confirm the gift was delivered?"
+        confirmLabel="Yes, I am sure!"
       />
     </Card>
   );

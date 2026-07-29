@@ -1,4 +1,5 @@
-import { ChevronLeft, ChevronUp, Gift } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, ChevronLeft, ChevronUp, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UnclaimDialog } from "./UnclaimDialog";
@@ -22,6 +23,8 @@ export function DonorChildDetailScreen({
   onBack: () => void;
   onNavigateChild: (nextIndex: number) => void;
 }) {
+  const [allExpanded, setAllExpanded] = useState(true);
+  const [expandVersion, setExpandVersion] = useState(0);
   const {
     giftStates,
     unclaimTargetId,
@@ -90,13 +93,28 @@ export function DonorChildDetailScreen({
           </div>
 
           <div className="mt-4 flex items-center gap-2 text-kfk-blue">
-            <button type="button" className="font-medium text-[14px]">
-              Collapse All
+            <button
+              type="button"
+              className="font-medium text-[14px]"
+              onClick={() => {
+                const nextExpanded = !allExpanded;
+                setAllExpanded(nextExpanded);
+                setExpandVersion((prev) => prev + 1);
+              }}
+            >
+              {allExpanded ? "Collapse All" : "Expand All"}
             </button>
-            <ChevronUp className="size-4" />
+            {allExpanded ? (
+              <ChevronUp className="size-4" />
+            ) : (
+              <ChevronDown className="size-4" />
+            )}
           </div>
 
-          <div className="mt-2 space-y-2">
+          <div
+            key={`${allExpanded ? "open" : "closed"}-${expandVersion}`}
+            className="mt-2 space-y-2"
+          >
             {visibleGifts.map((gift) => (
               <DetailGiftCard
                 key={gift.id}
@@ -114,6 +132,7 @@ export function DonorChildDetailScreen({
                 onTrackingChange={(value) => handleTrackingChange(gift.id, value)}
                 onUnclaimRequest={() => setUnclaimTargetId(gift.id)}
                 onSave={() => handleSave(gift.id)}
+                defaultExpanded={allExpanded}
               />
             ))}
 
