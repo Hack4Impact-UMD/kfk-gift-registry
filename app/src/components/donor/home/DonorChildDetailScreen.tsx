@@ -128,8 +128,12 @@ export function DonorChildDetailScreen({
                 onOrdered={() => handleOrdered(gift.id)}
                 onDelivered={() => handleDelivered(gift.id)}
                 onReceipt={(file) => handleReceipt(gift.id, file)}
-                onDeliveryReceipt={(file) => handleDeliveryReceipt(gift.id, file)}
-                onTrackingChange={(value) => handleTrackingChange(gift.id, value)}
+                onDeliveryReceipt={(file) =>
+                  handleDeliveryReceipt(gift.id, file)
+                }
+                onTrackingChange={(value) =>
+                  handleTrackingChange(gift.id, value)
+                }
                 onUnclaimRequest={() => setUnclaimTargetId(gift.id)}
                 onSave={() => handleSave(gift.id)}
                 defaultExpanded={allExpanded}

@@ -36,9 +36,14 @@ export function CommitmentCard({ child }: DonorHomeChildCardProps) {
           <div className="mt-4 space-y-3">
             {visibleGifts.map((gift) => (
               <div key={gift.id} className="flex items-center gap-3">
-                <Gift className="size-4 shrink-0 text-[#1D4ED8]" strokeWidth={2.2} />
+                <Gift
+                  className="size-4 shrink-0 text-[#1D4ED8]"
+                  strokeWidth={2.2}
+                />
                 <div className="min-w-0 flex flex-1 items-center gap-2">
-                  <p className="truncate text-[15px] text-[#1F2937]">{gift.title}</p>
+                  <p className="truncate text-[15px] text-[#1F2937]">
+                    {gift.title}
+                  </p>
                   <span className={getGiftStatusClass(gift.status)}>
                     {getGiftStatusLabel(gift.status)}
                   </span>
