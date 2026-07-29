@@ -120,7 +120,7 @@ export function StorefrontNavbar({
                     formLinkId: link.id,
                   }}
                 >
-                  Go to Family Form
+                  Family Application
                 </Link>
               </Button>
             )}
