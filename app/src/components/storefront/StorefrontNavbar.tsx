@@ -71,9 +71,10 @@ export function StorefrontNavbar({
             <StorefrontFamilyRecoveryDialog>
               <button
                 type="button"
-                className="text-sm font-bold text-kfk-blue hover:underline cursor-pointer"
+                className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline cursor-pointer"
               >
                 Family Recovery Link
+                <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-1 shrink-0" />
               </button>
             </StorefrontFamilyRecoveryDialog>
 
