@@ -15,6 +15,7 @@ import { FormItem } from "@/components/ui/form";
 import { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { GiftDetailsForm } from "@/components/form/sections/GiftDetails";
 import LadyBug from "@/assets/form/ladybug.png";
+import { GIFT_LISTING_URL_WARNING_MESSAGE } from "common";
 
 export const Route = createFileRoute("/family/form/$formLinkId/gift-details")({
   validateSearch: z.object({
@@ -54,6 +55,9 @@ function GiftsStep() {
 
   const form = useGiftsForm();
 
+  const hasBlockingGiftIssues = (issues: Array<z.core.$ZodIssue>) =>
+    issues.some((issue) => issue.message !== GIFT_LISTING_URL_WARNING_MESSAGE);
+
   const handleBack = () => {
     const currentValues = form.state.values;
     updateSection("gifts", currentValues);
@@ -67,9 +71,14 @@ function GiftsStep() {
     index: number,
   ): "completed" | "pristine" | "dirty" => {
     const childData = form.state.values.giftSelections[index];
-    const isComplete = childGiftSchema.safeParse(childData).success;
+    const childValidation = childGiftSchema.safeParse(childData);
 
-    if (isComplete) return "completed";
+    if (
+      childValidation.success ||
+      !hasBlockingGiftIssues(childValidation.error.issues)
+    ) {
+      return "completed";
+    }
 
     const hasGiftValue = (
       gift:
@@ -182,8 +191,11 @@ function GiftsStep() {
             onClick={() => {
               const values = form.state.values;
               const result = giftsFormSchema.safeParse(values);
-              if (result.success) {
-                updateSection("gifts", result.data);
+              if (
+                result.success ||
+                !hasBlockingGiftIssues(result.error.issues)
+              ) {
+                updateSection("gifts", values);
                 navigate({
                   to: "/family/form/$formLinkId/review",
                   params: { formLinkId },

@@ -10,11 +10,19 @@ export const GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE = `Gift notes must be ${M
 export const GIFT_TITLE_TOO_LONG_MESSAGE = `Gift name must be ${MAX_GIFT_TITLE_LENGTH} characters or fewer.`;
 export const GIFT_TITLE_REQUIRED_MESSAGE = "Gift name is required.";
 export const GIFT_PRICE_INVALID_MESSAGE = `Price must be a valid non-negative number no greater than $${MAX_GIFT_PRICE}.`;
-export const AMAZON_PRODUCT_URL_INVALID_MESSAGE =
-  "Please enter a valid Amazon product URL.";
+export const GIFT_LISTING_URL_WARNING_MESSAGE =
+  "Double-check that the gift listing link works. If it does, you can continue despite this warning.";
 
-const AMAZON_PRODUCT_URL_RE =
-  /^https?:\/\/(?:www\.)?amazon\.com\/(?:[^\s?#]+\/)*(?:dp|gp\/product)\/([A-Z0-9]{10})(?:[/?#].*)?$/i;
+const AMAZON_ASIN_RE = /^[A-Z0-9]{10}$/i;
+const AMAZON_PRODUCT_PATH_RE =
+  /(?:^|\/)(?:dp|gp\/product|gp\/aw\/d)\/([A-Z0-9]{10})(?:[/?#]|$)/i;
+const AMAZON_PRODUCT_QUERY_PARAMS = [
+  "asin",
+  "ASIN",
+  "pd_rd_i",
+  "creativeASIN",
+] as const;
+const MACYS_PRODUCT_PATH_RE = /^\/shop\/product(?:\/|$)/i;
 
 export const ChildPublicBlurbSchema = z
   .string()
@@ -59,7 +67,52 @@ export function getGiftTitleTooLongCounterMessage(length: number) {
   return `Gift name is too long: ${length}/${MAX_GIFT_TITLE_LENGTH} characters`;
 }
 
-export function normalizeAmazonProductUrl(rawUrl: string) {
+function normalizeHost(hostname: string) {
+  return hostname.toLowerCase().replace(/^www\./, "");
+}
+
+function isAmazonHost(hostname: string) {
+  const normalizedHost = normalizeHost(hostname);
+  return (
+    normalizedHost === "amazon.com" || normalizedHost.endsWith(".amazon.com")
+  );
+}
+
+function isAmazonShortHost(hostname: string) {
+  const normalizedHost = normalizeHost(hostname);
+  return normalizedHost === "a.co" || normalizedHost === "amzn.to";
+}
+
+function isMacysHost(hostname: string) {
+  const normalizedHost = normalizeHost(hostname);
+  return (
+    normalizedHost === "macys.com" || normalizedHost.endsWith(".macys.com")
+  );
+}
+
+function hasAmazonProductQueryParam(url: URL) {
+  return AMAZON_PRODUCT_QUERY_PARAMS.some((key) => {
+    const value = url.searchParams.get(key);
+    return value != null && AMAZON_ASIN_RE.test(value);
+  });
+}
+
+function isAmazonProductUrl(url: URL) {
+  if (!isAmazonHost(url.hostname)) return false;
+  return (
+    AMAZON_PRODUCT_PATH_RE.test(url.pathname) || hasAmazonProductQueryParam(url)
+  );
+}
+
+function isAmazonShareUrl(url: URL) {
+  return isAmazonShortHost(url.hostname) && url.pathname !== "/";
+}
+
+function isMacysProductUrl(url: URL) {
+  return isMacysHost(url.hostname) && MACYS_PRODUCT_PATH_RE.test(url.pathname);
+}
+
+export function normalizeGiftListingUrl(rawUrl: string) {
   const trimmed = rawUrl.trim();
   if (!trimmed) return trimmed;
 
@@ -73,6 +126,19 @@ export function normalizeAmazonProductUrl(rawUrl: string) {
   return trimmed;
 }
 
-export function isValidAmazonProductUrl(rawUrl: string) {
-  return AMAZON_PRODUCT_URL_RE.test(normalizeAmazonProductUrl(rawUrl));
+export function isValidGiftListingUrl(rawUrl: string) {
+  const normalizedUrl = normalizeGiftListingUrl(rawUrl);
+  if (!normalizedUrl) return false;
+
+  try {
+    const url = new URL(normalizedUrl);
+    return (
+      isAmazonProductUrl(url) || isAmazonShareUrl(url) || isMacysProductUrl(url)
+    );
+  } catch {
+    return false;
+  }
 }
+
+export const normalizeAmazonProductUrl = normalizeGiftListingUrl;
+export const isValidAmazonProductUrl = isValidGiftListingUrl;

@@ -122,7 +122,7 @@ export function StorefrontMobileSidebar({
                     }}
                   >
                     <FormIcon className="size-6" />
-                    <span className="text-base">Go to Family Form</span>
+                    <span className="text-base">Family Application</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
