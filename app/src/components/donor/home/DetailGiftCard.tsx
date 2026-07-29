@@ -21,7 +21,6 @@ export function DetailGiftCard({
   isUploadingDeliveryReceipt,
   onOrdered,
   onDelivered,
-  onUndoDelivery,
   onReceipt,
   onDeliveryReceipt,
   onTrackingChange,
@@ -37,7 +36,6 @@ export function DetailGiftCard({
   isUploadingDeliveryReceipt: boolean;
   onOrdered: () => void | Promise<void>;
   onDelivered: () => void | Promise<void>;
-  onUndoDelivery: () => void;
   onReceipt: (file: File | string | null) => void;
   onDeliveryReceipt: (file: File | string | null) => void;
   onTrackingChange: (value: string) => void;
@@ -130,14 +128,20 @@ export function DetailGiftCard({
                 </div>
               ) : (
                 <>
-                  <p className="text-center text-[13px] italic text-[#4B5563]">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="max-w-[120px] text-[14px] leading-5 text-[#4B5563]">
+                      Did you order the gift?
+                    </p>
+                    <div className="inline-flex h-10 items-center rounded-[12px] bg-[#148A14] px-4 font-gaegu text-[18px] font-bold text-white shadow-sm">
+                      Purchase Confirmed ✓
+                    </div>
+                  </div>
+                  <p className="mt-8 text-center text-[13px] italic text-[#4B5563]">
                     Optional, but helpful for us!
                   </p>
-                  <div className="mt-3 flex items-center justify-between gap-3">
-                    <Label className="text-[14px] text-[#4B5563]">
-                      Attach Receipt
-                    </Label>
+                  <div className="mt-3">
                     <ReceiptImageUploadRow
+                      label="Attach Receipt"
                       fileName={state.receiptFileName}
                       filePath={state.receiptPath}
                       disabled={false}
@@ -146,10 +150,10 @@ export function DetailGiftCard({
                       onClear={() => onReceipt(null)}
                     />
                   </div>
-                  <div className="mt-3 flex items-center gap-3">
+                  <div className="mt-4 grid grid-cols-[72px_minmax(0,1fr)] items-center gap-3">
                     <Label
                       htmlFor={`${gift.id}-tracking`}
-                      className="w-12 text-[14px] text-[#4B5563]"
+                      className="text-[14px] font-normal text-[#4B5563]"
                     >
                       Tracking #
                     </Label>
@@ -159,7 +163,7 @@ export function DetailGiftCard({
                       onChange={(event) => onTrackingChange(event.target.value)}
                       disabled={isSavingTracking}
                       placeholder="e.g. 732132323213213"
-                      className="h-9 rounded-[8px] border-[#BDBDBD] text-[13px]"
+                      className="h-10 rounded-[12px] border-[#BDBDBD] text-[13px]"
                     />
                   </div>
                   <div className="mt-1 flex justify-end">
@@ -226,11 +230,9 @@ export function DetailGiftCard({
                   <p className="mt-4 text-center text-[13px] italic text-[#4B5563]">
                     Optional, but helpful for us!
                   </p>
-                  <div className="mt-3 flex items-center justify-between gap-3">
-                    <Label className="text-[14px] text-[#4B5563]">
-                      Attach Receipt
-                    </Label>
+                  <div className="mt-3">
                     <ReceiptImageUploadRow
+                      label="Attach Receipt"
                       fileName={state.deliveryReceiptFileName}
                       filePath={state.deliveryReceiptPath}
                       disabled={!state.ordered}
@@ -241,19 +243,30 @@ export function DetailGiftCard({
                   </div>
                 </>
               ) : (
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[14px] text-[#2E7D32]">
-                    Delivery confirmed
-                  </span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-8 rounded-[8px] border-[#173FB6] px-3 text-[12px] text-[#173FB6]"
-                    onClick={onUndoDelivery}
-                  >
-                    Undo
-                  </Button>
-                </div>
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="max-w-[120px] text-[14px] leading-5 text-[#4B5563]">
+                      Was the gift delivered?
+                    </p>
+                    <div className="inline-flex h-10 items-center rounded-[12px] bg-[#148A14] px-4 font-gaegu text-[18px] font-bold text-white shadow-sm">
+                      Delivery Confirmed ✓
+                    </div>
+                  </div>
+                  <p className="mt-8 text-center text-[13px] italic text-[#4B5563]">
+                    Optional, but helpful for us!
+                  </p>
+                  <div className="mt-3">
+                    <ReceiptImageUploadRow
+                      label="Attach Receipt"
+                      fileName={state.deliveryReceiptFileName}
+                      filePath={state.deliveryReceiptPath}
+                      disabled={!state.ordered}
+                      isUploading={isUploadingDeliveryReceipt}
+                      onFile={onDeliveryReceipt}
+                      onClear={() => onDeliveryReceipt(null)}
+                    />
+                  </div>
+                </>
               )}
             </div>
           ) : null}

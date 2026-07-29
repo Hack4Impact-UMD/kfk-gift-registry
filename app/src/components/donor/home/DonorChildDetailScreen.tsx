@@ -35,7 +35,6 @@ export function DonorChildDetailScreen({
     uploadDeliveryReceipt,
     handleOrdered,
     handleDelivered,
-    handleUndoDelivery,
     handleReceipt,
     handleDeliveryReceipt,
     handleTrackingChange,
@@ -109,7 +108,6 @@ export function DonorChildDetailScreen({
                 isUploadingDeliveryReceipt={uploadDeliveryReceipt.isPending}
                 onOrdered={() => handleOrdered(gift.id)}
                 onDelivered={() => handleDelivered(gift.id)}
-                onUndoDelivery={() => handleUndoDelivery(gift.id)}
                 onReceipt={(file) => handleReceipt(gift.id, file)}
                 onDeliveryReceipt={(file) => handleDeliveryReceipt(gift.id, file)}
                 onTrackingChange={(value) => handleTrackingChange(gift.id, value)}
