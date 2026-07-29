@@ -5,6 +5,7 @@ import { UnclaimDialog } from "./UnclaimDialog";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
 import { DetailGiftCard } from "./DetailGiftCard";
 import { ReceivedSummaryCard } from "./ReceivedSummaryCard";
+import { HaveQuestionDialog } from "./HaveQuestionDialog";
 import type { DonorHomeChild } from "./homeRouteTypes";
 import { useDonorChildDetailState } from "./useDonorChildDetailState";
 
@@ -144,12 +145,7 @@ export function DonorChildDetailScreen({
           </div>
 
           <div className="mt-5 text-center">
-            <a
-              href="mailto:info@kissesforkyle.org"
-              className="text-[13px] italic text-[#4B5563] underline underline-offset-4"
-            >
-              Have a question?
-            </a>
+            <HaveQuestionDialog />
           </div>
         </div>
       </div>
