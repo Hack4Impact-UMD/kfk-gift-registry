@@ -67,7 +67,16 @@ export function StorefrontNavbar({
             />
           </Link>
 
-          <div className="mt-7">
+          <div className="flex items-center gap-3 mt-7">
+            <StorefrontFamilyRecoveryDialog>
+              <button
+                type="button"
+                className="text-sm font-bold text-kfk-blue hover:underline cursor-pointer"
+              >
+                Family Recovery Link
+              </button>
+            </StorefrontFamilyRecoveryDialog>
+
             {auth.isAuthed ? (
               <StorefrontProfileMenu auth={auth} />
             ) : (
@@ -140,17 +149,6 @@ export function StorefrontNavbar({
             </Button>
           </div>
         </div>
-      </div>
-
-      <div className="max-w-7xl w-full flex flex-col mt-2">
-        <StorefrontFamilyRecoveryDialog>
-          <button
-            type="button"
-            className="text-sm underline self-end text-kfk-blue cursor-pointer"
-          >
-            Forgot Family Link?
-          </button>
-        </StorefrontFamilyRecoveryDialog>
       </div>
     </div>
   );
