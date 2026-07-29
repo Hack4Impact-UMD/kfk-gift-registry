@@ -5,7 +5,7 @@ export function getGiftStatusLabel(status: string) {
     case "CLAIMED":
       return "Action Request";
     case "PURCHASED":
-      return "Awaiting Purchase";
+      return "Purchased";
     case "DELIVERED":
     case "RECEIVED":
       return "Delivered";
