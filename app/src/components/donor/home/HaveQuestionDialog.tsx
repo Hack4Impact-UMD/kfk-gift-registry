@@ -42,8 +42,11 @@ export function HaveQuestionDialog() {
               Have a Question?
             </DialogTitle>
             <DialogDescription className="mx-auto mt-4 max-w-[290px] text-[16px] leading-8 text-[#4B5563]">
-              Please email us at {SUPPORT_EMAIL} with any questions or concerns
-              you may have.
+              Please email us at{" "}
+              <span className="font-semibold text-[#1F2937]">
+                {SUPPORT_EMAIL}
+              </span>{" "}
+              with any questions or concerns you may have.
             </DialogDescription>
           </div>
 
