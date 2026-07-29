@@ -5,11 +5,11 @@ import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 import type { GiftDrive } from "common";
-import { UserRole } from "common";
 import type { AuthContext } from "@/server/functions/auth";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
 import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
 import { StorefrontFamilyRecoveryDialog } from "@/components/storefront/StorefrontFamilyRecoveryDialog";
+import { StorefrontProfileMenu } from "@/components/storefront/StorefrontProfileMenu";
 import { Spinner } from "../ui/spinner";
 import { startStorefrontTour } from "@/components/storefront/storefrontTour";
 
@@ -67,15 +67,24 @@ export function StorefrontNavbar({
             />
           </Link>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => startStorefrontTour(navigate)}
-              className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline cursor-pointer"
-            >
-              Storefront Tutorial
-              <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-1 shrink-0" />
-            </button>
+          <div className="flex items-center gap-3 mt-7">
+            <StorefrontFamilyRecoveryDialog>
+              <button
+                type="button"
+                className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline cursor-pointer"
+              >
+                Family Recovery Link
+                <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-1 shrink-0" />
+              </button>
+            </StorefrontFamilyRecoveryDialog>
+
+            {auth.isAuthed ? (
+              <StorefrontProfileMenu auth={auth} />
+            ) : (
+              <Button asChild variant="outline">
+                <Link to="/login">Log-in</Link>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -90,6 +99,15 @@ export function StorefrontNavbar({
           )}
 
           <div className="flex items-center gap-3 ml-auto">
+            <button
+              type="button"
+              onClick={() => startStorefrontTour(navigate)}
+              className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline cursor-pointer"
+            >
+              Storefront Tutorial
+              <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-1 shrink-0" />
+            </button>
+
             {isPending ? (
               <Spinner />
             ) : error || !link ? (
@@ -106,16 +124,6 @@ export function StorefrontNavbar({
                 </Link>
               </Button>
             )}
-
-            <Button asChild variant="outline">
-              {!auth.isAuthed ? (
-                <Link to="/login">Log-in</Link>
-              ) : auth.authUser.role === UserRole.DONOR ? (
-                <Link to="/donor/home">Go to Donor Home</Link>
-              ) : (
-                <Link to="/staff/home">Go to Staff Home</Link>
-              )}
-            </Button>
 
             <Button
               asChild
@@ -142,17 +150,6 @@ export function StorefrontNavbar({
             </Button>
           </div>
         </div>
-      </div>
-
-      <div className="max-w-7xl w-full flex flex-col mt-2">
-        <StorefrontFamilyRecoveryDialog>
-          <button
-            type="button"
-            className="text-sm underline self-end text-kfk-blue cursor-pointer"
-          >
-            Forgot Family Link?
-          </button>
-        </StorefrontFamilyRecoveryDialog>
       </div>
     </div>
   );
