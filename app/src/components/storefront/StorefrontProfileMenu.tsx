@@ -27,10 +27,26 @@ function getInitials(displayName: string) {
     .join("");
 }
 
+function getHomeDestination(role: UserRole) {
+  switch (role) {
+    case UserRole.DONOR:
+      return { to: "/donor/home" as const, label: "Go to Donor Home" };
+    case UserRole.DIRECTOR:
+    case UserRole.ADMIN:
+    case UserRole.VOLUNTEER:
+      return { to: "/staff/home" as const, label: "Go to Staff Home" };
+    default: {
+      const unsupportedRole: never = role;
+      throw new Error(`Unsupported role: ${unsupportedRole}`);
+    }
+  }
+}
+
 export function StorefrontProfileMenu({ auth }: StorefrontProfileMenuProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const displayName = auth.authUser.displayName ?? "User";
   const initials = getInitials(displayName);
+  const homeDestination = getHomeDestination(auth.authUser.role);
 
   return (
     <>
@@ -55,11 +71,7 @@ export function StorefrontProfileMenu({ auth }: StorefrontProfileMenuProps) {
 
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem asChild className="text-kfk-blue">
-            {auth.authUser.role === UserRole.DONOR ? (
-              <Link to="/donor/home">Go to Donor Home</Link>
-            ) : (
-              <Link to="/staff/home">Go to Staff Home</Link>
-            )}
+            <Link to={homeDestination.to}>{homeDestination.label}</Link>
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => setConfirmOpen(true)}
