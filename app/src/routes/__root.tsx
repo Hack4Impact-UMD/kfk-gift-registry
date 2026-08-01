@@ -17,6 +17,7 @@ import { queryOptions } from "@tanstack/react-query";
 import type { AuthContext } from "@/server/functions/auth";
 import { queries } from "@/queries";
 import { getClientAppCheck } from "@/lib/firebase";
+import { RecaptchaProvider } from "@/context/RecaptchaContext";
 import { useEffect } from "react";
 
 interface MyRouterContext {
@@ -111,7 +112,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <div className="fixed inset-0 z-9998" />
           </>
         )}
-        {children}
+        <RecaptchaProvider>{children}</RecaptchaProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",
