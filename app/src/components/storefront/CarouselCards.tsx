@@ -38,8 +38,9 @@ export function CarouselCard({ sibling, color, className }: CarouselCardProps) {
       to="/child/$childId"
       params={{ childId: sibling.id }}
       className={cn(
-        "@container/card [container-type:inline-size] flex min-h-0 w-full items-stretch overflow-hidden rounded-[clamp(0.75rem,3cqw,1.25rem)] border-2 bg-[#fff5f7]",
+        "@container/card [container-type:inline-size] flex min-h-0 w-full items-stretch overflow-hidden rounded-[clamp(0.75rem,3cqw,1.25rem)] border-2",
         styles.border,
+        styles.bg,
         "gap-[clamp(0.5rem,2.5cqw,1rem)] px-[clamp(0.5rem,3cqw,1rem)] py-[clamp(0.65rem,3.5cqw,1.25rem)]",
         "text-left shadow-sm transition-opacity hover:opacity-95",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kfk-red/50 focus-visible:ring-offset-2",

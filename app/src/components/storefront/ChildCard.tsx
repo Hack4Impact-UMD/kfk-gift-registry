@@ -68,27 +68,31 @@ export function getPatternStyle(color: string): CSSProperties {
 
 export const colorClasses: Record<
   string,
-  { border: string; text: string; fill: string }
+  { border: string; text: string; fill: string; bg: string }
 > = {
   "kfk-red": {
     border: "border-kfk-red",
     text: "text-kfk-red",
     fill: "fill-kfk-red",
+    bg: "bg-kfk-red/8",
   },
   "kfk-brown": {
     border: "border-kfk-brown",
     text: "text-kfk-brown",
     fill: "fill-kfk-brown",
+    bg: "bg-kfk-muted-yellow/25",
   },
   "kfk-green": {
     border: "border-kfk-green",
     text: "text-kfk-green",
     fill: "fill-kfk-green",
+    bg: "bg-kfk-green/8",
   },
   "kfk-blue": {
     border: "border-kfk-blue",
     text: "text-kfk-blue",
     fill: "fill-kfk-blue",
+    bg: "bg-kfk-blue/8",
   },
 };
 
