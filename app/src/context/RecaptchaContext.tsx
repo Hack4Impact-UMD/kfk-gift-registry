@@ -38,7 +38,7 @@ export function RecaptchaProvider({ children }: { children: ReactNode }) {
     return () => {
       const pending = verifierRef.current;
       verifierRef.current = null;
-      pending?.then((verifier) => verifier.clear()).catch(() => { });
+      pending?.then((verifier) => verifier.clear()).catch(() => {});
     };
   }, [getVerifier]);
 
