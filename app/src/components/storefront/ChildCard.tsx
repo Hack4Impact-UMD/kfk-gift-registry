@@ -18,7 +18,7 @@ interface Props {
   className?: string;
 }
 
-function getPatternStyle(color: string): CSSProperties {
+export function getPatternStyle(color: string): CSSProperties {
   if (color === "kfk-red") {
     return {
       backgroundImage: `repeating-linear-gradient(

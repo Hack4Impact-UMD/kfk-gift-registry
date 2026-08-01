@@ -10,12 +10,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ChildGiftTable } from "@/components/tables/ChildGiftTable/ChildGiftTable";
-import redStripedBackground from "@/assets/red-striped-background.png";
+import { getPatternStyle } from "@/components/storefront/ChildCard";
 import { useStorefrontChild } from "@/hooks/queries/useStorefrontChild";
 import { useStorefrontSiblings } from "@/hooks/queries/useStorefrontSiblings";
 import { useMemo } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { queries } from "@/queries";
+import { getColorName } from "@/lib/childColors";
 
 export const Route = createFileRoute("/_storefront/child/$childId")({
   component: RouteComponent,
@@ -110,6 +111,7 @@ function RouteComponent() {
   }
 
   const firstName = child.name.trim().split(" ")[0] || child.name;
+  const color = getColorName(child.familyId);
 
   return (
     <div className="w-full min-h-screen bg-background">
@@ -117,7 +119,7 @@ function RouteComponent() {
         <div className="max-w-7xl mx-auto">
           <div
             className="w-full p-3 md:p-8 rounded-3xl bg-cover bg-center flex items-center justify-center"
-            style={{ backgroundImage: `url(${redStripedBackground})` }}
+            style={getPatternStyle(color)}
           >
             <div className="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8 items-center md:items-stretch w-full">
               <div className="w-full max-w-sm md:max-w-none md:flex-1 md:min-w-0">
