@@ -66,7 +66,7 @@ export function getPatternStyle(color: string): CSSProperties {
   return {};
 }
 
-const colorClasses: Record<
+export const colorClasses: Record<
   string,
   { border: string; text: string; fill: string }
 > = {

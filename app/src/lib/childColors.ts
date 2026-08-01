@@ -24,12 +24,13 @@ export function getColorName(id: string): ChildColorName {
   return CHILD_COLOR_NAMES[hashId(id) % CHILD_COLOR_NAMES.length];
 }
 
-const COLOR_SELECTIONS: Record<ChildColorName, { bar: string; ring: string }> = {
-  "kfk-red": { bar: "bg-kfk-red", ring: "ring-kfk-red" },
-  "kfk-brown": { bar: "bg-kfk-brown", ring: "ring-kfk-brown" },
-  "kfk-green": { bar: "bg-kfk-green", ring: "ring-kfk-green" },
-  "kfk-blue": { bar: "bg-kfk-blue", ring: "ring-kfk-blue" },
-};
+const COLOR_SELECTIONS: Record<ChildColorName, { bar: string; ring: string }> =
+  {
+    "kfk-red": { bar: "bg-kfk-red", ring: "ring-kfk-red" },
+    "kfk-brown": { bar: "bg-kfk-brown", ring: "ring-kfk-brown" },
+    "kfk-green": { bar: "bg-kfk-green", ring: "ring-kfk-green" },
+    "kfk-blue": { bar: "bg-kfk-blue", ring: "ring-kfk-blue" },
+  };
 
 export function getChildColors(childId: string) {
   return COLOR_SELECTIONS[getColorName(childId)];

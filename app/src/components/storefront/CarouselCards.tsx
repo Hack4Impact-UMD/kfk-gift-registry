@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { FilledGiftIcon } from "@/components/icons/FilledGiftIcon";
 import defaultProfilePhoto from "@/assets/default-profile-photo.png";
 import { cn } from "@/lib/utils";
+import { colorClasses } from "@/components/storefront/ChildCard";
 import type { ChildCategory } from "common";
 
 export type CarouselCardSibling = {
@@ -15,10 +16,11 @@ export type CarouselCardSibling = {
 
 type CarouselCardProps = {
   sibling: CarouselCardSibling;
+  color?: string;
   className?: string;
 };
 
-export function CarouselCard({ sibling, className }: CarouselCardProps) {
+export function CarouselCard({ sibling, color, className }: CarouselCardProps) {
   const categoryLabel =
     sibling.category === "warrior" ? "Warrior" : "Super Sib";
   const fulfilled = sibling.giftsFulfilled ?? 0;
@@ -29,12 +31,15 @@ export function CarouselCard({ sibling, className }: CarouselCardProps) {
       ? "bg-kfk-muted-yellow/30 text-kfk-brown border-kfk-brown"
       : "bg-kfk-light-blue/80 text-kfk-blue border-kfk-blue/50";
 
+  const styles = colorClasses[color ?? ""] ?? colorClasses["kfk-red"];
+
   return (
     <Link
       to="/child/$childId"
       params={{ childId: sibling.id }}
       className={cn(
-        "@container/card [container-type:inline-size] flex min-h-0 w-full items-stretch overflow-hidden rounded-[clamp(0.75rem,3cqw,1.25rem)] border-2 border-kfk-red bg-[#fff5f7]",
+        "@container/card [container-type:inline-size] flex min-h-0 w-full items-stretch overflow-hidden rounded-[clamp(0.75rem,3cqw,1.25rem)] border-2 bg-[#fff5f7]",
+        styles.border,
         "gap-[clamp(0.5rem,2.5cqw,1rem)] px-[clamp(0.5rem,3cqw,1rem)] py-[clamp(0.65rem,3.5cqw,1.25rem)]",
         "text-left shadow-sm transition-opacity hover:opacity-95",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kfk-red/50 focus-visible:ring-offset-2",
@@ -79,7 +84,11 @@ export function CarouselCard({ sibling, className }: CarouselCardProps) {
             {categoryLabel}
           </span>
           <span
-            className="flex w-full items-center text-center justify-center rounded-full border-2 border-kfk-red bg-white px-[clamp(0.75rem,3cqw,1rem)] py-[clamp(0.25rem,1.5cqw,0.5rem)] font-gaegu font-bold text-kfk-red [font-size:clamp(0.8rem,4cqw,1rem)]"
+            className={cn(
+              "flex w-full items-center text-center justify-center rounded-full border-2 bg-white px-[clamp(0.75rem,3cqw,1rem)] py-[clamp(0.25rem,1.5cqw,0.5rem)] font-gaegu font-bold [font-size:clamp(0.8rem,4cqw,1rem)]",
+              styles.border,
+              styles.text,
+            )}
             aria-hidden
           >
             View More

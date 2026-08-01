@@ -152,7 +152,7 @@ function RouteComponent() {
             <h2 className="text-3xl font-bold text-center mb-8 font-gaegu">
               {firstName}'s Siblings
             </h2>
-            <SiblingsCarousel siblings={siblingsCarouselData} />
+            <SiblingsCarousel siblings={siblingsCarouselData} color={color} />
           </div>
         </div>
       )}
