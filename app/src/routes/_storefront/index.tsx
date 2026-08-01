@@ -13,6 +13,7 @@ import { useStorefrontChildProfiles } from "@/hooks/queries/useStorefrontChildPr
 import { useStorefrontUniqueDonors } from "@/hooks/queries/useStorefrontUniqueDonors";
 import { Spinner } from "@/components/ui/spinner";
 import { getLatestCompletedDrive } from "@/lib/utils";
+import { getColorName } from "@/lib/childColors";
 
 export const Route = createFileRoute("/_storefront/")({
   validateSearch: z.object({
@@ -70,8 +71,6 @@ export const Route = createFileRoute("/_storefront/")({
   }),
   component: App,
 });
-
-const familyColors = ["kfk-red", "kfk-brown", "kfk-green", "kfk-blue"];
 
 function App() {
   const context = Route.useRouteContext();
@@ -141,12 +140,6 @@ function App() {
       childrenWithGifts: childrenWithGiftsCount,
     };
   }, [childrenWithMetrics]);
-
-  const uniqueFamilyIds = useMemo(() => {
-    if (!allChildren) return [];
-    const familyIds = allChildren.map((c) => c.familyId);
-    return [...new Set(familyIds)];
-  }, [allChildren]);
 
   const filteredChildren = useMemo(
     () =>
@@ -230,8 +223,7 @@ function App() {
       <div className="py-4 px-2 sm:px-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
           {currentChildrenProfiles.map((child, index) => {
-            const familyIndex = uniqueFamilyIds.indexOf(child.familyId);
-            const color = familyColors[familyIndex % familyColors.length];
+            const color = getColorName(child.familyId);
 
             return (
               <Link

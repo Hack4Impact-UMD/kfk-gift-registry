@@ -4,7 +4,6 @@ export type StorefrontChild = Omit<
   Child,
   | "staffPrivateNotes"
   | "childSocialWorker"
-  | "familyId"
   | "giftDrive"
   | "createdAt"
   | "livesAtHome"
