@@ -3,6 +3,7 @@ import { FilledGiftIcon } from "@/components/icons/FilledGiftIcon";
 import defaultProfilePhoto from "@/assets/default-profile-photo.png";
 import { cn } from "@/lib/utils";
 import { colorClasses } from "@/components/storefront/ChildCard";
+import type { ChildColorName } from "@/lib/childColors";
 import type { ChildCategory } from "common";
 
 export type CarouselCardSibling = {
@@ -16,7 +17,7 @@ export type CarouselCardSibling = {
 
 type CarouselCardProps = {
   sibling: CarouselCardSibling;
-  color?: string;
+  color: ChildColorName;
   className?: string;
 };
 
@@ -31,7 +32,7 @@ export function CarouselCard({ sibling, color, className }: CarouselCardProps) {
       ? "bg-kfk-muted-yellow/30 text-kfk-brown border-kfk-brown"
       : "bg-kfk-light-blue/80 text-kfk-blue border-kfk-blue/50";
 
-  const styles = colorClasses[color ?? ""] ?? colorClasses["kfk-red"];
+  const styles = colorClasses[color];
 
   return (
     <Link
@@ -43,7 +44,7 @@ export function CarouselCard({ sibling, color, className }: CarouselCardProps) {
         styles.bg,
         "gap-[clamp(0.5rem,2.5cqw,1rem)] px-[clamp(0.5rem,3cqw,1rem)] py-[clamp(0.65rem,3.5cqw,1.25rem)]",
         "text-left shadow-sm transition-opacity hover:opacity-95",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kfk-red/50 focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         className,
         "h-full min-h-0",
       )}

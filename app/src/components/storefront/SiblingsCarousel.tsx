@@ -10,10 +10,11 @@ import { CarouselCard } from "./CarouselCards";
 import type { CarouselCardSibling } from "./CarouselCards";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import type { ChildColorName } from "@/lib/childColors";
 
 type SiblingsCarouselProps = {
   siblings: Array<CarouselCardSibling>;
-  color?: string;
+  color: ChildColorName;
 };
 
 export function SiblingsCarousel({ siblings, color }: SiblingsCarouselProps) {
