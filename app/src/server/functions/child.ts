@@ -838,6 +838,7 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
       photoUrl: child.photoUrl,
       publicBlurb: child.publicBlurb,
       published: child.published,
+      familyId: child.familyId,
       gifts: giftData.map(
         (g) =>
           ({
@@ -950,6 +951,7 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
           photoUrl: sibling.photoUrl,
           publicBlurb: sibling.publicBlurb,
           published: sibling.published,
+          familyId: sibling.familyId,
           gifts: giftData.map(
             (g) =>
               ({
