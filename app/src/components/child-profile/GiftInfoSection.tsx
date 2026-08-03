@@ -72,7 +72,7 @@ export function GiftInfoSection({
 
           <AdminComments
             initialComments={adminComments ?? ""}
-            onSave={onSaveAdminComments ?? (() => { })}
+            onSave={onSaveAdminComments ?? (() => {})}
           />
 
           <div className="pt-2">

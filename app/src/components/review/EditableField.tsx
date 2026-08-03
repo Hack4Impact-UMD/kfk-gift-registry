@@ -100,10 +100,11 @@ export function EditableField({
         />
         {characterLimit !== undefined && (
           <p
-            className={`self-end ${charCount <= characterLimit
+            className={`self-end ${
+              charCount <= characterLimit
                 ? "text-muted-foreground"
                 : "text-destructive"
-              }`}
+            }`}
           >
             {charCount}/{characterLimit} characters
           </p>
@@ -143,10 +144,11 @@ export function EditableField({
       </div>
       {characterLimit !== undefined && (
         <p
-          className={`self-end text-xs ${String(value ?? "").length <= characterLimit
+          className={`self-end text-xs ${
+            String(value ?? "").length <= characterLimit
               ? "text-muted-foreground"
               : "text-destructive"
-            }`}
+          }`}
         >
           {String(value ?? "").length}/{characterLimit} characters
         </p>

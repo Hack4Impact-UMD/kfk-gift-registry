@@ -121,10 +121,11 @@ export function GiftForm({
               required
             />
             <p
-              className={`text-right text-xs ${title.length <= MAX_GIFT_TITLE_LENGTH
-                ? "text-muted-foreground"
-                : "text-destructive"
-                }`}
+              className={`text-right text-xs ${
+                title.length <= MAX_GIFT_TITLE_LENGTH
+                  ? "text-muted-foreground"
+                  : "text-destructive"
+              }`}
             >
               {title.length}/{MAX_GIFT_TITLE_LENGTH} characters
             </p>

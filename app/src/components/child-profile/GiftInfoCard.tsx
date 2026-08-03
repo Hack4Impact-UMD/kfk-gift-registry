@@ -149,15 +149,15 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
           hasGiftMutations && tx ? tx.commit() : undefined,
           trackingChanged && claim?.claimId
             ? updateClaimTrackingNumber({
-              data: {
-                claimId: claim.claimId,
-                trackingNumber: draftTrackingId,
-              },
-            }).then(() =>
-              queryClient.invalidateQueries({
-                queryKey: queries.claims.byChildId(gift.childId).queryKey,
-              }),
-            )
+                data: {
+                  claimId: claim.claimId,
+                  trackingNumber: draftTrackingId,
+                },
+              }).then(() =>
+                queryClient.invalidateQueries({
+                  queryKey: queries.claims.byChildId(gift.childId).queryKey,
+                }),
+              )
             : undefined,
         ]);
         txRef.current = null;

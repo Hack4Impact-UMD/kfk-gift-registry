@@ -118,8 +118,8 @@ function ChildProfilePage() {
     (q) =>
       child
         ? q
-          .from({ f: collections.families })
-          .where(({ f }) => eq(f.id, child.familyId))
+            .from({ f: collections.families })
+            .where(({ f }) => eq(f.id, child.familyId))
         : undefined,
     [child?.familyId],
   );
@@ -314,9 +314,7 @@ function ChildProfilePage() {
     },
   });
 
-  const handleAddGift = (
-    gift: GiftFormValues,
-  ) => {
+  const handleAddGift = (gift: GiftFormValues) => {
     startAddGift(() => {
       addGiftAction(gift);
     });
@@ -481,7 +479,6 @@ function ChildProfilePage() {
           />
         )}
       </div>
-
     </div>
   );
 }
