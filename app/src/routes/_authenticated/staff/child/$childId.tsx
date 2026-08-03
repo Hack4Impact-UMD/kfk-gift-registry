@@ -20,7 +20,8 @@ import { ChildInfo } from "@/components/child-profile/ChildInfo";
 import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
 import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
 import { GiftInfoSection } from "@/components/child-profile/GiftInfoSection";
-import { GiftForm, GiftFormValues } from "@/components/child-profile/GiftForm";
+import type { GiftFormValues } from "@/components/child-profile/GiftForm";
+import { GiftForm } from "@/components/child-profile/GiftForm";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -294,7 +295,7 @@ function ChildProfilePage() {
         active: gift.active,
         backup: !gift.active,
       };
-      const result = collections.gifts.insert(placeholder);
+      collections.gifts.insert(placeholder);
       setAddGiftOpen(false);
     },
     mutationFn: async (gift) => {

@@ -56,7 +56,7 @@ export function SelectedGifts({
       </div>
 
       <div className="w-full divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
-        {visibleGifts.map((gift, i) => {
+        {visibleGifts.map((gift) => {
           const isActive = gift.active;
 
           const index = isActive

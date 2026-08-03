@@ -442,7 +442,7 @@ export function createCollections(queryClient: QueryClient) {
           throw error;
         }
       },
-      onInsert: async ({ transaction, collection }) => {
+      onInsert: async ({ transaction }) => {
         try {
           for (const m of transaction.mutations) {
             await persistGiftInsert(m);
