@@ -29,9 +29,7 @@ export function SelectedGifts({
   const activeGifts = gifts.filter((g) => g.active);
   const inactiveGifts = gifts.filter((g) => !g.active);
 
-  const visibleGifts = isEditing
-    ? [...activeGifts, ...inactiveGifts]
-    : activeGifts;
+  const visibleGifts = [...activeGifts, ...inactiveGifts];
 
   const editingGift = gifts.find((g) => g.id === editingGiftId);
 
@@ -69,7 +67,7 @@ export function SelectedGifts({
 
           return (
             <div
-              key={gift.id ?? i}
+              key={gift.id}
               className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex min-w-0 items-start gap-3">

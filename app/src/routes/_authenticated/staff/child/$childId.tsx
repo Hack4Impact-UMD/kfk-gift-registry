@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { createOptimisticAction, eq, useLiveQuery } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState, useTransition } from "react";
@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { useFamilyLinkByFamilyId } from "@/hooks/queries/useFamilyLinkByFamilyId";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
+import { createGift } from "@/server/functions/child";
 
 export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
   component: ChildProfilePage,
@@ -276,19 +277,10 @@ function ChildProfilePage() {
     toast.success("Admin notes saved");
   };
 
-  const handleAddGift = (gift: {
-    title: string;
-    productUrl: string;
-    listedPrice?: number;
-    active: boolean;
-  }) => {
-    let resolve!: () => void;
-    let reject!: (err: unknown) => void;
-    const promise = new Promise<void>((res, rej) => {
-      resolve = res;
-      reject = rej;
-    });
-    startAddGift(async () => {
+  const addGiftAction = createOptimisticAction({
+    onMutate: (
+      gift: Pick<Gift, "title" | "productUrl" | "listedPrice" | "active">,
+    ) => {
       const placeholder: Gift = {
         id: uuidv7(),
         childId: child.id,
@@ -302,16 +294,32 @@ function ChildProfilePage() {
         active: gift.active,
         backup: !gift.active,
       };
-      try {
-        const result = collections.gifts.insert(placeholder);
-        await result.isPersisted.promise;
-        setAddGiftOpen(false);
-        resolve();
-      } catch (err) {
-        reject(err);
-      }
+      const result = collections.gifts.insert(placeholder);
+      setAddGiftOpen(false);
+    },
+    mutationFn: async (gift) => {
+      const create: Omit<Gift, "id"> = {
+        childId: child.id,
+        familyId: child.familyId,
+        giftDrive: child.giftDrive,
+        title: gift.title,
+        productUrl: gift.productUrl,
+        listedPrice: gift.listedPrice,
+        status: "AVAILABLE",
+        createdAt: new Date().toISOString(),
+        active: gift.active,
+        backup: !gift.active,
+      };
+      collections.gifts.utils.writeInsert(await createGift({ data: create }));
+    },
+  });
+
+  const handleAddGift = (
+    gift: Pick<Gift, "title" | "productUrl" | "listedPrice" | "active">,
+  ) => {
+    startAddGift(() => {
+      addGiftAction(gift);
     });
-    return promise;
   };
 
   const handleEditGift = (
