@@ -442,17 +442,10 @@ export function createCollections(queryClient: QueryClient) {
           throw error;
         }
       },
-      onInsert: async ({ transaction, collection }) => {
+      onInsert: async ({ transaction }) => {
         try {
           for (const m of transaction.mutations) {
-            const draft = m.modified as Gift;
-            const created = await persistGiftInsert(m);
-            if (created.id !== draft.id) {
-              collection.utils.writeDelete(draft.id);
-              collection.utils.writeInsert(created);
-            } else {
-              collection.utils.writeUpdate(created);
-            }
+            await persistGiftInsert(m);
           }
           await invalidateGiftDerivedCaches();
           return { refetch: false };
@@ -513,5 +506,6 @@ export function createCollections(queryClient: QueryClient) {
     createChildTransaction,
     createFamilyTransaction,
     createGiftsTransaction,
+    invalidateGiftDerivedCaches,
   };
 }

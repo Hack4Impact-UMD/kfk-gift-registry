@@ -11,7 +11,12 @@ type SelectedGiftsProps = {
   onGiftToggle: (giftId: string) => void;
   onEditGift: (
     giftId: string,
-    gift: { title: string; productUrl: string; listedPrice?: number },
+    gift: {
+      title: string;
+      productUrl: string;
+      listedPrice?: number;
+      familyPublicNotes?: string;
+    },
   ) => Promise<void>;
   isSavingGiftEdit?: boolean;
   headerAction?: React.ReactNode;
@@ -29,9 +34,7 @@ export function SelectedGifts({
   const activeGifts = gifts.filter((g) => g.active);
   const inactiveGifts = gifts.filter((g) => !g.active);
 
-  const visibleGifts = isEditing
-    ? [...activeGifts, ...inactiveGifts]
-    : activeGifts;
+  const visibleGifts = [...activeGifts, ...inactiveGifts];
 
   const editingGift = gifts.find((g) => g.id === editingGiftId);
 
@@ -39,6 +42,7 @@ export function SelectedGifts({
     title: string;
     productUrl: string;
     listedPrice?: number;
+    familyPublicNotes?: string;
   }) => {
     if (!editingGiftId) return;
     const giftIdBeingEdited = editingGiftId;
@@ -58,7 +62,7 @@ export function SelectedGifts({
       </div>
 
       <div className="w-full divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
-        {visibleGifts.map((gift, i) => {
+        {visibleGifts.map((gift) => {
           const isActive = gift.active;
 
           const index = isActive
@@ -69,7 +73,7 @@ export function SelectedGifts({
 
           return (
             <div
-              key={gift.id ?? i}
+              key={gift.id}
               className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex min-w-0 items-start gap-3">
