@@ -280,7 +280,10 @@ function ChildProfilePage() {
 
   const addGiftAction = createOptimisticAction({
     onMutate: (
-      gift: Pick<Gift, "title" | "productUrl" | "listedPrice" | "active">,
+      gift: Pick<
+        Gift,
+        "title" | "productUrl" | "listedPrice" | "familyPublicNotes" | "active"
+      >,
     ) => {
       const placeholder: Gift = {
         id: uuidv7(),
@@ -290,6 +293,7 @@ function ChildProfilePage() {
         title: gift.title,
         productUrl: gift.productUrl,
         listedPrice: gift.listedPrice,
+        familyPublicNotes: gift.familyPublicNotes,
         status: "AVAILABLE",
         createdAt: new Date().toISOString(),
         active: gift.active,
@@ -306,12 +310,14 @@ function ChildProfilePage() {
         title: gift.title,
         productUrl: gift.productUrl,
         listedPrice: gift.listedPrice,
+        familyPublicNotes: gift.familyPublicNotes,
         status: "AVAILABLE",
         createdAt: new Date().toISOString(),
         active: gift.active,
         backup: !gift.active,
       };
       collections.gifts.utils.writeInsert(await createGift({ data: create }));
+      await collections.invalidateGiftDerivedCaches();
     },
   });
 
@@ -323,7 +329,12 @@ function ChildProfilePage() {
 
   const handleEditGift = (
     giftId: string,
-    gift: { title: string; productUrl: string; listedPrice?: number },
+    gift: {
+      title: string;
+      productUrl: string;
+      listedPrice?: number;
+      familyPublicNotes?: string;
+    },
   ) => {
     let resolve!: () => void;
     let reject!: (err: unknown) => void;
@@ -337,6 +348,7 @@ function ChildProfilePage() {
           draft.title = gift.title;
           draft.productUrl = gift.productUrl;
           draft.listedPrice = gift.listedPrice;
+          draft.familyPublicNotes = gift.familyPublicNotes;
         });
         await result.isPersisted.promise;
         toast.success("Gift updated successfully");

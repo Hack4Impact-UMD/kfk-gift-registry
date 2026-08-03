@@ -506,5 +506,6 @@ export function createCollections(queryClient: QueryClient) {
     createChildTransaction,
     createFamilyTransaction,
     createGiftsTransaction,
+    invalidateGiftDerivedCaches,
   };
 }

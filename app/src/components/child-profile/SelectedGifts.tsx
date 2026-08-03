@@ -11,7 +11,12 @@ type SelectedGiftsProps = {
   onGiftToggle: (giftId: string) => void;
   onEditGift: (
     giftId: string,
-    gift: { title: string; productUrl: string; listedPrice?: number },
+    gift: {
+      title: string;
+      productUrl: string;
+      listedPrice?: number;
+      familyPublicNotes?: string;
+    },
   ) => Promise<void>;
   isSavingGiftEdit?: boolean;
   headerAction?: React.ReactNode;
@@ -37,6 +42,7 @@ export function SelectedGifts({
     title: string;
     productUrl: string;
     listedPrice?: number;
+    familyPublicNotes?: string;
   }) => {
     if (!editingGiftId) return;
     const giftIdBeingEdited = editingGiftId;

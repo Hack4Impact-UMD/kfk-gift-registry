@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import type { Gift } from "common";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/lib/toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -12,8 +13,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
   GIFT_TITLE_TOO_LONG_MESSAGE,
+  MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
   MAX_GIFT_TITLE_LENGTH,
+  isGiftFamilyPublicNotesTooLong,
   isGiftTitleTooLong,
 } from "common";
 
@@ -21,6 +25,7 @@ export type GiftFormValues = {
   title: string;
   productUrl: string;
   listedPrice?: number;
+  familyPublicNotes?: string;
   active: boolean;
 };
 
@@ -47,6 +52,9 @@ export function GiftForm({
   const [listedPrice, setListedPrice] = useState(
     initial?.listedPrice != null ? String(initial.listedPrice) : "",
   );
+  const [familyPublicNotes, setFamilyPublicNotes] = useState(
+    initial?.familyPublicNotes ?? "",
+  );
   const [wantsStorefrontPlacement, setWantsStorefrontPlacement] =
     useState(canAddToStorefront);
   const addToStorefront = canAddToStorefront && wantsStorefrontPlacement;
@@ -68,6 +76,12 @@ export function GiftForm({
       return;
     }
 
+    const trimmedNotes = familyPublicNotes.trim();
+    if (isGiftFamilyPublicNotesTooLong(trimmedNotes)) {
+      toast.error(GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE);
+      return;
+    }
+
     let parsedPrice: number | undefined;
     if (trimmedPrice) {
       parsedPrice = Number(trimmedPrice);
@@ -82,6 +96,7 @@ export function GiftForm({
         title: trimmedTitle,
         productUrl: trimmedProductUrl,
         listedPrice: parsedPrice,
+        familyPublicNotes: trimmedNotes || undefined,
         active: isEdit
           ? (initial?.active ?? false)
           : canAddToStorefront
@@ -93,6 +108,7 @@ export function GiftForm({
         setTitle("");
         setProductUrl("");
         setListedPrice("");
+        setFamilyPublicNotes("");
         setWantsStorefrontPlacement(canAddToStorefront);
       }
     } catch {
@@ -147,6 +163,24 @@ export function GiftForm({
             placeholder="Price (optional)"
             disabled={disabled || isSubmitting}
           />
+          <div className="space-y-1">
+            <Textarea
+              value={familyPublicNotes}
+              onChange={(event) => setFamilyPublicNotes(event.target.value)}
+              placeholder="Note to donors (optional)"
+              disabled={disabled || isSubmitting}
+            />
+            <p
+              className={`text-right text-xs ${
+                familyPublicNotes.length <= MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH
+                  ? "text-muted-foreground"
+                  : "text-destructive"
+              }`}
+            >
+              {familyPublicNotes.length}/{MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}{" "}
+              characters
+            </p>
+          </div>
         </div>
 
         {!isEdit && canAddToStorefront && (
