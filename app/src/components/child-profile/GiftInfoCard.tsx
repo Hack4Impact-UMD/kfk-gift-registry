@@ -149,15 +149,15 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
           hasGiftMutations && tx ? tx.commit() : undefined,
           trackingChanged && claim?.claimId
             ? updateClaimTrackingNumber({
-                data: {
-                  claimId: claim.claimId,
-                  trackingNumber: draftTrackingId,
-                },
-              }).then(() =>
-                queryClient.invalidateQueries({
-                  queryKey: queries.claims.byChildId(gift.childId).queryKey,
-                }),
-              )
+              data: {
+                claimId: claim.claimId,
+                trackingNumber: draftTrackingId,
+              },
+            }).then(() =>
+              queryClient.invalidateQueries({
+                queryKey: queries.claims.byChildId(gift.childId).queryKey,
+              }),
+            )
             : undefined,
         ]);
         txRef.current = null;
@@ -316,6 +316,7 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
           <EditableField
             value={formatISODate(claim?.dateOrdered ?? null)}
             editable={false}
+            className="text-base"
           >
             Date Ordered (Confirmed by Donor):
           </EditableField>
@@ -344,11 +345,13 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
           <EditableField
             value={formatISODate(claim?.dateDelivered ?? null)}
             editable={false}
+            className="text-base"
           >
             Date Delivered (Confirmed by Donor):
           </EditableField>
 
           <EditableField
+            className="text-base"
             value={formatISODate(claim?.dateReceived ?? null)}
             editable={false}
           >

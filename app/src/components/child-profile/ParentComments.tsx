@@ -7,7 +7,7 @@ export function ParentComments({ comments }: ParentCommentsProps) {
     <div className="flex flex-col gap-2 w-full">
       <h3 className="text-lg font-semibold">Parent Comments</h3>
 
-      <div className="w-full rounded-xl border bg-white shadow-sm p-4">
+      <div className="w-full rounded-xl border bg-muted shadow-sm p-4">
         {comments ? (
           <p className="text-sm text-gray-700 whitespace-pre-wrap">
             {comments}

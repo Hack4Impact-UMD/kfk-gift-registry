@@ -55,7 +55,7 @@ export function EditableField({
 
   if (!editable) {
     return (
-      <div className={cn("flex items-center gap-2 min-w-0 py-1")}>
+      <div className={cn("flex items-center gap-2 min-w-0 py-1", className)}>
         {children && <b className="whitespace-nowrap shrink-0">{children}</b>}
         <span className="min-w-0 break-words">{value}</span>
       </div>
@@ -100,11 +100,10 @@ export function EditableField({
         />
         {characterLimit !== undefined && (
           <p
-            className={`self-end ${
-              charCount <= characterLimit
+            className={`self-end ${charCount <= characterLimit
                 ? "text-muted-foreground"
                 : "text-destructive"
-            }`}
+              }`}
           >
             {charCount}/{characterLimit} characters
           </p>
@@ -144,11 +143,10 @@ export function EditableField({
       </div>
       {characterLimit !== undefined && (
         <p
-          className={`self-end text-xs ${
-            String(value ?? "").length <= characterLimit
+          className={`self-end text-xs ${String(value ?? "").length <= characterLimit
               ? "text-muted-foreground"
               : "text-destructive"
-          }`}
+            }`}
         >
           {String(value ?? "").length}/{characterLimit} characters
         </p>
