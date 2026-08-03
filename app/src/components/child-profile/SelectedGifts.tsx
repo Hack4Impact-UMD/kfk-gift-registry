@@ -41,8 +41,11 @@ export function SelectedGifts({
     listedPrice?: number;
   }) => {
     if (!editingGiftId) return;
-    await onEditGift(editingGiftId, gift);
-    setEditingGiftId(null);
+    const giftIdBeingEdited = editingGiftId;
+    await onEditGift(giftIdBeingEdited, gift);
+    setEditingGiftId((current) =>
+      current === giftIdBeingEdited ? null : current,
+    );
   };
 
   return (
