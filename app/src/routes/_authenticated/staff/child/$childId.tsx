@@ -20,7 +20,7 @@ import { ChildInfo } from "@/components/child-profile/ChildInfo";
 import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
 import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
 import { GiftInfoSection } from "@/components/child-profile/GiftInfoSection";
-import { AddGiftForm } from "@/components/child-profile/AddGiftForm";
+import { GiftForm } from "@/components/child-profile/GiftForm";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -82,6 +82,7 @@ function ChildProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isAddGiftOpen, setAddGiftOpen] = useState(false);
   const [isAddingGift, startAddGift] = useTransition();
+  const [isSavingGiftEdit, startGiftEdit] = useTransition();
   const [isSavingAll, startSaveAll] = useTransition();
   const childTxRef = useRef<Transaction<Child> | null>(null);
   const familyTxRef = useRef<Transaction<Family> | null>(null);
@@ -313,6 +314,33 @@ function ChildProfilePage() {
     return promise;
   };
 
+  const handleEditGift = (
+    giftId: string,
+    gift: { title: string; productUrl: string; listedPrice?: number },
+  ) => {
+    let resolve!: () => void;
+    let reject!: (err: unknown) => void;
+    const promise = new Promise<void>((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    startGiftEdit(async () => {
+      try {
+        const result = collections.gifts.update(giftId, (draft) => {
+          draft.title = gift.title;
+          draft.productUrl = gift.productUrl;
+          draft.listedPrice = gift.listedPrice;
+        });
+        await result.isPersisted.promise;
+        toast.success("Gift updated successfully");
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    });
+    return promise;
+  };
+
   const handleChildFieldChange = <K extends keyof Child>(
     key: K,
     value: Child[K],
@@ -397,6 +425,8 @@ function ChildProfilePage() {
                   gifts={giftsData}
                   isEditing={isEditing}
                   onGiftToggle={handleGiftToggle}
+                  onEditGift={handleEditGift}
+                  isSavingGiftEdit={isSavingGiftEdit}
                   headerAction={
                     <Dialog open={isAddGiftOpen} onOpenChange={setAddGiftOpen}>
                       <DialogTrigger asChild>
@@ -408,7 +438,7 @@ function ChildProfilePage() {
                           Add Gift
                         </Button>
                       </DialogTrigger>
-                      <AddGiftForm
+                      <GiftForm
                         canAddToStorefront={activeGiftCount < 3}
                         disabled={false}
                         isSubmitting={isAddingGift}
