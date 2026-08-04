@@ -3,6 +3,7 @@ import { getServerDB } from "@/lib/firebase.server";
 import type { Child, Gift } from "common";
 import z from "zod";
 import type { StorefrontGift } from "@/types/storefront";
+import { getFirstNameLastInitial } from "@/lib/utils";
 
 export type StorefrontChildWithGifts = Pick<
   Child,
@@ -146,7 +147,7 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
 
         return {
           id: child.id,
-          name: child.name.split(" ")[0],
+          name: getFirstNameLastInitial(child.name),
           status: child.status,
           photoUrl: child.photoUrl,
           category: child.category,

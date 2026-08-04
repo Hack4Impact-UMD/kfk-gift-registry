@@ -41,7 +41,7 @@ export function FamilyCartTable({
               Gift #{index + 1}
             </span>
 
-            <span className="text-kfk-red font-medium font-gaegu">
+            <span className="text-kfk-blue font-medium font-gaegu">
               {gift.childName}
             </span>
 

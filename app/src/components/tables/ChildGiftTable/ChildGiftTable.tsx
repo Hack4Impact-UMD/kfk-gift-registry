@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ExternalLink } from "lucide-react";
 import {
   flexRender,
   getCoreRowModel,
@@ -103,9 +104,10 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
                 href={gift.productUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-gaegu text-base hover:underline flex items-center gap-2"
+                className="font-gaegu text-base text-kfk-blue hover:underline flex items-center gap-2"
               >
                 {gift.title}
+                <ExternalLink className="h-4 w-4 shrink-0" />
               </a>
 
               <span className="text-sm text-muted-foreground">
