@@ -8,6 +8,12 @@ export function cn(...inputs: Array<ClassValue>) {
   return twMerge(clsx(inputs));
 }
 
+export function getFirstNameLastInitial(fullName: string) {
+  const [firstName = "", ...rest] = fullName.trim().split(/\s+/);
+  const lastName = rest.pop();
+  return lastName ? `${firstName} ${lastName[0]}.` : firstName;
+}
+
 export function closestDrive(drives: Array<GiftDrive>) {
   return [...drives].sort((a, b) => {
     const aStart = DateTime.fromISO(a.startDate);

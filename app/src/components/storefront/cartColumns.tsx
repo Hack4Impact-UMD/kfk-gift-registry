@@ -44,7 +44,7 @@ export const createCartColumns = (
   columnHelper.accessor("childName", {
     header: "Child",
     cell: (info) => (
-      <span className="text-kfk-red font-semibold font-gaegu">
+      <span className="text-kfk-blue font-semibold font-gaegu">
         {info.getValue()}
       </span>
     ),
