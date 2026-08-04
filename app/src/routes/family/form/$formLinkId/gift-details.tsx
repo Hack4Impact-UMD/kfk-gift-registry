@@ -123,6 +123,13 @@ function GiftsStep() {
             </p>
             <ul className="flex flex-col gap-2 list-disc px-7">
               <li>
+                Select <strong>1-3 main gifts</strong> for each child.
+              </li>
+              <li>
+                Select <strong>2 backup gifts</strong> for each child in case a
+                main gift is not available.
+              </li>
+              <li>
                 🎁 Gifts must be <strong>$30 or less</strong>, based on the{" "}
                 <strong>original price</strong> (not the sale price).
               </li>
@@ -152,7 +159,8 @@ function GiftsStep() {
             </ul>
           </div>
           <p className="text-sm font-bold text-center text-green-900">
-            Thank you for helping us make this holiday special for every child!
+            Please double check that all links and prices are correct before
+            proceeding!
           </p>
         </div>
 
@@ -221,7 +229,7 @@ function GiftsStep() {
             {childrenNameList[activeChildIndex]}'s Gift Selection
           </h2>
           <p className="text-sm text-muted-foreground text-center">
-            <em>Please choose up to 3 gifts for your child.</em>
+            <em>Please choose up to 3 main gifts for your child.</em>
           </p>
         </div>
         <GiftDetailsForm
@@ -242,8 +250,7 @@ function GiftsStep() {
             variant="outline"
             className="flex-1 h-14 rounded-xl border-2 border-kfk-blue text-kfk-blue font-bold text-lg"
           >
-            <ChevronLeftIcon className="mr-2 h-6 w-6" />
-            Back
+            Done
           </Button>
           {activeChildIndex < childrenNameList.length - 1 && (
             <Button

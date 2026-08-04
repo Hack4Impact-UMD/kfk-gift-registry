@@ -51,7 +51,7 @@ export function FormInput({
     <div className={cn("space-y-2", className)}>
       <Label htmlFor={field.name} className="text-sm font-medium">
         {label}
-        {required && <span className="text-destructive"> *</span>}
+        {required && <span className="text-destructive"> (Required)</span>}
       </Label>
       <Input
         id={field.name}
@@ -176,7 +176,7 @@ export const FormSelect = ({
         } z-10`}
       >
         {label}
-        {required && <span className="text-destructive"> *</span>}
+        {required && <span className="text-destructive"> (Required)</span>}
       </FieldLabel>
       <Select
         value={field.state.value || value || undefined}
@@ -292,7 +292,7 @@ export const FormFieldInput = ({
         className={`absolute -top-2 left-4 bg-white px-2 text-sm ${labelClassName} z-10`}
       >
         {label}
-        {required && <span className="text-destructive"> *</span>}
+        {required && <span className="text-destructive"> (Required)</span>}
       </CardDescription>
       <div className="relative">
         <Icon
@@ -411,7 +411,7 @@ export function FormTextarea({
       {label && (
         <p className="text-sm font-medium text-kfk-blue">
           {label}
-          {required && <span className="text-destructive"> *</span>}
+          {required && <span className="text-destructive"> (Required)</span>}
         </p>
       )}
       <Textarea
@@ -477,7 +477,10 @@ export function FormAgreement({
           disabled={disabled}
           className="mt-0.5 border-2 border-slate-400"
         />
-        <label htmlFor={checkboxId} className="text-sm cursor-pointer">
+        <label
+          htmlFor={checkboxId}
+          className="text-sm font-bold cursor-pointer"
+        >
           {checkboxLabel}
         </label>
       </div>
