@@ -400,9 +400,7 @@ function FullPieChart({
 
   if (total === 0) {
     return (
-      <div className="mx-auto flex h-[360px] w-full max-w-[560px] items-center justify-center md:h-[420px]">
-        <p className="text-center text-muted-foreground">No data yet</p>
-      </div>
+      <p className="py-3 text-center text-muted-foreground">No data yet</p>
     );
   }
 
