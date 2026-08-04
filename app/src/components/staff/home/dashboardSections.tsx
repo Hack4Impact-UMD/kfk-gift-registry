@@ -396,6 +396,16 @@ function FullPieChart({
     fill: slice.color,
   }));
 
+  const total = slices.reduce((sum, slice) => sum + slice.value, 0);
+
+  if (total === 0) {
+    return (
+      <div className="mx-auto flex w-full items-center justify-center">
+        <p className="text-center text-muted-foreground">No data yet</p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto h-[360px] w-full max-w-[560px] md:h-[420px]">
       <ResponsiveContainer width="100%" height="100%">
