@@ -121,10 +121,12 @@ export function GiftDriveStats({
 
         <div className="flex justify-around gap-2 text-[1.15rem] md:text-[1.35rem]">
           <StatLabel startIcon={<GiftIcon className="h-5 w-5" />}>
-            <span className="text-kfk-yellow">{giftsClaimed}</span> out of {totalGifts} Gifts Purchased
+            <span className="text-kfk-yellow">{giftsClaimed}</span> out of{" "}
+            {totalGifts} Gifts Purchased
           </StatLabel>
           <StatLabel startIcon={<UserGroupIcon className="h-5 w-5" />}>
-            <span className="text-kfk-yellow">{childrenWithGifts}</span> Children Received Gifts
+            <span className="text-kfk-yellow">{childrenWithGifts}</span>{" "}
+            Children Received Gifts
           </StatLabel>
           <StatLabel startIcon={<UserIcon className="h-5 w-5" />}>
             <span className="text-kfk-yellow">
