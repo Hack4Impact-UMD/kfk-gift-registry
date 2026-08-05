@@ -30,10 +30,7 @@ export function StorefrontDriveProgressBar({
             className="absolute inset-y-0 left-0"
             style={{ width: `${progressPercentage}%` }}
           >
-            <div
-              className="absolute left-0 top-1/2 h-5 w-full -translate-y-1/2 bg-[#FACC15] opacity-90 blur-[2px]"
-              style={trailMaskStyle}
-            />
+            <div className="absolute left-0 top-1/2 h-3.5 w-full -translate-y-1/2 rounded-full bg-[#FACC15]" />
             <div
               className="absolute left-0 top-1/2 h-4 w-full -translate-y-1/2 bg-[#1F1F1F]"
               style={trailMaskStyle}
