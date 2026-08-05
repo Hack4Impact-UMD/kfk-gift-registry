@@ -15,7 +15,7 @@ import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfil
 import type { Family, Gift, Child, Claim, UserProfile } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
-import { chunk, isDonorClaim } from "@/lib/utils";
+import { chunk, isDonorClaim, getFirstNameLastInitial } from "@/lib/utils";
 
 export type FamilyGiftClaim = {
   giftId: string;
@@ -830,7 +830,7 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
 
     const storefrontChild: StorefrontChild = {
       id: child.id,
-      name: child.name,
+      name: getFirstNameLastInitial(child.name),
       age: child.age,
       status: child.status,
       diagnosis: child.diagnosis,

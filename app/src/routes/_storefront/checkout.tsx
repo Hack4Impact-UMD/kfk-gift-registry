@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { CartContainer, ConfirmationPanel } from "@/components/storefront";
 import {
   useGroupedCartGifts,
@@ -70,6 +70,13 @@ function CheckoutComponent() {
   return (
     <div className="w-full flex justify-center px-4 py-8 md:py-4">
       <div className="max-w-7xl w-full min-h-150 rounded-lg bg-kfk-blue p-4 md:p-8">
+        <nav className="mb-4 flex items-center gap-2 text-sm font-gaegu">
+          <Link to="/" className="text-white hover:underline">
+            Home
+          </Link>
+          <span className="text-white/70">&gt;</span>
+          <span className="text-white/70">Checkout</span>
+        </nav>
         <div className="flex flex-col md:flex-row gap-8 max-w-full">
           {/* Left side - Cart */}
           <div className="md:w-[68%]">

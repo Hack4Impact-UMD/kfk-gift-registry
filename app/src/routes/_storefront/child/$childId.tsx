@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChildInfoCard } from "@/components/storefront/ChildInfoCard";
 import type { CarouselCardSibling } from "@/components/storefront/CarouselCards";
 import { SiblingsCarousel } from "@/components/storefront/SiblingsCarousel";
@@ -117,6 +117,15 @@ function RouteComponent() {
     <div className="w-full min-h-screen bg-background">
       <div className="w-full px-4 py-8 lg:px-8 lg:py-12">
         <div className="max-w-7xl mx-auto">
+          <nav className="mb-4 flex items-center gap-2 text-sm font-gaegu">
+            <Link to="/" className="text-kfk-blue hover:underline">
+              Home
+            </Link>
+            <span className="text-muted-foreground">&gt;</span>
+            <span className="text-muted-foreground">
+              {firstName}'s Wishlist
+            </span>
+          </nav>
           <div
             className="w-full p-3 md:p-8 rounded-3xl bg-cover bg-center flex items-center justify-center"
             style={getPatternStyle(color)}
