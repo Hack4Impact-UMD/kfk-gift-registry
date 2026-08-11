@@ -28,6 +28,7 @@ import type { AuthContext } from "@/server/functions/auth";
 import { Spinner } from "../ui/spinner";
 import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
 import { StorefrontFamilyRecoveryDialog } from "@/components/storefront/StorefrontFamilyRecoveryDialog";
+import { getHomeDestination } from "@/components/storefront/StorefrontProfileMenu";
 import { startStorefrontTour } from "@/components/storefront/storefrontTour";
 
 type StorefrontMobileSidebarProps = {
@@ -47,6 +48,9 @@ export function StorefrontMobileSidebar({
   const { setOpenMobile } = useSidebar();
   const navigate = useNavigate();
   const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false);
+  const homeDestination = auth.isAuthed
+    ? getHomeDestination(auth.authUser.role)
+    : null;
 
   return (
     <Sidebar collapsible="offcanvas" side="left" className="sm:hidden">
@@ -127,6 +131,17 @@ export function StorefrontMobileSidebar({
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )}
+
+            {auth.isAuthed && homeDestination ? (
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild size="lg">
+                  <Link to={homeDestination.to}>
+                    <UserCircleIcon className="size-6" />
+                    <span className="text-base">{homeDestination.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ) : null}
 
             <SidebarMenuItem>
               <StorefrontFamilyRecoveryDialog>
