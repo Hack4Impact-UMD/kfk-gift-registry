@@ -51,12 +51,6 @@ export function ConfirmationPanel({
         {/* Divider */}
         <div className="border-b border-black mb-6" />
 
-        {/* Info Text */}
-        <p className="text-sm text-gray-500 mb-4">
-          Prices are estimates and may change depending on the online store.
-          Please double check links before confirming gifts.
-        </p>
-
         {giftNotAvailable && (
           <p className="text-sm text-red-600 mb-4">
             At least one gift in your cart is not available. Remove it to
