@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { X, ExternalLink, AlertCircleIcon } from "lucide-react";
@@ -44,9 +45,13 @@ export const createCartColumns = (
   columnHelper.accessor("childName", {
     header: "Child",
     cell: (info) => (
-      <span className="text-kfk-blue font-semibold font-gaegu">
+      <Link
+        to="/child/$childId"
+        params={{ childId: info.row.original.childId }}
+        className="text-kfk-blue font-semibold font-gaegu hover:underline"
+      >
         {info.getValue()}
-      </span>
+      </Link>
     ),
   }) as ColumnDef<CartColumnGift>,
   columnHelper.display({
