@@ -27,14 +27,14 @@ function getInitials(displayName: string) {
     .join("");
 }
 
-function getHomeDestination(role: UserRole) {
+export function getHomeDestination(role: UserRole) {
   switch (role) {
     case UserRole.DONOR:
-      return { to: "/donor/home" as const, label: "Go to Donor Home" };
+      return { to: "/donor/home" as const, label: "Go to Donor Portal" };
     case UserRole.DIRECTOR:
     case UserRole.ADMIN:
     case UserRole.VOLUNTEER:
-      return { to: "/staff/home" as const, label: "Go to Staff Home" };
+      return { to: "/staff/home" as const, label: "Go to Staff Portal" };
     default: {
       const unsupportedRole: never = role;
       throw new Error(`Unsupported role: ${unsupportedRole}`);
@@ -54,8 +54,8 @@ export function StorefrontProfileMenu({ auth }: StorefrontProfileMenuProps) {
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
-            variant="ghost"
-            className="h-auto gap-1.5 rounded-full px-1.5 py-1 text-kfk-blue hover:bg-kfk-blue/10"
+            variant="outline"
+            className="h-9 gap-2 rounded-md px-3 text-kfk-blue"
           >
             <Avatar className="size-6">
               <AvatarFallback className="bg-kfk-blue text-xs font-semibold text-white">
