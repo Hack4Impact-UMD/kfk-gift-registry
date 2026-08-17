@@ -14,6 +14,7 @@ export type StorefrontChild = Omit<
   | "public"
 > & {
   gifts: Array<StorefrontGift>;
+  backupGits: Array<StorefrontGift>;
 };
 
 export type StorefrontGift = Pick<
@@ -26,6 +27,7 @@ export type StorefrontGift = Pick<
   | "familyPublicNotes"
   | "familyId"
   | "childId"
+  | "backup"
 > & {
   childName: string;
 };
