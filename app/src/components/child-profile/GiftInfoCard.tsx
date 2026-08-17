@@ -209,6 +209,17 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
             </EditableField>
 
             <EditableField
+              value={gift.productUrl}
+              editable={isEditing}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                editField("productUrl", event.target.value)
+              }
+              className="text-sm text-kfk-blue"
+            >
+              Gift Link:
+            </EditableField>
+
+            <EditableField
               value={
                 isEditing
                   ? (gift.listedPrice ?? "")
