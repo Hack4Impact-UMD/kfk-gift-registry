@@ -6,7 +6,6 @@ import type { CSSProperties } from "react";
 import blueStripedBackground from "@/assets/blue-striped-background.png";
 import greenStripedBackground from "@/assets/green-striped-background.png";
 import yellowStripedBackground from "@/assets/yellow-striped-background.png";
-import redStripedBackground from "@/assets/red-striped-background.png";
 
 export type ChildCardData = Pick<
   Child,
@@ -25,9 +24,13 @@ interface Props {
 export function getPatternStyle(color: string): CSSProperties {
   if (color === "kfk-red") {
     return {
-      backgroundImage: `url(${redStripedBackground})`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
+      backgroundImage: `repeating-linear-gradient(
+        -45deg,
+        #ff0000 0px,
+        #ff0000 40px,
+        #ff6666 40px,
+        #ff6666 80px
+      )`,
     };
   }
   if (color === "kfk-green") {
