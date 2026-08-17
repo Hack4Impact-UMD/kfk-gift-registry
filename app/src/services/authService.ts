@@ -16,7 +16,9 @@ import {
   PhoneAuthProvider,
   PhoneMultiFactorGenerator,
   getMultiFactorResolver,
+  AuthErrorCodes,
 } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 import { getClientAuth } from "@/lib/firebase";
 import type { AuthUser } from "@/server/functions/auth";
 import { loginWithToken, logoutSession } from "@/server/functions/auth";
@@ -89,6 +91,53 @@ export function isMfaEnrolled(user: User) {
   );
 }
 
+// maps errors thrown while rendering the reCAPTCHA verifier or sending the
+// SMS code so the UI can surface a specific, actionable message instead of a
+// generic "something went wrong" toast
+export function getRecaptchaSmsErrorMessage(error: unknown): string {
+  if (error instanceof FirebaseError) {
+    switch (error.code) {
+      case AuthErrorCodes.CAPTCHA_CHECK_FAILED:
+        return "reCAPTCHA verification failed. Please try again.";
+      case AuthErrorCodes.INVALID_RECAPTCHA_TOKEN:
+      case AuthErrorCodes.MISSING_RECAPTCHA_TOKEN:
+      case AuthErrorCodes.INVALID_RECAPTCHA_VERSION:
+      case AuthErrorCodes.MISSING_RECAPTCHA_VERSION:
+      case AuthErrorCodes.INVALID_RECAPTCHA_ACTION:
+      case AuthErrorCodes.RECAPTCHA_NOT_ENABLED:
+        return "reCAPTCHA could not be verified. Please refresh the page and try again.";
+      case AuthErrorCodes.INVALID_APP_CREDENTIAL:
+      case AuthErrorCodes.MISSING_APP_CREDENTIAL:
+        return "reCAPTCHA setup is invalid. Please refresh the page and try again.";
+      case AuthErrorCodes.INVALID_PHONE_NUMBER:
+        return "This phone number is invalid.";
+      case AuthErrorCodes.MISSING_PHONE_NUMBER:
+        return "No phone number is on file for this account.";
+      case AuthErrorCodes.QUOTA_EXCEEDED:
+        return "SMS quota exceeded. Please try again later.";
+      case AuthErrorCodes.TOO_MANY_ATTEMPTS_TRY_LATER:
+        return "Too many attempts. Please wait a while before trying again.";
+      case AuthErrorCodes.INVALID_MFA_SESSION:
+      case AuthErrorCodes.MISSING_MFA_SESSION:
+        return "Your session has expired. Please log in again.";
+      case AuthErrorCodes.NETWORK_REQUEST_FAILED:
+        return "Network error. Check your connection and try again.";
+      case AuthErrorCodes.INTERNAL_ERROR:
+        return "Something went wrong sending the code. Please try again.";
+      case AuthErrorCodes.ARGUMENT_ERROR:
+        return "reCAPTCHA could not be initialized. Please refresh the page and try again.";
+      default:
+        return `Failed to send SMS code (${error.code}).`;
+    }
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Failed to send SMS code. Please try again.";
+}
+
 export async function sendSMSMFACode(
   hint: MultiFactorInfo,
   verifier: RecaptchaVerifier,
@@ -101,12 +150,16 @@ export async function sendSMSMFACode(
   };
 
   const phoneAuthProvider = new PhoneAuthProvider(auth);
-  const newVerificationId = await phoneAuthProvider.verifyPhoneNumber(
-    phoneInfoOptions,
-    verifier,
-  );
 
-  return newVerificationId;
+  try {
+    const newVerificationId = await phoneAuthProvider.verifyPhoneNumber(
+      phoneInfoOptions,
+      verifier,
+    );
+    return newVerificationId;
+  } catch (error) {
+    throw new Error(getRecaptchaSmsErrorMessage(error), { cause: error });
+  }
 }
 
 export async function verifySMSMFACode(
@@ -119,16 +172,28 @@ export async function verifySMSMFACode(
   return await resolver.resolveSignIn(multiFactorAssertion);
 }
 
-export async function initRecaptchaVerifier() {
+export async function initRecaptchaVerifier(
+  onWidgetError?: (message: string) => void,
+) {
   const auth = await getClientAuth();
-  const verifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-    size: "invisible",
-    callback: () => {
-      console.log("recaptcha resolved..");
-    },
-  });
-  verifier.render();
-  return verifier;
+
+  try {
+    const verifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+      size: "invisible",
+      // fired by the widget itself outside of any promise chain (e.g. token
+      // expiry, challenge failure) - verifyPhoneNumber() may not always
+      // reject in this case, so this is the only way to notify the caller
+      "error-callback": () => {
+        onWidgetError?.(
+          "reCAPTCHA verification failed. Please try again or refresh the page.",
+        );
+      },
+    });
+    await verifier.render();
+    return verifier;
+  } catch (error) {
+    throw new Error(getRecaptchaSmsErrorMessage(error), { cause: error });
+  }
 }
 
 export async function getEnrolledMFAMethods() {

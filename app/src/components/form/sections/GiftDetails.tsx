@@ -2,7 +2,7 @@ import { CurrencyDollarIcon, GiftIcon } from "@heroicons/react/24/solid";
 import type { useGiftsForm } from "@/hooks/family-form/formHooks";
 import { CardDescription } from "@/components/ui/card";
 import {
-  AMAZON_PRODUCT_URL_INVALID_MESSAGE,
+  GIFT_LISTING_URL_WARNING_MESSAGE,
   GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
   GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
@@ -11,7 +11,7 @@ import {
   MAX_GIFT_PRICE,
   MAX_GIFT_TITLE_LENGTH,
   getGiftTitleTooLongCounterMessage,
-  isValidAmazonProductUrl,
+  isValidGiftListingUrl,
 } from "common";
 
 type GiftDetailsFormProps = {
@@ -109,8 +109,8 @@ export function GiftDetailsForm({
                           return urlIsRequired ? "URL is required" : undefined;
                         }
 
-                        if (!isValidAmazonProductUrl(trimmedValue)) {
-                          return AMAZON_PRODUCT_URL_INVALID_MESSAGE;
+                        if (!isValidGiftListingUrl(trimmedValue)) {
+                          return GIFT_LISTING_URL_WARNING_MESSAGE;
                         }
 
                         return undefined;
@@ -125,6 +125,7 @@ export function GiftDetailsForm({
                   placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
                   required={i === 0}
                   disabled={disabled}
+                  warningMessages={[GIFT_LISTING_URL_WARNING_MESSAGE]}
                 />
               )}
             </form.AppField>
@@ -258,8 +259,8 @@ export function GiftDetailsForm({
                       onChange: ({ value }) => {
                         const trimmedValue = value.trim();
                         if (!trimmedValue) return "URL is required";
-                        if (!isValidAmazonProductUrl(trimmedValue)) {
-                          return AMAZON_PRODUCT_URL_INVALID_MESSAGE;
+                        if (!isValidGiftListingUrl(trimmedValue)) {
+                          return GIFT_LISTING_URL_WARNING_MESSAGE;
                         }
                         return undefined;
                       },
@@ -273,6 +274,7 @@ export function GiftDetailsForm({
                   placeholder="e.g. amazon.com/Monopoly-Family-Board-Players"
                   required
                   disabled={disabled}
+                  warningMessages={[GIFT_LISTING_URL_WARNING_MESSAGE]}
                 />
               )}
             </form.AppField>

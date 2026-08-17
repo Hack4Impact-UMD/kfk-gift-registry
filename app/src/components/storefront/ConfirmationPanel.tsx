@@ -23,7 +23,7 @@ export function ConfirmationPanel({
     [gifts],
   );
   return (
-    <div className={cn("", className)}>
+    <div className={cn("", className)} data-tour="confirmation-panel">
       {/* Header */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Review Gifts</h2>
@@ -50,12 +50,6 @@ export function ConfirmationPanel({
 
         {/* Divider */}
         <div className="border-b border-black mb-6" />
-
-        {/* Info Text */}
-        <p className="text-sm text-gray-500 mb-4">
-          Prices are estimates and may change depending on the online store.
-          Please double check links before confirming gifts.
-        </p>
 
         {giftNotAvailable && (
           <p className="text-sm text-red-600 mb-4">

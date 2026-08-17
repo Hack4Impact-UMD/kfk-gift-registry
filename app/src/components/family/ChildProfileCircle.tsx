@@ -24,7 +24,7 @@ export function ChildProfileCircle({
         className={`size-16 border-2 border-background ring-2 ${ringClass}`}
       >
         <AvatarImage
-          src={child?.photoUrl ?? ProfilePhoto}
+          src={child?.photoUrl || ProfilePhoto}
           alt={child?.name || ""}
         />
       </Avatar>

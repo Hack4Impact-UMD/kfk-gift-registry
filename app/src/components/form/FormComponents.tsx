@@ -235,6 +235,8 @@ interface FormFieldInputProps {
   characterLimit?: number;
   disabled?: boolean;
   className?: string;
+  warningMessages?: Array<string>;
+  helperText?: string;
 }
 
 export const FormFieldInput = ({
@@ -251,6 +253,8 @@ export const FormFieldInput = ({
   characterLimit,
   disabled,
   className = "",
+  warningMessages,
+  helperText,
 }: FormFieldInputProps) => {
   const field = useFieldContext<string>();
   const characterCount = (field.state.value || value || "").length;
@@ -264,15 +268,28 @@ export const FormFieldInput = ({
   const errorMessage =
     (field.state.meta.isTouched && field.state.meta.errors[0]) ||
     immediateMaxCharacterError;
+  const isWarningMessage =
+    errorMessage !== undefined &&
+    warningMessages?.includes(String(errorMessage)) === true;
+  const labelClassName = errorMessage
+    ? isWarningMessage
+      ? "text-yellow-600"
+      : "text-red-500"
+    : "text-slate-600 group-focus-within:text-kfk-blue";
+  const inputErrorClassName = isWarningMessage
+    ? "border-kfk-yellow text-yellow-700 placeholder:text-yellow-500"
+    : "border-red-500 text-red-500 placeholder:text-red-500";
+  const indicatorClassName = isWarningMessage
+    ? "bg-kfk-yellow text-kfk-brown"
+    : "bg-red-500 text-white";
+  const messageClassName = isWarningMessage
+    ? "text-xs text-yellow-600 mt-1 block pl-1"
+    : "text-xs text-red-500 mt-1 block pl-1";
 
   return (
     <FormItem className={cn("group relative mt-6", className)}>
       <CardDescription
-        className={`absolute -top-2 left-4 bg-white px-2 text-sm ${
-          errorMessage
-            ? "text-red-500"
-            : "text-slate-600 group-focus-within:text-kfk-blue"
-        } z-10`}
+        className={`absolute -top-2 left-4 bg-white px-2 text-sm ${labelClassName} z-10`}
       >
         {label}
         {required && <span className="text-destructive"> *</span>}
@@ -298,7 +315,7 @@ export const FormFieldInput = ({
               errorMessage ? "pr-12" : "pr-4"
             } rounded-xl border ${
               errorMessage
-                ? "border-red-500 text-red-500 placeholder:text-red-500"
+                ? inputErrorClassName
                 : "border-slate-700 placeholder:text-slate-400"
             } focus-visible:ring-0 focus-visible:border-kfk-blue font-medium transition duration-200 ease-in-out`}
           />
@@ -318,23 +335,24 @@ export const FormFieldInput = ({
               errorMessage ? "pr-12" : "pr-4"
             } rounded-xl border ${
               errorMessage
-                ? "border-red-500 text-red-500 placeholder:text-red-500"
+                ? inputErrorClassName
                 : "border-slate-700 placeholder:text-slate-400"
             } focus-visible:ring-0 focus-visible:border-kfk-blue font-medium transition duration-200 ease-in-out`}
           />
         )}
         {errorMessage && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold">
+            <span
+              className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${indicatorClassName}`}
+            >
               !
             </span>
           </div>
         )}
       </div>
-      {errorMessage && (
-        <span className="text-xs text-red-500 mt-1 block pl-1">
-          {errorMessage}
-        </span>
+      {errorMessage && <span className={messageClassName}>{errorMessage}</span>}
+      {helperText && !errorMessage && (
+        <p className="text-sm italic text-slate-500 mt-1 pl-1">{helperText}</p>
       )}
       {characterLimit !== undefined && !disabled && (
         <p

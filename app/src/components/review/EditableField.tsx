@@ -55,7 +55,7 @@ export function EditableField({
 
   if (!editable) {
     return (
-      <div className={cn("flex items-center gap-2 min-w-0 py-1")}>
+      <div className={cn("flex items-center gap-2 min-w-0 py-1", className)}>
         {children && <b className="whitespace-nowrap shrink-0">{children}</b>}
         <span className="min-w-0 break-words">{value}</span>
       </div>

@@ -10,6 +10,7 @@ import type {
   PublishedGiftsTableRow,
 } from "@/components/tables/PublishedGiftsTable/types";
 import { chunk, isDonorClaim } from "@/lib/utils";
+import type { AdminDashboardMetrics } from "@/types/adminDashboard";
 
 const driveIdSchema = z.object({
   // param for both functions
@@ -152,4 +153,146 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
         productUrl: gift.productUrl,
       } satisfies PublishedGiftsTableRow;
     });
+  });
+
+export const getAdminDashboardMetrics = createServerFn({ method: "GET" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.DIRECTOR,
+      UserRole.ADMIN,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(driveIdSchema)
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const { driveId } = data;
+
+    const [publishedGifts, familiesSnapshot, childrenSnapshot] =
+      await Promise.all([
+        getPublishedGifts({ data }),
+        db.families.where("giftDrive", "==", driveId).get(),
+        db.children.where("giftDrive", "==", driveId).get(),
+      ]);
+
+    const giftIds = publishedGifts.map((gift) => gift.id);
+    const claimByGiftId = new Map<string, Claim>();
+
+    await Promise.all(
+      chunk(giftIds, 30).map(async (giftIdChunk) => {
+        if (giftIdChunk.length === 0) {
+          return;
+        }
+
+        const claimsSnapshot = await db.claims
+          .where("giftId", "in", giftIdChunk)
+          .where("active", "==", true)
+          .get();
+
+        for (const claimDoc of claimsSnapshot.docs) {
+          const claim = claimDoc.data();
+          if (!claimByGiftId.has(claim.giftId)) {
+            claimByGiftId.set(claim.giftId, claim);
+          }
+        }
+      }),
+    );
+
+    const giftBreakdown = {
+      unpurchased: 0,
+      purchasedByDonors: 0,
+      purchasedByAdmins: 0,
+    };
+
+    const statusBreakdown = {
+      unclaimed: 0,
+      unordered: 0,
+      inTransit: 0,
+      delivered: 0,
+      received: 0,
+    };
+
+    let donationAmount = 0;
+    const uniqueDonorIds = new Set<string>();
+
+    for (const gift of publishedGifts) {
+      const claim = claimByGiftId.get(gift.id);
+      const isPurchased = ["PURCHASED", "DELIVERED", "RECEIVED"].includes(
+        gift.status,
+      );
+
+      if (gift.status === "AVAILABLE") {
+        statusBreakdown.unclaimed += 1;
+      } else if (gift.status === "CLAIMED") {
+        statusBreakdown.unordered += 1;
+      } else if (gift.status === "PURCHASED") {
+        statusBreakdown.inTransit += 1;
+      } else if (gift.status === "DELIVERED") {
+        statusBreakdown.delivered += 1;
+      } else if (gift.status === "RECEIVED") {
+        statusBreakdown.received += 1;
+      }
+
+      if (gift.status === "AVAILABLE" || gift.status === "CLAIMED") {
+        giftBreakdown.unpurchased += 1;
+      }
+
+      if (isPurchased) {
+        if (claim?.claimType === "donor") {
+          donationAmount += gift.listedPrice ?? 0;
+          giftBreakdown.purchasedByDonors += 1;
+          uniqueDonorIds.add(claim.donorId);
+        } else if (claim?.claimType === "kfk") {
+          giftBreakdown.purchasedByAdmins += 1;
+        }
+      }
+    }
+
+    const families = familiesSnapshot.docs.map((doc) => doc.data());
+    const familyProfiles = {
+      approved: 0,
+      pending: 0,
+      holdfile: 0,
+    };
+
+    for (const family of families) {
+      if (family.reviewStatus?.approved) {
+        familyProfiles.approved += 1;
+      } else if (family.reviewStatus?.held) {
+        familyProfiles.holdfile += 1;
+      } else {
+        familyProfiles.pending += 1;
+      }
+    }
+
+    const children = childrenSnapshot.docs.map((doc) => doc.data());
+    const publishedChildren = children.filter(
+      (child) => child.published,
+    ).length;
+    const totalChildren = children.length;
+
+    return {
+      driveId,
+      lastUpdatedAt: new Date().toISOString(),
+      gifts: {
+        total: publishedGifts.length,
+        breakdown: giftBreakdown,
+        statusBreakdown,
+      },
+      familyProfiles: {
+        total: families.length,
+        breakdown: familyProfiles,
+      },
+      approvedChildProfiles: {
+        total: totalChildren,
+        published: publishedChildren,
+        unpublished: totalChildren - publishedChildren,
+        publishedPercentage:
+          totalChildren === 0
+            ? 0
+            : Math.round((publishedChildren / totalChildren) * 100),
+      },
+      donationAmount,
+      peopleDonated: uniqueDonorIds.size,
+    } satisfies AdminDashboardMetrics;
   });

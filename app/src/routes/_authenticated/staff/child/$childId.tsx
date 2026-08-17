@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { createOptimisticAction, eq, useLiveQuery } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState, useTransition } from "react";
@@ -20,13 +20,15 @@ import { ChildInfo } from "@/components/child-profile/ChildInfo";
 import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
 import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
 import { GiftInfoSection } from "@/components/child-profile/GiftInfoSection";
-import { AddGiftForm } from "@/components/child-profile/AddGiftForm";
+import type { GiftFormValues } from "@/components/child-profile/GiftForm";
+import { GiftForm } from "@/components/child-profile/GiftForm";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { useFamilyLinkByFamilyId } from "@/hooks/queries/useFamilyLinkByFamilyId";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
+import { createGift } from "@/server/functions/child";
 
 export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
   component: ChildProfilePage,
@@ -82,6 +84,7 @@ function ChildProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isAddGiftOpen, setAddGiftOpen] = useState(false);
   const [isAddingGift, startAddGift] = useTransition();
+  const [isSavingGiftEdit, startGiftEdit] = useTransition();
   const [isSavingAll, startSaveAll] = useTransition();
   const childTxRef = useRef<Transaction<Child> | null>(null);
   const familyTxRef = useRef<Transaction<Family> | null>(null);
@@ -275,19 +278,13 @@ function ChildProfilePage() {
     toast.success("Admin notes saved");
   };
 
-  const handleAddGift = (gift: {
-    title: string;
-    productUrl: string;
-    listedPrice?: number;
-    active: boolean;
-  }) => {
-    let resolve!: () => void;
-    let reject!: (err: unknown) => void;
-    const promise = new Promise<void>((res, rej) => {
-      resolve = res;
-      reject = rej;
-    });
-    startAddGift(async () => {
+  const addGiftAction = createOptimisticAction({
+    onMutate: (
+      gift: Pick<
+        Gift,
+        "title" | "productUrl" | "listedPrice" | "familyPublicNotes" | "active"
+      >,
+    ) => {
       const placeholder: Gift = {
         id: uuidv7(),
         childId: child.id,
@@ -296,15 +293,65 @@ function ChildProfilePage() {
         title: gift.title,
         productUrl: gift.productUrl,
         listedPrice: gift.listedPrice,
+        familyPublicNotes: gift.familyPublicNotes,
         status: "AVAILABLE",
         createdAt: new Date().toISOString(),
         active: gift.active,
         backup: !gift.active,
       };
+      collections.gifts.insert(placeholder);
+      setAddGiftOpen(false);
+    },
+    mutationFn: async (gift) => {
+      const create: Omit<Gift, "id"> = {
+        childId: child.id,
+        familyId: child.familyId,
+        giftDrive: child.giftDrive,
+        title: gift.title,
+        productUrl: gift.productUrl,
+        listedPrice: gift.listedPrice,
+        familyPublicNotes: gift.familyPublicNotes,
+        status: "AVAILABLE",
+        createdAt: new Date().toISOString(),
+        active: gift.active,
+        backup: !gift.active,
+      };
+      collections.gifts.utils.writeInsert(await createGift({ data: create }));
+      await collections.invalidateGiftDerivedCaches();
+    },
+  });
+
+  const handleAddGift = (gift: GiftFormValues) => {
+    startAddGift(() => {
+      addGiftAction(gift);
+    });
+  };
+
+  const handleEditGift = (
+    giftId: string,
+    gift: {
+      title: string;
+      productUrl: string;
+      listedPrice?: number;
+      familyPublicNotes?: string;
+    },
+  ) => {
+    let resolve!: () => void;
+    let reject!: (err: unknown) => void;
+    const promise = new Promise<void>((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    startGiftEdit(async () => {
       try {
-        const result = collections.gifts.insert(placeholder);
+        const result = collections.gifts.update(giftId, (draft) => {
+          draft.title = gift.title;
+          draft.productUrl = gift.productUrl;
+          draft.listedPrice = gift.listedPrice;
+          draft.familyPublicNotes = gift.familyPublicNotes;
+        });
         await result.isPersisted.promise;
-        setAddGiftOpen(false);
+        toast.success("Gift updated successfully");
         resolve();
       } catch (err) {
         reject(err);
@@ -353,8 +400,8 @@ function ChildProfilePage() {
   };
 
   return (
-    <div className="px-4 pb-8 sm:px-6 lg:px-8 @container">
-      <div className="rounded-[28px] border border-border/70 bg-card/95 p-4 shadow-sm sm:p-6">
+    <div className="px-4 pb-8 sm:px-6 lg:px-8 @container flex flex-col items-center">
+      <div className="max-w-6xl w-full rounded-[28px] border border-border/70 bg-card/95 p-4 shadow-sm sm:p-6">
         <h1 className="mb-5 text-3xl font-semibold tracking-tight sm:text-4xl">
           Child Profile
         </h1>
@@ -397,6 +444,8 @@ function ChildProfilePage() {
                   gifts={giftsData}
                   isEditing={isEditing}
                   onGiftToggle={handleGiftToggle}
+                  onEditGift={handleEditGift}
+                  isSavingGiftEdit={isSavingGiftEdit}
                   headerAction={
                     <Dialog open={isAddGiftOpen} onOpenChange={setAddGiftOpen}>
                       <DialogTrigger asChild>
@@ -408,7 +457,7 @@ function ChildProfilePage() {
                           Add Gift
                         </Button>
                       </DialogTrigger>
-                      <AddGiftForm
+                      <GiftForm
                         canAddToStorefront={activeGiftCount < 3}
                         disabled={false}
                         isSubmitting={isAddingGift}
@@ -421,29 +470,28 @@ function ChildProfilePage() {
             </div>
           </div>
         </div>
+        <div className="my-6 h-px w-full bg-border/70" />
+        {familyLinkPending ? (
+          <div className="w-full p-2">
+            <Spinner />
+          </div>
+        ) : familyLinkError ? (
+          <div className="w-full p-2">
+            <span className="text-kfk-red">
+              Failed to fetch family link: {familyLinkError.message}
+            </span>
+          </div>
+        ) : (
+          <GiftInfoSection
+            gifts={giftsData}
+            claimsByGiftId={claimsByGiftId}
+            parentComments={family.privateNotes}
+            adminComments={child.staffPrivateNotes ?? ""}
+            familyToken={familyLink?.id}
+            onSaveAdminComments={handleSaveAdminComments}
+          />
+        )}
       </div>
-
-      <div className="my-6 h-px w-full bg-border/70" />
-      {familyLinkPending ? (
-        <div className="w-full p-2">
-          <Spinner />
-        </div>
-      ) : familyLinkError ? (
-        <div className="w-full p-2">
-          <span className="text-kfk-red">
-            Failed to fetch family link: {familyLinkError.message}
-          </span>
-        </div>
-      ) : (
-        <GiftInfoSection
-          gifts={giftsData}
-          claimsByGiftId={claimsByGiftId}
-          parentComments={family.privateNotes}
-          adminComments={child.staffPrivateNotes ?? ""}
-          familyToken={familyLink?.id}
-          onSaveAdminComments={handleSaveAdminComments}
-        />
-      )}
     </div>
   );
 }

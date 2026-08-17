@@ -3,6 +3,7 @@ import { getServerDB } from "@/lib/firebase.server";
 import type { Child, Gift } from "common";
 import z from "zod";
 import type { StorefrontGift } from "@/types/storefront";
+import { getFirstNameLastInitial } from "@/lib/utils";
 
 export type StorefrontChildWithGifts = Pick<
   Child,
@@ -61,6 +62,7 @@ export const getStorefrontGift = createServerFn({ method: "GET" })
       childId: gift.childId,
       childName: child.name.split(" ")[0],
       familyPublicNotes: gift.familyPublicNotes,
+      backup: gift.backup,
     } satisfies StorefrontGift;
   });
 
@@ -124,8 +126,13 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
       return (a.treatmentLevel ?? 0) - (b.treatmentLevel ?? 0);
     });
 
-    const results: Array<StorefrontChildWithGifts> = sortedChildren.map(
-      (child) => {
+    const results: Array<StorefrontChildWithGifts> = sortedChildren
+      .filter((child) =>
+        (giftsByChildId.get(child.id) ?? []).some(
+          (gift) => gift.status === "AVAILABLE",
+        ),
+      )
+      .map((child) => {
         const childGifts = giftsByChildId.get(child.id) ?? [];
 
         const gifts: Array<StorefrontGift> = childGifts.map((gift) => ({
@@ -137,11 +144,12 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
           childId: gift.childId,
           childName: child.name.split(" ")[0],
           familyId: gift.familyId,
+          backup: gift.backup,
         }));
 
         return {
           id: child.id,
-          name: child.name.split(" ")[0],
+          name: getFirstNameLastInitial(child.name),
           status: child.status,
           photoUrl: child.photoUrl,
           category: child.category,
@@ -152,8 +160,7 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
           familyId: child.familyId,
           gifts,
         };
-      },
-    );
+      });
 
     return results;
   });

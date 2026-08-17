@@ -1,6 +1,6 @@
 import Ladybug from "@/assets/ladybug-storefront.svg";
-import { StoreFrontProgress } from "@/components/ui/progress";
 import { GiftIcon, UserGroupIcon, UserIcon } from "@/components/icons";
+import { StorefrontDriveProgressBar } from "@/components/storefront";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
@@ -14,7 +14,7 @@ interface StatProps {
 
 function StatLabel({ children, startIcon }: StatProps) {
   return (
-    <div className="flex gap-2 items-center flex-col md:flex-row text-center md:text-left">
+    <div className="flex gap-2 items-center flex-col md:flex-row text-center md:text-left text-[1.05rem] md:text-[1.2rem]">
       {startIcon}
       <span>{children}</span>
     </div>
@@ -83,26 +83,43 @@ export function GiftDriveStats({
 
   const progressPercentage =
     totalGifts > 0 ? Math.floor((giftsClaimed / totalGifts) * 100) : 0;
-  const ladybugClampedPosition = Math.min(Math.max(progressPercentage, 2), 98);
+  const ladybugClampedPosition = Math.min(Math.max(progressPercentage, 3), 97);
 
   return (
-    <div className="bg-kfk-blue text-white font-gaegu py-7">
+    <div
+      className="bg-kfk-blue text-white font-gaegu py-7"
+      data-tour="gift-drive-stats"
+    >
       <div className="flex flex-col gap-5 w-full max-w-6xl mx-auto px-4">
-        <h2 className="text-center text-2xl font-bold">{timeLabel}</h2>
-        <div className="relative w-full p-2 bg-[#FFF8C2] rounded-full">
-          <StoreFrontProgress
-            value={progressPercentage}
-            className="[&>*]:bg-kfk-yellow [&>*]:bg-repeat-x h-6 bg-transparent"
-          />
-          <div
-            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full p-1 text-white"
-            style={{ left: `${ladybugClampedPosition}%` }}
-          >
-            <img src={Ladybug} alt="ladybug" className="w-10 h-10 max-w-none" />
+        <h2 className="text-center text-[1.85rem] font-bold md:text-[2.2rem]">
+          {!isExpired && days >= 1 ? (
+            <>
+              <span className="text-kfk-yellow">{days}</span>{" "}
+              <span className="text-white">
+                {days === 1 ? "Day" : "Days"} Left to Donate!
+              </span>
+            </>
+          ) : (
+            timeLabel
+          )}
+        </h2>
+
+        <div className="flex flex-col gap-2">
+          <div className="flex items-end gap-3 text-[1.45rem] font-bold leading-none md:text-[1.7rem]">
+            <span className="text-white">Gifts Purchased</span>
+            <span className="text-[1rem] font-normal text-white/45 md:text-[1.15rem]">
+              {giftsClaimed} of {totalGifts}
+            </span>
           </div>
+
+          <StorefrontDriveProgressBar
+            progressPercentage={progressPercentage}
+            ladybugPosition={ladybugClampedPosition}
+            ladybugSrc={Ladybug}
+          />
         </div>
 
-        <div className="flex justify-around text-xl gap-2">
+        <div className="flex justify-around gap-2 text-[1.15rem] md:text-[1.35rem]">
           <StatLabel startIcon={<GiftIcon className="h-5 w-5" />}>
             <span className="text-kfk-yellow">{giftsClaimed}</span> out of{" "}
             {totalGifts} Gifts Purchased

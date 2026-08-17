@@ -1,13 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { HomeHeaderCard } from "@/components/donor/HomeHeaderCard";
-import { ChildBlock } from "@/components/donor/home/ChildBlock";
+import { z } from "zod";
 import DefaultProfile from "@/assets/default-profile-photo.png";
 import { Spinner } from "@/components/ui/spinner";
 import { Card } from "@/components/ui/card";
 import { useDonorCommittedChildren } from "@/hooks/queries/useDonorCommittedChildren";
 import { queries } from "@/queries";
+import { WelcomeBanner } from "@/components/donor/home/WelcomeBanner";
+import { CommitmentCard } from "@/components/donor/home/CommitmentCard";
+import { DonorChildDetailScreen } from "@/components/donor/home/DonorChildDetailScreen";
 
 export const Route = createFileRoute("/_authenticated/donor/home")({
+  validateSearch: z.object({
+    childId: z.string().optional(),
+  }),
   beforeLoad: async ({ context }) => {
     await context.queryClient.prefetchQuery(
       queries.donor.home(context.currentDrive?.id ?? ""),
@@ -27,6 +32,8 @@ export const Route = createFileRoute("/_authenticated/donor/home")({
 
 function RouteComponent() {
   const { auth, currentDrive } = Route.useRouteContext();
+  const navigate = Route.useNavigate();
+  const { childId } = Route.useSearch();
   const {
     data: committedChildren,
     isPending,
@@ -41,14 +48,14 @@ function RouteComponent() {
     );
   }
 
+  const displayName = auth.authUser.displayName ?? "Unnamed User";
+
   if (isError) {
     return (
-      <div className="bg-muted/20 px-4 py-6 md:px-6 md:py-8">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-          <HomeHeaderCard
-            displayName={auth.authUser.displayName ?? "Unnamed User"}
-          />
-          <Card className="w-full p-8 text-center">
+      <div className="bg-[#F5F7FB] px-4 py-6">
+        <div className="mx-auto flex w-full max-w-[430px] flex-col gap-6 md:max-w-3xl">
+          <WelcomeBanner displayName={displayName} />
+          <Card className="rounded-[24px] border border-[#E5E7EB] p-8 text-center text-[#4B5563] shadow-sm">
             Unable to load your committed gifts. Please try again.
           </Card>
         </div>
@@ -61,19 +68,54 @@ function RouteComponent() {
     photoUrl: child.photoUrl || DefaultProfile,
   }));
 
+  const selectedChild =
+    childrenWithFallbackPhotos.find((child) => child.id === childId) ?? null;
+
+  if (selectedChild) {
+    const selectedIndex = childrenWithFallbackPhotos.findIndex(
+      (child) => child.id === selectedChild.id,
+    );
+
+    return (
+      <DonorChildDetailScreen
+        key={selectedChild.id}
+        child={selectedChild}
+        childIndex={selectedIndex}
+        totalChildren={childrenWithFallbackPhotos.length}
+        onBack={() =>
+          navigate({
+            to: "/donor/home",
+            search: { childId: undefined },
+          })
+        }
+        onNavigateChild={(nextIndex) =>
+          navigate({
+            to: "/donor/home",
+            search: { childId: childrenWithFallbackPhotos[nextIndex]?.id },
+          })
+        }
+      />
+    );
+  }
+
   return (
-    <div className="bg-muted/20 px-4 py-6 md:px-6 md:py-8">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 overflow-x-hidden">
-        <HomeHeaderCard
-          displayName={auth.authUser.displayName ?? "Unnamed User"}
-        />
-        <div className="flex w-full min-w-0 flex-col gap-6">
+    <div className="min-h-screen bg-[#F5F7FB] px-4 py-6">
+      <div className="mx-auto flex w-full max-w-[430px] flex-col gap-6 md:max-w-[760px]">
+        <WelcomeBanner displayName={displayName} />
+
+        <section>
+          <h2 className="text-center font-gaegu text-[34px] font-bold text-[#173B8F] md:text-[42px]">
+            Gift Commitments
+          </h2>
+        </section>
+
+        <div className="flex flex-col gap-4">
           {childrenWithFallbackPhotos.length > 0 ? (
             childrenWithFallbackPhotos.map((child) => (
-              <ChildBlock key={child.id} child={child} />
+              <CommitmentCard key={child.id} child={child} />
             ))
           ) : (
-            <Card className="w-full p-8 text-center">
+            <Card className="rounded-[24px] border border-[#E5E7EB] p-8 text-center text-[#4B5563] shadow-sm">
               You have not claimed any gifts yet.
             </Card>
           )}

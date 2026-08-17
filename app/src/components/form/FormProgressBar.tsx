@@ -9,7 +9,8 @@ import { Fragment } from "react";
 import type { ReactNode } from "react";
 import type { FamilyFormState } from "@/components/providers/FormProvider";
 import { useFormContext } from "@/components/providers/FormProvider";
-import { SECTION_SCHEMAS } from "@/lib/formSchemas";
+import { childGiftSchema, SECTION_SCHEMAS } from "@/lib/formSchemas";
+import { GIFT_LISTING_URL_WARNING_MESSAGE } from "common";
 
 type FormStep = {
   id: string;
@@ -107,6 +108,38 @@ export function FormProgressBar({ formLinkId }: { formLinkId: string }) {
   const location = useLocation();
   const currentPath = location.pathname;
 
+  const hasBlockingGiftIssues = (issues: Array<{ message: string }>) =>
+    issues.some((issue) => issue.message !== GIFT_LISTING_URL_WARNING_MESSAGE);
+
+  const areAllChildGiftSelectionsComplete = () => {
+    const children = formState.children?.children ?? [];
+    const giftSelections = formState.gifts?.giftSelections ?? [];
+
+    if (children.length === 0 || giftSelections.length !== children.length) {
+      return false;
+    }
+
+    return giftSelections.every((selection) => {
+      const result = childGiftSchema.safeParse(selection);
+      return result.success || !hasBlockingGiftIssues(result.error.issues);
+    });
+  };
+
+  const isSectionComplete = (sectionKey: keyof FamilyFormState) => {
+    const data = formState[sectionKey];
+    if (!data) return false;
+
+    if (sectionKey === "gifts") {
+      return areAllChildGiftSelectionsComplete();
+    }
+
+    const schema = SECTION_SCHEMAS[sectionKey];
+    const result = schema.safeParse(data);
+    if (result.success) return true;
+
+    return false;
+  };
+
   const getStepState = (step: FormStep, index: number): StepState => {
     if (currentPath.endsWith(`/${getPathSegment(step.id)}`)) return "current";
     return getUnderlyingState(step, index);
@@ -114,20 +147,15 @@ export function FormProgressBar({ formLinkId }: { formLinkId: string }) {
 
   const getUnderlyingState = (step: FormStep, _: number): StepState => {
     if (step.id === "review") {
-      const allPreviousComplete = FORM_STEPS.slice(0, -1).every((s) => {
-        const data = formState[s.sectionKey];
-        if (!data) return false;
-        const schema = SECTION_SCHEMAS[s.sectionKey];
-        return schema.safeParse(data).success;
-      });
+      const allPreviousComplete = FORM_STEPS.slice(0, -1).every((s) =>
+        isSectionComplete(s.sectionKey),
+      );
       return allPreviousComplete ? "complete" : "incomplete";
     }
 
-    const stepData = formState[step.sectionKey];
-    if (!stepData) return "incomplete";
+    if (!formState[step.sectionKey]) return "incomplete";
 
-    const schema = SECTION_SCHEMAS[step.sectionKey];
-    return schema.safeParse(stepData).success ? "complete" : "error";
+    return isSectionComplete(step.sectionKey) ? "complete" : "error";
   };
 
   const isStepClickable = (step: FormStep, index: number): boolean => {

@@ -1,13 +1,14 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { DataTable } from "../DataTable";
 import { columns } from "./columns";
-import { PendingProfilesTableActionButton } from "./PendingProfilesTableActionButton";
+import { MoveToApproveButton } from "./MoveToApproveButton";
+import { PublishToStorefrontButton } from "./PublishToStorefrontButton";
+import { DeleteFamiliesButton } from "./DeleteFamiliesButton";
 import { Input } from "@/components/ui/input";
 import { useReviewOrder } from "@/context/ReviewOrderContext";
 import { cn } from "@/lib/utils";
-import { usePublishFamilies } from "@/hooks/mutations/usePublishFamilies";
 import type { ApplicationStatus, PendingProfileTableRow } from "./types";
 
 interface PendingProfilesTableProps {
@@ -31,9 +32,9 @@ export function PendingProfilesTable({
     Array<PendingProfileTableRow>
   >([]);
   const [selectionVersion, setSelectionVersion] = useState(0);
+  const [actionInFlight, setActionInFlight] = useState(false);
   const navigate = useNavigate();
   const { setReviewOrder } = useReviewOrder();
-  const publishFamiliesMutation = usePublishFamilies();
 
   const handleRowClick = (
     row: PendingProfileTableRow,
@@ -56,15 +57,17 @@ export function PendingProfilesTable({
     () => selectedRows.map((row) => row.id),
     [selectedRows],
   );
+  const everySelectedIs = useCallback(
+    (status: ApplicationStatus) =>
+      selectedRows.length > 0 &&
+      selectedRows.every((row) => row.status === status),
+    [selectedRows],
+  );
 
-  const handlePublishToStorefront = () => {
-    publishFamiliesMutation.mutate(selectedFamilyIds, {
-      onSuccess: () => {
-        setSelectedRows([]);
-        setSelectionVersion((current) => current + 1);
-      },
-    });
-  };
+  const handleActionSuccess = useCallback(() => {
+    setSelectedRows([]);
+    setSelectionVersion((current) => current + 1);
+  }, []);
 
   return (
     <div className={cn("flex flex-col gap-4 pt-6", className)}>
@@ -80,22 +83,62 @@ export function PendingProfilesTable({
               className="pl-8 border-gray-300 text-gray-700 focus-visible:ring-1"
             />
           </div>
-          <PendingProfilesTableActionButton
-            className="sm:ml-auto"
-            statusFilter={statusFilter}
-            disabled={
-              selectedRows.length == 0 ||
-              (statusFilter === "approved"
-                ? selectedFamilyIds.length === 0
-                : false)
-            }
-            loading={publishFamiliesMutation.isPending}
-            onClick={
-              statusFilter === "approved"
-                ? handlePublishToStorefront
-                : undefined
-            }
-          />
+          <div className="flex gap-2 sm:ml-auto">
+            {statusFilter === null && (
+              <>
+                <MoveToApproveButton
+                  familyIds={selectedFamilyIds}
+                  onSuccess={handleActionSuccess}
+                  disabled={actionInFlight}
+                  onPendingChange={setActionInFlight}
+                />
+                <PublishToStorefrontButton
+                  familyIds={selectedFamilyIds}
+                  onSuccess={handleActionSuccess}
+                  disabled={actionInFlight || !everySelectedIs("approved")}
+                  onPendingChange={setActionInFlight}
+                />
+                <DeleteFamiliesButton
+                  familyIds={selectedFamilyIds}
+                  onSuccess={handleActionSuccess}
+                  disabled={actionInFlight}
+                  onPendingChange={setActionInFlight}
+                />
+              </>
+            )}
+            {statusFilter === "pending" && (
+              <>
+                <MoveToApproveButton
+                  familyIds={selectedFamilyIds}
+                  onSuccess={handleActionSuccess}
+                  disabled={actionInFlight}
+                  onPendingChange={setActionInFlight}
+                />
+                <DeleteFamiliesButton
+                  familyIds={selectedFamilyIds}
+                  onSuccess={handleActionSuccess}
+                  disabled={actionInFlight}
+                  onPendingChange={setActionInFlight}
+                />
+              </>
+            )}
+            {statusFilter === "approved" && (
+              <PublishToStorefrontButton
+                familyIds={selectedFamilyIds}
+                onSuccess={handleActionSuccess}
+                disabled={actionInFlight || !everySelectedIs("approved")}
+                onPendingChange={setActionInFlight}
+              />
+            )}
+            {statusFilter === "holdfile" && (
+              <DeleteFamiliesButton
+                familyIds={selectedFamilyIds}
+                onSuccess={handleActionSuccess}
+                disabled={actionInFlight}
+                onPendingChange={setActionInFlight}
+              />
+            )}
+          </div>
         </div>
       </div>
 

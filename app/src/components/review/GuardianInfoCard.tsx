@@ -231,10 +231,12 @@ function GuardianInfoCardInner({ family }: GuardianInfoCardProps) {
         </div>
 
         <div className="w-full text-sm sm:text-base text-muted-foreground mt-2">
-          <p className="text-foreground text-wrap">
-            <span className="font-bold">Guardian comments:</span>{" "}
-            {family.privateNotes}
-          </p>
+          {family.privateNotes && (
+            <p className="text-foreground text-wrap">
+              <span className="font-bold">Guardian comments:</span>{" "}
+              {family.privateNotes}
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>

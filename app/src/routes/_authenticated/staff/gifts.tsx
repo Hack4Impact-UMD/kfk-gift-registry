@@ -47,7 +47,7 @@ function RouteComponent() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Published Gifts</h1>
       </div>
-      <PublishedGiftsTable data={tableRows} rowsPerPage={10} />
+      <PublishedGiftsTable data={tableRows} rowsPerPage={20} />
     </div>
   );
 }

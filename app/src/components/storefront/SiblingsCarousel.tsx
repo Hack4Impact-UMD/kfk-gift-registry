@@ -10,12 +10,14 @@ import { CarouselCard } from "./CarouselCards";
 import type { CarouselCardSibling } from "./CarouselCards";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import type { ChildColorName } from "@/lib/childColors";
 
 type SiblingsCarouselProps = {
   siblings: Array<CarouselCardSibling>;
+  color: ChildColorName;
 };
 
-export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
+export function SiblingsCarousel({ siblings, color }: SiblingsCarouselProps) {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
@@ -114,7 +116,11 @@ export function SiblingsCarousel({ siblings }: SiblingsCarouselProps) {
                 key={sibling.id}
                 className="flex min-h-0 basis-full md:basis-1/3"
               >
-                <CarouselCard sibling={sibling} className="h-full w-full" />
+                <CarouselCard
+                  sibling={sibling}
+                  color={color}
+                  className="h-full w-full"
+                />
               </CarouselItem>
             ))}
           </CarouselContent>

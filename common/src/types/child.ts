@@ -28,6 +28,9 @@ export const TreatmentLevelSchema = z.number();
 export const treatmentLevelToLetter = (level: TreatmentLevel) =>
   String.fromCharCode(65 + level);
 
+export const letterToTreatmentLevel = (letter: string): TreatmentLevel =>
+  letter.toUpperCase().charCodeAt(0) - 65;
+
 /**
  * Types:
  *- Recently diagnosed or relapse with cancer (within 1 year)

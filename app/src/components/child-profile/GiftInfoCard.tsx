@@ -5,8 +5,11 @@ import type { Transaction } from "@tanstack/react-db";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Gift, GiftStatus } from "common";
 import {
+  GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
   GIFT_TITLE_TOO_LONG_MESSAGE,
+  MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
   MAX_GIFT_TITLE_LENGTH,
+  isGiftFamilyPublicNotesTooLong,
   isGiftTitleTooLong,
 } from "common";
 import { useCollections } from "@/collections/context";
@@ -133,6 +136,11 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
       return;
     }
 
+    if (isGiftFamilyPublicNotesTooLong(gift.familyPublicNotes)) {
+      toast.error(GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE);
+      return;
+    }
+
     const tx = txRef.current;
     const trackingChanged = draftTrackingId !== trackingIdBeforeEdit.current;
     const hasGiftMutations = !!tx && tx.mutations.length > 0;
@@ -218,6 +226,19 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
               }}
             >
               Price:
+            </EditableField>
+
+            <EditableField
+              value={gift.familyPublicNotes ?? ""}
+              editable={isEditing}
+              fieldType="textarea"
+              characterLimit={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
+              placeholder="N/A"
+              onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+                editField("familyPublicNotes", event.target.value)
+              }
+            >
+              Note to Donors:
             </EditableField>
           </div>
 
@@ -316,6 +337,7 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
           <EditableField
             value={formatISODate(claim?.dateOrdered ?? null)}
             editable={false}
+            className="text-base"
           >
             Date Ordered (Confirmed by Donor):
           </EditableField>
@@ -344,11 +366,13 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
           <EditableField
             value={formatISODate(claim?.dateDelivered ?? null)}
             editable={false}
+            className="text-base"
           >
             Date Delivered (Confirmed by Donor):
           </EditableField>
 
           <EditableField
+            className="text-base"
             value={formatISODate(claim?.dateReceived ?? null)}
             editable={false}
           >

@@ -194,6 +194,7 @@ export function createCollections(queryClient: QueryClient) {
   ) {
     const childId = mutation.key as string;
     const modified = mutation.modified;
+    const deletedPhoto = modified.photoUrl === "";
 
     // Firebase Storage returns the same download URL/token on re-upload to
     // the same path, so a cache-busting query param is required or the
@@ -212,10 +213,17 @@ export function createCollections(queryClient: QueryClient) {
             !(k === "photoUrl"),
         ).map((k) => [k, modified[k]]),
       ) as Pick<Child, Exclude<UpdatableChildField, "photoUrl">>),
-      ...(photoUrl ? { photoUrl } : {}),
+      ...(photoUrl !== undefined ? { photoUrl } : {}),
     };
 
     await updateChild({ data: { childId, updates } });
+
+    if (deletedPhoto) {
+      mutation.collection.utils.writeUpdate({
+        id: childId,
+        photoUrl: undefined,
+      });
+    }
   }
 
   async function persistFamilyUpdate(
@@ -434,17 +442,10 @@ export function createCollections(queryClient: QueryClient) {
           throw error;
         }
       },
-      onInsert: async ({ transaction, collection }) => {
+      onInsert: async ({ transaction }) => {
         try {
           for (const m of transaction.mutations) {
-            const draft = m.modified as Gift;
-            const created = await persistGiftInsert(m);
-            if (created.id !== draft.id) {
-              collection.utils.writeDelete(draft.id);
-              collection.utils.writeInsert(created);
-            } else {
-              collection.utils.writeUpdate(created);
-            }
+            await persistGiftInsert(m);
           }
           await invalidateGiftDerivedCaches();
           return { refetch: false };
@@ -505,5 +506,6 @@ export function createCollections(queryClient: QueryClient) {
     createChildTransaction,
     createFamilyTransaction,
     createGiftsTransaction,
+    invalidateGiftDerivedCaches,
   };
 }

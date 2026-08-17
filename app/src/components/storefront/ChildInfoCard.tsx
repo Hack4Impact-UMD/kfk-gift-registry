@@ -16,7 +16,10 @@ export function ChildInfoCard({ child, className }: ChildInfoCardProps) {
       : "bg-kfk-blue/10 text-kfk-blue inset-ring inset-ring-kfk-blue/20";
 
   return (
-    <Card className={cn("w-full max-w-sm", className)}>
+    <Card
+      className={cn("w-full max-w-sm", className)}
+      data-tour="child-info-card"
+    >
       <CardContent className="flex flex-col items-center gap-1.5 sm:gap-2 pt-3 sm:pt-6 pb-4 sm:pb-6 px-3 sm:px-6">
         <div className="w-full max-w-[280px] aspect-[4/3] bg-muted rounded-lg overflow-hidden border border-foreground">
           <img

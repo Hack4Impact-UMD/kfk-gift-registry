@@ -1,7 +1,9 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import type { Gift } from "common";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/lib/toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -11,32 +13,48 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE,
   GIFT_TITLE_TOO_LONG_MESSAGE,
+  MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
   MAX_GIFT_TITLE_LENGTH,
+  isGiftFamilyPublicNotesTooLong,
   isGiftTitleTooLong,
 } from "common";
 
-type AddGiftFormProps = {
-  canAddToStorefront: boolean;
-  disabled?: boolean;
-  isSubmitting?: boolean;
-  onSubmit: (gift: {
-    title: string;
-    productUrl: string;
-    listedPrice?: number;
-    active: boolean;
-  }) => Promise<void>;
+export type GiftFormValues = {
+  title: string;
+  productUrl: string;
+  listedPrice?: number;
+  familyPublicNotes?: string;
+  active: boolean;
 };
 
-export function AddGiftForm({
-  canAddToStorefront,
+type GiftFormProps = {
+  mode?: "add" | "edit";
+  initial?: Gift;
+  canAddToStorefront?: boolean;
+  disabled?: boolean;
+  isSubmitting?: boolean;
+  onSubmit: (gift: GiftFormValues) => void;
+};
+
+export function GiftForm({
+  mode = "add",
+  initial,
+  canAddToStorefront = false,
   disabled = false,
   isSubmitting = false,
   onSubmit,
-}: AddGiftFormProps) {
-  const [title, setTitle] = useState("");
-  const [productUrl, setProductUrl] = useState("");
-  const [listedPrice, setListedPrice] = useState("");
+}: GiftFormProps) {
+  const isEdit = mode === "edit";
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [productUrl, setProductUrl] = useState(initial?.productUrl ?? "");
+  const [listedPrice, setListedPrice] = useState(
+    initial?.listedPrice != null ? String(initial.listedPrice) : "",
+  );
+  const [familyPublicNotes, setFamilyPublicNotes] = useState(
+    initial?.familyPublicNotes ?? "",
+  );
   const [wantsStorefrontPlacement, setWantsStorefrontPlacement] =
     useState(canAddToStorefront);
   const addToStorefront = canAddToStorefront && wantsStorefrontPlacement;
@@ -58,6 +76,12 @@ export function AddGiftForm({
       return;
     }
 
+    const trimmedNotes = familyPublicNotes.trim();
+    if (isGiftFamilyPublicNotesTooLong(trimmedNotes)) {
+      toast.error(GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE);
+      return;
+    }
+
     let parsedPrice: number | undefined;
     if (trimmedPrice) {
       parsedPrice = Number(trimmedPrice);
@@ -68,17 +92,25 @@ export function AddGiftForm({
     }
 
     try {
-      await onSubmit({
+      onSubmit({
         title: trimmedTitle,
         productUrl: trimmedProductUrl,
         listedPrice: parsedPrice,
-        active: canAddToStorefront ? addToStorefront : false,
+        familyPublicNotes: trimmedNotes || undefined,
+        active: isEdit
+          ? (initial?.active ?? false)
+          : canAddToStorefront
+            ? addToStorefront
+            : false,
       });
 
-      setTitle("");
-      setProductUrl("");
-      setListedPrice("");
-      setWantsStorefrontPlacement(canAddToStorefront);
+      if (!isEdit) {
+        setTitle("");
+        setProductUrl("");
+        setListedPrice("");
+        setFamilyPublicNotes("");
+        setWantsStorefrontPlacement(canAddToStorefront);
+      }
     } catch {
       // Error toast is handled by the mutation hook.
     }
@@ -87,9 +119,11 @@ export function AddGiftForm({
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Add Gift</DialogTitle>
+        <DialogTitle>{isEdit ? "Edit Gift" : "Add Gift"}</DialogTitle>
         <DialogDescription>
-          Add a gift directly to this child's profile.
+          {isEdit
+            ? "Update this gift's details."
+            : "Add a gift directly to this child's profile."}
         </DialogDescription>
       </DialogHeader>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -129,9 +163,27 @@ export function AddGiftForm({
             placeholder="Price (optional)"
             disabled={disabled || isSubmitting}
           />
+          <div className="space-y-1">
+            <Textarea
+              value={familyPublicNotes}
+              onChange={(event) => setFamilyPublicNotes(event.target.value)}
+              placeholder="Note to donors (optional)"
+              disabled={disabled || isSubmitting}
+            />
+            <p
+              className={`text-right text-xs ${
+                familyPublicNotes.length <= MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH
+                  ? "text-muted-foreground"
+                  : "text-destructive"
+              }`}
+            >
+              {familyPublicNotes.length}/{MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}{" "}
+              characters
+            </p>
+          </div>
         </div>
 
-        {canAddToStorefront && (
+        {!isEdit && canAddToStorefront && (
           <label className="flex items-center gap-2 text-sm text-foreground">
             <Checkbox
               checked={addToStorefront}
@@ -145,7 +197,7 @@ export function AddGiftForm({
           </label>
         )}
 
-        {!canAddToStorefront && (
+        {!isEdit && !canAddToStorefront && (
           <p className="text-sm text-muted-foreground">
             This child already has 3 storefront gifts. New gifts will be added
             as backup gifts.
@@ -154,7 +206,8 @@ export function AddGiftForm({
 
         {disabled && (
           <p className="text-sm text-muted-foreground">
-            Save or cancel the current edits before adding another gift.
+            Save or cancel the current edits before{" "}
+            {isEdit ? "editing" : "adding"} another gift.
           </p>
         )}
 
@@ -164,7 +217,13 @@ export function AddGiftForm({
             disabled={disabled || isSubmitting}
             className="w-full sm:w-auto"
           >
-            {isSubmitting ? "Adding..." : "Add Gift"}
+            {isEdit
+              ? isSubmitting
+                ? "Saving..."
+                : "Save Changes"
+              : isSubmitting
+                ? "Adding..."
+                : "Add Gift"}
           </Button>
         </div>
       </form>

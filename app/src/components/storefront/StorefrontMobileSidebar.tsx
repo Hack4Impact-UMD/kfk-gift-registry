@@ -1,6 +1,8 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import LadybugIcon from "@/assets/ladybug-storefront.svg";
 import { Button } from "@/components/ui/button";
+import { LogoutConfirmDialog } from "@/components/auth/LogoutConfirmDialog";
 import {
   Sidebar,
   SidebarContent,
@@ -11,6 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   HomeIcon,
@@ -22,10 +25,11 @@ import {
 } from "@/components/icons";
 import { CircleDollarSign, FormIcon } from "lucide-react";
 import type { AuthContext } from "@/server/functions/auth";
-import { useLogout } from "@/hooks/mutations/logoutMutation";
 import { Spinner } from "../ui/spinner";
 import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
 import { StorefrontFamilyRecoveryDialog } from "@/components/storefront/StorefrontFamilyRecoveryDialog";
+import { getHomeDestination } from "@/components/storefront/StorefrontProfileMenu";
+import { startStorefrontTour } from "@/components/storefront/storefrontTour";
 
 type StorefrontMobileSidebarProps = {
   auth: AuthContext;
@@ -40,8 +44,13 @@ export function StorefrontMobileSidebar({
   // Add more page checks as needed
   const isHomePage = pathname === "/" || pathname.startsWith("/child/");
   const isCheckoutPage = pathname === "/checkout";
-  const { mutate: logout, isPending: logoutPending } = useLogout();
   const { data: link, isPending, error } = useStorefrontFormLink();
+  const { setOpenMobile } = useSidebar();
+  const navigate = useNavigate();
+  const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false);
+  const homeDestination = auth.isAuthed
+    ? getHomeDestination(auth.authUser.role)
+    : null;
 
   return (
     <Sidebar collapsible="offcanvas" side="left" className="sm:hidden">
@@ -89,14 +98,16 @@ export function StorefrontMobileSidebar({
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild size="lg">
-                <Link
-                  to="/"
-                  className="flex items-center gap-3 w-full text-left"
-                >
-                  <ArrowTopRightOnSquareIcon className="size-6" />
-                  <span className="text-base">Storefront Tutorial</span>
-                </Link>
+              <SidebarMenuButton
+                size="lg"
+                onClick={() => {
+                  setOpenMobile(false);
+                  startStorefrontTour(navigate);
+                }}
+                className="flex items-center gap-3 w-full text-left"
+              >
+                <ArrowTopRightOnSquareIcon className="size-6" />
+                <span className="text-base">Storefront Tutorial</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             {isPending ? (
@@ -115,11 +126,22 @@ export function StorefrontMobileSidebar({
                     }}
                   >
                     <FormIcon className="size-6" />
-                    <span className="text-base">Go to Family Form</span>
+                    <span className="text-base">Family Application</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )}
+
+            {auth.isAuthed && homeDestination ? (
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild size="lg">
+                  <Link to={homeDestination.to}>
+                    <UserCircleIcon className="size-6" />
+                    <span className="text-base">{homeDestination.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ) : null}
 
             <SidebarMenuItem>
               <StorefrontFamilyRecoveryDialog>
@@ -135,7 +157,12 @@ export function StorefrontMobileSidebar({
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton asChild size="lg" isActive={isCheckoutPage}>
+              <SidebarMenuButton
+                asChild
+                size="lg"
+                isActive={isCheckoutPage}
+                data-tour="nav-cart-link"
+              >
                 <Link
                   to="/checkout"
                   className="relative flex items-center gap-3 w-full text-left"
@@ -171,8 +198,7 @@ export function StorefrontMobileSidebar({
           <Button
             variant="default"
             className="w-full bg-kfk-blue hover:bg-kfk-blue/90"
-            onClick={() => logout()}
-            disabled={logoutPending}
+            onClick={() => setConfirmLogoutOpen(true)}
           >
             Logout
           </Button>
@@ -193,6 +219,11 @@ export function StorefrontMobileSidebar({
           </Button>
         )}
       </SidebarFooter>
+
+      <LogoutConfirmDialog
+        open={confirmLogoutOpen}
+        onOpenChange={setConfirmLogoutOpen}
+      />
     </Sidebar>
   );
 }

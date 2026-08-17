@@ -15,7 +15,7 @@ import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfil
 import type { Family, Gift, Child, Claim, UserProfile } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
-import { chunk, isDonorClaim } from "@/lib/utils";
+import { chunk, isDonorClaim, getFirstNameLastInitial } from "@/lib/utils";
 
 export type FamilyGiftClaim = {
   giftId: string;
@@ -828,9 +828,23 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
       .get();
     const giftData = gifts.docs.map((doc) => doc.data());
 
+    const mapGift = (g: Gift) =>
+      ({
+        id: g.id,
+        title: g.title,
+        productUrl: g.productUrl,
+        listedPrice: g.listedPrice,
+        status: g.status,
+        familyPublicNotes: g.familyPublicNotes,
+        childId: g.childId,
+        childName: child.name.split(" ")[0],
+        familyId: g.familyId,
+        backup: g.backup,
+      }) satisfies StorefrontGift;
+
     const storefrontChild: StorefrontChild = {
       id: child.id,
-      name: child.name,
+      name: getFirstNameLastInitial(child.name),
       age: child.age,
       status: child.status,
       diagnosis: child.diagnosis,
@@ -838,20 +852,9 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
       photoUrl: child.photoUrl,
       publicBlurb: child.publicBlurb,
       published: child.published,
-      gifts: giftData.map(
-        (g) =>
-          ({
-            id: g.id,
-            title: g.title,
-            productUrl: g.productUrl,
-            listedPrice: g.listedPrice,
-            status: g.status,
-            familyPublicNotes: g.familyPublicNotes,
-            childId: g.childId,
-            childName: child.name.split(" ")[0],
-            familyId: g.familyId,
-          }) satisfies StorefrontChild["gifts"][number],
-      ),
+      familyId: child.familyId,
+      backupGits: giftData.filter((g) => g.backup).map(mapGift),
+      gifts: giftData.filter((g) => !g.backup).map(mapGift),
     };
 
     return storefrontChild;
@@ -891,6 +894,7 @@ export const getStorefrontGiftsForChild = createServerFn({ method: "GET" })
         childId: giftData.childId,
         childName: child.name.split(" ")[0],
         familyId: giftData.familyId,
+        backup: giftData.backup,
       } satisfies StorefrontGift;
     });
   });
@@ -950,20 +954,41 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
           photoUrl: sibling.photoUrl,
           publicBlurb: sibling.publicBlurb,
           published: sibling.published,
-          gifts: giftData.map(
-            (g) =>
-              ({
-                id: g.id,
-                title: g.title,
-                productUrl: g.productUrl,
-                listedPrice: g.listedPrice,
-                status: g.status,
-                familyPublicNotes: g.familyPublicNotes,
-                childId: g.childId,
-                childName: sibling.name.split(" ")[0],
-                familyId: g.familyId,
-              }) satisfies StorefrontGift,
-          ),
+          familyId: sibling.familyId,
+          gifts: giftData
+            .filter((g) => !g.backup)
+            .map(
+              (g) =>
+                ({
+                  id: g.id,
+                  title: g.title,
+                  productUrl: g.productUrl,
+                  listedPrice: g.listedPrice,
+                  status: g.status,
+                  familyPublicNotes: g.familyPublicNotes,
+                  childId: g.childId,
+                  childName: sibling.name.split(" ")[0],
+                  familyId: g.familyId,
+                  backup: g.backup,
+                }) satisfies StorefrontGift,
+            ),
+          backupGits: giftData
+            .filter((g) => g.backup)
+            .map(
+              (g) =>
+                ({
+                  id: g.id,
+                  title: g.title,
+                  productUrl: g.productUrl,
+                  listedPrice: g.listedPrice,
+                  status: g.status,
+                  familyPublicNotes: g.familyPublicNotes,
+                  childId: g.childId,
+                  childName: sibling.name.split(" ")[0],
+                  familyId: g.familyId,
+                  backup: g.backup,
+                }) satisfies StorefrontGift,
+            ),
         };
       },
     );

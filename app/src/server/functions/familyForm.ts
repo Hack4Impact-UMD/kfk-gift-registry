@@ -12,7 +12,6 @@ import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
 import {
-  AMAZON_PRODUCT_URL_INVALID_MESSAGE,
   AddressSchema,
   ChildStatusSchema,
   GiftFamilyPublicNotesSchema,
@@ -20,7 +19,7 @@ import {
   GIFT_TITLE_REQUIRED_MESSAGE,
   MAX_GIFT_PRICE,
   NormalizedGiftTitleSchema,
-  isValidAmazonProductUrl,
+  normalizeGiftListingUrl,
 } from "common";
 import { getDownloadURL } from "firebase-admin/storage";
 import admin from "firebase-admin";
@@ -60,7 +59,11 @@ const PRICE_REQUIRED_MESSAGE = "Price is required";
 const URL_REQUIRED_MESSAGE = "URL is required";
 
 const baseGiftSelectionSchema = z.object({
-  giftUrl: z.url().optional().or(z.literal("")),
+  giftUrl: z
+    .string()
+    .trim()
+    .transform((value) => (value ? normalizeGiftListingUrl(value) : value))
+    .optional(),
   giftName: NormalizedGiftTitleSchema.optional(),
   listedPrice: z.number().min(0).max(MAX_GIFT_PRICE).optional(),
   familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
@@ -88,12 +91,6 @@ const optionalGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
         code: "custom",
         path: ["giftUrl"],
         message: URL_REQUIRED_MESSAGE,
-      });
-    } else if (!isValidAmazonProductUrl(data.giftUrl ?? "")) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["giftUrl"],
-        message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
       });
     }
 
@@ -133,12 +130,6 @@ const requiredGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
         code: "custom",
         path: ["giftUrl"],
         message: URL_REQUIRED_MESSAGE,
-      });
-    } else if (!isValidAmazonProductUrl(data.giftUrl ?? "")) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["giftUrl"],
-        message: AMAZON_PRODUCT_URL_INVALID_MESSAGE,
       });
     }
 
