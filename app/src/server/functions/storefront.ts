@@ -62,6 +62,7 @@ export const getStorefrontGift = createServerFn({ method: "GET" })
       childId: gift.childId,
       childName: child.name.split(" ")[0],
       familyPublicNotes: gift.familyPublicNotes,
+      backup: gift.backup,
     } satisfies StorefrontGift;
   });
 
@@ -143,6 +144,7 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
           childId: gift.childId,
           childName: child.name.split(" ")[0],
           familyId: gift.familyId,
+          backup: gift.backup,
         }));
 
         return {
