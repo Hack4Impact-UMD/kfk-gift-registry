@@ -95,6 +95,7 @@ export function isMfaEnrolled(user: User) {
 // SMS code so the UI can surface a specific, actionable message instead of a
 // generic "something went wrong" toast
 export function getRecaptchaSmsErrorMessage(error: unknown): string {
+  console.log(error);
   if (error instanceof FirebaseError) {
     switch (error.code) {
       case AuthErrorCodes.CAPTCHA_CHECK_FAILED:
@@ -192,7 +193,7 @@ export async function initRecaptchaVerifier(
     await verifier.render();
     return verifier;
   } catch (error) {
-    throw new Error(getRecaptchaSmsErrorMessage(error), { cause: error });
+    throw new Error("initRecaptchaVerifierError", { cause: error });
   }
 }
 
