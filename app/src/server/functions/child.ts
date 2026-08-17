@@ -36,6 +36,7 @@ export type FamilyGiftClaim = {
 export type StaffGiftDetails = {
   donorName: string;
   donorEmail: string;
+  donorPhone: string;
   trackingId: string;
   dateOrdered: string;
   dateDelivered: string;
@@ -379,12 +380,14 @@ export const getChildGiftDetailsByChildId = createServerFn({ method: "GET" })
           claim.organizationName ??
           (claim.claimType === "kfk" ? "KFK" : "");
         const donorEmail = donorProfile?.email ?? "";
+        const donorPhone = donorProfile?.phone ?? "";
 
         return [
           claim.giftId,
           {
             donorName,
             donorEmail,
+            donorPhone,
             trackingId: claim.purchaseConfirmation?.trackingNumber ?? "",
             dateOrdered: claim.purchaseConfirmation?.date ?? "",
             dateDelivered: claim.deliveryConfirmed?.date ?? "",
@@ -1116,6 +1119,7 @@ export type GiftClaimDetails = {
   claimId: string;
   donorName: string | null;
   donorEmail: string | null;
+  donorPhone: string | null;
   trackingNumber: string | null;
   dateOrdered: string | null;
   dateDelivered: string | null;
@@ -1177,6 +1181,7 @@ export const getClaimsWithDonorByChildId = createServerFn({ method: "GET" })
           claim.organizationName ??
           (claim.claimType === "kfk" ? "KFK" : null),
         donorEmail: donor?.email ?? null,
+        donorPhone: donor?.phone ?? null,
         trackingNumber: claim.purchaseConfirmation?.trackingNumber ?? null,
         dateOrdered: claim.purchaseConfirmation?.date ?? null,
         dateDelivered: claim.deliveryConfirmed?.date ?? null,
