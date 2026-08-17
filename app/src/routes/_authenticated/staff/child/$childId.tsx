@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { createOptimisticAction, eq, useLiveQuery } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
 import { useQuery } from "@tanstack/react-query";
@@ -29,6 +29,7 @@ import { useFamilyLinkByFamilyId } from "@/hooks/queries/useFamilyLinkByFamilyId
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
 import { createGift } from "@/server/functions/child";
+import { ArrowLeftIcon } from "@/components/icons/ArrowLeftIcon";
 
 export const Route = createFileRoute("/_authenticated/staff/child/$childId")({
   component: ChildProfilePage,
@@ -79,6 +80,7 @@ function ErrorPanel({ message }: { message: string }) {
 }
 
 function ChildProfilePage() {
+  const navigate = useNavigate();
   const { childId } = Route.useParams();
   const collections = useCollections();
   const [isEditing, setIsEditing] = useState(false);
@@ -400,7 +402,16 @@ function ChildProfilePage() {
   };
 
   return (
-    <div className="px-4 pb-8 sm:px-6 lg:px-8 @container flex flex-col items-center">
+    <div className="flex h-full flex-col p-4">
+      <Button
+        type="button"
+        variant="default"
+        onClick={() => navigate({ to: "/staff/child-profile" })}
+        className="mb-4 h-10 w-fit rounded-md bg-kfk-blue text-white hover:bg-kfk-blue/90"
+      >
+        <ArrowLeftIcon className="size-4" aria-hidden />
+        Back to Child Profiles
+      </Button>
       <div className="max-w-6xl w-full rounded-[28px] border border-border/70 bg-card/95 p-4 shadow-sm sm:p-6">
         <h1 className="mb-5 text-3xl font-semibold tracking-tight sm:text-4xl">
           Child Profile
