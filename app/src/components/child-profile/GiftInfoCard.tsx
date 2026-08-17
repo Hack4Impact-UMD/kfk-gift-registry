@@ -331,7 +331,9 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
 
             <EditableField
               className="w-full"
-              value={claim?.donorPhone ? e164ToDisplay(claim.donorPhone) : "N/A"}
+              value={
+                claim?.donorPhone ? e164ToDisplay(claim.donorPhone) : "N/A"
+              }
               editable={false}
             >
               Donor Phone:
