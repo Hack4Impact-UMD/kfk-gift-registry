@@ -439,7 +439,7 @@ function ChildProfilePage() {
 
             <div className="my-5 h-px w-full bg-border/70" />
 
-            <div className="grid w-full gap-6 2xl:grid-cols-[minmax(0,600px)_minmax(0,1fr)]">
+            <div className="grid w-full gap-6 2xl:grid-cols-[minmax(0,600px)_minmax(320px,1fr)]">
               <div className="w-full 2xl:max-w-[600px]">
                 <ChildInfo
                   child={child}
@@ -450,7 +450,7 @@ function ChildProfilePage() {
                   onAddressFieldChange={handleAddressFieldChange}
                 />
               </div>
-              <div className="space-y-6">
+              <div className="min-w-0 2xl:min-w-[320px] space-y-6">
                 <SelectedGifts
                   gifts={giftsData}
                   isEditing={isEditing}
