@@ -13,18 +13,15 @@ export function useMarkNotificationAsRead(
 ) {
   const queryClient = useQueryClient();
 
-  if (!familyId || !token || !driveId) {
-    throw new Error("Missing family info");
-  }
-
   const queryKey = queries.notifications.family(
-    familyId,
-    token,
-    driveId,
+    familyId ?? "",
+    token ?? "",
+    driveId ?? "",
   ).queryKey;
 
   return useMutation({
     mutationFn: async (notificationId: string) => {
+      if (!token) throw new Error("token not found");
       return await markNotificationAsRead({ data: { notificationId, token } });
     },
     onMutate: async (notificationId: string) => {
