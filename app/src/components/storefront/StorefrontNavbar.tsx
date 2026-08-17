@@ -52,12 +52,26 @@ export function StorefrontNavbar({
         </div>
 
         {currentDrive && (
-          <Link
-            to="/"
-            className="border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center"
-          >
-            {currentDrive?.cycle} Gift Drive
-          </Link>
+          <div className="flex flex-row w-full items-center">
+            <Link
+              to="/"
+              className="border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center"
+            >
+              {currentDrive?.cycle} Gift Drive
+            </Link>
+
+            <Button asChild className="ml-auto" data-tour="nav-cart-link">
+              <Link to="/checkout">
+                Cart
+                <ShoppingCartIcon className="ml-2" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            </Button>
+          </div>
         )}
       </div>
 
