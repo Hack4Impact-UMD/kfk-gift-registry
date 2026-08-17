@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   claimGifts,
   markGiftDelivered,
@@ -11,6 +11,7 @@ import {
 } from "@/server/functions/donor";
 import { getClientStorage, getClientAuth } from "@/lib/firebase";
 import { queries } from "@/queries";
+import { storageUrlKey } from "@/hooks/useStorageUrl";
 import { toast } from "@/lib/toast";
 
 export function useClaimGifts() {
@@ -104,6 +105,12 @@ export function useUploadPurchaseReceipt() {
         `claims/purchase-confirmations/${uid}/${params.giftId}`,
       );
       await uploadBytes(storageRef, params.file);
+      // Overwriting a path mints a new download token, so cache the fresh URL
+      // to keep the browser from serving the previous receipt from cache.
+      queryClient.setQueryData(
+        storageUrlKey(storageRef.fullPath),
+        await getDownloadURL(storageRef),
+      );
 
       return uploadPurchaseReceipt({
         data: {
@@ -146,6 +153,10 @@ export function useUploadDeliveryReceipt() {
         `claims/delivery-confirmations/${uid}/${params.giftId}`,
       );
       await uploadBytes(storageRef, params.file);
+      queryClient.setQueryData(
+        storageUrlKey(storageRef.fullPath),
+        await getDownloadURL(storageRef),
+      );
 
       return uploadDeliveryReceipt({
         data: { giftId: params.giftId, documentationPath: storageRef.fullPath },

@@ -93,8 +93,8 @@ export function DonorChildDetailScreen({
           </div>
 
           <div className="mt-4 flex items-center gap-2 text-kfk-blue">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               className="font-medium text-[14px]"
               onClick={() => {
                 const nextExpanded = !allExpanded;
@@ -103,12 +103,12 @@ export function DonorChildDetailScreen({
               }}
             >
               {allExpanded ? "Collapse All" : "Expand All"}
-            </button>
-            {allExpanded ? (
-              <ChevronUp className="size-4" />
-            ) : (
-              <ChevronDown className="size-4" />
-            )}
+              {allExpanded ? (
+                <ChevronUp className="size-4" />
+              ) : (
+                <ChevronDown className="size-4" />
+              )}
+            </Button>
           </div>
 
           <div
