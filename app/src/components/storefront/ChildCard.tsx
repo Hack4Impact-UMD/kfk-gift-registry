@@ -3,6 +3,10 @@ import ProfilePhoto from "@/assets/default-profile-photo.png";
 import { GiftIcon } from "@/components/icons/";
 import { Button } from "@/components/ui/button";
 import type { CSSProperties } from "react";
+import blueStripedBackground from "@/assets/blue-striped-background.png";
+import greenStripedBackground from "@/assets/green-striped-background.png";
+import yellowStripedBackground from "@/assets/yellow-striped-background.png";
+import redStripedBackground from "@/assets/red-striped-background.png";
 
 export type ChildCardData = Pick<
   Child,
@@ -21,46 +25,30 @@ interface Props {
 export function getPatternStyle(color: string): CSSProperties {
   if (color === "kfk-red") {
     return {
-      backgroundImage: `repeating-linear-gradient(
-        -45deg,
-        #ff0000 0px,
-        #ff0000 40px,
-        #ff6666 40px,
-        #ff6666 80px
-      )`,
+      backgroundImage: `url(${redStripedBackground})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
     };
   }
   if (color === "kfk-green") {
     return {
-      backgroundImage: `repeating-linear-gradient(
-        -45deg,
-        #1bce1b 0px,
-        #1bce1b 40px,
-        #17b017 40px,
-        #17b017 80px
-      )`,
+      backgroundImage: `url(${greenStripedBackground})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
     };
   }
   if (color === "kfk-brown") {
     return {
-      backgroundColor: "#ffde43",
-      backgroundImage: `
-      radial-gradient(circle, #ffca15 40%, transparent 40%),
-      radial-gradient(circle, #ffca15 40%, transparent 40%)
-    `,
-      backgroundSize: "180px 180px",
-      backgroundPosition: "0 0, 90px 90px",
+      backgroundImage: `url(${yellowStripedBackground})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
     };
   }
   if (color === "kfk-blue") {
     return {
-      backgroundColor: "#0839b1",
-      backgroundImage: `
-      radial-gradient(circle, #1a3fbf 40%, transparent 40%),
-      radial-gradient(circle, #1a3fbf 40%, transparent 40%)
-    `,
-      backgroundSize: "180px 180px",
-      backgroundPosition: "0 0, 90px 90px",
+      backgroundImage: `url(${blueStripedBackground})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
     };
   }
   return {};
