@@ -210,7 +210,7 @@ export function GiftCard({ gift, claim, token, childId }: GiftCardProps) {
           <div className="flex w-full mt-1">
             {GIFT_STEPS.map((label) => (
               <div key={label} className="flex-1 min-w-0 flex justify-center">
-                <span className="text-md font-gaegu font-semibold text-center block">
+                <span className="text-xs sm:text-sm md:text-base font-gaegu font-semibold text-center block">
                   {label}
                 </span>
               </div>
