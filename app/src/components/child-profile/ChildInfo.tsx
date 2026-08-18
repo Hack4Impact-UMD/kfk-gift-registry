@@ -18,7 +18,7 @@ type ChildInfoProps = {
   ) => void;
 };
 
-function formatAddress(address: Address) {
+export function formatAddress(address: Address) {
   return [
     address.street,
     address.addressLine2,

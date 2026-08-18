@@ -32,6 +32,9 @@ export function ReceiptImageUploadRow({
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const fileUrl = useStorageUrl(filePath ?? null);
+  // Storage paths carry no extension, so the stored file name is the only hint
+  // about which of the accepted types (image or PDF) this receipt is.
+  const isPdf = fileName?.toLowerCase().endsWith(".pdf") ?? false;
 
   return (
     <>
@@ -47,7 +50,7 @@ export function ReceiptImageUploadRow({
             ref={inputRef}
             id={inputId}
             type="file"
-            accept="image/*"
+            accept="image/*,application/pdf"
             className="sr-only"
             disabled={disabled || isUploading}
             onChange={(e) => {
@@ -63,7 +66,7 @@ export function ReceiptImageUploadRow({
               className="h-10 min-w-[160px] rounded-[12px] bg-kfk-blue px-5 font-gaegu text-[18px] font-bold text-white transition-colors hover:bg-kfk-blue/80 disabled:cursor-not-allowed disabled:opacity-70"
               onClick={() => inputRef.current?.click()}
             >
-              {isUploading ? "Uploading..." : "Upload Image"}
+              {isUploading ? "Uploading..." : "Upload File"}
             </Button>
             {fileUrl ? (
               <Button
@@ -99,7 +102,23 @@ export function ReceiptImageUploadRow({
             <DialogTitle>Receipt Preview</DialogTitle>
           </DialogHeader>
 
-          {fileUrl ? (
+          {fileUrl && isPdf ? (
+            <div className="flex flex-col gap-2">
+              <iframe
+                src={fileUrl}
+                title="Receipt preview"
+                className="h-[70vh] w-full rounded border border-gray-200"
+              />
+              <a
+                href={fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-center text-sm font-semibold text-kfk-blue underline"
+              >
+                Open in a new tab
+              </a>
+            </div>
+          ) : fileUrl ? (
             <img src={fileUrl} alt="Receipt preview" className="w-full" />
           ) : (
             <div className="flex h-40 items-center justify-center bg-gray-200">

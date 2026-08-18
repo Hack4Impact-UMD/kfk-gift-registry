@@ -17,8 +17,8 @@ service firebase.storage {
       );
       allow write: if request.auth != null
         && request.auth.uid == donorId
-        && request.resource.size <= 10 * 1024 * 1024
-        && request.resource.contentType.matches('image/(jpeg|png|webp)|application/pdf')
+        && request.resource.size <= 50 * 1024 * 1024
+        && request.resource.contentType.matches('image/(.*)|application/pdf')
         && firestore.get(/databases/(default)/documents/gifts/$(giftId)).data.claimedByDonorId == donorId;
     }
     match /{allPaths=**} {

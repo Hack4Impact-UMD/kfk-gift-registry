@@ -1,10 +1,12 @@
 import admin from "firebase-admin";
 
-const MAX_DOCUMENT_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+// Matches the ceiling enforced by storage.rules for client-side claim uploads.
+const MAX_DOCUMENT_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
 const ALLOWED_DOCUMENT_MIME_TYPES = [
   "image/jpeg",
   "image/png",
   "image/webp",
+  "image/gif",
   "application/pdf",
 ] as const;
 export type ClaimDocumentType =
@@ -31,7 +33,7 @@ export async function uploadClaimDocument(
   }
 
   if (buffer.byteLength > MAX_DOCUMENT_SIZE_BYTES) {
-    throw new Error("Document exceeds the 10 MB size limit");
+    throw new Error("Document exceeds the 50 MB size limit");
   }
 
   const bucket = admin.storage().bucket();
