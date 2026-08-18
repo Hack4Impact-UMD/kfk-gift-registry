@@ -8,6 +8,7 @@ interface CopyButtonProps {
   className?: string;
   stopPropagation?: boolean;
   children?: ReactNode;
+  ariaLabel?: string;
 }
 
 export function CopyButton({
@@ -15,6 +16,7 @@ export function CopyButton({
   className,
   children,
   stopPropagation = false,
+  ariaLabel,
 }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
@@ -35,7 +37,7 @@ export function CopyButton({
       size="icon"
       className={className}
       onClick={handleCopy}
-      aria-label="Copy to clipboard"
+      aria-label={ariaLabel ?? "Copy to clipboard"}
     >
       {children}
       {copied ? (

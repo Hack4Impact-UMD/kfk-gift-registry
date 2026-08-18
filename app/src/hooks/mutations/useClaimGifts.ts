@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import type { StorageReference } from "firebase/storage";
 import {
   claimGifts,
   markGiftDelivered,
@@ -13,6 +15,27 @@ import { getClientStorage, getClientAuth } from "@/lib/firebase";
 import { queries } from "@/queries";
 import { storageUrlKey } from "@/hooks/useStorageUrl";
 import { toast } from "@/lib/toast";
+
+// Overwriting a path mints a new download token, so cache the fresh URL to keep
+// the browser from serving the previous receipt from cache. This runs after the
+// gift record is updated and never fails the upload: if the URL can't be
+// fetched, drop the stale entry so useStorageUrl refetches it on next render.
+async function refreshStorageUrl(
+  queryClient: QueryClient,
+  storageRef: StorageReference,
+) {
+  try {
+    queryClient.setQueryData(
+      storageUrlKey(storageRef.fullPath),
+      await getDownloadURL(storageRef),
+    );
+  } catch (error) {
+    console.error("Failed to refresh receipt download URL:", error);
+    await queryClient.invalidateQueries({
+      queryKey: storageUrlKey(storageRef.fullPath),
+    });
+  }
+}
 
 export function useClaimGifts() {
   const queryClient = useQueryClient();
@@ -105,20 +128,18 @@ export function useUploadPurchaseReceipt() {
         `claims/purchase-confirmations/${uid}/${params.giftId}`,
       );
       await uploadBytes(storageRef, params.file);
-      // Overwriting a path mints a new download token, so cache the fresh URL
-      // to keep the browser from serving the previous receipt from cache.
-      queryClient.setQueryData(
-        storageUrlKey(storageRef.fullPath),
-        await getDownloadURL(storageRef),
-      );
 
-      return uploadPurchaseReceipt({
+      const result = await uploadPurchaseReceipt({
         data: {
           giftId: params.giftId,
           documentationPath: storageRef.fullPath,
           trackingNumber: params.trackingNumber,
         },
       });
+
+      await refreshStorageUrl(queryClient, storageRef);
+
+      return result;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queries.donor._def });
@@ -132,7 +153,7 @@ export function useUploadPurchaseReceipt() {
       console.error(error);
       toast.error(
         error.message ??
-          "Failed to upload receipt. Make sure the file size is less than 10MB.",
+          "Failed to upload receipt. Make sure the file is an image or PDF under 50MB.",
       );
     },
   });
@@ -153,14 +174,14 @@ export function useUploadDeliveryReceipt() {
         `claims/delivery-confirmations/${uid}/${params.giftId}`,
       );
       await uploadBytes(storageRef, params.file);
-      queryClient.setQueryData(
-        storageUrlKey(storageRef.fullPath),
-        await getDownloadURL(storageRef),
-      );
 
-      return uploadDeliveryReceipt({
+      const result = await uploadDeliveryReceipt({
         data: { giftId: params.giftId, documentationPath: storageRef.fullPath },
       });
+
+      await refreshStorageUrl(queryClient, storageRef);
+
+      return result;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queries.donor._def });
@@ -174,7 +195,7 @@ export function useUploadDeliveryReceipt() {
       console.error(error);
       toast.error(
         error.message ??
-          "Failed to upload delivery confirmation. Make sure the file size is less than 10MB.",
+          "Failed to upload delivery confirmation. Make sure the file is an image or PDF under 50MB.",
       );
     },
   });

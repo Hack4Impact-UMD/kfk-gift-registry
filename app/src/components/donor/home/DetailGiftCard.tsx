@@ -236,6 +236,7 @@ export function DetailGiftCard({
                 {gift.familyAddress && (
                   <CopyButton
                     text={formatAddress(gift.familyAddress)}
+                    ariaLabel="Copy delivery address"
                     className="pointer-events-auto flex items-center w-fit p-2 mt-2 border text-[12px] text-[#4B5563]"
                   >
                     Copy delivery address
