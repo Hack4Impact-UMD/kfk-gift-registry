@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { Address } from "common";
+import type { Address, GiftStatus } from "common";
+import { GiftStatusSchema } from "common";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
-import { GiftStatusBadge } from "./GiftStatusBadge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { GIFT_STATUS_CONFIG } from "./GiftStatusBadge";
 import { useStaffClaimDialog } from "./useStaffClaimDialog";
 
 type StaffClaim = ReturnType<typeof useStaffClaimDialog>;
@@ -125,6 +133,47 @@ function ClaimLifecycleControls({
   );
 }
 
+/**
+ * Manual status override, available for both KFK and donor claims.
+ */
+function GiftStatusOverride({ claim }: { claim: StaffClaim }) {
+  return (
+    <section className="space-y-1">
+      <label htmlFor="status-override" className="text-sm font-semibold">
+        Status
+      </label>
+      <Select
+        value={claim.status}
+        disabled={claim.isMutating}
+        onValueChange={(value) => claim.setStatus(value as GiftStatus)}
+      >
+        <SelectTrigger id="status-override" className="w-full border">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {GiftStatusSchema.options.map((status) => (
+            <SelectItem key={status} value={status}>
+              {GIFT_STATUS_CONFIG[status].label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {!claim.canManage && (
+        <p className="text-xs text-muted-foreground">
+          This gift was claimed by a donor. Its purchase/delivery is normally
+          confirmed from the donor&apos;s account; use this to correct the
+          status manually if needed.
+        </p>
+      )}
+      {claim.mutationError && (
+        <p className="text-sm text-destructive">
+          {claim.mutationError.message}
+        </p>
+      )}
+    </section>
+  );
+}
+
 export function StaffClaimDetailsDialog({
   giftId,
   giftName,
@@ -197,14 +246,9 @@ export function StaffClaimDetailsDialog({
               </>
             )}
 
-            {/* Status */}
-            <section className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-foreground">Status</h3>
-              <GiftStatusBadge status={claim.details.gift.status} />
-            </section>
-
-            {/* Lifecycle controls */}
-            {claim.canManage ? (
+            {/* Status override + (KFK-only) lifecycle controls */}
+            <GiftStatusOverride claim={claim} />
+            {claim.canManage && (
               <ClaimLifecycleControls
                 claim={claim}
                 initialTrackingNumber={
@@ -212,11 +256,6 @@ export function StaffClaimDetailsDialog({
                   ""
                 }
               />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                This gift was claimed by a donor. Its lifecycle is managed from
-                the donor&apos;s account.
-              </p>
             )}
           </div>
         )}
