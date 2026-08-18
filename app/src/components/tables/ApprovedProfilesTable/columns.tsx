@@ -93,7 +93,7 @@ export const columns = [
   helper.accessor("diagnosis", {
     enableGlobalFilter: true,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>Diagnosis</ColumnSortButton>
+      <ColumnSortButton column={column}>Level</ColumnSortButton>
     ),
   }),
   helper.accessor("type", {
