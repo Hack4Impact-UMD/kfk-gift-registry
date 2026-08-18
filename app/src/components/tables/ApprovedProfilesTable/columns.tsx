@@ -99,7 +99,7 @@ export const columns = [
   helper.accessor("type", {
     enableGlobalFilter: false,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>Warrior or Super Sib</ColumnSortButton>
+      <ColumnSortButton column={column}>Warrior/SuperSib</ColumnSortButton>
     ),
     cell: ({ getValue }) => {
       const type = getValue();
