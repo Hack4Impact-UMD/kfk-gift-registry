@@ -107,7 +107,10 @@ function RouteComponent() {
 
   const eligibleFamilyIds =
     familyRows
-      ?.filter((row) => !activeFilter || row.status === activeFilter)
+      ?.filter(
+        (row) =>
+          !activeFilter || row.status === activeFilter || row.id === familyId,
+      )
       .map((row) => row.id) ?? [];
   const familyOrder = reviewOrder.includes(familyId)
     ? reviewOrder.filter((id) => eligibleFamilyIds.includes(id))
