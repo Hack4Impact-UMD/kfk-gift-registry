@@ -51,14 +51,15 @@ export function DonorChildDetailScreen({
 
   return (
     <div className="mx-auto w-full max-w-[430px] px-2 pb-8 pt-1 text-[#1F2937]">
-      <button
+      <Button
         type="button"
+        variant="link"
         onClick={onBack}
-        className="inline-flex items-center gap-1 text-[14px] text-[#1F2937]"
+        className="p-0 inline-flex items-center gap-1 text-[14px] text-[#1F2937]"
       >
         <ChevronLeft className="size-4" />
         <span>Back to Home</span>
-      </button>
+      </Button>
 
       <div className="mt-3 overflow-hidden rounded-[4px] border border-[#D1D5DB] bg-white">
         <div className="flex items-center justify-center gap-2 bg-[#173FB6] px-4 py-2 text-white">
@@ -93,8 +94,8 @@ export function DonorChildDetailScreen({
           </div>
 
           <div className="mt-4 flex items-center gap-2 text-kfk-blue">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               className="font-medium text-[14px]"
               onClick={() => {
                 const nextExpanded = !allExpanded;
@@ -103,12 +104,12 @@ export function DonorChildDetailScreen({
               }}
             >
               {allExpanded ? "Collapse All" : "Expand All"}
-            </button>
-            {allExpanded ? (
-              <ChevronUp className="size-4" />
-            ) : (
-              <ChevronDown className="size-4" />
-            )}
+              {allExpanded ? (
+                <ChevronUp className="size-4" />
+              ) : (
+                <ChevronDown className="size-4" />
+              )}
+            </Button>
           </div>
 
           <div
