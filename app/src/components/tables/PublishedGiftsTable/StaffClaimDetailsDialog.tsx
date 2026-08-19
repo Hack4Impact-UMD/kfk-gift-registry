@@ -165,7 +165,7 @@ function GiftStatusOverride({ claim }: { claim: StaffClaim }) {
           status manually if needed.
         </p>
       )}
-      {claim.mutationError && (
+      {!claim.canManage && claim.mutationError && (
         <p className="text-sm text-destructive">
           {claim.mutationError.message}
         </p>
