@@ -6,7 +6,10 @@ interface GiftStatusBadgeProps {
   className?: string;
 }
 
-const statusConfig: Record<GiftStatus, { label: string; color: string }> = {
+export const GIFT_STATUS_CONFIG: Record<
+  GiftStatus,
+  { label: string; color: string }
+> = {
   AVAILABLE: {
     label: "Unclaimed",
     color: "bg-red-300",
@@ -30,7 +33,7 @@ const statusConfig: Record<GiftStatus, { label: string; color: string }> = {
 };
 
 export function GiftStatusBadge({ status, className }: GiftStatusBadgeProps) {
-  const config = statusConfig[status];
+  const config = GIFT_STATUS_CONFIG[status];
 
   if (!config) return null;
 
