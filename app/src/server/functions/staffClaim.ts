@@ -12,7 +12,7 @@ import admin from "firebase-admin";
 import { DateTime } from "luxon";
 import { v7 as uuidv7 } from "uuid";
 import type { Address, Claim, Gift } from "common";
-import { UserRole } from "common";
+import { GiftStatusSchema, UserRole } from "common";
 import { getServerDB } from "@/lib/firebase.server";
 import { requireRolesMiddleware } from "@/server/middleware/authMiddleware";
 import { assertGiftDriveActive } from "@/server/services/giftDriveService.server";
@@ -287,6 +287,32 @@ export const unclaimKFKGift = createServerFn({ method: "POST" })
       });
       tx.update(claimDoc.ref, { active: false });
     });
+  });
+
+const setGiftStatusSchema = z.object({
+  giftId: z.string().min(1),
+  status: GiftStatusSchema,
+});
+
+/**
+ * Manual admin override to set a gift's status directly, regardless of who
+ * claimed it (donor or KFK).
+ */
+export const adminSetGiftStatus = createServerFn({ method: "POST" })
+  .middleware([staffRolesMiddleware])
+  .inputValidator(setGiftStatusSchema)
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const giftRef = db.gifts.doc(data.giftId);
+    const giftDoc = await giftRef.get();
+
+    if (!giftDoc.exists) {
+      throw new Error("Gift not found");
+    }
+
+    await giftRef.update({ status: data.status });
+
+    return { giftId: data.giftId, status: data.status };
   });
 
 export type StaffGiftClaimDetails = {

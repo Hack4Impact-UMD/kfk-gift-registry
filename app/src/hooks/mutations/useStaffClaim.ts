@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { GiftStatus } from "common";
 import {
   claimGiftAsKFK,
   markKFKGiftPurchased,
   markKFKGiftDelivered,
   updateKFKTrackingNumber,
   unclaimKFKGift,
+  adminSetGiftStatus,
 } from "@/server/functions/staffClaim";
 import publishedGiftsQueries from "@/queries/publishedGifts";
 import { queries } from "@/queries";
@@ -84,6 +86,22 @@ export function useUpdateKFKTrackingNumber() {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to save tracking number");
+    },
+  });
+}
+
+export function useAdminSetGiftStatus() {
+  const invalidate = useInvalidateStaffClaim();
+
+  return useMutation({
+    mutationFn: (params: { giftId: string; status: GiftStatus }) =>
+      adminSetGiftStatus({ data: params }),
+    onSuccess: async () => {
+      await invalidate();
+      toast.success("Gift status updated");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update gift status");
     },
   });
 }
