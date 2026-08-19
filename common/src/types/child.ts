@@ -31,6 +31,13 @@ export const treatmentLevelToLetter = (level: TreatmentLevel) =>
 export const letterToTreatmentLevel = (letter: string): TreatmentLevel =>
   letter.toUpperCase().charCodeAt(0) - 65;
 
+export const TREATMENT_LEVEL_OPTIONS: Array<"A" | "B" | "C" | "D"> = [
+  "A",
+  "B",
+  "C",
+  "D",
+];
+
 // Default severity level by status, per the family-form intake rubric.
 // Statuses that depend on a sibling's status (sibling_in_treatment,
 // bereaved_sibling) aren't covered here — staff assign those manually.

@@ -23,13 +23,13 @@ import {
   isGiftTitleTooLong,
   letterToTreatmentLevel,
   treatmentLevelToLetter,
+  TREATMENT_LEVEL_OPTIONS,
 } from "common";
 
 interface ChildCardProps {
   child: Child;
 }
 
-const levelOptions: Array<"A" | "B" | "C" | "D"> = ["A", "B", "C", "D"];
 const timePeriodOptions: Array<TimePeriod> = [
   "<6m",
   "6m-1y",
@@ -518,7 +518,7 @@ export function ChildCard({ child }: ChildCardProps) {
                   }
                   editable={editing}
                   fieldType="select"
-                  selectOptions={levelOptions}
+                  selectOptions={TREATMENT_LEVEL_OPTIONS}
                   onChange={(value: string) =>
                     editChild((draft) => {
                       draft.treatmentLevel = letterToTreatmentLevel(value);
