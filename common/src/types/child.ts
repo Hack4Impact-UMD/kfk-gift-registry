@@ -23,7 +23,7 @@ export type TimePeriod = z.infer<typeof TimePeriodSchema>;
 
 export type TreatmentLevel = number;
 
-export const TreatmentLevelSchema = z.number();
+export const TreatmentLevelSchema = z.number().int().min(0).max(3);
 
 export const treatmentLevelToLetter = (level: TreatmentLevel) =>
   String.fromCharCode(65 + level);
@@ -36,6 +36,13 @@ export const TREATMENT_LEVEL_OPTIONS: Array<"A" | "B" | "C" | "D"> = [
   "B",
   "C",
   "D",
+];
+
+export const UNKNOWN_TREATMENT_LEVEL_OPTION = "Unknown";
+
+export const TREATMENT_LEVEL_SELECT_OPTIONS: Array<string> = [
+  ...TREATMENT_LEVEL_OPTIONS,
+  UNKNOWN_TREATMENT_LEVEL_OPTION,
 ];
 
 // Default severity level by status, per the family-form intake rubric.

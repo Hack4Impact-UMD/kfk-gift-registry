@@ -5,7 +5,8 @@ import { EditableField } from "../review/EditableField";
 import {
   letterToTreatmentLevel,
   treatmentLevelToLetter,
-  TREATMENT_LEVEL_OPTIONS,
+  TREATMENT_LEVEL_SELECT_OPTIONS,
+  UNKNOWN_TREATMENT_LEVEL_OPTION,
 } from "common";
 
 type ChildInfoProps = {
@@ -66,15 +67,17 @@ export function ChildInfo({
                   value={
                     child.treatmentLevel !== undefined
                       ? treatmentLevelToLetter(child.treatmentLevel)
-                      : "Unknown"
+                      : UNKNOWN_TREATMENT_LEVEL_OPTION
                   }
                   editable={isEditing}
                   fieldType="select"
-                  selectOptions={TREATMENT_LEVEL_OPTIONS}
+                  selectOptions={TREATMENT_LEVEL_SELECT_OPTIONS}
                   onChange={(value: string) =>
                     onChildFieldChange(
                       "treatmentLevel",
-                      letterToTreatmentLevel(value),
+                      value === UNKNOWN_TREATMENT_LEVEL_OPTION
+                        ? undefined
+                        : letterToTreatmentLevel(value),
                     )
                   }
                 />
