@@ -27,6 +27,7 @@ const CHECKLIST_ITEMS = [
   "Gift links must point to Amazon/Macy's only",
   "Profile pictures must be appropriate",
   "Personal blurbs must be appropriate",
+  "Double-check each child's Level (A-D)",
 ] as const;
 
 const ADMIN_COMMENTS_PLACEHOLDER =

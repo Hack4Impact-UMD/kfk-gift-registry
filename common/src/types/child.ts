@@ -23,13 +23,44 @@ export type TimePeriod = z.infer<typeof TimePeriodSchema>;
 
 export type TreatmentLevel = number;
 
-export const TreatmentLevelSchema = z.number();
+export const TreatmentLevelSchema = z.number().int().min(0).max(3);
 
 export const treatmentLevelToLetter = (level: TreatmentLevel) =>
   String.fromCharCode(65 + level);
 
 export const letterToTreatmentLevel = (letter: string): TreatmentLevel =>
   letter.toUpperCase().charCodeAt(0) - 65;
+
+export const TREATMENT_LEVEL_OPTIONS: Array<"A" | "B" | "C" | "D"> = [
+  "A",
+  "B",
+  "C",
+  "D",
+];
+
+export const UNKNOWN_TREATMENT_LEVEL_OPTION = "Unknown";
+
+export const TREATMENT_LEVEL_SELECT_OPTIONS: Array<string> = [
+  ...TREATMENT_LEVEL_OPTIONS,
+  UNKNOWN_TREATMENT_LEVEL_OPTION,
+];
+
+// Default severity level by status, per the family-form intake rubric.
+// Statuses that depend on a sibling's status (sibling_in_treatment,
+// bereaved_sibling) aren't covered here — staff assign those manually.
+const STATUS_TO_DEFAULT_TREATMENT_LEVEL: Partial<
+  Record<ChildStatus, TreatmentLevel>
+> = {
+  recently_diagnosed_relapse: letterToTreatmentLevel("A"),
+  "diagnosed_in_treatment_1yr+": letterToTreatmentLevel("B"),
+  recently_off_treatment: letterToTreatmentLevel("C"),
+  "off_treatment_5yr+": letterToTreatmentLevel("C"),
+  "bereaved_sibling_5yr+": letterToTreatmentLevel("D"),
+};
+
+export const deriveDefaultTreatmentLevel = (
+  status: ChildStatus,
+): TreatmentLevel | undefined => STATUS_TO_DEFAULT_TREATMENT_LEVEL[status];
 
 /**
  * Types:

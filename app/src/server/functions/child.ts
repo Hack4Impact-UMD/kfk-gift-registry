@@ -237,7 +237,7 @@ export const getChildProfileTableRows = createServerFn({
         parentGuardian: family.contactName,
         email: family.email,
         age: child.age,
-        diagnosis: child.diagnosis,
+        treatmentLevel: child.treatmentLevel,
         type: child.category === "warrior" ? "warrior" : "supersib",
         published: child.published,
         giftsFulfilled: gifts.filter((g) =>

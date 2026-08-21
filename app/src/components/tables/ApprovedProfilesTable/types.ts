@@ -1,3 +1,5 @@
+import type { TreatmentLevel } from "common";
+
 export type ChildProfileVisibility = "published" | "unpublished";
 
 export type ApprovedProfileTableRow = {
@@ -7,7 +9,7 @@ export type ApprovedProfileTableRow = {
   parentGuardian: string;
   email: string;
   age: number;
-  diagnosis: string;
+  treatmentLevel?: TreatmentLevel;
   type: "warrior" | "supersib";
   published: boolean;
   giftsFulfilled: number;

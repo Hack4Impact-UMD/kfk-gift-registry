@@ -25,6 +25,7 @@ export const columns = [
     id: "select",
     header: ({ table }) => (
       <Checkbox
+        className="ml-2 border-2 border-gray-400"
         checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all rows"
@@ -32,6 +33,7 @@ export const columns = [
     ),
     cell: ({ row }) => (
       <Checkbox
+        className="ml-2 border-2 border-gray-400"
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         onClick={(e) => e.stopPropagation()}

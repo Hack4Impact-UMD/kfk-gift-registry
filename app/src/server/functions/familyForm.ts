@@ -14,6 +14,7 @@ import type { Family, Child, Gift } from "common";
 import {
   AddressSchema,
   ChildStatusSchema,
+  deriveDefaultTreatmentLevel,
   GiftFamilyPublicNotesSchema,
   GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
@@ -357,6 +358,7 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
         age: parseInt(childForm.age, 10),
         status: childForm.status,
         category: childForm.isSibling ? "super_sib" : ("warrior" as const),
+        treatmentLevel: deriveDefaultTreatmentLevel(childForm.status),
         familyId,
         diagnosis: childForm.diagnosis ?? "",
         hospital: childForm.hospitalTreatedAt ?? "",

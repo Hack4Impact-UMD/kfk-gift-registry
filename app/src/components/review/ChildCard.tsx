@@ -23,13 +23,14 @@ import {
   isGiftTitleTooLong,
   letterToTreatmentLevel,
   treatmentLevelToLetter,
+  TREATMENT_LEVEL_SELECT_OPTIONS,
+  UNKNOWN_TREATMENT_LEVEL_OPTION,
 } from "common";
 
 interface ChildCardProps {
   child: Child;
 }
 
-const levelOptions: Array<"A" | "B" | "C" | "D"> = ["A", "B", "C", "D"];
 const timePeriodOptions: Array<TimePeriod> = [
   "<6m",
   "6m-1y",
@@ -514,14 +515,17 @@ export function ChildCard({ child }: ChildCardProps) {
                   value={
                     child.treatmentLevel !== undefined
                       ? treatmentLevelToLetter(child.treatmentLevel)
-                      : "Unknown"
+                      : UNKNOWN_TREATMENT_LEVEL_OPTION
                   }
                   editable={editing}
                   fieldType="select"
-                  selectOptions={levelOptions}
+                  selectOptions={TREATMENT_LEVEL_SELECT_OPTIONS}
                   onChange={(value: string) =>
                     editChild((draft) => {
-                      draft.treatmentLevel = letterToTreatmentLevel(value);
+                      draft.treatmentLevel =
+                        value === UNKNOWN_TREATMENT_LEVEL_OPTION
+                          ? undefined
+                          : letterToTreatmentLevel(value);
                     })
                   }
                 />
