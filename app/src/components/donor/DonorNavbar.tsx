@@ -2,6 +2,8 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { BellIcon, HomeIcon, GiftIcon } from "@heroicons/react/24/outline";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { DonorProfileMenu } from "@/components/donor/DonorProfileMenu";
+import { useDonorNotifications } from "@/hooks/queries/useDonorNotifications";
+import { Route as DonorRoute } from "@/routes/_authenticated/donor/route";
 
 type DonorNavbarProps = {
   displayName: string;
@@ -9,6 +11,12 @@ type DonorNavbarProps = {
 
 export function DonorNavbar({ displayName }: DonorNavbarProps) {
   const location = useLocation();
+  const { currentDrive } = DonorRoute.useRouteContext();
+  const driveId = currentDrive?.id ?? "";
+  const { data: notificationsData } = useDonorNotifications(driveId);
+  const hasUnreadNotifications =
+    notificationsData?.notifications?.some((notification) => !notification.read) ??
+    false;
   const isActive = (path: string) => location.pathname === path;
 
   return (
@@ -40,7 +48,15 @@ export function DonorNavbar({ displayName }: DonorNavbarProps) {
           </span>
         </Link>
         <Link className="flex flex-col items-center" to="/donor/notifications">
-          <BellIcon className="size-6" />
+          <div className="relative">
+            <BellIcon className="size-6" />
+            {hasUnreadNotifications ? (
+              <span
+                className="absolute -right-1 -top-1 size-2.5 rounded-full bg-kfk-red ring-2 ring-kfk-blue"
+                aria-hidden="true"
+              />
+            ) : null}
+          </div>
           <span
             className={`${isActive("/donor/notifications") ? "underline" : ""} font-bold decoration-2`}
           >
