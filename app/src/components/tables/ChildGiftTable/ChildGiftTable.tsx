@@ -28,7 +28,11 @@ function isGiftAlreadyClaimed(gift: StorefrontGift) {
   return gift.status !== "AVAILABLE";
 }
 
-export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
+export function ChildGiftTable({
+  gifts,
+  giftDriveId,
+  className,
+}: ChildGiftTableProps) {
   const { data: cartGifts } = useLiveQuery((q) =>
     q.from({ perf: cartCollection }),
   );
@@ -39,6 +43,7 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
     giftId: string,
     childId: string,
     familyId: string,
+    driveId: string | undefined,
   ) => {
     const shouldRemoveClaim = isGiftLocallyClaimed(giftId);
 
@@ -49,6 +54,7 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
         id: giftId,
         childId,
         familyId,
+        giftDrive: driveId,
       });
     }
     if (!shouldRemoveClaim) {
@@ -61,7 +67,8 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
     isGiftClaimed: (gift) =>
       isGiftLocallyClaimed(gift.id) || isGiftAlreadyClaimed(gift),
     isGiftLocallyClaimed,
-    onToggleClaimGift: handleToggleClaimGift,
+    onToggleClaimGift: (giftId, childId, familyId) =>
+      handleToggleClaimGift(giftId, childId, familyId, giftDriveId),
   };
 
   //TODO: Move this over to the data table component
@@ -106,7 +113,12 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
 
               <Button
                 onClick={() =>
-                  handleToggleClaimGift(gift.id, gift.childId, gift.familyId)
+                  handleToggleClaimGift(
+                    gift.id,
+                    gift.childId,
+                    gift.familyId,
+                    giftDriveId,
+                  )
                 }
                 disabled={isAlreadyClaimed}
                 data-tour={index === 0 ? "claim-gift-button" : undefined}

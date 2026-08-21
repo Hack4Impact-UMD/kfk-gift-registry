@@ -45,6 +45,7 @@ export const Route = createFileRoute("/_storefront/child/$childId")({
 
 function RouteComponent() {
   const { childId } = Route.useParams();
+  const { currentDrive } = Route.useRouteContext();
 
   const {
     data: child,
@@ -146,7 +147,10 @@ function RouteComponent() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="px-3 sm:px-6">
-                    <ChildGiftTable gifts={child.gifts} />
+                    <ChildGiftTable
+                      gifts={child.gifts}
+                      giftDriveId={currentDrive?.id}
+                    />
                   </CardContent>
                 </Card>
               </div>
