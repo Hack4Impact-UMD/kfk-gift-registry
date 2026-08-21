@@ -1,4 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
+import { treatmentLevelToLetter } from "common";
 import ColumnSortButton from "../ColumnSortButton";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ApprovedProfileTableRow } from "./types";
@@ -92,16 +93,20 @@ export const columns = [
       <ColumnSortButton column={column}>Age</ColumnSortButton>
     ),
   }),
-  helper.accessor("diagnosis", {
-    enableGlobalFilter: true,
+  helper.accessor("treatmentLevel", {
+    enableGlobalFilter: false,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>Diagnosis</ColumnSortButton>
+      <ColumnSortButton column={column}>Level</ColumnSortButton>
     ),
+    cell: ({ getValue }) => {
+      const level = getValue();
+      return level !== undefined ? treatmentLevelToLetter(level) : "Unknown";
+    },
   }),
   helper.accessor("type", {
     enableGlobalFilter: false,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>Warrior or Super Sib</ColumnSortButton>
+      <ColumnSortButton column={column}>Warrior/SuperSib</ColumnSortButton>
     ),
     cell: ({ getValue }) => {
       const type = getValue();
