@@ -15,8 +15,9 @@ export function DonorNavbar({ displayName }: DonorNavbarProps) {
   const driveId = currentDrive?.id ?? "";
   const { data: notificationsData } = useDonorNotifications(driveId);
   const hasUnreadNotifications =
-    notificationsData?.notifications?.some((notification) => !notification.read) ??
-    false;
+    notificationsData?.notifications?.some(
+      (notification) => !notification.read,
+    ) ?? false;
   const isActive = (path: string) => location.pathname === path;
 
   return (
