@@ -4,6 +4,7 @@ import { StorefrontMobileSidebar } from "@/components/storefront/StorefrontMobil
 import { StorefrontFooter } from "@/components/storefront/StorefrontFooter";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
+import { getCartItemsForDrive } from "@/local/cartCollection";
 import { queries } from "@/queries";
 
 export const Route = createFileRoute("/_storefront")({
@@ -25,7 +26,10 @@ export const Route = createFileRoute("/_storefront")({
 function RouteComponent() {
   const { currentDrive, auth } = Route.useRouteContext();
   const { data: localCart } = useLocalCartData();
-  const cartCount = localCart?.length ?? 0;
+  const cartCount = getCartItemsForDrive(
+    localCart ?? [],
+    currentDrive?.id,
+  ).length;
 
   return (
     <SidebarProvider defaultOpen={false}>

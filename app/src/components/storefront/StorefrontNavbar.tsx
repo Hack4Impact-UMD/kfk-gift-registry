@@ -12,6 +12,7 @@ import { Menu } from "lucide-react";
 import type { GiftDrive } from "common";
 import type { AuthContext } from "@/server/functions/auth";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
+import { getCartItemsForDrive } from "@/local/cartCollection";
 import { useStorefrontFormLink } from "@/hooks/queries/useStorefrontFormLink";
 import { StorefrontFamilyRecoveryDialog } from "@/components/storefront/StorefrontFamilyRecoveryDialog";
 import { StorefrontProfileMenu } from "@/components/storefront/StorefrontProfileMenu";
@@ -32,7 +33,10 @@ export function StorefrontNavbar({
   const { data: link, isPending, error } = useStorefrontFormLink();
   const navigate = useNavigate();
 
-  const cartCount = localCart?.length ?? 0;
+  const cartCount = getCartItemsForDrive(
+    localCart ?? [],
+    currentDrive?.id,
+  ).length;
 
   return (
     <div className="flex flex-col gap-1 px-4 md:px-8 md:items-center border-b border-b-gray-300 pb-4">
