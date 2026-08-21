@@ -14,12 +14,13 @@ export type CartFamilyGroup = {
 
 const cartInputSchema = z.object({
   items: z.array(CartItemSchema),
+  driveId: z.string().min(1),
 });
 
 export const getCartGiftsGroupedByFamily = createServerFn({ method: "GET" })
   .inputValidator(cartInputSchema)
   .handler(async ({ data }): Promise<Record<string, CartFamilyGroup>> => {
-    const { items } = data;
+    const { items, driveId } = data;
     if (items.length === 0) {
       return {};
     }
@@ -33,7 +34,7 @@ export const getCartGiftsGroupedByFamily = createServerFn({ method: "GET" })
 
     const activeGifts = giftDocs.flatMap((doc) => {
       const gift = doc.data();
-      if (!gift?.active) return [];
+      if (!gift?.active || gift.giftDrive !== driveId) return [];
       return [gift];
     });
 
@@ -44,25 +45,27 @@ export const getCartGiftsGroupedByFamily = createServerFn({ method: "GET" })
     const childNameById: Record<string, string> = {};
     for (const doc of childDocs) {
       const child = doc.data();
-      if (!child) continue;
+      if (!child || child.giftDrive !== driveId) continue;
       childNameById[child.id] = child.name.split(" ")[0];
     }
 
-    const gifts = activeGifts.map(
-      (gift) =>
-        ({
-          id: gift.id,
-          title: gift.title,
-          productUrl: gift.productUrl,
-          listedPrice: gift.listedPrice,
-          status: gift.status,
-          childId: gift.childId,
-          childName: childNameById[gift.childId] ?? "",
-          familyId: gift.familyId,
-          familyPublicNotes: gift.familyPublicNotes,
-          backup: gift.backup,
-        }) satisfies StorefrontGift,
-    );
+    const gifts = activeGifts
+      .filter((gift) => childNameById[gift.childId] !== undefined)
+      .map(
+        (gift) =>
+          ({
+            id: gift.id,
+            title: gift.title,
+            productUrl: gift.productUrl,
+            listedPrice: gift.listedPrice,
+            status: gift.status,
+            childId: gift.childId,
+            childName: childNameById[gift.childId] ?? "",
+            familyId: gift.familyId,
+            familyPublicNotes: gift.familyPublicNotes,
+            backup: gift.backup,
+          }) satisfies StorefrontGift,
+      );
 
     const familyIds = Array.from(new Set(gifts.map((g) => g.familyId)));
     const familyDocs = await Promise.all(
