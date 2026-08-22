@@ -13,7 +13,9 @@ export function DonorNavbar({ displayName }: DonorNavbarProps) {
   const location = useLocation();
   const { currentDrive } = DonorRoute.useRouteContext();
   const driveId = currentDrive?.id ?? "";
-  const { data: notificationsData } = useDonorNotifications(driveId);
+  const { data: notificationsData } = useDonorNotifications(driveId, {
+    enabled: !!driveId,
+  });
   const hasUnreadNotifications =
     notificationsData?.notifications?.some(
       (notification) => !notification.read,
