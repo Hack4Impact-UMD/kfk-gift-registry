@@ -50,14 +50,25 @@ export function DonorNavbar({ displayName }: DonorNavbarProps) {
             Storefront
           </span>
         </Link>
-        <Link className="flex flex-col items-center" to="/donor/notifications">
+        <Link
+          className="flex flex-col items-center"
+          to="/donor/notifications"
+          aria-label={
+            hasUnreadNotifications
+              ? "Notifications, unread notifications available"
+              : "Notifications"
+          }
+        >
           <div className="relative">
             <BellIcon className="size-6" />
             {hasUnreadNotifications ? (
-              <span
-                className="absolute -right-1 -top-1 size-2.5 rounded-full bg-kfk-red ring-2 ring-kfk-blue"
-                aria-hidden="true"
-              />
+              <>
+                <span className="sr-only">Unread notifications</span>
+                <span
+                  className="absolute -right-1 -top-1 size-2.5 rounded-full bg-kfk-red ring-2 ring-kfk-blue"
+                  aria-hidden="true"
+                />
+              </>
             ) : null}
           </div>
           <span
