@@ -230,7 +230,7 @@ export function GiftDetailsForm({
                 <field.FormTextarea
                   className="mt-2"
                   label={`Gift #${i + 1} Specifications`}
-                  placeholder="Color, Size, etc"
+                  placeholder="Color, Size, etc. Will be displayed publicly on the storefront."
                   maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
                   maxCharactersErrorMessage={
                     GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE
