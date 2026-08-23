@@ -181,7 +181,7 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
-              <SidebarMenuButtonWithTooltip label="Profile Approval">
+              <SidebarMenuButtonWithTooltip label="Family Approval">
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/family-approval"
@@ -201,7 +201,7 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
-              <SidebarMenuButtonWithTooltip label="Approved Profiles">
+              <SidebarMenuButtonWithTooltip label="Child Profiles">
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/child-profile"
