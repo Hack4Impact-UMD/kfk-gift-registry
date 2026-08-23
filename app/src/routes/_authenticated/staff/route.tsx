@@ -5,7 +5,6 @@ import {
   useLocation,
   useNavigate,
 } from "@tanstack/react-router";
-import { useState } from "react";
 import { MenuIcon, XIcon } from "lucide-react";
 import { UserRole } from "common";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -46,7 +45,6 @@ export const Route = createFileRoute("/_authenticated/staff")({
 });
 
 function RouteComponent() {
-  const [open, setOpen] = useState(true);
   const { currentDrive } = Route.useRouteContext();
   const { data: drives } = useAllGiftDrives();
   const { drive } = Route.useSearch();
@@ -66,7 +64,7 @@ function RouteComponent() {
     >
       <ReviewOrderProvider>
         <div>
-          <SidebarProvider className="h-svh" open={open} onOpenChange={setOpen}>
+          <SidebarProvider className="h-svh">
             <div className="flex h-full w-full flex-row">
               <StaffSidebar currentDrive={currentDrive} />
               <main className="flex min-w-0 flex-1 flex-col">
