@@ -60,6 +60,7 @@ export const getCartGiftsGroupedByFamily = createServerFn({ method: "GET" })
           childName: childNameById[gift.childId] ?? "",
           familyId: gift.familyId,
           familyPublicNotes: gift.familyPublicNotes,
+          backup: gift.backup,
         }) satisfies StorefrontGift,
     );
 

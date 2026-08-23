@@ -2,6 +2,12 @@ import type { Child } from "../../../../common/src/types/child";
 import type { Address, Family } from "../../../../common/src/types/family";
 import { EnvelopeIcon, HomeIcon, PhoneIcon } from "@/components/icons";
 import { EditableField } from "../review/EditableField";
+import {
+  letterToTreatmentLevel,
+  treatmentLevelToLetter,
+  TREATMENT_LEVEL_SELECT_OPTIONS,
+  UNKNOWN_TREATMENT_LEVEL_OPTION,
+} from "common";
 
 type ChildInfoProps = {
   child: Child;
@@ -18,7 +24,7 @@ type ChildInfoProps = {
   ) => void;
 };
 
-function formatAddress(address: Address) {
+export function formatAddress(address: Address) {
   return [
     address.street,
     address.addressLine2,
@@ -58,11 +64,21 @@ export function ChildInfo({
               <span className="font-semibold">Level:</span>
               <div className="min-w-0 flex-1">
                 <EditableField
-                  type="number"
-                  value={child.treatmentLevel}
+                  value={
+                    child.treatmentLevel !== undefined
+                      ? treatmentLevelToLetter(child.treatmentLevel)
+                      : UNKNOWN_TREATMENT_LEVEL_OPTION
+                  }
                   editable={isEditing}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    onChildFieldChange("treatmentLevel", Number(e.target.value))
+                  fieldType="select"
+                  selectOptions={TREATMENT_LEVEL_SELECT_OPTIONS}
+                  onChange={(value: string) =>
+                    onChildFieldChange(
+                      "treatmentLevel",
+                      value === UNKNOWN_TREATMENT_LEVEL_OPTION
+                        ? undefined
+                        : letterToTreatmentLevel(value),
+                    )
                   }
                 />
               </div>

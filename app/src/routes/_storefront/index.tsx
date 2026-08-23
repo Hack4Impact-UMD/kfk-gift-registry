@@ -202,14 +202,8 @@ function App() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div>
-        <StorefrontSearchFilters
-          searchValue={searchValue}
-          sortValue={sortValue}
-          onSearchChange={setSearchValue}
-          onSortChange={setSortValue}
-        />
         <GiftDriveStats
           drive={context.currentDrive}
           giftsClaimed={claimedGifts}
@@ -218,9 +212,15 @@ function App() {
           totalDonated={isUniqueDonorsError ? undefined : uniqueDonors}
           totalDonatedPending={isUniqueDonorsPending}
         />
+        <StorefrontSearchFilters
+          searchValue={searchValue}
+          sortValue={sortValue}
+          onSearchChange={setSearchValue}
+          onSortChange={setSortValue}
+        />
       </div>
 
-      <div className="py-4 px-2 sm:px-4">
+      <div className="pt-1 pb-4 px-2 sm:px-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
           {currentChildrenProfiles.map((child, index) => {
             const color = getColorName(child.familyId);

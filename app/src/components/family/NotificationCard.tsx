@@ -31,6 +31,7 @@ export function NotificationCard({
           className="flex flex-1 items-center gap-4"
         >
           <ChildProfileCircle
+            disableLink={true}
             child={data?.child}
             compact
             token={token}

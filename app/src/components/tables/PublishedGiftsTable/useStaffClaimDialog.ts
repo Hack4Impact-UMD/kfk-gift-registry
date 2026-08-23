@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
+import type { GiftStatus } from "common";
 import publishedGiftsQueries from "@/queries/publishedGifts";
 import {
   useMarkKFKGiftPurchased,
   useMarkKFKGiftDelivered,
   useUpdateKFKTrackingNumber,
   useUnclaimKFKGift,
+  useAdminSetGiftStatus,
 } from "@/hooks/mutations/useStaffClaim";
 
 const TRACKING_ALLOWED_STATUSES = ["PURCHASED", "DELIVERED", "RECEIVED"];
@@ -28,6 +30,7 @@ export function useStaffClaimDialog(giftId: string, enabled: boolean) {
   const markDelivered = useMarkKFKGiftDelivered();
   const updateTracking = useUpdateKFKTrackingNumber();
   const unclaim = useUnclaimKFKGift();
+  const setStatus = useAdminSetGiftStatus();
 
   const details = detailsQuery.data;
   const status = details?.gift.status;
@@ -37,13 +40,15 @@ export function useStaffClaimDialog(giftId: string, enabled: boolean) {
     markPurchased.isPending ||
     markDelivered.isPending ||
     updateTracking.isPending ||
-    unclaim.isPending;
+    unclaim.isPending ||
+    setStatus.isPending;
 
   const mutationError =
     markPurchased.error ??
     markDelivered.error ??
     updateTracking.error ??
     unclaim.error ??
+    setStatus.error ??
     null;
 
   return {
@@ -68,5 +73,7 @@ export function useStaffClaimDialog(giftId: string, enabled: boolean) {
     saveTracking: (trackingNumber: string) =>
       updateTracking.mutate({ giftId, trackingNumber }),
     unclaim: () => unclaim.mutate(giftId),
+    setStatus: (nextStatus: GiftStatus) =>
+      setStatus.mutate({ giftId, status: nextStatus }),
   };
 }

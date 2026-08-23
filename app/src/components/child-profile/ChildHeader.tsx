@@ -65,6 +65,17 @@ export function ChildHeader({
       </div>
 
       <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+        {isPublished && !isEditing && (
+          <Button size="sm" variant="outline" asChild>
+            <a
+              href={`/child/${child.id}`}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              View on Storefront
+            </a>
+          </Button>
+        )}
         <Button
           size="sm"
           className="min-w-20 px-4"

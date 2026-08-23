@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Link } from "@tanstack/react-router";
 import type { CartFamilyGroup } from "@/server/functions/cart";
 import { DataTable } from "@/components/tables/DataTable";
 import { createCartColumns } from "./cartColumns";
@@ -41,9 +42,13 @@ export function FamilyCartTable({
               Gift #{index + 1}
             </span>
 
-            <span className="text-kfk-red font-medium font-gaegu">
+            <Link
+              to="/child/$childId"
+              params={{ childId: gift.childId }}
+              className="text-kfk-blue font-medium font-gaegu hover:underline"
+            >
               {gift.childName}
-            </span>
+            </Link>
 
             <a
               href={gift.productUrl}

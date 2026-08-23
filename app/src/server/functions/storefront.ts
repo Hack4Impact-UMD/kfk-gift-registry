@@ -3,6 +3,7 @@ import { getServerDB } from "@/lib/firebase.server";
 import type { Child, Gift } from "common";
 import z from "zod";
 import type { StorefrontGift } from "@/types/storefront";
+import { getFirstNameLastInitial } from "@/lib/utils";
 
 export type StorefrontChildWithGifts = Pick<
   Child,
@@ -27,6 +28,13 @@ const driveIdSchema = z.object({
 const giftIdSchema = z.object({
   giftId: z.string().min(1),
 });
+
+// Treatment levels are ordered A through D as 0 through 3. Unknown levels
+// should follow all known levels in storefront ordering.
+const UNKNOWN_TREATMENT_LEVEL_SORT_VALUE = 4;
+
+const getTreatmentLevelSortValue = (treatmentLevel: number | undefined) =>
+  treatmentLevel ?? UNKNOWN_TREATMENT_LEVEL_SORT_VALUE;
 
 export const getStorefrontGift = createServerFn({ method: "GET" })
   .inputValidator(giftIdSchema)
@@ -61,6 +69,7 @@ export const getStorefrontGift = createServerFn({ method: "GET" })
       childId: gift.childId,
       childName: child.name.split(" ")[0],
       familyPublicNotes: gift.familyPublicNotes,
+      backup: gift.backup,
     } satisfies StorefrontGift;
   });
 
@@ -102,10 +111,14 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
 
     const familyTreatmentLevels = new Map<string, number>();
     for (const child of allChildren) {
-      const currentSum = familyTreatmentLevels.get(child.familyId) ?? 0;
+      const childLevel = getTreatmentLevelSortValue(child.treatmentLevel);
+      const currentFamilyLevel = familyTreatmentLevels.get(child.familyId);
+
       familyTreatmentLevels.set(
         child.familyId,
-        currentSum + (child.treatmentLevel ?? 0),
+        currentFamilyLevel === undefined
+          ? childLevel
+          : Math.min(currentFamilyLevel, childLevel),
       );
     }
 
@@ -121,7 +134,10 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
         return a.familyId.localeCompare(b.familyId);
       }
 
-      return (a.treatmentLevel ?? 0) - (b.treatmentLevel ?? 0);
+      return (
+        getTreatmentLevelSortValue(a.treatmentLevel) -
+        getTreatmentLevelSortValue(b.treatmentLevel)
+      );
     });
 
     const results: Array<StorefrontChildWithGifts> = sortedChildren
@@ -142,11 +158,12 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
           childId: gift.childId,
           childName: child.name.split(" ")[0],
           familyId: gift.familyId,
+          backup: gift.backup,
         }));
 
         return {
           id: child.id,
-          name: child.name.split(" ")[0],
+          name: getFirstNameLastInitial(child.name),
           status: child.status,
           photoUrl: child.photoUrl,
           category: child.category,

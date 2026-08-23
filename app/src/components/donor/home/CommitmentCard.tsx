@@ -58,7 +58,7 @@ export function CommitmentCard({ child }: DonorHomeChildCardProps) {
               search={{ childId: child.id }}
               className="inline-flex items-center gap-1 font-gaegu text-[24px] font-bold text-[#173B8F]"
             >
-              <span>View Actions</span>
+              <span>View More</span>
               <ChevronRight className="size-5" strokeWidth={2.5} />
             </Link>
           </div>

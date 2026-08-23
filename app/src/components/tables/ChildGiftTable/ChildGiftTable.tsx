@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { ExternalLink } from "lucide-react";
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { columns } from "./columns";
-import { SuccessMessage } from "./SuccessMessage";
 import type {
   GiftTableProps as ChildGiftTableProps,
   GiftTableMeta,
@@ -23,13 +22,13 @@ import { Button } from "@/components/ui/button";
 import type { StorefrontGift } from "@/types/storefront";
 import { cartCollection } from "@/local/cartCollection";
 import { useLiveQuery } from "@tanstack/react-db";
+import { toast } from "@/lib/toast";
 
 function isGiftAlreadyClaimed(gift: StorefrontGift) {
   return gift.status !== "AVAILABLE";
 }
 
 export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const { data: cartGifts } = useLiveQuery((q) =>
     q.from({ perf: cartCollection }),
   );
@@ -52,18 +51,10 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
         familyId,
       });
     }
-    setShowSuccessMessage(!shouldRemoveClaim);
-  };
-
-  useEffect(() => {
-    if (showSuccessMessage) {
-      const timer = setTimeout(() => {
-        setShowSuccessMessage(false);
-      }, 10000);
-
-      return () => clearTimeout(timer);
+    if (!shouldRemoveClaim) {
+      toast.success("Gift Claimed!");
     }
-  }, [showSuccessMessage]);
+  };
 
   const tableMeta: GiftTableMeta = {
     isGiftAlreadyClaimed,
@@ -103,9 +94,10 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
                 href={gift.productUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-gaegu text-base hover:underline flex items-center gap-2"
+                className="font-gaegu text-base text-kfk-blue hover:underline flex items-center gap-2"
               >
                 {gift.title}
+                <ExternalLink className="h-4 w-4 shrink-0" />
               </a>
 
               <span className="text-sm text-muted-foreground">
@@ -216,7 +208,6 @@ export function ChildGiftTable({ gifts, className }: ChildGiftTableProps) {
           </Table>
         </div>
       </div>
-      {showSuccessMessage && <SuccessMessage />}
     </div>
   );
 }

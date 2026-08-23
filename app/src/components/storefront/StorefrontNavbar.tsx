@@ -1,7 +1,12 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { Button } from "@/components/ui/button";
-import { ArrowTopRightOnSquareIcon, ShoppingCartIcon } from "../icons";
+import {
+  ArrowTopRightOnSquareIcon,
+  HomeIcon,
+  ShoppingCartIcon,
+  UserCircleIcon,
+} from "../icons";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 import type { GiftDrive } from "common";
@@ -47,18 +52,32 @@ export function StorefrontNavbar({
         </div>
 
         {currentDrive && (
-          <Link
-            to="/"
-            className="border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center"
-          >
-            {currentDrive?.cycle} Gift Drive
-          </Link>
+          <div className="flex flex-row w-full items-center">
+            <Link
+              to="/"
+              className="border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center"
+            >
+              {currentDrive?.cycle} Gift Drive
+            </Link>
+
+            <Button asChild className="ml-auto" data-tour="nav-cart-link">
+              <Link to="/checkout">
+                Cart
+                <ShoppingCartIcon className="ml-2" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            </Button>
+          </div>
         )}
       </div>
 
       {/* Desktop header rows */}
-      <div className="hidden md:block w-full max-w-7xl">
-        <div className="hidden md:flex items-center justify-between">
+      <div className="hidden md:flex w-full max-w-7xl items-end justify-between gap-8">
+        <div className="flex shrink-0 flex-col gap-3">
           <Link to="/">
             <img
               src={KFKLogo}
@@ -67,7 +86,18 @@ export function StorefrontNavbar({
             />
           </Link>
 
-          <div className="flex items-center gap-3 mt-7">
+          {currentDrive && (
+            <Link
+              to="/"
+              className="inline-flex h-9 w-full max-w-58 items-center justify-center rounded-md border border-kfk-red px-4 text-center font-gaegu leading-none text-kfk-red"
+            >
+              {currentDrive.cycle} Gift Drive
+            </Link>
+          )}
+        </div>
+
+        <div className="flex min-w-0 flex-1 flex-col items-end gap-5">
+          <div className="flex items-center gap-4">
             <StorefrontFamilyRecoveryDialog>
               <button
                 type="button"
@@ -78,27 +108,6 @@ export function StorefrontNavbar({
               </button>
             </StorefrontFamilyRecoveryDialog>
 
-            {auth.isAuthed ? (
-              <StorefrontProfileMenu auth={auth} />
-            ) : (
-              <Button asChild variant="outline">
-                <Link to="/login">Log-in</Link>
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <div className="hidden md:flex items-center justify-between gap-4">
-          {currentDrive && (
-            <Link
-              to="/"
-              className="border border-kfk-red text-kfk-red py-1 max-w-58 text-center w-full rounded-sm font-gaegu"
-            >
-              {currentDrive.cycle} Gift Drive
-            </Link>
-          )}
-
-          <div className="flex items-center gap-3 ml-auto">
             <button
               type="button"
               onClick={() => startStorefrontTour(navigate)}
@@ -107,12 +116,18 @@ export function StorefrontNavbar({
               Storefront Tutorial
               <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-1 shrink-0" />
             </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Button asChild variant="outline" size="icon">
+              <Link to="/" aria-label="Home">
+                <HomeIcon className="size-5" />
+              </Link>
+            </Button>
 
             {isPending ? (
               <Spinner />
-            ) : error || !link ? (
-              <></>
-            ) : (
+            ) : error || !link ? null : (
               <Button asChild>
                 <Link
                   to="/family/form/$formLinkId/consent"
@@ -123,6 +138,24 @@ export function StorefrontNavbar({
                   Family Application
                 </Link>
               </Button>
+            )}
+
+            {auth.isAuthed ? (
+              <StorefrontProfileMenu auth={auth} />
+            ) : (
+              <>
+                <Button asChild variant="outline">
+                  <Link
+                    to="/login"
+                    search={{
+                      redirect: "/",
+                    }}
+                  >
+                    <UserCircleIcon className="size-5" />
+                    Login
+                  </Link>
+                </Button>
+              </>
             )}
 
             <Button

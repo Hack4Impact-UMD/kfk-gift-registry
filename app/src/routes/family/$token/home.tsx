@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Route as FamilyTokenRoute } from "../$token";
 import { Button } from "@/components/ui/button";
@@ -32,23 +32,20 @@ function FamilyHome() {
     useFamilyNotifications(family?.id, data.token, family.giftDrive);
 
   const clearAllMutation = useClearAllNotifications();
-  const markAsReadMutation = useMarkNotificationAsRead(data.token);
+  const markAsReadMutation = useMarkNotificationAsRead(
+    family?.id,
+    data.token,
+    family?.giftDrive,
+  );
 
   const notifications = useMemo(
     () => notificationsData?.notifications ?? [],
     [notificationsData],
   );
 
-  const [dismissedIds, setDismissedIds] = useState<Array<string>>([]);
-
   const visibleNotifications = useMemo(
-    () =>
-      notifications.filter((n) => {
-        const unread = !n.read;
-        const notDismissed = !dismissedIds.includes(n.id);
-        return unread && notDismissed;
-      }),
-    [notifications, dismissedIds],
+    () => notifications.filter((n) => !n.read),
+    [notifications],
   );
 
   if (!family) {
@@ -59,18 +56,16 @@ function FamilyHome() {
     );
   }
 
-  const handleDismiss = async (id: string) => {
-    try {
-      setDismissedIds((prev) => [...prev, id]);
-      await markAsReadMutation.mutateAsync(id);
-    } catch (error) {
-      setDismissedIds((prev) => prev.filter((i) => i !== id));
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to dismiss notification";
-      toast.error(message);
-    }
+  const handleDismiss = (id: string) => {
+    markAsReadMutation.mutate(id, {
+      onError: (error) => {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Failed to dismiss notification";
+        toast.error(message);
+      },
+    });
   };
 
   const handleClearAll = () => {
@@ -83,7 +78,6 @@ function FamilyHome() {
         },
         {
           onSuccess: () => {
-            setDismissedIds([]);
             toast.success("Notifications cleared");
           },
           onError: (error) => {

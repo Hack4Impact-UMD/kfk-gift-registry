@@ -15,7 +15,7 @@ import type { ApprovedProfileTableRow } from "@/components/tables/ApprovedProfil
 import type { Family, Gift, Child, Claim, UserProfile } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
-import { chunk, isDonorClaim } from "@/lib/utils";
+import { chunk, isDonorClaim, getFirstNameLastInitial } from "@/lib/utils";
 
 export type FamilyGiftClaim = {
   giftId: string;
@@ -36,6 +36,7 @@ export type FamilyGiftClaim = {
 export type StaffGiftDetails = {
   donorName: string;
   donorEmail: string;
+  donorPhone: string;
   trackingId: string;
   dateOrdered: string;
   dateDelivered: string;
@@ -236,7 +237,7 @@ export const getChildProfileTableRows = createServerFn({
         parentGuardian: family.contactName,
         email: family.email,
         age: child.age,
-        diagnosis: child.diagnosis,
+        treatmentLevel: child.treatmentLevel,
         type: child.category === "warrior" ? "warrior" : "supersib",
         published: child.published,
         giftsFulfilled: gifts.filter((g) =>
@@ -379,12 +380,14 @@ export const getChildGiftDetailsByChildId = createServerFn({ method: "GET" })
           claim.organizationName ??
           (claim.claimType === "kfk" ? "KFK" : "");
         const donorEmail = donorProfile?.email ?? "";
+        const donorPhone = donorProfile?.phone ?? "";
 
         return [
           claim.giftId,
           {
             donorName,
             donorEmail,
+            donorPhone,
             trackingId: claim.purchaseConfirmation?.trackingNumber ?? "",
             dateOrdered: claim.purchaseConfirmation?.date ?? "",
             dateDelivered: claim.deliveryConfirmed?.date ?? "",
@@ -828,9 +831,23 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
       .get();
     const giftData = gifts.docs.map((doc) => doc.data());
 
+    const mapGift = (g: Gift) =>
+      ({
+        id: g.id,
+        title: g.title,
+        productUrl: g.productUrl,
+        listedPrice: g.listedPrice,
+        status: g.status,
+        familyPublicNotes: g.familyPublicNotes,
+        childId: g.childId,
+        childName: child.name.split(" ")[0],
+        familyId: g.familyId,
+        backup: g.backup,
+      }) satisfies StorefrontGift;
+
     const storefrontChild: StorefrontChild = {
       id: child.id,
-      name: child.name,
+      name: getFirstNameLastInitial(child.name),
       age: child.age,
       status: child.status,
       diagnosis: child.diagnosis,
@@ -839,20 +856,8 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
       publicBlurb: child.publicBlurb,
       published: child.published,
       familyId: child.familyId,
-      gifts: giftData.map(
-        (g) =>
-          ({
-            id: g.id,
-            title: g.title,
-            productUrl: g.productUrl,
-            listedPrice: g.listedPrice,
-            status: g.status,
-            familyPublicNotes: g.familyPublicNotes,
-            childId: g.childId,
-            childName: child.name.split(" ")[0],
-            familyId: g.familyId,
-          }) satisfies StorefrontChild["gifts"][number],
-      ),
+      backupGits: giftData.filter((g) => g.backup).map(mapGift),
+      gifts: giftData.filter((g) => !g.backup).map(mapGift),
     };
 
     return storefrontChild;
@@ -892,6 +897,7 @@ export const getStorefrontGiftsForChild = createServerFn({ method: "GET" })
         childId: giftData.childId,
         childName: child.name.split(" ")[0],
         familyId: giftData.familyId,
+        backup: giftData.backup,
       } satisfies StorefrontGift;
     });
   });
@@ -952,20 +958,40 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
           publicBlurb: sibling.publicBlurb,
           published: sibling.published,
           familyId: sibling.familyId,
-          gifts: giftData.map(
-            (g) =>
-              ({
-                id: g.id,
-                title: g.title,
-                productUrl: g.productUrl,
-                listedPrice: g.listedPrice,
-                status: g.status,
-                familyPublicNotes: g.familyPublicNotes,
-                childId: g.childId,
-                childName: sibling.name.split(" ")[0],
-                familyId: g.familyId,
-              }) satisfies StorefrontGift,
-          ),
+          gifts: giftData
+            .filter((g) => !g.backup)
+            .map(
+              (g) =>
+                ({
+                  id: g.id,
+                  title: g.title,
+                  productUrl: g.productUrl,
+                  listedPrice: g.listedPrice,
+                  status: g.status,
+                  familyPublicNotes: g.familyPublicNotes,
+                  childId: g.childId,
+                  childName: sibling.name.split(" ")[0],
+                  familyId: g.familyId,
+                  backup: g.backup,
+                }) satisfies StorefrontGift,
+            ),
+          backupGits: giftData
+            .filter((g) => g.backup)
+            .map(
+              (g) =>
+                ({
+                  id: g.id,
+                  title: g.title,
+                  productUrl: g.productUrl,
+                  listedPrice: g.listedPrice,
+                  status: g.status,
+                  familyPublicNotes: g.familyPublicNotes,
+                  childId: g.childId,
+                  childName: sibling.name.split(" ")[0],
+                  familyId: g.familyId,
+                  backup: g.backup,
+                }) satisfies StorefrontGift,
+            ),
         };
       },
     );
@@ -1093,6 +1119,7 @@ export type GiftClaimDetails = {
   claimId: string;
   donorName: string | null;
   donorEmail: string | null;
+  donorPhone: string | null;
   trackingNumber: string | null;
   dateOrdered: string | null;
   dateDelivered: string | null;
@@ -1154,6 +1181,7 @@ export const getClaimsWithDonorByChildId = createServerFn({ method: "GET" })
           claim.organizationName ??
           (claim.claimType === "kfk" ? "KFK" : null),
         donorEmail: donor?.email ?? null,
+        donorPhone: donor?.phone ?? null,
         trackingNumber: claim.purchaseConfirmation?.trackingNumber ?? null,
         dateOrdered: claim.purchaseConfirmation?.date ?? null,
         dateDelivered: claim.deliveryConfirmed?.date ?? null,

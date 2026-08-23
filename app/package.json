@@ -9,6 +9,7 @@
     "build": "vite build",
     "start": "node .output/server/index.mjs",
     "preview": "vite preview",
+    "pretest": "pnpm -C ../common build",
     "test": "vitest run",
     "lint": "oxlint .",
     "typecheck": "tsc --noEmit -p ."

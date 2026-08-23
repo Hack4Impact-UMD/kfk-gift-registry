@@ -18,6 +18,7 @@ import type { GiftClaimDetails } from "@/server/functions/child";
 import { updateClaimTrackingNumber } from "@/server/functions/child";
 import { toast } from "@/lib/toast";
 import { formatISODate } from "@/lib/utils";
+import { e164ToDisplay } from "@/components/ui/phone-input";
 import { EditableField } from "@/components/review/EditableField";
 import { Button } from "@/components/ui/button";
 
@@ -208,6 +209,17 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
             </EditableField>
 
             <EditableField
+              value={gift.productUrl}
+              editable={isEditing}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                editField("productUrl", event.target.value)
+              }
+              className="text-sm text-kfk-blue"
+            >
+              Gift Link:
+            </EditableField>
+
+            <EditableField
               value={
                 isEditing
                   ? (gift.listedPrice ?? "")
@@ -315,6 +327,16 @@ export function GiftInfoCard({ gift, claim }: GiftInfoCardProps) {
               editable={false}
             >
               Donor Email:
+            </EditableField>
+
+            <EditableField
+              className="w-full"
+              value={
+                claim?.donorPhone ? e164ToDisplay(claim.donorPhone) : "N/A"
+              }
+              editable={false}
+            >
+              Donor Phone:
             </EditableField>
           </div>
 
