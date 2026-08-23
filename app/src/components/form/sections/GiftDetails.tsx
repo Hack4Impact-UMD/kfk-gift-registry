@@ -229,8 +229,8 @@ export function GiftDetailsForm({
               {(field) => (
                 <field.FormTextarea
                   className="mt-2"
-                  label={`Gift #${i + 1} Public Notes`}
-                  placeholder="Add any additional information to be displayed alongside the gift listing"
+                  label={`Gift #${i + 1} Specifications`}
+                  placeholder="Color, Size, etc. Will be displayed publicly on the storefront."
                   maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
                   maxCharactersErrorMessage={
                     GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE
@@ -243,6 +243,13 @@ export function GiftDetailsForm({
           </div>
         ))}
       </div>
+
+      <p className="text-sm text-muted-foreground text-center">
+        <em>
+          Please provide 2 backup gift choices in case your preferred items are
+          unavailable. List them in order of preference.
+        </em>
+      </p>
 
       <div className="flex flex-col gap-7">
         {([0, 1] as const).map((i) => (
@@ -360,8 +367,8 @@ export function GiftDetailsForm({
               {(field) => (
                 <field.FormTextarea
                   className="mt-2"
-                  label={`Backup Gift #${i + 1} Public Notes`}
-                  placeholder="Add any additional information to be displayed alongside the gift listing"
+                  label={`Backup Gift #${i + 1} Specifications`}
+                  placeholder="Color, Size, etc"
                   maxLength={MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH}
                   maxCharactersErrorMessage={
                     GIFT_FAMILY_PUBLIC_NOTES_TOO_LONG_MESSAGE

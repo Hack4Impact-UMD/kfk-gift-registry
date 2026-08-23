@@ -12,6 +12,7 @@ export function ConsentForm({ form, disabled = false }: ConsentFormProps) {
         {(field) => (
           <field.FormAgreement
             checkboxLabel="I agree to the sharing of my mailing address"
+            required
             disabled={disabled}
           >
             By checking this box, I agree that Kisses for Kyle will share my
@@ -26,6 +27,7 @@ export function ConsentForm({ form, disabled = false }: ConsentFormProps) {
         {(field) => (
           <field.FormAgreement
             checkboxLabel="I certify my legal guardianship and residency"
+            required
             disabled={disabled}
           >
             By checking this box, I certify that I am the legal parent or

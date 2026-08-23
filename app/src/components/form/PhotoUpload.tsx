@@ -7,13 +7,11 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 interface PhotoUploadProps {
-  label?: string;
   childName?: string;
   disabled?: boolean;
 }
 
 export function PhotoUpload({
-  label = "Photo",
   childName = "Child",
   disabled = false,
 }: PhotoUploadProps) {
@@ -96,8 +94,6 @@ export function PhotoUpload({
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium text-slate-600">{label} (Optional)</p>
-
       {/* Hidden file input — triggered by button click or drag-and-drop */}
       <input
         ref={fileInputRef}
