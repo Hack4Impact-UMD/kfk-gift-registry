@@ -57,7 +57,6 @@ export function ChildInfoForm({
               <label className="text-sm font-medium">
                 How many children from your family are participating in the gift
                 drive?
-                <span className="text-destructive"> *</span>
               </label>
               <div className="relative py-2">
                 <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-700" />
@@ -121,7 +120,6 @@ export function ChildInfoForm({
                           <label className="text-sm font-medium">
                             Please indicate which option best applies to your
                             child.
-                            <span className="text-destructive"> *</span>
                           </label>
                           <div className="-mt-2 w-full [&>div]:max-w-full [&>div]:w-full">
                             <field.FormSelect
@@ -203,7 +201,10 @@ export function ChildInfoForm({
                             {displayCount > 1
                               ? `Child #${index + 1} Age`
                               : "Age"}
-                            <span className="text-destructive"> *</span>
+                            <span className="text-destructive">
+                              {" "}
+                              (Required)
+                            </span>
                           </label>
 
                           <div className="relative py-2">
@@ -289,10 +290,6 @@ export function ChildInfoForm({
                                     <label className="text-sm font-medium">
                                       How long has your child been off of
                                       treatment?
-                                      <span className="text-destructive">
-                                        {" "}
-                                        *
-                                      </span>
                                     </label>
                                     <div className="-mt-2">
                                       <field.FormSelect
@@ -362,24 +359,40 @@ export function ChildInfoForm({
                           <p className="text-sm font-medium text-kfk-blue">
                             Please upload a photo of your child.
                           </p>
-                          <div className="border-2 border-kfk-yellow rounded-lg p-4 bg-yellow-50 space-y-3 text-sm">
-                            <p className="font-bold">
-                              Please Note: Photos will be publicly displayed on
-                              our Holiday Gift Drive website.
+                          {index === 0 ? (
+                            <div className="border-2 border-kfk-yellow rounded-lg p-4 bg-yellow-50 space-y-3 text-sm">
+                              <p className="font-bold">
+                                ✨ Help your child's profile stand out! ✨
+                              </p>
+                              <p>
+                                Photos will be{" "}
+                                <strong>publicly displayed</strong> on our
+                                Holiday Gift Drive website.
+                                <br></br>
+                                <br></br>
+                                While uploading a picture is <em>optional</em>,
+                                adding one can help{" "}
+                                <strong>
+                                  personalize your child's profile
+                                </strong>{" "}
+                                and help donors feel more connected as they
+                                choose gifts.
+                                <br></br>
+                                <br></br>
+                                If you choose not to upload a photo, the Kisses
+                                for Kyle logo will be displayed instead.
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              (Optional but encouraged)
                             </p>
-                            <p>
-                              While submitting a photo is not required to
-                              participate, it increases your child's chances of
-                              receiving gifts. If no photo is provided, the
-                              Kisses for Kyle logo will be displayed instead.
-                            </p>
-                          </div>
+                          )}
                         </>
                       )}
                       <form.AppField name={`children[${index}].photoUrl`}>
                         {() => (
                           <PhotoUpload
-                            label=""
                             childName={
                               form.state.values.children[index]?.name ||
                               `Child ${index + 1}`
@@ -446,9 +459,9 @@ export function ChildInfoForm({
       <div className="border-t pt-6">
         <form.AppField name="consentPhotosPublic">
           {(field) => (
-            <field.FormCheckbox disabled={disabled}>
-              I consent to having all photos publicly posted on the Kisses for
-              Kyle Holiday Gift Drive website.
+            <field.FormCheckbox disabled={disabled} required>
+              I consent to having all photos I've uploaded publicly posted on
+              the Kisses for Kyle Holiday Gift Drive website.
             </field.FormCheckbox>
           )}
         </form.AppField>
