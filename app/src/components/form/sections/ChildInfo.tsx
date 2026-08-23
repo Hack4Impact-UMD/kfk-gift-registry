@@ -57,7 +57,6 @@ export function ChildInfoForm({
               <label className="text-sm font-medium">
                 How many children from your family are participating in the gift
                 drive?
-                <span className="text-destructive"> (Required)</span>
               </label>
               <div className="relative py-2">
                 <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-700" />
@@ -121,7 +120,6 @@ export function ChildInfoForm({
                           <label className="text-sm font-medium">
                             Please indicate which option best applies to your
                             child.
-                            <span className="text-destructive"> (Required)</span>
                           </label>
                           <div className="-mt-2 w-full [&>div]:max-w-full [&>div]:w-full">
                             <field.FormSelect
@@ -222,12 +220,11 @@ export function ChildInfoForm({
                               }}
                               onBlur={field.handleBlur}
                               disabled={disabled}
-                              className={`w-32 h-11 pl-4 pr-4 rounded-xl border text-sm focus:outline-none focus:border-kfk-blue truncate disabled:opacity-50 ${
-                                field.state.meta.isTouched &&
+                              className={`w-32 h-11 pl-4 pr-4 rounded-xl border text-sm focus:outline-none focus:border-kfk-blue truncate disabled:opacity-50 ${field.state.meta.isTouched &&
                                 field.state.meta.errors[0]
-                                  ? "border-red-500"
-                                  : "border-slate-700"
-                              }`}
+                                ? "border-red-500"
+                                : "border-slate-700"
+                                }`}
                             />
                           </div>
 
@@ -277,39 +274,35 @@ export function ChildInfoForm({
                             {/* Length of Treatment */}
                             {(status === "recently_off_treatment" ||
                               status === "off_treatment_5yr+") && (
-                              <form.AppField
-                                name={`children[${index}].treatmentLength`}
-                                validators={{
-                                  onChange: ({ value }) => {
-                                    if (!value)
-                                      return "Please select treatment length";
-                                    return undefined;
-                                  },
-                                }}
-                              >
-                                {(field) => (
-                                  <div className="space-y-1">
-                                    <label className="text-sm font-medium">
-                                      How long has your child been off of
-                                      treatment?
-                                      <span className="text-destructive">
-                                        {" "}
-                                        (Required)
-                                      </span>
-                                    </label>
-                                    <div className="-mt-2">
-                                      <field.FormSelect
-                                        label="Select"
-                                        placeholder="Select"
-                                        values={TREATMENT_LENGTH_OPTIONS}
-                                        required
-                                        disabled={disabled}
-                                      />
+                                <form.AppField
+                                  name={`children[${index}].treatmentLength`}
+                                  validators={{
+                                    onChange: ({ value }) => {
+                                      if (!value)
+                                        return "Please select treatment length";
+                                      return undefined;
+                                    },
+                                  }}
+                                >
+                                  {(field) => (
+                                    <div className="space-y-1">
+                                      <label className="text-sm font-medium">
+                                        How long has your child been off of
+                                        treatment?
+                                      </label>
+                                      <div className="-mt-2">
+                                        <field.FormSelect
+                                          label="Select"
+                                          placeholder="Select"
+                                          values={TREATMENT_LENGTH_OPTIONS}
+                                          required
+                                          disabled={disabled}
+                                        />
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
-                              </form.AppField>
-                            )}
+                                  )}
+                                </form.AppField>
+                              )}
 
                             {/* Hospital */}
                             <form.AppField
