@@ -75,6 +75,7 @@ type FormCheckboxProps = {
   children: ReactNode;
   id?: string;
   value?: boolean;
+  required?: boolean;
   disabled?: boolean;
   className?: string;
 };
@@ -83,6 +84,7 @@ export function FormCheckbox({
   children,
   id,
   value,
+  required = false,
   disabled,
   className = "",
 }: FormCheckboxProps) {
@@ -100,6 +102,7 @@ export function FormCheckbox({
       />
       <label htmlFor={checkboxId} className="text-sm cursor-pointer">
         {children}
+        {required && <span className="text-destructive"> (Required)</span>}
       </label>
     </div>
   );
@@ -447,6 +450,7 @@ type FormAgreementProps = {
   children: ReactNode;
   checkboxLabel?: string;
   id?: string;
+  required?: boolean;
   disabled?: boolean;
   className?: string;
 };
@@ -455,6 +459,7 @@ export function FormAgreement({
   children,
   checkboxLabel = "I agree to the sharing of my mailing address",
   id,
+  required = false,
   disabled,
   className = "",
 }: FormAgreementProps) {
@@ -482,6 +487,7 @@ export function FormAgreement({
           className="text-sm font-bold cursor-pointer"
         >
           {checkboxLabel}
+          {required && <span className="text-destructive"> (Required)</span>}
         </label>
       </div>
     </div>

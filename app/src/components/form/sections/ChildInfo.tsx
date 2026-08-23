@@ -121,7 +121,7 @@ export function ChildInfoForm({
                           <label className="text-sm font-medium">
                             Please indicate which option best applies to your
                             child.
-                            <span className="text-destructive"> *</span>
+                            <span className="text-destructive"> (Required)</span>
                           </label>
                           <div className="-mt-2 w-full [&>div]:max-w-full [&>div]:w-full">
                             <field.FormSelect
@@ -465,10 +465,9 @@ export function ChildInfoForm({
       <div className="border-t pt-6">
         <form.AppField name="consentPhotosPublic">
           {(field) => (
-            <field.FormCheckbox disabled={disabled}>
+            <field.FormCheckbox disabled={disabled} required>
               I consent to having all photos I've uploaded publicly posted on
               the Kisses for Kyle Holiday Gift Drive website.
-              <span className="text-destructive"> *</span>
             </field.FormCheckbox>
           )}
         </form.AppField>
