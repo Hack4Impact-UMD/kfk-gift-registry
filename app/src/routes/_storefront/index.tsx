@@ -192,13 +192,7 @@ function App() {
   }
 
   if (!allChildren || allChildren.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-lg font-gaegu">
-          No children profiles available at this time.
-        </p>
-      </div>
-    );
+    return <OffSeasonScreen noChildrenYet />;
   }
 
   return (

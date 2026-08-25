@@ -59,7 +59,11 @@ function StatCard({
   );
 }
 
-export function OffSeasonScreen() {
+type OffSeasonScreenProps = {
+  noChildrenYet?: boolean;
+};
+
+export function OffSeasonScreen({ noChildrenYet }: OffSeasonScreenProps) {
   const {
     data: drives,
     isPending: isDrivesPending,
@@ -142,9 +146,11 @@ export function OffSeasonScreen() {
     );
   }
 
-  const introCopy = nextScheduledDrive
-    ? `The gift drive is currently not in session, but our next one begins ${formatISODate(nextScheduledDrive.startDate)} for the ${nextScheduledDrive.cycle} drive.`
-    : "The gift drive is currently not in session. Check back soon for our next annual drive.";
+  const introCopy = noChildrenYet
+    ? "Our gift drive is in session, but children profiles aren't available just yet. Check back soon!"
+    : nextScheduledDrive
+      ? `The gift drive is currently not in session, but our next one begins ${formatISODate(nextScheduledDrive.startDate)} for the ${nextScheduledDrive.cycle} drive.`
+      : "The gift drive is currently not in session. Check back soon for our next annual drive.";
 
   const showStats =
     !!latestCompletedDrive &&
