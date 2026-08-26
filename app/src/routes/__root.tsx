@@ -18,7 +18,6 @@ import type { AuthContext } from "@/server/functions/auth";
 import { queries } from "@/queries";
 import { getClientAppCheck } from "@/lib/firebase";
 import { RecaptchaProvider } from "@/context/RecaptchaContext";
-import { NotFoundScreen } from "@/components/NotFoundScreen";
 import { useEffect } from "react";
 
 interface MyRouterContext {
@@ -63,7 +62,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
   }),
-  notFoundComponent: () => <NotFoundScreen />,
   beforeLoad: async ({ context }) => {
     const authUser = await context.queryClient.fetchQuery(sessionQuery);
     const currentDrive =

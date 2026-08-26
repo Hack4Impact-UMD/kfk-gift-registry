@@ -21,6 +21,7 @@ export const getRouter = () => {
       },
     },
     defaultNotFoundComponent: () => <NotFoundScreen />,
+    notFoundMode: "root",
 
     defaultPreload: "intent",
 
