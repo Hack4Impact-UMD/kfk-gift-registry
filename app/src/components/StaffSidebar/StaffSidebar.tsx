@@ -43,7 +43,7 @@ import {
 } from "@/components/icons";
 import { useAllGiftDrives } from "@/hooks/queries/useAllGiftDrives";
 import type { GiftDrive } from "common";
-import { LinkIcon, UserCircleIcon } from "lucide-react";
+import { LinkIcon, Settings, UserCircleIcon } from "lucide-react";
 
 // Tooltip wrapper for sidebar menu items to show labels only when collapsed
 function SidebarMenuButtonWithTooltip({
@@ -181,7 +181,7 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
-              <SidebarMenuButtonWithTooltip label="Profile Approval">
+              <SidebarMenuButtonWithTooltip label="Family Approval">
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/family-approval"
@@ -201,7 +201,7 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
               </SidebarMenuButtonWithTooltip>
             </SidebarMenuItem>
             <SidebarMenuItem className="flex justify-center">
-              <SidebarMenuButtonWithTooltip label="Approved Profiles">
+              <SidebarMenuButtonWithTooltip label="Child Profiles">
                 <SidebarMenuButtonWithHovering>
                   <Link
                     to="/staff/child-profile"
@@ -321,7 +321,10 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
                     <span className="text-base font-medium">
                       {user.displayName || "User Name"}
                     </span>
-                    <span className="text-sm">{user.role}</span>
+                    <span className="flex items-center gap-1 text-sm">
+                      <Settings className="size-3.5" />
+                      Settings
+                    </span>
                   </div>
                 </Link>
               </SidebarMenuButtonWithHovering>
