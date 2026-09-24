@@ -2,6 +2,7 @@ import type { StorefrontGift } from "@/types/storefront";
 
 export interface GiftTableProps {
   gifts: Array<StorefrontGift>;
+  giftDriveId?: string;
   className?: string;
 }
 

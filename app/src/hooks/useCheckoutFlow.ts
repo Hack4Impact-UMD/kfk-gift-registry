@@ -5,7 +5,7 @@ import { useClaimGifts } from "@/hooks/mutations/useClaimGifts";
 import { useLogin } from "@/hooks/mutations/loginMutation";
 import { useRegisterDonor } from "@/hooks/mutations/useRegisterDonor";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
-import { cartCollection } from "@/local/cartCollection";
+import { cartCollection, getCartItemsForDrive } from "@/local/cartCollection";
 import type { CartItem } from "@/local/cartCollection";
 import type { AuthContext } from "@/server/functions/auth";
 import { toast } from "@/lib/toast";
@@ -37,7 +37,10 @@ export interface CheckoutFlowState {
   mfaDialogProps: MfaFlowResult["mfaDialogProps"];
 }
 
-export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
+export function useCheckoutFlow(
+  auth: AuthContext,
+  driveId: string | undefined,
+): CheckoutFlowState {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
@@ -47,6 +50,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
   const router = useRouter();
 
   const { data: localCart } = useLocalCartData();
+  const currentDriveCart = getCartItemsForDrive(localCart ?? [], driveId);
 
   const queryClient = useQueryClient();
   const claimMutation = useClaimGifts();
@@ -59,11 +63,13 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
     registerMutation.isPending;
 
   const clearLocalCart = () => {
-    localCart?.forEach((item: CartItem) => cartCollection.delete(item.id));
+    currentDriveCart.forEach((item: CartItem) =>
+      cartCollection.delete(item.id),
+    );
   };
 
   const confirmClaim = () => {
-    const giftIds = localCart?.map((item: CartItem) => item.id) ?? [];
+    const giftIds = currentDriveCart.map((item: CartItem) => item.id);
 
     claimMutation.mutate(giftIds, {
       onSuccess: () => {
@@ -165,7 +171,7 @@ export function useCheckoutFlow(auth: AuthContext): CheckoutFlowState {
   };
 
   const start = () => {
-    if (!localCart || localCart.length === 0) {
+    if (currentDriveCart.length === 0) {
       toast.error("No gifts in cart. Please add some gifts to your cart.");
       return;
     }

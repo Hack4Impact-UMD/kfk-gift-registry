@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { CartContainer, ConfirmationPanel } from "@/components/storefront";
 import {
   useGroupedCartGifts,
@@ -7,7 +7,7 @@ import {
 import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup.tsx";
 import { useMemo } from "react";
 import { Spinner } from "@/components/ui/spinner";
-import { cartCollection } from "@/local/cartCollection";
+import { cartCollection, getCartItemsForDrive } from "@/local/cartCollection";
 import { CheckoutAuthModal } from "@/components/storefront/CheckoutAuthModal";
 import { useCheckoutFlow } from "@/hooks/useCheckoutFlow";
 import MfaMethodDialog from "@/components/auth/MfaMethodDialog";
@@ -23,19 +23,28 @@ export const Route = createFileRoute("/_storefront/checkout")({
       },
     ],
   }),
+  beforeLoad: ({ context }) => {
+    if (!context.currentDrive) {
+      throw redirect({ to: "/" });
+    }
+  },
   component: CheckoutComponent,
   ssr: false,
 });
 
 function CheckoutComponent() {
+  const { auth, currentDrive } = Route.useRouteContext();
   const { data: localCart } = useLocalCartData();
+  const currentDriveCart = getCartItemsForDrive(
+    localCart ?? [],
+    currentDrive?.id,
+  );
   const {
     data: cartData,
     isPending,
     isError,
-  } = useGroupedCartGifts(localCart ?? []);
-  const { auth } = Route.useRouteContext();
-  const flow = useCheckoutFlow(auth);
+  } = useGroupedCartGifts(currentDriveCart, currentDrive?.id);
+  const flow = useCheckoutFlow(auth, currentDrive?.id);
 
   const handleRemoveGift = (giftId: string) => {
     cartCollection.delete(giftId);
@@ -47,6 +56,10 @@ function CheckoutComponent() {
   );
   const totalGifts = useMemo(
     () => familyGroups.reduce((sum, family) => sum + family.gifts.length, 0),
+    [familyGroups],
+  );
+  const gifts = useMemo(
+    () => familyGroups.flatMap((family) => family.gifts),
     [familyGroups],
   );
 
@@ -92,7 +105,7 @@ function CheckoutComponent() {
           {/* Right side - Confirmation Panel */}
           <div className="flex-1">
             <ConfirmationPanel
-              gifts={Object.values(cartData).flatMap((g) => g.gifts)}
+              gifts={gifts}
               totalGifts={totalGifts}
               onConfirm={flow.start}
               disabledMessage={flow.disabledMessage}
