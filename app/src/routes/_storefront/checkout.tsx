@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { CartContainer, ConfirmationPanel } from "@/components/storefront";
 import {
   useGroupedCartGifts,
@@ -23,6 +23,11 @@ export const Route = createFileRoute("/_storefront/checkout")({
       },
     ],
   }),
+  beforeLoad: ({ context }) => {
+    if (!context.currentDrive) {
+      throw redirect({ to: "/" });
+    }
+  },
   component: CheckoutComponent,
   ssr: false,
 });
