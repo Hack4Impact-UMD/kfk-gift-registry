@@ -13,6 +13,7 @@
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
     "lint": "pnpm -r run lint",
+    "lint:indexes": "tsx scripts/check-firestore-indexes.ts",
     "typecheck": "pnpm -r run typecheck",
     "checks": "pnpm run \"/lint|format:check|typecheck/\""
   },

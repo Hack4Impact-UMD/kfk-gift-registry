@@ -49,6 +49,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Check Firestore indexes
+        run: pnpm lint:indexes
+
   format:
     name: Format
     runs-on: ubuntu-latest
