@@ -74,7 +74,19 @@ type Index = {
   queryScope: Scope;
   fields: Array<IndexField>;
 };
-type IndexFile = { indexes: Array<Index>; fieldOverrides: Array<unknown> };
+type FieldOverride = {
+  collectionGroup: string;
+  fieldPath: string;
+  indexes: Array<{
+    queryScope: Scope;
+    order?: Direction;
+    arrayConfig?: "CONTAINS";
+  }>;
+};
+type IndexFile = {
+  indexes: Array<Index>;
+  fieldOverrides: Array<FieldOverride>;
+};
 
 type Requirement =
   | { kind: "single-field" | "index-merge" }
@@ -498,12 +510,48 @@ function describeIndex(index: Index) {
 const indexFile = JSON.parse(fs.readFileSync(INDEX_FILE, "utf8")) as IndexFile;
 const usedIndexes = new Set<Index>();
 const missing = new Map<string, { index: Index; locations: Array<string> }>();
+const singleFieldErrors: Array<string> = [];
+
+// Single-field indexes are automatic unless a fieldOverride replaces them.
+// Queries that don't need a composite index rely on them, so make sure an
+// override hasn't removed the one the query needs.
+function disabledSingleFieldIndexes(query: Query): Array<string> {
+  const needs = new Map<string, "order" | "array">();
+  for (const f of query.filters) {
+    if (f.field === "__name__") continue;
+    needs.set(f.field, ARRAY_OPS.has(f.op) ? "array" : "order");
+  }
+  for (const o of query.orders) {
+    if (o.field !== "__name__") needs.set(o.field, "order");
+  }
+  return [...needs].flatMap(([field, need]) => {
+    const override = indexFile.fieldOverrides.find(
+      (o) => o.collectionGroup === query.collection && o.fieldPath === field,
+    );
+    if (!override) return [];
+    const enabled = override.indexes.some(
+      (i) =>
+        i.queryScope === query.scope &&
+        (need === "array" ? i.arrayConfig === "CONTAINS" : i.order),
+    );
+    return enabled ? [] : [field];
+  });
+}
 
 for (const query of queries) {
   const req = requirementFor(query);
   if (req.kind !== "composite") {
-    if (VERBOSE)
+    const disabled = disabledSingleFieldIndexes(query);
+    if (disabled.length > 0) {
+      for (const field of disabled) {
+        singleFieldErrors.push(
+          `${query.location}: ${query.collection}.${field} has its single-field index disabled by a fieldOverride`,
+        );
+      }
+      if (VERBOSE) console.log(`  MISS ${query.location}  ${describe(query)}`);
+    } else if (VERBOSE) {
       console.log(`  ok   ${query.location}  ${describe(query)} (${req.kind})`);
+    }
     continue;
   }
   const match = indexFile.indexes.find((index) => satisfies(index, query, req));
@@ -529,6 +577,14 @@ for (const warning of warnings) console.warn(`warning: ${warning}`);
 const unused = indexFile.indexes.filter((index) => !usedIndexes.has(index));
 for (const index of unused) {
   console.warn(`warning: index not used by any query: ${describeIndex(index)}`);
+}
+
+for (const error of singleFieldErrors) console.error(`error: ${error}`);
+if (singleFieldErrors.length > 0) {
+  console.error(
+    "\nFix the fieldOverrides above in firestore.indexes.json (--write does not change them).",
+  );
+  process.exit(1);
 }
 
 if (missing.size === 0) {

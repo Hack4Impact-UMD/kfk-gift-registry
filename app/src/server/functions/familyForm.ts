@@ -258,7 +258,17 @@ export const checkFamilyEmailAvailability = createServerFn({ method: "POST" })
   .middleware([appCheckMiddleware])
   .inputValidator(familyEmailSchema)
   .handler(async ({ data }) => {
-    await assertFamilyEmailAvailable(normalizeFamilyEmail(data.email));
+    try {
+      await assertFamilyEmailAvailable(normalizeFamilyEmail(data.email));
+    } catch (error) {
+      if (
+        !(error instanceof Error) ||
+        error.message !== DUPLICATE_FAMILY_EMAIL_MESSAGE
+      ) {
+        console.error("Family email availability check failed", error);
+      }
+      throw error;
+    }
     return { available: true };
   });
 
