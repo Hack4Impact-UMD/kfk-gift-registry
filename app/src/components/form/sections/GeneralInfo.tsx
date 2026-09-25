@@ -39,6 +39,7 @@ async function validateUniqueFamilyEmail(email: string) {
     ) {
       return DUPLICATE_FAMILY_EMAIL_MESSAGE;
     }
+    console.error("Family email availability check failed", error);
     return "We couldn't verify this email right now. Please try again.";
   }
 }
