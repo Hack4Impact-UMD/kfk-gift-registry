@@ -148,3 +148,5 @@ vite.config.ts.timestamp-*
 .claude
 
 functions-dep
+
+scripts/enable-sms-recaptcha-enterprise.ts
