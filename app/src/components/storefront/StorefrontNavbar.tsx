@@ -182,8 +182,15 @@ export function StorefrontNavbar({
             <Button
               variant="default"
               className="bg-green-500 hover:bg-green-400"
+              asChild
             >
-              Donate!
+              <a
+                href="https://kissesforkyle.org/donations/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Donate!
+              </a>
             </Button>
           </div>
         </div>
