@@ -178,8 +178,12 @@ export async function initRecaptchaVerifier(
 ) {
   const auth = await getClientAuth();
 
+  // Phone auth runs on reCAPTCHA Enterprise (same library as App Check), so
+  // this v2 verifier is only a required argument to verifyPhoneNumber() and
+  // is never rendered. Rendering it would load the v2 api.js, which clobbers
+  // App Check's enterprise.js on window.grecaptcha.
   try {
-    const verifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+    return new RecaptchaVerifier(auth, "recaptcha-container", {
       size: "invisible",
       // fired by the widget itself outside of any promise chain (e.g. token
       // expiry, challenge failure) - verifyPhoneNumber() may not always
@@ -190,8 +194,6 @@ export async function initRecaptchaVerifier(
         );
       },
     });
-    await verifier.render();
-    return verifier;
   } catch (error) {
     throw new Error("initRecaptchaVerifierError", { cause: error });
   }

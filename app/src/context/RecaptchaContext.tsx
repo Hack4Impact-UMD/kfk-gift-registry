@@ -30,11 +30,6 @@ export function RecaptchaProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    getVerifier().catch((err: unknown) => {
-      toast.error("Failed to initialize ReCaptcha");
-      console.error("recaptcha init failed", err);
-    });
-
     return () => {
       const pending = verifierRef.current;
       verifierRef.current = null;
