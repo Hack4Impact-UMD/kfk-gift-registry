@@ -7,6 +7,7 @@ import { EmailVerificationAlertDialog } from "@/components/auth/EmailVerificatio
 import { useMfaEnrollFlow } from "@/hooks/useMfaFlow";
 import kfkFoundationLogo from "@/assets/kfk-logo.png";
 import z from "zod";
+import { RecaptchaNotice } from "@/components/auth/RecaptchaNotice";
 
 export const Route = createFileRoute("/mfaEnroll")({
   beforeLoad: ({ context }) => {
@@ -72,6 +73,7 @@ function RouteComponent() {
           >
             Set Up Two-Factor Authentication
           </Button>
+          <RecaptchaNotice />
         </div>
       </div>
     </div>

@@ -147,6 +147,7 @@ code {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -254,4 +255,8 @@ code {
 
 .driver-popover-close-btn:hover {
   color: var(--foreground);
+}
+
+.grecaptcha-badge {
+  visibility: hidden;
 }

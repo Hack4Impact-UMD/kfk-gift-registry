@@ -20,6 +20,7 @@ import MfaDialog from "@/components/auth/MfaDialog";
 import MfaMethodDialog from "@/components/auth/MfaMethodDialog";
 import { useMfaFlow } from "@/hooks/useMfaFlow";
 import { getEnrolledMFAMethods } from "@/services/authService";
+import { RecaptchaNotice } from "@/components/auth/RecaptchaNotice";
 
 const searchSchema = z.object({
   redirect: z
@@ -283,6 +284,7 @@ function RouteComponent() {
                   </p>
                 )}
               </div>
+              <RecaptchaNotice />
             </form>
           </div>
         </div>

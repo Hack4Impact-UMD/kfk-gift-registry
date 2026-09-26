@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { FormProgressBar } from "@/components/form/FormProgressBar";
 import { getFormLinkById } from "@/server/functions/formLinks";
+import { RecaptchaNotice } from "@/components/auth/RecaptchaNotice";
 
 export const Route = createFileRoute("/family/form/$formLinkId")({
   head: () => ({
@@ -62,6 +63,9 @@ function FormLayoutComponent() {
               <Outlet />
             </CardContent>
           </Card>
+          <div className="mt-4">
+            <RecaptchaNotice />
+          </div>
         </div>
       </div>
     </FormProvider>
