@@ -38,7 +38,7 @@ if (import.meta.env.DEV && typeof self !== "undefined") {
 
 const app = initializeApp(firebaseConfig);
 let auth: Auth | null = null;
-let appCheck: AppCheck | null = null;
+let appCheck: Promise<AppCheck | null> | null = null;
 let storage: FirebaseStorage | null = null;
 
 export const getClientAuth = createClientOnlyFn(async () => {
@@ -62,9 +62,17 @@ export const getClientStorage = createClientOnlyFn(async () => {
   return storage;
 });
 
-export const getClientAppCheck = createClientOnlyFn(async () => {
-  if (appCheck) return appCheck;
+function loadRecaptchaEnterprise(siteKey: string) {
+  return new Promise<void>((resolve) => {
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/enterprise.js?render=${siteKey}`;
+    // on failure App Check falls back to loading the script itself
+    script.onload = script.onerror = () => resolve();
+    document.head.appendChild(script);
+  });
+}
 
+async function initClientAppCheck() {
   // Initialize App Check with reCAPTCHA Enterprise
   const reCaptchaPublicKey = import.meta.env.VITE_RECAPTCHA_ENTERPRISE_KEY;
   if (!reCaptchaPublicKey) {
@@ -74,26 +82,31 @@ export const getClientAppCheck = createClientOnlyFn(async () => {
     return null;
   }
 
+  await loadRecaptchaEnterprise(reCaptchaPublicKey);
+
   try {
-    appCheck = initializeAppCheck(app, {
+    const instance = initializeAppCheck(app, {
       provider: new ReCaptchaEnterpriseProvider(reCaptchaPublicKey),
       isTokenAutoRefreshEnabled: true,
     });
 
     console.log("AppCheck initialized successfully");
-    return appCheck;
+    return instance;
   } catch (error) {
     console.error("Failed to initialize AppCheck:", error);
     return null;
   }
-});
+}
+
+export const getClientAppCheck = createClientOnlyFn(
+  () => (appCheck ??= initClientAppCheck()),
+);
 
 export const getAppCheckToken = createClientOnlyFn(async () => {
   const ac = await getClientAppCheck();
   if (!ac) return null;
 
   try {
-    // Use getToken to retrieve the AppCheck token
     return (await getToken(ac)).token;
   } catch (error) {
     console.error("Failed to get AppCheck token:", error);
