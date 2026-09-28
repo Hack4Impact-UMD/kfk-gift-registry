@@ -179,6 +179,7 @@ const familyFormStateSchema = z.object({
 });
 const familyEmailSchema = z.object({
   email: z.email(),
+  giftDrive: z.string(),
 });
 
 const setChildPhotoUrlsSchema = z.object({
@@ -242,10 +243,11 @@ async function sendFamilyPortalEmail({
   }
 }
 
-async function assertFamilyEmailAvailable(email: string) {
+async function assertFamilyEmailAvailable(email: string, giftDrive: string) {
   const db = getServerDB();
   const existingFamily = await db.families
     .where("email", "==", email)
+    .where("giftDrive", "==", giftDrive)
     .limit(1)
     .get();
 
@@ -259,7 +261,10 @@ export const checkFamilyEmailAvailability = createServerFn({ method: "POST" })
   .inputValidator(familyEmailSchema)
   .handler(async ({ data }) => {
     try {
-      await assertFamilyEmailAvailable(normalizeFamilyEmail(data.email));
+      await assertFamilyEmailAvailable(
+        normalizeFamilyEmail(data.email),
+        data.giftDrive,
+      );
     } catch (error) {
       if (
         !(error instanceof Error) ||
@@ -446,7 +451,10 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
     // Single atomic Firestore transaction — all documents created together.
     await db._instance.runTransaction(async (tx) => {
       const existingFamily = await tx.get(
-        db.families.where("email", "==", normalizedEmail).limit(1),
+        db.families
+          .where("email", "==", normalizedEmail)
+          .where("giftDrive", "==", giftDriveId)
+          .limit(1),
       );
 
       if (!existingFamily.empty) {

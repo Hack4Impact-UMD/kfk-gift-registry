@@ -140,14 +140,16 @@ export const sendFamilyRecoveryLink = createServerFn({ method: "POST" })
     const db = getServerDB();
     const familySnapshot = await db.families
       .where("email", "==", normalizedEmail)
-      .limit(1)
       .get();
 
     if (familySnapshot.empty) {
       return { accepted: true };
     }
 
-    const familyDoc = familySnapshot.docs[0];
+    // An email can register once per gift drive; recover the most recent family.
+    const familyDoc = familySnapshot.docs.reduce((latest, doc) =>
+      doc.data().createdAt > latest.data().createdAt ? doc : latest,
+    );
     const family = getRequiredData(familyDoc.data(), "Family data unavailable");
     const familyId = family.id || familyDoc.id;
 
