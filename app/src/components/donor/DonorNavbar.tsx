@@ -47,7 +47,7 @@ export function DonorNavbar({ displayName }: DonorNavbarProps) {
           <span
             className={`${isActive("/") ? "underline" : ""} font-bold decoration-2`}
           >
-            Storefront
+            Gift Drive
           </span>
         </Link>
         <Link
