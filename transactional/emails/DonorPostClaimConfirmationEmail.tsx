@@ -198,6 +198,17 @@ export default function DonorPostClaimConfirmationEmail({
                 claimed, grouped by the address each gift ships to.
               </Text>
 
+              <Section className="mt-4 rounded-lg border-0 border-l-4 border-solid border-kfk-yellow bg-kfk-yellow/20 px-5 py-4">
+                <Text className="m-0 text-xs font-semibold uppercase tracking-widest text-gray-700">
+                  Next step
+                </Text>
+                <Text className="mb-0 mt-1 text-base font-semibold text-gray-900">
+                  Once you purchase your gifts, please return to the donor
+                  portal to confirm your purchase and share any tracking
+                  information.
+                </Text>
+              </Section>
+
               <Hr className="my-6 border-gray-200" />
 
               <Text className="m-0 text-sm font-semibold uppercase tracking-widest text-gray-400">
@@ -364,13 +375,6 @@ export default function DonorPostClaimConfirmationEmail({
                   );
                 },
               )}
-
-              <Hr className="my-6 border-gray-200" />
-
-              <Text className="mb-0 text-sm text-gray-600">
-                Once you purchase your gifts, please return to the donor portal
-                to confirm your purchase and share any tracking information.
-              </Text>
             </Section>
 
             <Text className="mt-6 text-center text-xs text-gray-400">
