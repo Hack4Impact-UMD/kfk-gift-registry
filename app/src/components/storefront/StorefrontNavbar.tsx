@@ -156,7 +156,7 @@ export function StorefrontNavbar({
                     }}
                   >
                     <UserCircleIcon className="size-5" />
-                    Login
+                    Returning User Login
                   </Link>
                 </Button>
               </>
