@@ -5,7 +5,7 @@ import { useLiveQuery } from "@tanstack/react-db";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 export function useLocalCartData() {
-  return useLiveQuery((q) => q.from({ pref: cartCollection }));
+  return useLiveQuery({ query: (q) => q.from({ cart: cartCollection }) });
 }
 
 export function useGroupedCartGifts(

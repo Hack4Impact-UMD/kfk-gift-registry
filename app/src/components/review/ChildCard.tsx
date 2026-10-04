@@ -69,13 +69,12 @@ export function ChildCard({ child }: ChildCardProps) {
     data: gifts = [],
     isLoading: giftsLoading,
     isError: giftsIsError,
-  } = useLiveQuery(
-    (q) =>
+  } = useLiveQuery({
+    query: (q) =>
       q
         .from({ g: collections.gifts })
         .where(({ g }) => eq(g.childId, child.id)),
-    [child.id],
-  );
+  });
 
   useEffect(() => {
     return () => {

@@ -5,7 +5,10 @@ import { useClaimGifts } from "@/hooks/mutations/useClaimGifts";
 import { useLogin } from "@/hooks/mutations/loginMutation";
 import { useRegisterDonor } from "@/hooks/mutations/useRegisterDonor";
 import { useLocalCartData } from "@/hooks/queries/useCartGifts";
-import { cartCollection, getCartItemsForDrive } from "@/local/cartCollection";
+import {
+  getCartItemsForDrive,
+  useCartCollection,
+} from "@/local/cartCollection";
 import type { CartItem } from "@/local/cartCollection";
 import type { AuthContext } from "@/server/functions/auth";
 import { toast } from "@/lib/toast";
@@ -49,6 +52,7 @@ export function useCheckoutFlow(
   const navigate = useNavigate();
   const router = useRouter();
 
+  const cartCollection = useCartCollection();
   const { data: localCart } = useLocalCartData();
   const currentDriveCart = getCartItemsForDrive(localCart ?? [], driveId);
 

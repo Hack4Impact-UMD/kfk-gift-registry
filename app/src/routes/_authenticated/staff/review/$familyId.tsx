@@ -61,24 +61,22 @@ function RouteComponent() {
     data: familyData = [],
     isLoading: familyLoading,
     isError: familyIsError,
-  } = useLiveQuery(
-    (q) =>
+  } = useLiveQuery({
+    query: (q) =>
       q.from({ f: collections.families }).where(({ f }) => eq(f.id, familyId)),
-    [familyId],
-  );
+  });
   const family = familyData[0];
 
   const {
     data: children = [],
     isLoading: childrenLoading,
     isError: childrenIsError,
-  } = useLiveQuery(
-    (q) =>
+  } = useLiveQuery({
+    query: (q) =>
       q
         .from({ c: collections.children })
         .where(({ c }) => eq(c.familyId, familyId)),
-    [familyId],
-  );
+  });
 
   if (familyIsError || childrenIsError) {
     return (

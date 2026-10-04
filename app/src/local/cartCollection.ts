@@ -1,6 +1,7 @@
 import {
-  createCollection,
+  collectionOptions,
   localStorageCollectionOptions,
+  useDbClient,
 } from "@tanstack/react-db";
 import z from "zod";
 
@@ -19,7 +20,11 @@ export const getCartItemsForDrive = (
   driveId: string | undefined,
 ) => (driveId ? items.filter((item) => item.giftDrive === driveId) : []);
 
-export const cartCollection = createCollection(
+// A descriptor rather than a singleton: each DbClient (one per SSR request,
+// one in the browser) materializes its own instance. Resolving it through
+// DbProvider defers the localStorage read until after hydration, so the
+// first client render matches the server's empty cart.
+export const cartCollection = collectionOptions(
   localStorageCollectionOptions({
     id: "cart",
     schema: CartItemSchema,
@@ -27,3 +32,7 @@ export const cartCollection = createCollection(
     getKey: (item) => item.id,
   }),
 );
+
+export function useCartCollection() {
+  return useDbClient().collection(cartCollection);
+}
