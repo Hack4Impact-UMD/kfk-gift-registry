@@ -54,6 +54,11 @@ jobs:
               value: app
               availability:
                 - BUILD
+            # The app build needs ~2.5GB of heap; the worker's default is lower.
+            - variable: NODE_OPTIONS
+              value: "--max-old-space-size=3072"
+              availability:
+                - BUILD
             - variable: VITE_FIREBASE_API_KEY
               value: "$FIREBASE_API_KEY"
               availability:
