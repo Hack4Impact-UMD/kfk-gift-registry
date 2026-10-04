@@ -2,6 +2,8 @@ name: Deploy to Firebase
 
 env:
   GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials
+  # One release name for the app and functions; Sentry release names are org-global.
+  SENTRY_RELEASE: kfk-gift-registry@${{ github.sha }}
 
 on:
   push:
@@ -16,6 +18,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # Sentry needs history to associate commits with the release.
+          fetch-depth: 0
 
       - name: Write service account credentials
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCT_KFK }}' > /tmp/credentials
@@ -82,7 +87,23 @@ jobs:
               value: "$SENTRY_AUTH_TOKEN"
               availability:
                 - BUILD
+            - variable: SENTRY_RELEASE
+              value: "$SENTRY_RELEASE"
+              availability:
+                - BUILD
           HEREDOC
 
       - name: Deploy
         run: firebase deploy
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: hack4impact-umd
+        with:
+          release: ${{ env.SENTRY_RELEASE }}
+          projects: kfk-gift-registry-app kfk-gift-registry-functions
+          environment: production
+          # Squash merges rewrite history between releases.
+          ignore_missing: true

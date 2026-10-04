@@ -50,6 +50,12 @@ const config = defineConfig({
       // Without a token nothing is uploaded or deleted, so don't emit
       // source maps that would end up publicly served.
       sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
+      release: {
+        // Set by CI; must match the release the deploy workflow creates.
+        name: process.env.SENTRY_RELEASE,
+        // The App Hosting build has no git history; CI associates commits.
+        setCommits: false,
+      },
     }),
   ],
 });
