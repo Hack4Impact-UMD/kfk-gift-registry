@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronUp,
-  Gift,
-  Info,
-} from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronUp, Gift, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UnclaimDialog } from "./UnclaimDialog";

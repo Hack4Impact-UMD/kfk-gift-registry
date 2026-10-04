@@ -24,20 +24,13 @@ export function UnclaimDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Confirm unclaiming this gift</AlertDialogTitle>
           <AlertDialogDescription>
-            Unclaiming this gift will release this gift back to the
-            gift drive so that other donors can claim it.
+            Unclaiming this gift will release this gift back to the gift drive
+            so that other donors can claim it.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel
-            onClick={onCancel}
-          >
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onConfirm}
-            variant="destructive"
-          >
+          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm} variant="destructive">
             Yes, unclaim gift
           </AlertDialogAction>
         </AlertDialogFooter>
