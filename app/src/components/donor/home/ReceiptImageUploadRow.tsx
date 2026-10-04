@@ -38,10 +38,10 @@ export function ReceiptImageUploadRow({
 
   return (
     <>
-      <div className="grid w-full grid-cols-[104px_minmax(0,1fr)] items-start gap-x-3 gap-y-1">
+      <div className="flex w-full flex-col gap-2 sm:grid sm:grid-cols-[128px_minmax(0,1fr)] sm:items-start sm:gap-x-3 sm:gap-y-1">
         <Label
           htmlFor={inputId}
-          className="pt-2.5 text-[14px] font-normal leading-5 text-[#4B5563]"
+          className="text-[16px] font-normal leading-6 text-[#4B5563] sm:pt-2"
         >
           {label || "Attach Receipt"}
         </Label>
@@ -59,11 +59,11 @@ export function ReceiptImageUploadRow({
               e.target.value = "";
             }}
           />
-          <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+          <div className="flex min-w-0 items-center gap-2 sm:flex-wrap sm:justify-end">
             <Button
               type="button"
               disabled={disabled || isUploading}
-              className="h-10 min-w-[140px] rounded-[12px] bg-kfk-blue px-5 font-gaegu text-[18px] font-bold text-white transition-colors hover:bg-kfk-blue/80 disabled:cursor-not-allowed disabled:opacity-70"
+              className="h-10 min-w-[140px] flex-1 whitespace-nowrap rounded-[12px] sm:flex-none bg-kfk-blue px-5 font-gaegu text-[20px] font-bold text-white transition-colors hover:bg-kfk-blue/80 disabled:cursor-not-allowed disabled:opacity-70"
               onClick={() => inputRef.current?.click()}
             >
               {isUploading ? "Uploading..." : "Upload File"}
@@ -73,7 +73,7 @@ export function ReceiptImageUploadRow({
                 variant="outline"
                 type="button"
                 onClick={() => setPreviewOpen(true)}
-                className="h-10 rounded-[12px] border border-kfk-blue px-3 text-xs font-semibold text-kfk-blue transition-colors hover:bg-kfk-blue/5"
+                className="h-10 rounded-[12px] border border-kfk-blue px-3 text-sm font-semibold text-kfk-blue transition-colors hover:bg-kfk-blue/5"
               >
                 View
               </Button>
@@ -90,7 +90,7 @@ export function ReceiptImageUploadRow({
             ) : null}
           </div>
           {fileName ? (
-            <p className="mt-1 truncate text-right text-xs text-gray-500">
+            <p className="mt-1 truncate text-sm text-gray-500 sm:text-right">
               {fileName}
             </p>
           ) : null}

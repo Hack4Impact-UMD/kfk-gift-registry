@@ -58,6 +58,7 @@ export function GiftForm({
   const [wantsStorefrontPlacement, setWantsStorefrontPlacement] =
     useState(canAddToStorefront);
   const addToStorefront = canAddToStorefront && wantsStorefrontPlacement;
+  const addLabel = canAddToStorefront ? "Add Gift" : "Add Backup Gift";
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -119,7 +120,7 @@ export function GiftForm({
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>{isEdit ? "Edit Gift" : "Add Gift"}</DialogTitle>
+        <DialogTitle>{isEdit ? "Edit Gift" : addLabel}</DialogTitle>
         <DialogDescription>
           {isEdit
             ? "Update this gift's details."
@@ -199,8 +200,8 @@ export function GiftForm({
 
         {!isEdit && !canAddToStorefront && (
           <p className="text-sm text-muted-foreground">
-            This child already has 3 storefront gifts. New gifts will be added
-            as backup gifts.
+            This child already has 3 main gifts, so this gift will be added as a
+            backup.
           </p>
         )}
 
@@ -223,7 +224,7 @@ export function GiftForm({
                 : "Save Changes"
               : isSubmitting
                 ? "Adding..."
-                : "Add Gift"}
+                : addLabel}
           </Button>
         </div>
       </form>

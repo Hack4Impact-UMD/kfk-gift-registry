@@ -4,23 +4,15 @@ import donationAmountBackground from "@/assets/off-season/stats-donation-amount.
 import giftsPurchasedBackground from "@/assets/off-season/stats-gifts-purchased.svg";
 import peopleDonatedBackground from "@/assets/off-season/stats-people-donated.svg";
 import { useAllGiftDrives } from "@/hooks/queries/useAllGiftDrives";
-import { useStorefrontChildProfiles } from "@/hooks/queries/useStorefrontChildProfiles";
-import { useStorefrontUniqueDonors } from "@/hooks/queries/useStorefrontUniqueDonors";
+import { useOffSeasonStats } from "@/hooks/queries/useOffSeasonStats";
 import {
   formatISODate,
   getLatestCompletedDrive,
   getNextScheduledDrive,
 } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
-import type { GiftStatus } from "common";
 import { useMemo } from "react";
 import { ArrowDown } from "lucide-react";
-
-const purchasedGiftStatuses = new Set<GiftStatus>([
-  "PURCHASED",
-  "DELIVERED",
-  "RECEIVED",
-]);
 
 type StatCardProps = {
   backgroundSrc: string;
@@ -80,53 +72,10 @@ export function OffSeasonScreen({ noChildrenYet }: OffSeasonScreenProps) {
   );
 
   const {
-    data: recentDriveChildren,
-    isPending: isRecentDriveChildrenPending,
-    isError: isRecentDriveChildrenError,
-  } = useStorefrontChildProfiles(latestCompletedDrive?.id);
-  const {
-    data: recentDriveUniqueDonors,
-    isPending: isRecentDriveUniqueDonorsPending,
-    isError: isRecentDriveUniqueDonorsError,
-  } = useStorefrontUniqueDonors(latestCompletedDrive?.id);
-
-  const recentDriveStats = useMemo(() => {
-    if (!recentDriveChildren) {
-      return {
-        totalPurchasedGifts: 0,
-        childrenReceivedGifts: 0,
-        donationAmount: 0,
-      };
-    }
-
-    let totalPurchasedGifts = 0;
-    let childrenReceivedGifts = 0;
-    let donationAmount = 0;
-
-    for (const child of recentDriveChildren) {
-      let childPurchasedGiftCount = 0;
-
-      for (const gift of child.gifts) {
-        if (!purchasedGiftStatuses.has(gift.status)) {
-          continue;
-        }
-
-        childPurchasedGiftCount += 1;
-        totalPurchasedGifts += 1;
-        donationAmount += gift.listedPrice ?? 0;
-      }
-
-      if (childPurchasedGiftCount > 0) {
-        childrenReceivedGifts += 1;
-      }
-    }
-
-    return {
-      totalPurchasedGifts,
-      childrenReceivedGifts,
-      donationAmount,
-    };
-  }, [recentDriveChildren]);
+    data: recentDriveStats,
+    isPending: isRecentDriveStatsPending,
+    isError: isRecentDriveStatsError,
+  } = useOffSeasonStats(latestCompletedDrive?.id);
 
   if (isDrivesPending) {
     return (
@@ -152,10 +101,7 @@ export function OffSeasonScreen({ noChildrenYet }: OffSeasonScreenProps) {
       ? `The gift drive is currently not in session, but our next one begins ${formatISODate(nextScheduledDrive.startDate)} for the ${nextScheduledDrive.cycle} drive.`
       : "The gift drive is currently not in session. Check back soon for our next annual drive.";
 
-  const showStats =
-    !!latestCompletedDrive &&
-    !isRecentDriveChildrenError &&
-    !isRecentDriveUniqueDonorsError;
+  const showStats = !!latestCompletedDrive && !isRecentDriveStatsError;
 
   return (
     <div className="bg-white">
@@ -215,8 +161,7 @@ export function OffSeasonScreen({ noChildrenYet }: OffSeasonScreenProps) {
               </h2>
             </div>
 
-            {isRecentDriveChildrenPending ||
-            isRecentDriveUniqueDonorsPending ? (
+            {isRecentDriveStatsPending ? (
               <div className="flex min-h-52 items-center justify-center rounded-3xl bg-kfk-yellow/10">
                 <Spinner />
               </div>
@@ -249,7 +194,7 @@ export function OffSeasonScreen({ noChildrenYet }: OffSeasonScreenProps) {
                   />
                   <StatCard
                     backgroundSrc={peopleDonatedBackground}
-                    value={(recentDriveUniqueDonors ?? 0).toLocaleString(
+                    value={recentDriveStats.uniqueDonors.toLocaleString(
                       "en-US",
                     )}
                     label="People Donated"

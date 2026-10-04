@@ -7,6 +7,7 @@ import { v7 as uuidv7 } from "uuid";
 import type { Address, Child, Family, Gift } from "common";
 import {
   CHILD_PUBLIC_BLURB_TOO_LONG_MESSAGE,
+  compareGiftOrder,
   isChildPublicBlurbTooLong,
 } from "common";
 import { useCollections } from "@/collections/context";
@@ -18,7 +19,10 @@ import {
 import { ChildHeader } from "@/components/child-profile/ChildHeader";
 import { ChildInfo } from "@/components/child-profile/ChildInfo";
 import { ChildSidebar } from "@/components/child-profile/ChildSidebar";
-import { SelectedGifts } from "@/components/child-profile/SelectedGifts";
+import {
+  MAX_STOREFRONT_GIFTS,
+  SelectedGifts,
+} from "@/components/child-profile/SelectedGifts";
 import { GiftInfoSection } from "@/components/child-profile/GiftInfoSection";
 import type { GiftFormValues } from "@/components/child-profile/GiftForm";
 import { GiftForm } from "@/components/child-profile/GiftForm";
@@ -159,7 +163,7 @@ function ChildProfilePage() {
   }
   if (giftsLoading) return <LoadingPanel label="Loading gifts..." />;
 
-  const activeGiftCount = giftsData.filter((gift) => gift.active).length;
+  const mainGiftCount = giftsData.filter((gift) => !gift.backup).length;
 
   const editChild = (mutate: (draft: Child) => void) => {
     if (!childTxRef.current) {
@@ -298,7 +302,7 @@ function ChildProfilePage() {
         familyPublicNotes: gift.familyPublicNotes,
         status: "AVAILABLE",
         createdAt: new Date().toISOString(),
-        active: gift.active,
+        active: true,
         backup: !gift.active,
       };
       collections.gifts.insert(placeholder);
@@ -315,7 +319,7 @@ function ChildProfilePage() {
         familyPublicNotes: gift.familyPublicNotes,
         status: "AVAILABLE",
         createdAt: new Date().toISOString(),
-        active: gift.active,
+        active: true,
         backup: !gift.active,
       };
       collections.gifts.utils.writeInsert(await createGift({ data: create }));
@@ -389,15 +393,41 @@ function ChildProfilePage() {
     });
   };
 
-  const handleGiftToggle = (giftId: string) => {
+  const handleBackupToggle = (giftId: string) => {
     const gift = giftsData.find((g) => g.id === giftId);
     if (!gift) return;
-    if (!gift.active && activeGiftCount >= 3) return;
+    if (gift.backup && mainGiftCount >= MAX_STOREFRONT_GIFTS) return;
 
-    const nextActive = !gift.active;
+    const nextBackup = !gift.backup;
     editGift(giftId, (draft) => {
-      draft.active = nextActive;
-      draft.backup = !nextActive;
+      draft.backup = nextBackup;
+      // Older staff toggles hid backups with active=false; backups now stay
+      // active so they appear on the storefront like family-submitted ones.
+      draft.active = true;
+    });
+  };
+
+  const handleMoveGift = (giftId: string, direction: "up" | "down") => {
+    const gift = giftsData.find((g) => g.id === giftId);
+    if (!gift) return;
+
+    const sorted = [...giftsData].sort(compareGiftOrder);
+    const group = sorted.filter((g) => g.backup === gift.backup);
+    const from = group.indexOf(gift);
+    const to = direction === "up" ? from - 1 : from + 1;
+    if (to < 0 || to >= group.length) return;
+    [group[from], group[to]] = [group[to], group[from]];
+
+    // Renumber every gift so ones that were never reordered get a stable slot.
+    const reordered = [
+      ...(gift.backup ? sorted.filter((g) => !g.backup) : group),
+      ...(gift.backup ? group : sorted.filter((g) => g.backup)),
+    ];
+    reordered.forEach((g, sortOrder) => {
+      if (g.sortOrder === sortOrder) return;
+      editGift(g.id, (draft) => {
+        draft.sortOrder = sortOrder;
+      });
     });
   };
 
@@ -454,7 +484,12 @@ function ChildProfilePage() {
                 <SelectedGifts
                   gifts={giftsData}
                   isEditing={isEditing}
-                  onGiftToggle={handleGiftToggle}
+                  isSaving={isSavingAll}
+                  onStartEditing={handleStartEditing}
+                  onSave={handleSaveAll}
+                  onCancel={handleCancel}
+                  onBackupToggle={handleBackupToggle}
+                  onMoveGift={handleMoveGift}
                   onEditGift={handleEditGift}
                   isSavingGiftEdit={isSavingGiftEdit}
                   headerAction={
@@ -465,11 +500,15 @@ function ChildProfilePage() {
                           variant="outline"
                           disabled={isEditing}
                         >
-                          Add Gift
+                          {mainGiftCount < MAX_STOREFRONT_GIFTS
+                            ? "Add Gift"
+                            : "Add Backup Gift"}
                         </Button>
                       </DialogTrigger>
                       <GiftForm
-                        canAddToStorefront={activeGiftCount < 3}
+                        canAddToStorefront={
+                          mainGiftCount < MAX_STOREFRONT_GIFTS
+                        }
                         disabled={false}
                         isSubmitting={isAddingGift}
                         onSubmit={handleAddGift}

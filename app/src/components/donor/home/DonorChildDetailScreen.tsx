@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronUp, Gift } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronUp,
+  Gift,
+  Info,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UnclaimDialog } from "./UnclaimDialog";
@@ -50,12 +56,12 @@ export function DonorChildDetailScreen({
   const nextDisabled = childIndex >= totalChildren - 1;
 
   return (
-    <div className="mx-auto w-full max-w-[430px] px-2 pb-8 pt-1 text-[#1F2937]">
+    <div className="mx-auto w-full max-w-[520px] px-2 pb-8 pt-1 text-[#1F2937]">
       <Button
         type="button"
         variant="link"
         onClick={onBack}
-        className="p-0 inline-flex items-center gap-1 text-[14px] text-[#1F2937]"
+        className="p-0 inline-flex items-center gap-1 text-[16px] text-[#1F2937]"
       >
         <ChevronLeft className="size-4" />
         <span>Back to Home</span>
@@ -64,7 +70,7 @@ export function DonorChildDetailScreen({
       <div className="mt-3 overflow-hidden rounded-[4px] border border-[#D1D5DB] bg-white">
         <div className="flex items-center justify-center gap-2 bg-[#173FB6] px-4 py-2 text-white">
           <Gift className="size-4" />
-          <span className="text-[13px] font-medium">
+          <span className="text-[15px] font-medium">
             {child.firstName}&apos;s Gift Commitments
           </span>
         </div>
@@ -82,7 +88,7 @@ export function DonorChildDetailScreen({
               </h1>
               <span
                 className={cn(
-                  "mt-2 inline-flex rounded-full px-3 py-1 text-[11px] font-semibold leading-none",
+                  "mt-2 inline-flex rounded-full px-3 py-1 text-[12px] font-semibold leading-none",
                   child.category === "Warrior"
                     ? "bg-[#FFF1B8] text-[#8A5A00]"
                     : "bg-[#D4EAFF] text-[#1D4ED8]",
@@ -93,10 +99,19 @@ export function DonorChildDetailScreen({
             </div>
           </div>
 
-          <div className="mt-4 flex items-center text-kfk-blue">
+          <div className="mt-4 flex items-start gap-2.5 rounded-[10px] border border-[#FCD34D] bg-[#FEF3C7] px-3 py-2.5">
+            <Info className="mt-0.5 size-4 shrink-0 text-[#A16207]" />
+            <p className="text-[14px] leading-5 text-[#1F2937]">
+              <span className="font-semibold">Please note:</span> All prices
+              shown are estimates from when the family first selected the gift
+              and are subject to change.
+            </p>
+          </div>
+
+          <div className="mt-2 flex items-center text-kfk-blue">
             <Button
               variant="ghost"
-              className="-ml-3 h-8 px-3 text-[14px] font-medium"
+              className="-ml-3 h-8 px-3 text-[16px] font-medium"
               onClick={() => {
                 const nextExpanded = !allExpanded;
                 setAllExpanded(nextExpanded);
@@ -153,7 +168,7 @@ export function DonorChildDetailScreen({
             <Button
               type="button"
               disabled={prevDisabled || !allSaved}
-              className="h-9 rounded-full bg-[#173FB6] px-4 font-gaegu text-[18px] font-bold text-white hover:bg-[#173FB6]/90 disabled:opacity-50"
+              className="h-10 rounded-full bg-[#173FB6] px-4 font-gaegu text-[20px] font-bold text-white hover:bg-[#173FB6]/90 disabled:opacity-50"
               onClick={() => onNavigateChild(childIndex - 1)}
             >
               ‹ Prev. Child
@@ -161,7 +176,7 @@ export function DonorChildDetailScreen({
             <Button
               type="button"
               disabled={nextDisabled || !allSaved}
-              className="h-9 rounded-full bg-[#173FB6] px-4 font-gaegu text-[18px] font-bold text-white hover:bg-[#173FB6]/90 disabled:opacity-50"
+              className="h-10 rounded-full bg-[#173FB6] px-4 font-gaegu text-[20px] font-bold text-white hover:bg-[#173FB6]/90 disabled:opacity-50"
               onClick={() => onNavigateChild(childIndex + 1)}
             >
               Next Child ›

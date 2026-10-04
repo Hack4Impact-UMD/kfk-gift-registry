@@ -16,7 +16,7 @@ export function getGiftStatusLabel(status: string) {
 
 export function getGiftStatusClass(status: string) {
   return cn(
-    "rounded-full px-3 py-1 text-[12px] font-medium leading-none",
+    "rounded-full px-3 py-1 text-[13px] font-medium leading-none",
     status === "CLAIMED"
       ? "bg-[#FEF3C7] text-[#A16207]"
       : status === "PURCHASED"

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getServerDB } from "@/lib/firebase.server";
-import type { Child, Gift } from "common";
+import type { Child, Gift, GiftStatus } from "common";
+import { compareGiftOrder } from "common";
 import z from "zod";
 import type { StorefrontGift } from "@/types/storefront";
 import { getFirstNameLastInitial } from "@/lib/utils";
@@ -98,9 +99,11 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
       const giftsQuery = await db.gifts
         .where("childId", "in", batch)
         .where("active", "==", true)
+        .where("backup", "==", false)
         .get();
       allGifts.push(...giftsQuery.docs.map((doc) => doc.data()));
     }
+    allGifts.sort(compareGiftOrder);
 
     const giftsByChildId = new Map<string, Array<Gift>>();
     for (const gift of allGifts) {
@@ -198,4 +201,45 @@ export const getUniqueStorefrontDonorsForDrive = createServerFn({
     });
 
     return donorIDs.size;
+  });
+
+const purchasedGiftStatuses = new Set<GiftStatus>([
+  "PURCHASED",
+  "DELIVERED",
+  "RECEIVED",
+]);
+
+// Stats for a completed drive. Reads gifts by drive rather than going through
+// getProfilesForStorefront, which hides backups and fully-claimed children.
+export const getOffSeasonStatsForDrive = createServerFn({ method: "GET" })
+  .inputValidator(driveIdSchema)
+  .handler(async ({ data }) => {
+    const db = getServerDB();
+    const gifts = (
+      await db.gifts
+        .where("giftDrive", "==", data.driveId)
+        .where("active", "==", true)
+        .get()
+    ).docs.map((d) => d.data());
+
+    const donorIds = new Set<string>();
+    const childrenReceivedGiftIds = new Set<string>();
+    let totalPurchasedGifts = 0;
+    let donationAmount = 0;
+
+    for (const gift of gifts) {
+      if (gift.claimedByDonorId) donorIds.add(gift.claimedByDonorId);
+      if (!purchasedGiftStatuses.has(gift.status)) continue;
+
+      totalPurchasedGifts += 1;
+      donationAmount += gift.listedPrice ?? 0;
+      childrenReceivedGiftIds.add(gift.childId);
+    }
+
+    return {
+      totalPurchasedGifts,
+      childrenReceivedGifts: childrenReceivedGiftIds.size,
+      donationAmount,
+      uniqueDonors: donorIds.size,
+    };
   });

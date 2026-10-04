@@ -209,6 +209,13 @@ export default function DonorPostClaimConfirmationEmail({
                 </Text>
               </Section>
 
+              <Button
+                href={donorPortalUrl}
+                className="mt-4 block rounded-lg bg-kfk-blue px-6 py-3.5 text-center text-sm font-semibold text-white no-underline"
+              >
+                Open Donor Portal
+              </Button>
+
               <Hr className="my-6 border-gray-200" />
 
               <Text className="m-0 text-sm font-semibold uppercase tracking-widest text-gray-400">
@@ -241,20 +248,6 @@ export default function DonorPostClaimConfirmationEmail({
                   </tr>
                 </tbody>
               </table>
-
-              <Hr className="my-6 border-gray-200" />
-
-              <Text className="mb-6 text-sm text-gray-600">
-                Use the donor portal to confirm purchases and add tracking
-                information once your gifts have been ordered.
-              </Text>
-
-              <Button
-                href={donorPortalUrl}
-                className="block rounded-lg bg-kfk-blue px-6 py-3.5 text-center text-sm font-semibold text-white no-underline"
-              >
-                Open Donor Portal
-              </Button>
 
               <Hr className="my-6 border-gray-200" />
 
