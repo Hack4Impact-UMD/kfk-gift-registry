@@ -1,5 +1,6 @@
 import { getServerDB } from "@/lib/firebase.server";
 import z from "zod";
+import { logger } from "@sentry/tanstackstart-react";
 import { createServerFn } from "@tanstack/react-start";
 import admin from "firebase-admin";
 import { v7 as uuidv7 } from "uuid";
@@ -741,6 +742,10 @@ export const saveGiftThankYouNoteWithToken = createServerFn({
     await db.claims.doc(activeClaim.id).update({
       thankYouNote: note,
     });
+    logger.info("Family saved thank-you note", {
+      familyId: link.familyId,
+      giftId,
+    });
 
     return {
       giftId,
@@ -809,6 +814,12 @@ export const confirmGiftReceivedWithToken = createServerFn({
     }
 
     await batch.commit();
+
+    logger.info("Family confirmed gift received", {
+      familyId: link.familyId,
+      giftId,
+      hadActiveClaim: Boolean(activeClaim),
+    });
 
     return {
       ...gift,
@@ -1014,7 +1025,7 @@ export const updateChild = createServerFn({ method: "POST" })
     ]),
   ])
   .inputValidator(updateChildSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { childId, updates } = data;
     const db = getServerDB();
 
@@ -1038,6 +1049,11 @@ export const updateChild = createServerFn({ method: "POST" })
         : updates;
 
     await db.children.doc(childId).update(normalizedUpdates);
+    logger.info("Staff updated child", {
+      staffId: context.authUser.uid,
+      childId,
+      fields: Object.keys(updates).join(","),
+    });
 
     const updatedChild = await db.children.doc(childId).get();
     const updatedChildData = updatedChild.data();
@@ -1071,7 +1087,7 @@ export const createGift = createServerFn({ method: "POST" })
     ]),
   ])
   .inputValidator(createGiftSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const db = getServerDB();
     const childDoc = await db.children.doc(data.childId).get();
     const child = childDoc.data();
@@ -1098,6 +1114,12 @@ export const createGift = createServerFn({ method: "POST" })
     };
 
     await db.gifts.doc(createdGift.id).set(createdGift);
+    logger.info("Staff created gift", {
+      staffId: context.authUser.uid,
+      giftId: createdGift.id,
+      childId: createdGift.childId,
+      backup: createdGift.backup,
+    });
 
     return createdGift;
   });
@@ -1111,7 +1133,7 @@ export const updateGift = createServerFn({ method: "POST" })
     ]),
   ])
   .inputValidator(updateGiftSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { giftId, updates } = data;
     const db = getServerDB();
 
@@ -1127,6 +1149,11 @@ export const updateGift = createServerFn({ method: "POST" })
     }
 
     await db.gifts.doc(giftId).update(updates);
+    logger.info("Staff updated gift", {
+      staffId: context.authUser.uid,
+      giftId,
+      fields: Object.keys(updates).join(","),
+    });
 
     const updatedGift = await db.gifts.doc(giftId).get();
     const updatedGiftData = updatedGift.data();
@@ -1224,10 +1251,14 @@ export const updateClaimTrackingNumber = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({ claimId: z.string().min(1), trackingNumber: z.string() }),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { claimId, trackingNumber } = data;
     const db = getServerDB();
     await db.claims.doc(claimId).update({
       "purchaseConfirmation.trackingNumber": trackingNumber,
+    });
+    logger.info("Staff updated claim tracking number", {
+      staffId: context.authUser.uid,
+      claimId,
     });
   });

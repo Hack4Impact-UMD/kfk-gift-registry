@@ -1,3 +1,4 @@
+import { logger } from "@sentry/tanstackstart-react";
 import { createMiddleware } from "@tanstack/react-start";
 import type { UserRole } from "common";
 import { verifySession } from "@/server/functions/auth";
@@ -12,6 +13,7 @@ export const authMiddleware = createMiddleware({ type: "function" }).server(
         },
       });
     } else {
+      logger.warn("Rejected unauthenticated server function call");
       throw new Error("[auth middleware]: Not authenticated");
     }
   },
@@ -24,6 +26,11 @@ export const requireRolesMiddleware = (allowedRoles: Array<UserRole>) =>
       if (allowedRoles.includes(context.authUser.role)) {
         return next();
       } else {
+        logger.warn("Rejected server function call: insufficient role", {
+          userId: context.authUser.uid,
+          role: context.authUser.role,
+          allowedRoles: allowedRoles.join(","),
+        });
         throw new Error(`[role middleware]: invalid roles`);
       }
     });

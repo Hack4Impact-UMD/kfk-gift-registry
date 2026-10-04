@@ -1,3 +1,4 @@
+import { logger } from "@sentry/tanstackstart-react";
 import { createMiddleware } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import admin from "firebase-admin";
@@ -18,6 +19,7 @@ export const appCheckMiddleware = createMiddleware({ type: "function" })
     const appCheckToken = req.headers.get(APPCHECK_TOKEN_HEADER);
 
     if (!appCheckToken) {
+      logger.warn("Rejected request: missing App Check token");
       throw new Error("[appcheck middleware]: Missing AppCheck token");
     }
 
@@ -32,6 +34,9 @@ export const appCheckMiddleware = createMiddleware({ type: "function" })
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
+      logger.warn("Rejected request: App Check verification failed", {
+        error: errorMessage,
+      });
       throw new Error(
         `[appcheck middleware]: Token verification failed - ${errorMessage}`,
       );

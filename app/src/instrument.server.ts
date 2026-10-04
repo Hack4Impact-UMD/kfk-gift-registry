@@ -9,4 +9,7 @@ Sentry.init({
   dsn: SENTRY_DSN,
   environment: SENTRY_ENVIRONMENT,
   tracesSampleRate: SENTRY_TRACES_SAMPLE_RATE,
+  integrations: [
+    Sentry.consoleLoggingIntegration({ levels: ["warn", "error"] }),
+  ],
 });

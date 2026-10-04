@@ -1,3 +1,4 @@
+import { captureException, logger } from "@sentry/tanstackstart-react";
 import { createServerFn } from "@tanstack/react-start";
 import type { GiftDrive } from "common";
 import { DateTime } from "luxon";
@@ -107,6 +108,7 @@ async function tryDeactivateDriveLinks(
       `Failed to deactivate form links for drive ${driveId}`,
       error,
     );
+    captureException(error, { extra: { driveId } });
   }
 }
 
@@ -126,9 +128,9 @@ async function demoteOtherStorefrontLinks(
 export const createFormLink = createServerFn({ method: "POST" })
   .middleware([staffOnly])
   .inputValidator(FormLinkSchema.omit({ id: true }))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const db = getServerDB();
-    return await db._instance.runTransaction(async (tx) => {
+    const result = await db._instance.runTransaction(async (tx) => {
       if (data.showOnStorefront) {
         await demoteOtherStorefrontLinks(db, tx);
       }
@@ -137,12 +139,19 @@ export const createFormLink = createServerFn({ method: "POST" })
       tx.set(db.formLinks.doc(id), formLink);
       return formLink;
     });
+
+    logger.info("Form link created", {
+      staffId: context.authUser.uid,
+      formLinkId: result.id,
+      driveId: result.driveId,
+    });
+    return result;
   });
 
 export const updateFormLink = createServerFn({ method: "POST" })
   .middleware([staffOnly])
   .inputValidator(FormLinkSchema.partial().required({ id: true }))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const db = getServerDB();
     const { id, ...fields } = data;
 
@@ -152,12 +161,22 @@ export const updateFormLink = createServerFn({ method: "POST" })
       }
       tx.update(db.formLinks.doc(id), fields);
     });
+
+    logger.info("Form link updated", {
+      staffId: context.authUser.uid,
+      formLinkId: id,
+      fields: Object.keys(fields).join(","),
+    });
   });
 
 export const deleteFormLink = createServerFn({ method: "POST" })
   .middleware([staffOnly])
   .inputValidator((data: { id: string }) => data.id)
-  .handler(async ({ data: id }) => {
+  .handler(async ({ data: id, context }) => {
     const db = getServerDB();
     await db.formLinks.doc(id).delete();
+    logger.info("Form link deleted", {
+      staffId: context.authUser.uid,
+      formLinkId: id,
+    });
   });

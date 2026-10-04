@@ -1,3 +1,4 @@
+import { logger } from "@sentry/tanstackstart-react";
 import { createServerFn } from "@tanstack/react-start";
 import { Resend } from "resend";
 import { StaffInviteEmail } from "transactional";
@@ -92,6 +93,12 @@ export const createStaffInvite = createServerFn({ method: "POST" })
       );
       throw new Error(`${error.name} - ${error.message}`);
     }
+
+    logger.info("Staff invite sent", {
+      inviteId: invite.id,
+      sentBy: authUser.uid,
+      role,
+    });
 
     return invite;
   });

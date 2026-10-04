@@ -27,6 +27,12 @@ export const getRouter = () => {
       },
     },
     defaultNotFoundComponent: () => <NotFoundScreen />,
+    // Errors caught by route error boundaries are otherwise never reported.
+    defaultOnCatch: (error, errorInfo) => {
+      Sentry.captureException(error, {
+        contexts: { react: { componentStack: errorInfo.componentStack } },
+      });
+    },
     notFoundMode: "root",
 
     defaultPreload: "intent",
@@ -48,7 +54,10 @@ export const getRouter = () => {
     Sentry.init({
       dsn: SENTRY_DSN,
       environment: SENTRY_ENVIRONMENT,
-      integrations: [Sentry.tanstackRouterBrowserTracingIntegration(router)],
+      integrations: [
+        Sentry.tanstackRouterBrowserTracingIntegration(router),
+        Sentry.consoleLoggingIntegration({ levels: ["warn", "error"] }),
+      ],
       tracesSampleRate: SENTRY_TRACES_SAMPLE_RATE,
     });
   }

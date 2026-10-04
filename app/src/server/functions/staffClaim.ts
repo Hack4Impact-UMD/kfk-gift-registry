@@ -6,6 +6,7 @@
  * mutation refuses to touch a `"donor"` claim so donor-owned gifts can only be
  * managed from the donor account.
  */
+import { logger } from "@sentry/tanstackstart-react";
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 import admin from "firebase-admin";
@@ -76,10 +77,10 @@ async function getActiveKfkClaim(
 export const claimGiftAsKFK = createServerFn({ method: "POST" })
   .middleware([staffRolesMiddleware])
   .inputValidator(giftIdSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const db = getServerDB();
 
-    return await db._instance.runTransaction(async (tx) => {
+    const result = await db._instance.runTransaction(async (tx) => {
       const { gifts, driveId } = await loadGifts(tx, db, [data.giftId]);
       const gift = gifts[0];
 
@@ -132,15 +133,21 @@ export const claimGiftAsKFK = createServerFn({ method: "POST" })
 
       return { claim };
     });
+
+    logger.info("Staff claimed gift for KFK", {
+      staffId: context.authUser.uid,
+      giftId: data.giftId,
+    });
+    return result;
   });
 
 export const markKFKGiftPurchased = createServerFn({ method: "POST" })
   .middleware([staffRolesMiddleware])
   .inputValidator(giftIdSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const db = getServerDB();
 
-    return await db._instance.runTransaction(async (tx) => {
+    const result = await db._instance.runTransaction(async (tx) => {
       const giftRef = db.gifts.doc(data.giftId);
       const giftDoc = await tx.get(giftRef);
       const gift = giftDoc.data();
@@ -179,15 +186,21 @@ export const markKFKGiftPurchased = createServerFn({ method: "POST" })
 
       return { ...gift, status: "PURCHASED" as const };
     });
+
+    logger.info("Staff marked KFK gift purchased", {
+      staffId: context.authUser.uid,
+      giftId: data.giftId,
+    });
+    return result;
   });
 
 export const markKFKGiftDelivered = createServerFn({ method: "POST" })
   .middleware([staffRolesMiddleware])
   .inputValidator(giftIdSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const db = getServerDB();
 
-    return await db._instance.runTransaction(async (tx) => {
+    const result = await db._instance.runTransaction(async (tx) => {
       const giftRef = db.gifts.doc(data.giftId);
       const giftDoc = await tx.get(giftRef);
       const gift = giftDoc.data();
@@ -219,16 +232,22 @@ export const markKFKGiftDelivered = createServerFn({ method: "POST" })
 
       return { ...gift, status: "DELIVERED" as const };
     });
+
+    logger.info("Staff marked KFK gift delivered", {
+      staffId: context.authUser.uid,
+      giftId: data.giftId,
+    });
+    return result;
   });
 
 export const updateKFKTrackingNumber = createServerFn({ method: "POST" })
   .middleware([staffRolesMiddleware])
   .inputValidator(updateTrackingNumberSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const db = getServerDB();
     const trackingNumber = data.trackingNumber.trim();
 
-    return await db._instance.runTransaction(async (tx) => {
+    const result = await db._instance.runTransaction(async (tx) => {
       const giftDoc = await tx.get(db.gifts.doc(data.giftId));
       const gift = giftDoc.data();
 
@@ -259,12 +278,18 @@ export const updateKFKTrackingNumber = createServerFn({ method: "POST" })
 
       return { giftId: gift.id, trackingNumber };
     });
+
+    logger.info("Staff updated KFK gift tracking number", {
+      staffId: context.authUser.uid,
+      giftId: data.giftId,
+    });
+    return result;
   });
 
 export const unclaimKFKGift = createServerFn({ method: "POST" })
   .middleware([staffRolesMiddleware])
   .inputValidator(giftIdSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const db = getServerDB();
 
     await db._instance.runTransaction(async (tx) => {
@@ -287,6 +312,11 @@ export const unclaimKFKGift = createServerFn({ method: "POST" })
       });
       tx.update(claimDoc.ref, { active: false });
     });
+
+    logger.info("Staff unclaimed KFK gift", {
+      staffId: context.authUser.uid,
+      giftId: data.giftId,
+    });
   });
 
 const setGiftStatusSchema = z.object({
@@ -301,7 +331,7 @@ const setGiftStatusSchema = z.object({
 export const adminSetGiftStatus = createServerFn({ method: "POST" })
   .middleware([staffRolesMiddleware])
   .inputValidator(setGiftStatusSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const db = getServerDB();
     const giftRef = db.gifts.doc(data.giftId);
     const giftDoc = await giftRef.get();
@@ -311,6 +341,13 @@ export const adminSetGiftStatus = createServerFn({ method: "POST" })
     }
 
     await giftRef.update({ status: data.status });
+
+    logger.info("Staff manually set gift status", {
+      staffId: context.authUser.uid,
+      giftId: data.giftId,
+      previousStatus: giftDoc.data()?.status,
+      status: data.status,
+    });
 
     return { giftId: data.giftId, status: data.status };
   });

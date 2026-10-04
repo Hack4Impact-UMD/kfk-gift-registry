@@ -162,17 +162,22 @@ async function promotePendingEmailJobsHandler() {
     .where("sendAt", "<=", latestSendAt)
     .get();
 
+  const counts = { scheduled: 0, cancelled: 0, skipped: 0, failed: 0 };
+
   for (const doc of snapshot.docs) {
     const job = doc.data() as ScheduledEmailJob;
 
     try {
       const claimed = await claimPendingJob(job.id);
       if (!claimed) {
+        counts.skipped++;
         continue;
       }
 
       if (await shouldCancelJob(job)) {
         await markJobCancelled(job.id, "Job no longer needed");
+        Sentry.logger.info("Cancelled email job", { jobId: job.id });
+        counts.cancelled++;
         continue;
       }
 
@@ -189,6 +194,12 @@ async function promotePendingEmailJobsHandler() {
       }
 
       await markJobScheduled(job.id, data?.id);
+      Sentry.logger.info("Scheduled email job with Resend", {
+        jobId: job.id,
+        resendId: data?.id,
+        sendAt: job.sendAt,
+      });
+      counts.scheduled++;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       logger.error("Failed to promote pending email job", {
@@ -197,6 +208,12 @@ async function promotePendingEmailJobsHandler() {
       });
       Sentry.captureException(error, { extra: { jobId: job.id } });
       await markJobFailed(job.id, message);
+      counts.failed++;
     }
   }
+
+  Sentry.logger.info("Finished promoting pending email jobs", {
+    pending: snapshot.size,
+    ...counts,
+  });
 }

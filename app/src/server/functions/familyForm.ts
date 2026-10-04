@@ -1,3 +1,4 @@
+import { captureException, logger } from "@sentry/tanstackstart-react";
 import { createServerFn } from "@tanstack/react-start";
 import { Resend } from "resend";
 import { FamilyPortalEmail } from "transactional";
@@ -314,6 +315,11 @@ export const setChildPhotoUrls = createServerFn({ method: "POST" })
       }),
     );
     await batch.commit();
+
+    logger.info("Family uploaded child photos", {
+      familyId: link.familyId,
+      childCount: data.childIds.length,
+    });
   });
 //TODO: rate limit
 export const submitFamilyForm = createServerFn({ method: "POST" })
@@ -468,12 +474,21 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
 
     const link = await createFamilyLink({ familyId, active: true });
 
+    logger.info("Family registration submitted", {
+      familyId,
+      driveId: giftDriveId,
+      formLinkId: data.formLinkId,
+      childCount: childDocs.length,
+      giftCount: giftDocs.length,
+    });
+
     void sendFamilyPortalEmail({
       email: normalizedEmail,
       contactName: family.contactName,
       linkId: link.id,
     }).catch((error) => {
       console.error("Family portal email failed to send", error);
+      captureException(error, { extra: { familyId } });
     });
 
     return {
