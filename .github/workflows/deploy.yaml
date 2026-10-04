@@ -42,6 +42,7 @@ jobs:
           RECAPTCHA_ENTERPRISE_KEY: ${{ secrets.RECAPTCHA_ENTERPRISE_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           APP_BASE_URL: ${{ vars.APP_BASE_URL }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
           cat > apphosting.yaml << HEREDOC
           runConfig:
@@ -72,6 +73,10 @@ jobs:
               availability:
                 - BUILD
                 - RUNTIME
+            - variable: SENTRY_AUTH_TOKEN
+              value: "$SENTRY_AUTH_TOKEN"
+              availability:
+                - BUILD
           HEREDOC
 
       - name: Deploy

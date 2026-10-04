@@ -1,8 +1,14 @@
+import * as Sentry from "@sentry/tanstackstart-react";
 import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import * as TanstackQuery from "./integrations/tanstack-query/root-provider";
 import { CollectionsProvider } from "./collections/context";
 import { NotFoundScreen } from "@/components/NotFoundScreen";
+import {
+  SENTRY_DSN,
+  SENTRY_ENVIRONMENT,
+  SENTRY_TRACES_SAMPLE_RATE,
+} from "@/lib/sentry";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -37,6 +43,15 @@ export const getRouter = () => {
     router,
     queryClient: rqContext.queryClient,
   });
+
+  if (!router.isServer) {
+    Sentry.init({
+      dsn: SENTRY_DSN,
+      environment: SENTRY_ENVIRONMENT,
+      integrations: [Sentry.tanstackRouterBrowserTracingIntegration(router)],
+      tracesSampleRate: SENTRY_TRACES_SAMPLE_RATE,
+    });
+  }
 
   return router;
 };
