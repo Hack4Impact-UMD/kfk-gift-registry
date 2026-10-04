@@ -7,6 +7,7 @@ import viteTsConfigPaths from "vite-tsconfig-paths";
 
 import tailwindcss from "@tailwindcss/vite";
 import { nitro } from "nitro/vite";
+import { sentryTanstackStart } from "@sentry/tanstackstart-react/vite";
 
 const config = defineConfig({
   resolve: {
@@ -41,6 +42,15 @@ const config = defineConfig({
       },
     }),
     viteReact(),
+    // Must be last. Uploads source maps when SENTRY_AUTH_TOKEN is set.
+    sentryTanstackStart({
+      org: "hack4impact-umd",
+      project: "kfk-gift-registry-app",
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      // Without a token nothing is uploaded or deleted, so don't emit
+      // source maps that would end up publicly served.
+      sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
+    }),
   ],
 });
 

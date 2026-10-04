@@ -1,3 +1,7 @@
+import {
+  sentryGlobalFunctionMiddleware,
+  sentryGlobalRequestMiddleware,
+} from "@sentry/tanstackstart-react";
 import { isRedirect } from "@tanstack/react-router";
 import { createMiddleware, createStart } from "@tanstack/react-start";
 
@@ -12,5 +16,10 @@ const convertRedirectErrorToExceptionMiddleware = createMiddleware({
 });
 
 export const startInstance = createStart(() => ({
-  functionMiddleware: [convertRedirectErrorToExceptionMiddleware],
+  // Sentry middleware must come first in each array.
+  requestMiddleware: [sentryGlobalRequestMiddleware],
+  functionMiddleware: [
+    sentryGlobalFunctionMiddleware,
+    convertRedirectErrorToExceptionMiddleware,
+  ],
 }));

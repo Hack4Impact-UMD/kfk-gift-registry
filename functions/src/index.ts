@@ -7,6 +7,10 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
+// Must be the first import so Sentry is initialized before anything else runs.
+import "./instrument.js";
+
+import * as Sentry from "@sentry/node";
 import { setGlobalOptions } from "firebase-functions";
 import { onSchedule } from "firebase-functions/scheduler";
 import * as logger from "firebase-functions/logger";
@@ -134,53 +138,65 @@ async function shouldCancelJob(job: ScheduledEmailJob) {
 export const promotePendingEmailJobs = onSchedule(
   "every day 00:00",
   async () => {
-    const latestSendAt = new Date(
-      Date.now() + RESEND_SCHEDULING_WINDOW_DAYS * 24 * 60 * 60 * 1000,
-    ).toISOString();
-
-    const resend = getResendClient();
-    const snapshot = await db
-      .collection(EMAIL_COLLECTION)
-      .where("status", "==", "pending")
-      .where("sendAt", "<=", latestSendAt)
-      .get();
-
-    for (const doc of snapshot.docs) {
-      const job = doc.data() as ScheduledEmailJob;
-
-      try {
-        const claimed = await claimPendingJob(job.id);
-        if (!claimed) {
-          continue;
-        }
-
-        if (await shouldCancelJob(job)) {
-          await markJobCancelled(job.id, "Job no longer needed");
-          continue;
-        }
-
-        const { data, error } = await resend.emails.send({
-          from: FROM_EMAIL,
-          to: job.to,
-          subject: job.subject,
-          html: job.html,
-          scheduledAt: job.sendAt,
-        });
-
-        if (error) {
-          throw new Error(`${error.name} - ${error.message}`);
-        }
-
-        await markJobScheduled(job.id, data?.id);
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Unknown error";
-        logger.error("Failed to promote pending email job", {
-          jobId: job.id,
-          message,
-        });
-        await markJobFailed(job.id, message);
-      }
+    try {
+      await promotePendingEmailJobsHandler();
+    } catch (error) {
+      Sentry.captureException(error);
+      throw error;
+    } finally {
+      // Cloud Functions may freeze the instance once the handler returns.
+      await Sentry.flush(2000);
     }
   },
 );
+
+async function promotePendingEmailJobsHandler() {
+  const latestSendAt = new Date(
+    Date.now() + RESEND_SCHEDULING_WINDOW_DAYS * 24 * 60 * 60 * 1000,
+  ).toISOString();
+
+  const resend = getResendClient();
+  const snapshot = await db
+    .collection(EMAIL_COLLECTION)
+    .where("status", "==", "pending")
+    .where("sendAt", "<=", latestSendAt)
+    .get();
+
+  for (const doc of snapshot.docs) {
+    const job = doc.data() as ScheduledEmailJob;
+
+    try {
+      const claimed = await claimPendingJob(job.id);
+      if (!claimed) {
+        continue;
+      }
+
+      if (await shouldCancelJob(job)) {
+        await markJobCancelled(job.id, "Job no longer needed");
+        continue;
+      }
+
+      const { data, error } = await resend.emails.send({
+        from: FROM_EMAIL,
+        to: job.to,
+        subject: job.subject,
+        html: job.html,
+        scheduledAt: job.sendAt,
+      });
+
+      if (error) {
+        throw new Error(`${error.name} - ${error.message}`);
+      }
+
+      await markJobScheduled(job.id, data?.id);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      logger.error("Failed to promote pending email job", {
+        jobId: job.id,
+        message,
+      });
+      Sentry.captureException(error, { extra: { jobId: job.id } });
+      await markJobFailed(job.id, message);
+    }
+  }
+}
