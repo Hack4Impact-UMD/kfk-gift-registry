@@ -36,6 +36,15 @@ const currentDriveQuery = queryOptions({
   staleTime: 1000 * 60 * 30,
 });
 
+const SITE_URL = "https://gifts.kissesforkyle.org";
+const SITE_TITLE = "Kisses for Kyle Gift Drive";
+const SITE_DESCRIPTION =
+  "Make a child's holiday brighter. Browse wish lists from local families in the Kisses for Kyle Foundation's Holiday Gift Drive and claim a gift to donate.";
+// Crawlers need an absolute URL; relative is fine for local testing.
+const OG_IMAGE = import.meta.env.PROD
+  ? `${SITE_URL}/og-image.png`
+  : "/og-image.png";
+
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
     meta: [
@@ -46,9 +55,24 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         name: "viewport",
         content: "width=device-width, initial-scale=1",
       },
+      { title: SITE_TITLE },
+      { name: "description", content: SITE_DESCRIPTION },
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Kisses for Kyle Foundation" },
+      { property: "og:url", content: SITE_URL },
+      { property: "og:title", content: SITE_TITLE },
+      { property: "og:description", content: SITE_DESCRIPTION },
+      { property: "og:image", content: OG_IMAGE },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
       {
-        title: "Kisses for Kyle Gift Drive",
+        property: "og:image:alt",
+        content: "Kisses for Kyle Foundation — Holiday Gift Drive",
       },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: SITE_TITLE },
+      { name: "twitter:description", content: SITE_DESCRIPTION },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [
       {

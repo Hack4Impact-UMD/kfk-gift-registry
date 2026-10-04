@@ -107,7 +107,7 @@ export function StorefrontMobileSidebar({
                 className="flex items-center gap-3 w-full text-left"
               >
                 <ArrowTopRightOnSquareIcon className="size-6" />
-                <span className="text-base">Storefront Tutorial</span>
+                <span className="text-base">Donor Tutorial</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             {isPending ? (

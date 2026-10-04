@@ -1,5 +1,6 @@
 import { Gift as GiftIcon } from "lucide-react";
 import type { Gift } from "common";
+import { compareGiftOrder } from "common";
 import type { GiftClaimDetails } from "@/server/functions/child";
 import { GiftInfoCard } from "./GiftInfoCard";
 import { ParentComments } from "./ParentComments";
@@ -23,8 +24,9 @@ export function GiftInfoSection({
   familyToken,
   onSaveAdminComments,
 }: GiftInfoSectionProps) {
-  const activeGifts = gifts.filter((g) => g.active);
-  const backupGifts = gifts.filter((g) => !g.active);
+  const sortedGifts = [...gifts].sort(compareGiftOrder);
+  const activeGifts = sortedGifts.filter((g) => !g.backup);
+  const backupGifts = sortedGifts.filter((g) => g.backup);
 
   return (
     <div className="w-full mt-6 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">

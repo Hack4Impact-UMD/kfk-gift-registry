@@ -50,14 +50,11 @@ export const Route = createFileRoute("/_storefront/")({
       return;
     }
 
-    await Promise.all([
-      context.queryClient.ensureQueryData(
-        queries.storefront.profilesForDrive(latestCompletedDrive.id),
-      ),
-      context.queryClient.ensureQueryData(
-        queries.storefront.uniqueDonorsForDrive(latestCompletedDrive.id),
-      ),
-    ]).catch(() => undefined);
+    await context.queryClient
+      .ensureQueryData(
+        queries.storefront.offSeasonStatsForDrive(latestCompletedDrive.id),
+      )
+      .catch(() => undefined);
   },
   head: () => ({
     meta: [

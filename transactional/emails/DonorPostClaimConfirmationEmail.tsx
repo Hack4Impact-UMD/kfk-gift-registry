@@ -173,7 +173,8 @@ export default function DonorPostClaimConfirmationEmail({
       <Html lang="en">
         <Head />
         <Preview>
-          Thank you for claiming gifts through the KFK Gift Registry
+          Thank you for claiming gifts through the Kisses for Kyle Holiday Gift
+          Drive
         </Preview>
         <Body className="bg-gray-50 font-sans">
           <Container className="mx-auto max-w-[640px] py-10">
@@ -191,7 +192,8 @@ export default function DonorPostClaimConfirmationEmail({
                 Hi {payload.donorName},
               </Text>
               <Heading className="m-0 mb-2 text-2xl font-bold text-gray-900">
-                Thank you for claiming gifts!
+                Thank you for claiming gifts to support our Kisses for Kyle
+                families facing a childhood cancer diagnosis!
               </Heading>
               <Text className="mt-0 text-base text-gray-500">
                 We appreciate your support. Below is a summary of the gifts you
@@ -208,6 +210,13 @@ export default function DonorPostClaimConfirmationEmail({
                   information.
                 </Text>
               </Section>
+
+              <Button
+                href={donorPortalUrl}
+                className="mt-4 block rounded-lg bg-kfk-blue px-6 py-3.5 text-center text-sm font-semibold text-white no-underline"
+              >
+                Open Donor Portal
+              </Button>
 
               <Hr className="my-6 border-gray-200" />
 
@@ -241,20 +250,6 @@ export default function DonorPostClaimConfirmationEmail({
                   </tr>
                 </tbody>
               </table>
-
-              <Hr className="my-6 border-gray-200" />
-
-              <Text className="mb-6 text-sm text-gray-600">
-                Use the donor portal to confirm purchases and add tracking
-                information once your gifts have been ordered.
-              </Text>
-
-              <Button
-                href={donorPortalUrl}
-                className="block rounded-lg bg-kfk-blue px-6 py-3.5 text-center text-sm font-semibold text-white no-underline"
-              >
-                Open Donor Portal
-              </Button>
 
               <Hr className="my-6 border-gray-200" />
 
@@ -376,6 +371,13 @@ export default function DonorPostClaimConfirmationEmail({
                 },
               )}
             </Section>
+
+            <Text className="mt-6 text-center">
+              Have questions? You may contact us at:{" "}
+              <Link href="mailto:info@kissesforkyle.org">
+                info@kissesforkyle.org
+              </Link>
+            </Text>
 
             <Text className="mt-6 text-center text-xs text-gray-400">
               &copy; {new Date().getFullYear()} Kisses for Kyle Foundation. All

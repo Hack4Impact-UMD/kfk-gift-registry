@@ -107,8 +107,12 @@ function RouteComponent() {
           <h2 className="text-center font-gaegu text-[34px] font-bold text-[#173B8F] md:text-[42px]">
             Gift Commitments
           </h2>
-          <p className="mt-2 text-center text-[16px] text-[#4B5563] md:text-[18px]">
-            Click each card to confirm your gift purchases and delivery status.
+          <p className="font-bold mt-2 text-center text-[16px] text-[#4B5563] md:text-[18px]">
+            Please check your email for confirmation and easy instructions.
+            Additionally, click on “View More” for each child to access the
+            family delivery address, and to confirm once you’ve purchased each
+            child’s gift and once delivery. Confirm each gift after you purchase
+            it, and again after it is delivered.
           </p>
         </section>
 

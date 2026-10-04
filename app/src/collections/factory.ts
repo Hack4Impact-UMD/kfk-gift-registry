@@ -60,6 +60,7 @@ const UPDATABLE_GIFT_FIELDS = [
   "backup",
   "productUrl",
   "privateNotes",
+  "sortOrder",
 ] as const satisfies ReadonlyArray<keyof Gift>;
 
 type UpdatableGiftField = (typeof UPDATABLE_GIFT_FIELDS)[number];
@@ -288,7 +289,7 @@ export function createCollections(queryClient: QueryClient) {
         productUrl: draft.productUrl,
         listedPrice: draft.listedPrice,
         familyPublicNotes: draft.familyPublicNotes,
-        active: draft.active,
+        active: !draft.backup,
       },
     });
   }
@@ -487,7 +488,12 @@ export function createCollections(queryClient: QueryClient) {
     return createTransaction<Gift>({
       autoCommit: false,
       mutationFn: async ({ transaction }) => {
-        for (const m of transaction.mutations) {
+        // Persist moves to backup before moves to main so swaps never
+        // momentarily exceed the server's main-gift limit.
+        const mutations = [...transaction.mutations].sort(
+          (a, b) => Number(!a.modified.backup) - Number(!b.modified.backup),
+        );
+        for (const m of mutations) {
           if (isUpdateMutation(m)) {
             await persistGiftUpdate(m);
           } else if (isInsertMutation(m)) {

@@ -1,6 +1,7 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 import {
   getProfilesForStorefront,
+  getOffSeasonStatsForDrive,
   getUniqueStorefrontDonorsForDrive,
 } from "@/server/functions/storefront";
 import {
@@ -29,5 +30,9 @@ export const storefrontQueries = createQueryKeys("storefront", {
   uniqueDonorsForDrive: (driveId: string) => ({
     queryKey: ["uniqueDonorsForDrive", driveId],
     queryFn: () => getUniqueStorefrontDonorsForDrive({ data: { driveId } }),
+  }),
+  offSeasonStatsForDrive: (driveId: string) => ({
+    queryKey: ["offSeasonStatsForDrive", driveId],
+    queryFn: () => getOffSeasonStatsForDrive({ data: { driveId } }),
   }),
 });

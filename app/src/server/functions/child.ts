@@ -6,6 +6,7 @@ import { v7 as uuidv7 } from "uuid";
 import {
   UserRole,
   ChildSchema,
+  compareGiftOrder,
   GiftSchema,
   GiftFamilyPublicNotesSchema,
   RequiredGiftTitleSchema,
@@ -657,7 +658,8 @@ export const getFamilyChildDataByToken = createServerFn({ method: "GET" })
       ? []
       : giftsSnapshot.docs
           .map((doc) => doc.data())
-          .filter((gift) => !gift.backup);
+          .filter((gift) => !gift.backup)
+          .sort(compareGiftOrder);
 
     const claims = claimsSnapshot.empty
       ? []
@@ -829,7 +831,7 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
       .where("childId", "==", childId)
       .where("active", "==", true)
       .get();
-    const giftData = gifts.docs.map((doc) => doc.data());
+    const giftData = gifts.docs.map((doc) => doc.data()).sort(compareGiftOrder);
 
     const mapGift = (g: Gift) =>
       ({
@@ -885,10 +887,13 @@ export const getStorefrontGiftsForChild = createServerFn({ method: "GET" })
       return [];
     }
 
-    return gifts.docs.map((doc) => {
-      const giftData = doc.data();
+    const sortedGifts = gifts.docs
+      .map((doc) => doc.data())
+      .sort(compareGiftOrder);
+
+    return sortedGifts.map((giftData) => {
       return {
-        id: doc.id,
+        id: giftData.id,
         title: giftData.title,
         productUrl: giftData.productUrl,
         listedPrice: giftData.listedPrice,
@@ -936,6 +941,7 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
         .get();
       allGifts.push(...giftsQuery.docs.map((doc) => doc.data()));
     }
+    allGifts.sort(compareGiftOrder);
 
     const giftsBySiblingId = new Map<string, Array<Gift>>();
     for (const gift of allGifts) {
@@ -1039,6 +1045,23 @@ export const updateChild = createServerFn({ method: "POST" })
     return updatedChildData;
   });
 
+const MAX_MAIN_GIFTS = 3;
+
+async function assertMainGiftSlotAvailable(childId: string) {
+  const mainGifts = await getServerDB()
+    .gifts.where("childId", "==", childId)
+    .where("active", "==", true)
+    .where("backup", "==", false)
+    .count()
+    .get();
+
+  if (mainGifts.data().count >= MAX_MAIN_GIFTS) {
+    throw new Error(
+      `This child already has ${MAX_MAIN_GIFTS} main gifts. Move one to backup first.`,
+    );
+  }
+}
+
 export const createGift = createServerFn({ method: "POST" })
   .middleware([
     requireRolesMiddleware([
@@ -1055,16 +1078,8 @@ export const createGift = createServerFn({ method: "POST" })
     if (!child) {
       throw new Error("Child not found");
     }
-    const existingGifts = await db.gifts
-      .where("childId", "==", data.childId)
-      .get();
-    const activeGiftCount = existingGifts.docs.reduce(
-      (count, giftDoc) => count + (giftDoc.data().active ? 1 : 0),
-      0,
-    );
-
-    if (data.active && activeGiftCount >= 3) {
-      throw new Error("This child already has 3 active storefront gifts");
+    if (data.active) {
+      await assertMainGiftSlotAvailable(data.childId);
     }
 
     const createdGift: Gift = {
@@ -1078,7 +1093,7 @@ export const createGift = createServerFn({ method: "POST" })
       familyPublicNotes: data.familyPublicNotes,
       status: "AVAILABLE",
       createdAt: new Date().toISOString(),
-      active: data.active,
+      active: true,
       backup: !data.active,
     };
 
@@ -1101,9 +1116,14 @@ export const updateGift = createServerFn({ method: "POST" })
     const db = getServerDB();
 
     const giftDoc = await db.gifts.doc(giftId).get();
+    const gift = giftDoc.data();
 
-    if (!giftDoc.exists) {
+    if (!gift) {
       throw new Error("Gift not found");
+    }
+
+    if (gift.backup && updates.backup === false) {
+      await assertMainGiftSlotAvailable(gift.childId);
     }
 
     await db.gifts.doc(giftId).update(updates);

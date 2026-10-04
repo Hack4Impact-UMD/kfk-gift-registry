@@ -24,7 +24,6 @@ import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup";
 import { getGiftStatusClass, getGiftStatusLabel } from "./homeRouteUtils";
 import { CopyButton } from "@/components/ui/copybutton";
 import { formatAddress } from "@/components/child-profile/ChildInfo";
-import { cn } from "@/lib/utils";
 
 function getDetailGiftStatus(
   state: GiftFormState,
@@ -66,7 +65,7 @@ function hasPurchaseConfirmation(
 
 function ConfirmationBadge({ children }: { children: ReactNode }) {
   return (
-    <div className="inline-flex h-10 items-center rounded-[12px] bg-[#148A14] px-4 font-gaegu text-[18px] font-bold text-white shadow-sm">
+    <div className="inline-flex h-10 w-full shrink-0 items-center justify-center whitespace-nowrap rounded-[12px] bg-[#148A14] px-4 font-gaegu sm:w-auto text-[20px] font-bold text-white shadow-sm">
       {children}
     </div>
   );
@@ -85,7 +84,7 @@ function ConfirmationButton({
     <Button
       type="button"
       disabled={disabled}
-      className="h-9 rounded-[8px] bg-[#173FB6] px-4 font-gaegu text-[18px] font-bold text-white hover:bg-[#173FB6]/90 disabled:opacity-50"
+      className="h-10 w-full shrink-0 whitespace-nowrap rounded-[12px] bg-[#173FB6] px-4 font-gaegu sm:w-auto text-[20px] font-bold text-white hover:bg-[#173FB6]/90 disabled:opacity-50"
       onClick={onClick}
     >
       {children}
@@ -112,20 +111,20 @@ function ConfirmationSection({
         <Button
           type="button"
           variant="ghost"
-          className="group flex h-auto w-full items-center justify-between rounded-none py-4 text-left"
+          className="group -mx-4 flex h-auto w-[calc(100%+2rem)] items-center justify-between rounded-none px-4 py-3.5 text-left"
         >
           <div className="flex items-center gap-1.5">
-            <span className="text-[14px] font-medium text-[#1F2937]">
+            <span className="text-[16px] font-medium text-[#1F2937]">
               {title}
             </span>
             {needsAttention ? (
-              <CircleAlertIcon className="text-kfk-red" />
+              <CircleAlertIcon className="size-4 text-kfk-red" />
             ) : null}
           </div>
           <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" />
         </Button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="pb-6">{children}</CollapsibleContent>
+      <CollapsibleContent className="pb-5 pt-1">{children}</CollapsibleContent>
     </Collapsible>
   );
 }
@@ -176,13 +175,13 @@ export function DetailGiftCard({
   }
 
   return (
-    <Card className="overflow-hidden rounded-[10px] border border-[#CFCFCF] bg-white shadow-none px-3">
+    <Card className="gap-0 overflow-hidden rounded-[10px] border border-[#CFCFCF] bg-white px-4 py-0 shadow-none">
       <Collapsible
         open={cardOpen}
         onOpenChange={setCardOpen}
-        className="flex flex-col gap-6"
+        className="flex flex-col"
       >
-        <div className="relative px-3 pb-3">
+        <div className="relative py-4">
           {/* Overlay trigger so the whole header toggles without nesting the
               link and copy button inside a <button>. */}
           <CollapsibleTrigger
@@ -208,39 +207,43 @@ export function DetailGiftCard({
                     href={gift.productUrl}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="pointer-events-auto cursor-pointer text-kfk-blue underline text-sm min-w-0"
+                    className="pointer-events-auto flex min-w-0 cursor-pointer items-start gap-1 text-[17px] font-semibold leading-6 text-kfk-blue underline"
                   >
-                    <div className="min-w-0 text-[15px] font-semibold leading-5">
-                      <span className="line-clamp-2">{gift.title}</span>
-                    </div>
-                    <div className="mt-1 flex items-center gap-1 text-[13px]">
-                      <ExternalLink className="size-3.5" />
-                    </div>
+                    <span className="line-clamp-2">{gift.title}</span>
+                    <ExternalLink className="mt-1 size-4 shrink-0" />
                   </a>
                   <div className="flex items-center gap-2">
-                    <span className="shrink-0 text-[15px] text-[#4B5563]">
+                    <span className="shrink-0 text-[17px] leading-6 text-[#4B5563]">
                       {formatUsd(gift.listedPrice)}
                     </span>
                     {cardOpen ? (
-                      <ChevronUp className="mt-0.5 size-4 shrink-0 text-[#1F2937]" />
+                      <ChevronUp className="mt-1 size-4 shrink-0 text-[#1F2937]" />
                     ) : (
-                      <ChevronDown className="mt-0.5 size-4 shrink-0 text-[#1F2937]" />
+                      <ChevronDown className="mt-1 size-4 shrink-0 text-[#1F2937]" />
                     )}
                   </div>
                 </div>
                 {gift.additionalInfo ? (
-                  <p className="mt-2 text-[12px] leading-4 text-[#4B5563]">
+                  <p className="mt-1.5 text-[14px] leading-5 text-[#4B5563]">
                     {gift.additionalInfo}
                   </p>
                 ) : null}
                 {gift.familyAddress && (
-                  <CopyButton
-                    text={formatAddress(gift.familyAddress)}
-                    ariaLabel="Copy delivery address"
-                    className="pointer-events-auto flex items-center w-fit p-2 mt-2 border text-[12px] text-[#4B5563]"
-                  >
-                    Copy delivery address
-                  </CopyButton>
+                  <div className="mt-3 flex flex-col gap-0.5">
+                    <p className="text-[13px] font-semibold leading-5 text-[#4B5563]">
+                      Delivery Address
+                    </p>
+                    <p className="text-base leading-6 text-[#1F2937]">
+                      {formatAddress(gift.familyAddress)}
+                    </p>
+                    <CopyButton
+                      text={formatAddress(gift.familyAddress)}
+                      ariaLabel="Copy delivery address"
+                      className="pointer-events-auto mt-2 flex w-fit items-center border p-2 text-[14px] text-[#4B5563]"
+                    >
+                      Copy delivery address
+                    </CopyButton>
+                  </div>
                 )}
               </div>
             </div>
@@ -248,7 +251,7 @@ export function DetailGiftCard({
         </div>
 
         <CollapsibleContent className="flex flex-col">
-          <Separator className="bg-[#E5E7EB]" />
+          <Separator className="-mx-4 bg-[#E5E7EB] data-[orientation=horizontal]:w-auto" />
 
           <ConfirmationSection
             title="Purchase Confirmation"
@@ -256,8 +259,8 @@ export function DetailGiftCard({
             open={purchaseOpen}
             onOpenChange={setPurchaseOpen}
           >
-            <div className="flex items-center justify-between gap-3">
-              <p className="max-w-[120px] text-[14px] leading-5 text-[#4B5563]">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+              <p className="text-[16px] leading-6 text-[#4B5563] sm:w-[128px] sm:shrink-0">
                 Did you order the gift?
               </p>
               {purchaseConfirmed ? (
@@ -271,7 +274,7 @@ export function DetailGiftCard({
 
             {purchaseConfirmed ? (
               <>
-                <p className="mt-8 text-center text-[13px] italic text-[#4B5563]">
+                <p className="mt-5 text-center text-[14px] italic text-[#4B5563]">
                   Optional, but helpful for us!
                 </p>
                 <div className="mt-3">
@@ -285,10 +288,10 @@ export function DetailGiftCard({
                     onClear={() => onReceipt(null)}
                   />
                 </div>
-                <div className="mt-4 grid grid-cols-[72px_minmax(0,1fr)] items-center gap-3">
+                <div className="mt-3 flex flex-col gap-2 sm:grid sm:grid-cols-[128px_minmax(0,1fr)] sm:items-center sm:gap-3">
                   <Label
                     htmlFor={`${gift.id}-tracking`}
-                    className="text-[14px] font-normal text-[#4B5563]"
+                    className="text-[16px] font-normal text-[#4B5563]"
                   >
                     Tracking #
                   </Label>
@@ -298,16 +301,16 @@ export function DetailGiftCard({
                     onChange={(event) => onTrackingChange(event.target.value)}
                     disabled={isSavingTracking}
                     placeholder="e.g. 732132323213213"
-                    className="h-10 rounded-[12px] border-[#BDBDBD] text-[13px]"
+                    className="h-10 rounded-[12px] border-[#BDBDBD] text-[15px]"
                   />
                 </div>
-                <div className="mt-1 flex items-center justify-end text-[12px] text-[#4B5563]">
+                <div className="mt-1 flex items-center justify-end text-[14px] text-[#4B5563]">
                   {state.tracking !== state.savedTracking ? (
                     <Button
                       type="button"
                       variant="link"
                       size="xs"
-                      className="h-auto p-0 text-[12px] text-kfk-blue underline"
+                      className="h-auto p-0 text-[14px] text-kfk-blue underline"
                       onClick={() => onSave()}
                     >
                       Save Tracking
@@ -320,7 +323,7 @@ export function DetailGiftCard({
             ) : null}
           </ConfirmationSection>
 
-          <Separator className="bg-[#E5E7EB]" />
+          <Separator className="-mx-4 bg-[#E5E7EB] data-[orientation=horizontal]:w-auto" />
 
           <ConfirmationSection
             title="Delivery Confirmation"
@@ -328,8 +331,8 @@ export function DetailGiftCard({
             open={deliveryOpen}
             onOpenChange={setDeliveryOpen}
           >
-            <div className="flex items-center justify-between gap-3">
-              <p className="max-w-[120px] text-[14px] leading-5 text-[#4B5563]">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+              <p className="text-[16px] leading-6 text-[#4B5563] sm:w-[128px] sm:shrink-0">
                 Was the gift delivered?
               </p>
               {state.delivered ? (
@@ -343,12 +346,7 @@ export function DetailGiftCard({
                 </ConfirmationButton>
               )}
             </div>
-            <p
-              className={cn(
-                "text-center text-[13px] italic text-[#4B5563]",
-                state.delivered ? "mt-8" : "mt-4",
-              )}
-            >
+            <p className="mt-5 text-center text-[14px] italic text-[#4B5563]">
               Optional, but helpful for us!
             </p>
             <div className="mt-3">
@@ -364,12 +362,12 @@ export function DetailGiftCard({
             </div>
           </ConfirmationSection>
 
-          <div className="mt-3 flex justify-end">
+          <div className="flex justify-end pb-4">
             <Button
               type="button"
               variant="link"
               size="xs"
-              className="h-auto p-0 text-[12px] text-[#4B5563] underline underline-offset-2"
+              className="h-auto p-0 text-[14px] text-[#4B5563] underline underline-offset-2"
               onClick={onUnclaimRequest}
             >
               Unclaim gift
