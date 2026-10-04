@@ -8,6 +8,7 @@ import {
   Hr,
   Html,
   Img,
+  Link,
   Preview,
   Section,
   Tailwind,
@@ -25,8 +26,8 @@ const previewPayload: DonorPurchaseReminderPayload = {
   donorName: "Alex",
   donorEmail: "alex@example.com",
   driveId: "preview-drive",
-  claimIds: ["claim-1", "claim-2"],
-  giftIds: ["gift-1", "gift-2"],
+  claimIds: ["claim-1", "claim-2", "claim-3"],
+  giftIds: ["gift-1", "gift-2", "gift-3"],
   claimedAt: "2026-06-21T14:00:00.000Z",
   reminderReason:
     "We noticed these gifts have not been marked as purchased yet. Please confirm your order when you can.",
@@ -38,8 +39,19 @@ const previewPayload: DonorPurchaseReminderPayload = {
       familyId: "family-1",
       familyName: "The Johnson Family",
       giftTitle: "Art Supply Set",
+      productUrl: "https://example.com/art-supply-set",
       listedPrice: 28,
       familyPublicNotes: "Loves painting and drawing.",
+    },
+    {
+      giftId: "gift-3",
+      childId: "child-3",
+      childName: "Eli",
+      familyId: "family-1",
+      familyName: "The Johnson Family",
+      giftTitle: "Soccer Ball",
+      productUrl: "https://example.com/soccer-ball",
+      listedPrice: 19.99,
     },
     {
       giftId: "gift-2",
@@ -48,6 +60,7 @@ const previewPayload: DonorPurchaseReminderPayload = {
       familyId: "family-2",
       familyName: "The Rivera Family",
       giftTitle: "LEGO Building Set",
+      productUrl: "https://example.com/lego-building-set",
       listedPrice: 42,
     },
   ],
@@ -88,11 +101,44 @@ function formatCurrency(amount?: number) {
   }).format(amount);
 }
 
+function formatAddress(params: {
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+}) {
+  const street = [params.addressLine1, params.addressLine2]
+    .filter(Boolean)
+    .join(", ");
+  const locality = [params.city, params.state].filter(Boolean).join(", ");
+  const postalLine = [locality, params.zipCode].filter(Boolean).join(" ");
+  const addressLines = [street, postalLine].filter(Boolean);
+
+  if (addressLines.length === 0 || !params.addressLine1) {
+    return "Address not available - contact KFK";
+  }
+
+  return addressLines.join(", ");
+}
+
+type GiftSummary = DonorPurchaseReminderPayload["gifts"][number];
+
+function groupGiftsByFamily(gifts: Array<GiftSummary>) {
+  const giftsByFamily: Record<string, Array<GiftSummary>> = {};
+  for (const gift of gifts) {
+    (giftsByFamily[gift.familyId] ??= []).push(gift);
+  }
+  return giftsByFamily;
+}
+
 export default function DonorPurchaseReminderEmail({
   payload = previewPayload,
   donorPortalUrl = "http://localhost:5002/donor/home",
   baseUrl = "http://localhost:5002",
 }: DonorPurchaseReminderEmailProps) {
+  const giftsByFamily = groupGiftsByFamily(payload.gifts);
+
   return (
     <Tailwind
       config={{
@@ -150,30 +196,52 @@ export default function DonorPurchaseReminderEmail({
                 Gifts awaiting purchase confirmation
               </Text>
 
-              {payload.gifts.map(
-                (gift: DonorPurchaseReminderPayload["gifts"][number]) => (
+              {payload.shippingByFamily.map(
+                (
+                  family: DonorPurchaseReminderPayload["shippingByFamily"][number],
+                ) => (
                   <Section
-                    key={gift.giftId}
-                    className="mt-4 rounded-lg border border-gray-200 bg-gray-50 px-5 py-4"
+                    key={family.familyId}
+                    className="mt-4 rounded-lg border border-gray-200 bg-white px-5 py-4"
                   >
                     <Text className="m-0 text-base font-semibold text-gray-900">
-                      {gift.giftTitle}
+                      {family.familyName}
                     </Text>
                     <Text className="mt-1 mb-0 text-sm text-gray-600">
-                      Child: {gift.childName}
+                      Ships to: {formatAddress(family)}
                     </Text>
-                    <Text className="mt-1 mb-0 text-sm text-gray-600">
-                      Family: {gift.familyName}
-                    </Text>
-                    <Text className="mt-1 mb-0 text-sm text-gray-600">
-                      Listed Price: {formatCurrency(gift.listedPrice)}
-                    </Text>
-                    {gift.familyPublicNotes ? (
-                      <Text className="mt-2 mb-0 text-sm text-gray-700">
-                        <span className="font-semibold">Family notes:</span>{" "}
-                        {gift.familyPublicNotes}
-                      </Text>
-                    ) : null}
+
+                    {(giftsByFamily[family.familyId] ?? []).map((gift) => (
+                      <Section
+                        key={gift.giftId}
+                        className="mt-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+                      >
+                        <Text className="m-0 text-base font-semibold text-gray-900">
+                          {gift.productUrl ? (
+                            <Link
+                              href={gift.productUrl}
+                              className="text-kfk-blue underline"
+                            >
+                              {gift.giftTitle}
+                            </Link>
+                          ) : (
+                            gift.giftTitle
+                          )}
+                        </Text>
+                        <Text className="mt-1 mb-0 text-sm text-gray-600">
+                          Child: {gift.childName}
+                        </Text>
+                        <Text className="mt-1 mb-0 text-sm text-gray-600">
+                          Listed Price: {formatCurrency(gift.listedPrice)}
+                        </Text>
+                        {gift.familyPublicNotes ? (
+                          <Text className="mt-2 mb-0 text-sm text-gray-700">
+                            <span className="font-semibold">Family notes:</span>{" "}
+                            {gift.familyPublicNotes}
+                          </Text>
+                        ) : null}
+                      </Section>
+                    ))}
                   </Section>
                 ),
               )}

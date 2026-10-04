@@ -29,8 +29,8 @@ const previewPayload: DonorPostClaimConfirmationPayload = {
   donorName: "Alex",
   donorEmail: "alex@example.com",
   driveId: "preview-drive",
-  claimIds: ["claim-1", "claim-2"],
-  giftIds: ["gift-1", "gift-2"],
+  claimIds: ["claim-1", "claim-2", "claim-3"],
+  giftIds: ["gift-1", "gift-2", "gift-3"],
   claimedAt: "2026-06-21T14:00:00.000Z",
   gifts: [
     {
@@ -40,8 +40,19 @@ const previewPayload: DonorPostClaimConfirmationPayload = {
       familyId: "family-1",
       familyName: "The Johnson Family",
       giftTitle: "Art Supply Set",
+      productUrl: "https://example.com/art-supply-set",
       listedPrice: 28,
       familyPublicNotes: "Loves painting and drawing.",
+    },
+    {
+      giftId: "gift-3",
+      childId: "child-3",
+      childName: "Eli",
+      familyId: "family-1",
+      familyName: "The Johnson Family",
+      giftTitle: "Soccer Ball",
+      productUrl: "https://example.com/soccer-ball",
+      listedPrice: 19.99,
     },
     {
       giftId: "gift-2",
@@ -50,6 +61,7 @@ const previewPayload: DonorPostClaimConfirmationPayload = {
       familyId: "family-2",
       familyName: "The Rivera Family",
       giftTitle: "LEGO Building Set",
+      productUrl: "https://example.com/lego-building-set",
       listedPrice: 42,
     },
   ],
@@ -125,11 +137,23 @@ function formatAddress(params: {
   return addressLines.join(", ");
 }
 
+type GiftSummary = DonorPostClaimConfirmationPayload["gifts"][number];
+
+function groupGiftsByFamily(gifts: Array<GiftSummary>) {
+  const giftsByFamily: Record<string, Array<GiftSummary>> = {};
+  for (const gift of gifts) {
+    (giftsByFamily[gift.familyId] ??= []).push(gift);
+  }
+  return giftsByFamily;
+}
+
 export default function DonorPostClaimConfirmationEmail({
   payload = previewPayload,
   donorPortalUrl = "http://localhost:5002/donor/home",
   baseUrl = "http://localhost:5002",
 }: DonorPostClaimConfirmationEmailProps) {
+  const giftsByFamily = groupGiftsByFamily(payload.gifts);
+
   return (
     <Tailwind
       config={{
@@ -171,8 +195,19 @@ export default function DonorPostClaimConfirmationEmail({
               </Heading>
               <Text className="mt-0 text-base text-gray-500">
                 We appreciate your support. Below is a summary of the gifts you
-                claimed and the shipping information for each family.
+                claimed, grouped by the address each gift ships to.
               </Text>
+
+              <Section className="mt-4 rounded-lg border-0 border-l-4 border-solid border-kfk-yellow bg-kfk-yellow/20 px-5 py-4">
+                <Text className="m-0 text-xs font-semibold uppercase tracking-widest text-gray-700">
+                  Next step
+                </Text>
+                <Text className="mb-0 mt-1 text-base font-semibold text-gray-900">
+                  Once you purchase your gifts, please return to the donor
+                  portal to confirm your purchase and share any tracking
+                  information.
+                </Text>
+              </Section>
 
               <Hr className="my-6 border-gray-200" />
 
@@ -224,58 +259,7 @@ export default function DonorPostClaimConfirmationEmail({
               <Hr className="my-6 border-gray-200" />
 
               <Text className="m-0 text-sm font-semibold uppercase tracking-widest text-gray-400">
-                Claimed gifts
-              </Text>
-
-              {payload.gifts.map(
-                (gift: DonorPostClaimConfirmationPayload["gifts"][number]) => (
-                  <Section
-                    key={gift.giftId}
-                    className="mt-4 rounded-lg border border-gray-200 bg-gray-50 px-5 py-4"
-                  >
-                    <Text className="m-0 text-base font-semibold text-gray-900">
-                      {gift.giftTitle}
-                    </Text>
-
-                    <table className="mt-2 w-full">
-                      <tbody>
-                        <tr>
-                          <td className="py-1 text-sm text-gray-500">Child</td>
-                          <td className="py-1 text-right text-sm font-medium text-gray-900">
-                            {gift.childName}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="py-1 text-sm text-gray-500">Family</td>
-                          <td className="py-1 text-right text-sm font-medium text-gray-900">
-                            {gift.familyName}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="py-1 text-sm text-gray-500">
-                            Listed price
-                          </td>
-                          <td className="py-1 text-right text-sm font-medium text-gray-900">
-                            {formatCurrency(gift.listedPrice)}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-
-                    {gift.familyPublicNotes ? (
-                      <Text className="mb-0 mt-3 text-sm text-gray-700">
-                        <span className="font-semibold">Family notes:</span>{" "}
-                        {gift.familyPublicNotes}
-                      </Text>
-                    ) : null}
-                  </Section>
-                ),
-              )}
-
-              <Hr className="my-6 border-gray-200" />
-
-              <Text className="m-0 text-sm font-semibold uppercase tracking-widest text-gray-400">
-                Shipping information
+                Gifts by shipping address
               </Text>
 
               {payload.shippingByFamily.map(
@@ -283,6 +267,7 @@ export default function DonorPostClaimConfirmationEmail({
                   family: DonorPostClaimConfirmationPayload["shippingByFamily"][number],
                 ) => {
                   const addressDisplay = formatAddress(family);
+                  const familyGifts = giftsByFamily[family.familyId] ?? [];
 
                   return (
                     <Section
@@ -332,17 +317,64 @@ export default function DonorPostClaimConfirmationEmail({
                           {family.deliveryNotes}
                         </Text>
                       ) : null}
+
+                      <Text className="mb-0 mt-4 text-xs font-semibold uppercase tracking-widest text-gray-400">
+                        Gifts to ship here ({familyGifts.length})
+                      </Text>
+
+                      {familyGifts.map((gift) => (
+                        <Section
+                          key={gift.giftId}
+                          className="mt-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+                        >
+                          <Text className="m-0 text-base font-semibold text-gray-900">
+                            {gift.productUrl ? (
+                              <Link
+                                href={gift.productUrl}
+                                className="text-kfk-blue underline"
+                              >
+                                {gift.giftTitle}
+                              </Link>
+                            ) : (
+                              gift.giftTitle
+                            )}
+                          </Text>
+
+                          <table className="mt-2 w-full">
+                            <tbody>
+                              <tr>
+                                <td className="py-1 text-sm text-gray-500">
+                                  Child
+                                </td>
+                                <td className="py-1 text-right text-sm font-medium text-gray-900">
+                                  {gift.childName}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td className="py-1 text-sm text-gray-500">
+                                  Listed price
+                                </td>
+                                <td className="py-1 text-right text-sm font-medium text-gray-900">
+                                  {formatCurrency(gift.listedPrice)}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+
+                          {gift.familyPublicNotes ? (
+                            <Text className="mb-0 mt-3 text-sm text-gray-700">
+                              <span className="font-semibold">
+                                Family notes:
+                              </span>{" "}
+                              {gift.familyPublicNotes}
+                            </Text>
+                          ) : null}
+                        </Section>
+                      ))}
                     </Section>
                   );
                 },
               )}
-
-              <Hr className="my-6 border-gray-200" />
-
-              <Text className="mb-0 text-sm text-gray-600">
-                Once you purchase your gifts, please return to the donor portal
-                to confirm your purchase and share any tracking information.
-              </Text>
             </Section>
 
             <Text className="mt-6 text-center">
