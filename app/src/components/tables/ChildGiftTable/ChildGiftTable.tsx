@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import type { StorefrontGift } from "@/types/storefront";
-import { cartCollection } from "@/local/cartCollection";
-import { useLiveQuery } from "@tanstack/react-db";
+import { useCartCollection } from "@/local/cartCollection";
+import { useLocalCartData } from "@/hooks/queries/useCartGifts";
 import { toast } from "@/lib/toast";
 
 function isGiftAlreadyClaimed(gift: StorefrontGift) {
@@ -33,9 +33,8 @@ export function ChildGiftTable({
   giftDriveId,
   className,
 }: ChildGiftTableProps) {
-  const { data: cartGifts } = useLiveQuery((q) =>
-    q.from({ perf: cartCollection }),
-  );
+  const cartCollection = useCartCollection();
+  const { data: cartGifts } = useLocalCartData();
 
   const isGiftLocallyClaimed = (giftId: string) =>
     cartGifts.some((g) => g.id === giftId);

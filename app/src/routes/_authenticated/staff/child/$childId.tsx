@@ -100,36 +100,33 @@ function ChildProfilePage() {
     data: childData = [],
     isLoading: childLoading,
     isError: childIsError,
-  } = useLiveQuery(
-    (q) =>
+  } = useLiveQuery({
+    query: (q) =>
       q.from({ c: collections.children }).where(({ c }) => eq(c.id, childId)),
-    [childId],
-  );
+  });
   const child = childData[0];
 
   const {
     data: giftsData = [],
     isLoading: giftsLoading,
     isError: giftsIsError,
-  } = useLiveQuery(
-    (q) =>
+  } = useLiveQuery({
+    query: (q) =>
       q.from({ g: collections.gifts }).where(({ g }) => eq(g.childId, childId)),
-    [childId],
-  );
+  });
 
   const {
     data: familyData = [],
     isLoading: familyLoading,
     isError: familyIsError,
-  } = useLiveQuery(
-    (q) =>
+  } = useLiveQuery({
+    query: (q) =>
       child
         ? q
             .from({ f: collections.families })
             .where(({ f }) => eq(f.id, child.familyId))
         : undefined,
-    [child?.familyId],
-  );
+  });
   const family = familyData[0];
 
   const {

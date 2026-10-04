@@ -7,7 +7,10 @@ import {
 import { ConfirmGiftsModal } from "@/components/storefront/ConfirmGiftsPopup.tsx";
 import { useMemo } from "react";
 import { Spinner } from "@/components/ui/spinner";
-import { cartCollection, getCartItemsForDrive } from "@/local/cartCollection";
+import {
+  getCartItemsForDrive,
+  useCartCollection,
+} from "@/local/cartCollection";
 import { CheckoutAuthModal } from "@/components/storefront/CheckoutAuthModal";
 import { useCheckoutFlow } from "@/hooks/useCheckoutFlow";
 import MfaMethodDialog from "@/components/auth/MfaMethodDialog";
@@ -34,6 +37,7 @@ export const Route = createFileRoute("/_storefront/checkout")({
 
 function CheckoutComponent() {
   const { auth, currentDrive } = Route.useRouteContext();
+  const cartCollection = useCartCollection();
   const { data: localCart } = useLocalCartData();
   const currentDriveCart = getCartItemsForDrive(
     localCart ?? [],
