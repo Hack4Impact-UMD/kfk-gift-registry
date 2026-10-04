@@ -69,7 +69,7 @@ export function DonorChildDetailScreen({
           </span>
         </div>
 
-        <div className="px-3 py-3">
+        <div className="px-3 py-4">
           <div className="flex items-start gap-3">
             <img
               src={child.photoUrl}
@@ -93,10 +93,10 @@ export function DonorChildDetailScreen({
             </div>
           </div>
 
-          <div className="mt-4 flex items-center gap-2 text-kfk-blue">
+          <div className="mt-4 flex items-center text-kfk-blue">
             <Button
               variant="ghost"
-              className="font-medium text-[14px]"
+              className="-ml-3 h-8 px-3 text-[14px] font-medium"
               onClick={() => {
                 const nextExpanded = !allExpanded;
                 setAllExpanded(nextExpanded);
@@ -114,7 +114,7 @@ export function DonorChildDetailScreen({
 
           <div
             key={`${allExpanded ? "open" : "closed"}-${expandVersion}`}
-            className="mt-2 space-y-2"
+            className="mt-2 space-y-3"
           >
             {visibleGifts.map((gift) => (
               <DetailGiftCard
@@ -149,7 +149,7 @@ export function DonorChildDetailScreen({
             ) : null}
           </div>
 
-          <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="mt-6 flex items-center justify-between gap-3">
             <Button
               type="button"
               disabled={prevDisabled || !allSaved}

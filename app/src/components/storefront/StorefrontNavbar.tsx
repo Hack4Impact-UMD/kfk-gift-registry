@@ -117,7 +117,7 @@ export function StorefrontNavbar({
               onClick={() => startStorefrontTour(navigate)}
               className="flex items-center whitespace-nowrap text-sm font-bold text-kfk-blue hover:underline cursor-pointer"
             >
-              Storefront Tutorial
+              Donor Tutorial
               <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-1 shrink-0" />
             </button>
           </div>

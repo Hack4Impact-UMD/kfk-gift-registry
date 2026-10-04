@@ -8,6 +8,7 @@ import {
   Hr,
   Html,
   Img,
+  Link,
   Preview,
   Section,
   Tailwind,
@@ -148,7 +149,7 @@ export default function DonorPostClaimConfirmationEmail({
       <Html lang="en">
         <Head />
         <Preview>
-          Thank you for claiming gifts through the KFK Gift Registry
+          Thank you for claiming gifts through the Kisses for Kyle Holiday Gift Drive
         </Preview>
         <Body className="bg-gray-50 font-sans">
           <Container className="mx-auto max-w-[640px] py-10">
@@ -166,7 +167,7 @@ export default function DonorPostClaimConfirmationEmail({
                 Hi {payload.donorName},
               </Text>
               <Heading className="m-0 mb-2 text-2xl font-bold text-gray-900">
-                Thank you for claiming gifts!
+                Thank you for claiming gifts to support our Kisses for Kyle families facing a childhood cancer diagnosis!
               </Heading>
               <Text className="mt-0 text-base text-gray-500">
                 We appreciate your support. Below is a summary of the gifts you
@@ -343,6 +344,10 @@ export default function DonorPostClaimConfirmationEmail({
                 to confirm your purchase and share any tracking information.
               </Text>
             </Section>
+
+            <Text className="mt-6 text-center">
+              Have questions? You may contact us at: <Link href="mailto:info@kissesforkyle.org">info@kissesforkyle.org</Link>
+            </Text>
 
             <Text className="mt-6 text-center text-xs text-gray-400">
               &copy; {new Date().getFullYear()} Kisses for Kyle Foundation. All
