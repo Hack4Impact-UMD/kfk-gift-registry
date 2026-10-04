@@ -1,3 +1,4 @@
+import { captureException, logger } from "@sentry/tanstackstart-react";
 import { createServerFn } from "@tanstack/react-start";
 import { UserRole, UserProfileSchema } from "common";
 import z from "zod";
@@ -125,14 +126,25 @@ export const updateUserProfile = createServerFn({
         ...updates,
       });
     } catch (err) {
-      await db.users.doc(userId).set(currentProfile);
-      await auth.updateUser(userId, {
-        displayName: authRecord.displayName,
-        phoneNumber: authRecord.phoneNumber,
-      });
+      try {
+        await db.users.doc(userId).set(currentProfile);
+        await auth.updateUser(userId, {
+          displayName: authRecord.displayName,
+          phoneNumber: authRecord.phoneNumber,
+        });
+      } catch (rollbackError) {
+        console.error("Failed to roll back user profile update", rollbackError);
+        captureException(rollbackError, { extra: { userId } });
+      }
 
-      throw new Error("Update failed");
+      throw new Error("Update failed", { cause: err });
     }
+
+    logger.info("User profile updated", {
+      actorId: authUser.uid,
+      userId,
+      fields: Object.keys(updates).join(","),
+    });
 
     return (await db.users.doc(userId).get()).data();
   });
@@ -164,19 +176,31 @@ export const deleteUserProfile = createServerFn({
 
     try {
       await auth.deleteUser(userId);
-    } catch {
+    } catch (error) {
       errors.push("Firebase Auth user");
+      captureException(error, { extra: { userId, step: "auth" } });
     }
 
     try {
       await db.users.doc(userId).delete();
-    } catch {
+    } catch (error) {
       errors.push("Firestore user profile");
+      captureException(error, { extra: { userId, step: "firestore" } });
     }
 
     if (errors.length > 0) {
+      logger.error("User deletion partially failed", {
+        directorId: context.authUser.uid,
+        userId,
+        failed: errors.join(","),
+      });
       throw new Error(`Failed to delete: ${errors.join(", ")}`);
     }
+
+    logger.info("Director deleted user", {
+      directorId: context.authUser.uid,
+      userId,
+    });
   });
 
 const relevantStaffFields = z.object({
@@ -266,6 +290,12 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
 
       await db.users.doc(authUser.uid).set(userDoc);
 
+      logger.info("Staff member registered from invite", {
+        userId: authUser.uid,
+        inviteId: cleaned.inviteId,
+        role: invite.role,
+      });
+
       return userDoc;
     } catch (err) {
       // best-effort cleanup: delete auth user and unlock invite
@@ -274,12 +304,14 @@ export const registerStaffMemberWithInvite = createServerFn({ method: "POST" })
           await auth.deleteUser(authUser.uid);
         } catch (e) {
           console.error("Failed to delete Auth user during rollback", e);
+          captureException(e, { extra: { userId: authUser.uid } });
         }
       }
       try {
         await inviteRef.update({ used: false });
       } catch (e) {
         console.error("Failed to revert invite.used during rollback", e);
+        captureException(e, { extra: { inviteId: cleaned.inviteId } });
       }
 
       throw err instanceof Error ? err : new Error("Registration failed");
@@ -327,9 +359,17 @@ export const updateUserRole = createServerFn({ method: "POST" })
         await auth.setCustomUserClaims(userId, { role: previousRole });
       } catch (rollbackError) {
         console.error("Failed to rollback Auth claims:", rollbackError);
+        captureException(rollbackError, { extra: { userId, previousRole } });
       }
       throw error;
     }
+
+    logger.info("Director changed user role", {
+      directorId: context.authUser.uid,
+      userId,
+      previousRole,
+      role,
+    });
 
     return (await db.users.doc(userId).get()).data();
   });
@@ -382,6 +422,8 @@ export const registerDonor = createServerFn({ method: "POST" })
 
       await db.users.doc(authUser.uid).set(userDoc);
 
+      logger.info("Donor registered", { userId: authUser.uid });
+
       return userDoc;
     } catch (err) {
       if (authUser) {
@@ -389,6 +431,7 @@ export const registerDonor = createServerFn({ method: "POST" })
           await auth.deleteUser(authUser.uid);
         } catch (e) {
           console.error("Failed to delete Auth user during rollback", e);
+          captureException(e, { extra: { userId: authUser.uid } });
         }
       }
 

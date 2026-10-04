@@ -1,4 +1,5 @@
 import { getServerDB } from "@/lib/firebase.server";
+import { logger } from "@sentry/tanstackstart-react";
 import { createServerFn } from "@tanstack/react-start";
 import { v7 as uuidv7 } from "uuid";
 import { DateTime } from "luxon";
@@ -45,7 +46,7 @@ export const getActiveGiftDrive = createServerFn().handler(async () => {
 export const createGiftDrive = createServerFn({ method: "POST" })
   .middleware([adminOnly])
   .inputValidator(GiftDriveInputSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const db = getServerDB();
     const id = uuidv7();
     const giftDrive = {
@@ -54,17 +55,25 @@ export const createGiftDrive = createServerFn({ method: "POST" })
       ...data,
     };
 
-    return await db._instance.runTransaction(async (tx) => {
+    const result = await db._instance.runTransaction(async (tx) => {
       await assertGiftDriveWindowAvailable(tx, giftDrive);
       tx.set(db.giftDrives.doc(id), giftDrive);
       return giftDrive;
     });
+
+    logger.info("Gift drive created", {
+      staffId: context.authUser.uid,
+      driveId: id,
+      startDate: data.startDate,
+      endDate: data.endDate,
+    });
+    return result;
   });
 
 export const updateGiftDrive = createServerFn({ method: "POST" })
   .middleware([adminOnly])
   .inputValidator(GiftDriveUpdateSchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const db = getServerDB();
     const { id, ...fields } = data;
 
@@ -72,12 +81,18 @@ export const updateGiftDrive = createServerFn({ method: "POST" })
       await assertGiftDriveWindowAvailable(tx, data);
       tx.update(db.giftDrives.doc(id), fields);
     });
+
+    logger.info("Gift drive updated", {
+      staffId: context.authUser.uid,
+      driveId: id,
+      fields: Object.keys(fields).join(","),
+    });
   });
 
 export const deactivateGiftDrive = createServerFn({ method: "POST" })
   .middleware([adminOnly])
   .inputValidator((data: { id: string }) => data.id)
-  .handler(async ({ data: id }) => {
+  .handler(async ({ data: id, context }) => {
     const db = getServerDB();
     const driveRef = db.giftDrives.doc(id);
     const driveSnap = await driveRef.get();
@@ -106,5 +121,10 @@ export const deactivateGiftDrive = createServerFn({ method: "POST" })
       tx.update(driveRef, {
         endDate: deactivatedAt,
       });
+    });
+
+    logger.info("Gift drive deactivated", {
+      staffId: context.authUser.uid,
+      driveId: id,
     });
   });

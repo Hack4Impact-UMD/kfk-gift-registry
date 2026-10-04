@@ -1,3 +1,4 @@
+import { logger } from "@sentry/tanstackstart-react";
 import { createServerFn } from "@tanstack/react-start";
 import { Resend } from "resend";
 import z from "zod";
@@ -143,6 +144,7 @@ export const sendFamilyRecoveryLink = createServerFn({ method: "POST" })
       .get();
 
     if (familySnapshot.empty) {
+      logger.info("Family link recovery requested for unknown email");
       return { accepted: true };
     }
 
@@ -167,6 +169,11 @@ export const sendFamilyRecoveryLink = createServerFn({ method: "POST" })
       email: normalizedEmail,
       contactName: family.contactName,
       linkId: link.id,
+    });
+
+    logger.info("Sent family link recovery email", {
+      familyId,
+      newLinkCreated: activeLinkSnapshot.empty,
     });
 
     return { accepted: true };
@@ -311,7 +318,7 @@ export const updateFamily = createServerFn({ method: "POST" })
     ]),
   ])
   .inputValidator(updateFamilySchema)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { familyId, updates } = data;
     const db = getServerDB();
 
@@ -321,6 +328,11 @@ export const updateFamily = createServerFn({ method: "POST" })
     }
 
     await db.families.doc(familyId).update(updates);
+    logger.info("Staff updated family", {
+      staffId: context.authUser.uid,
+      familyId,
+      fields: Object.keys(updates).join(","),
+    });
 
     const updatedFamily = await db.families.doc(familyId).get();
     return getRequiredData(
@@ -435,6 +447,12 @@ export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
     };
 
     await db.families.doc(familyId).update(reviewUpdates);
+    logger.info("Staff updated family review status", {
+      staffId,
+      familyId,
+      approved: updates.reviewStatus.approved,
+      held: updates.reviewStatus.held,
+    });
 
     const updatedFamily = await db.families.doc(familyId).get();
     return getRequiredData(
@@ -471,6 +489,12 @@ export const approveFamilies = createServerFn({ method: "POST" })
         });
       });
     });
+
+    logger.info("Staff approved families", {
+      staffId,
+      familyCount: familyIds.length,
+      familyIds: familyIds.join(","),
+    });
   });
 
 const deleteFamiliesSchema = z.array(z.string().nonempty());
@@ -478,7 +502,7 @@ const deleteFamiliesSchema = z.array(z.string().nonempty());
 export const deleteFamilies = createServerFn({ method: "POST" })
   .middleware([requireRolesMiddleware([UserRole.DIRECTOR])])
   .inputValidator(deleteFamiliesSchema)
-  .handler(async ({ data: familyIds }) => {
+  .handler(async ({ data: familyIds, context }) => {
     const db = getServerDB();
 
     await db._instance.runTransaction(async (tx) => {
@@ -535,6 +559,12 @@ export const deleteFamilies = createServerFn({ method: "POST" })
         .forEach((doc) => tx.delete(doc.ref));
       familyIds.forEach((id) => tx.delete(db.families.doc(id)));
     });
+
+    logger.info("Staff deleted families", {
+      staffId: context.authUser.uid,
+      familyCount: familyIds.length,
+      familyIds: familyIds.join(","),
+    });
   });
 
 function chunk<T>(items: Array<T>, size: number): Array<Array<T>> {
@@ -556,7 +586,7 @@ export const publishFamilies = createServerFn({ method: "POST" })
     ]),
   ])
   .inputValidator(publishFamiliesSchema)
-  .handler(async ({ data: familyIds }) => {
+  .handler(async ({ data: familyIds, context }) => {
     const db = getServerDB();
     const families = await Promise.all(
       familyIds.map((id) => getFamilyById({ data: { familyId: id } })),
@@ -580,5 +610,12 @@ export const publishFamilies = createServerFn({ method: "POST" })
           published: true,
         } satisfies Partial<Child>),
       );
+    });
+
+    logger.info("Staff published families", {
+      staffId: context.authUser.uid,
+      familyCount: familyIds.length,
+      familyIds: familyIds.join(","),
+      childrenPublished: children.length,
     });
   });

@@ -6,4 +6,7 @@ Sentry.init({
   environment:
     process.env.FUNCTIONS_EMULATOR === "true" ? "development" : "production",
   tracesSampleRate: 1.0,
+  integrations: [
+    Sentry.consoleLoggingIntegration({ levels: ["warn", "error"] }),
+  ],
 });

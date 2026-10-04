@@ -1,3 +1,4 @@
+import { captureException, logger } from "@sentry/tanstackstart-react";
 import { useMutation } from "@tanstack/react-query";
 import type { FamilyFormState } from "@/components/providers/FormProvider";
 import { giftsFormSchema } from "@/lib/formSchemas";
@@ -158,6 +159,11 @@ export function useSubmitFamilyForm() {
         (r) => r.status === "rejected",
       );
       if (failedUploads.length > 0) {
+        for (const failed of failedUploads) {
+          captureException(failed.reason, {
+            extra: { familyId: res.link.familyId },
+          });
+        }
         toast.error(
           `Your form was submitted, but ${failedUploads.length} photo(s) failed to upload. Please contact us to resolve the issue.`,
         );
@@ -173,7 +179,12 @@ export function useSubmitFamilyForm() {
       if (uploadedChildIds.length > 0) {
         await setChildPhotoUrls({
           data: { token: res.link.id, childIds: uploadedChildIds },
-        }).catch(() => {
+        }).catch((error: unknown) => {
+          logger.error("Failed to save uploaded child photo URLs", {
+            familyId: res.link.familyId,
+            childCount: uploadedChildIds.length,
+            error: error instanceof Error ? error.message : String(error),
+          });
           toast.error(
             "Your form was submitted, but we couldn't finalize the photo(s). Please contact us to resolve the issue.",
           );

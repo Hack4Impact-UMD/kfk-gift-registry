@@ -1,3 +1,4 @@
+import { logger } from "@sentry/tanstackstart-react";
 import { createCollection, createTransaction } from "@tanstack/react-db";
 import {
   queryCollectionOptions,
@@ -350,6 +351,9 @@ export function createCollections(queryClient: QueryClient) {
           }
           await invalidateChildDerivedCaches();
         } catch (error) {
+          logger.error("Child update failed to save", {
+            error: error instanceof Error ? error.message : String(error),
+          });
           toast.error(getUpdateChildErrorMessage(error as Error));
           throw error;
         }
@@ -395,6 +399,9 @@ export function createCollections(queryClient: QueryClient) {
             await invalidateFamilyDerivedCaches(m.key as string);
           }
         } catch (error) {
+          logger.error("Family update failed to save", {
+            error: error instanceof Error ? error.message : String(error),
+          });
           toast.error(getUpdateFamilyErrorMessage(error as Error));
           throw error;
         }
@@ -439,6 +446,9 @@ export function createCollections(queryClient: QueryClient) {
           }
           await invalidateGiftDerivedCaches();
         } catch (error) {
+          logger.error("Gift update failed to save", {
+            error: error instanceof Error ? error.message : String(error),
+          });
           toast.error(getUpdateGiftErrorMessage(error as Error));
           throw error;
         }
@@ -451,6 +461,9 @@ export function createCollections(queryClient: QueryClient) {
           await invalidateGiftDerivedCaches();
           return { refetch: false };
         } catch (error) {
+          logger.error("Gift create failed to save", {
+            error: error instanceof Error ? error.message : String(error),
+          });
           toast.error(getCreateGiftErrorMessage(error as Error));
           throw error;
         }

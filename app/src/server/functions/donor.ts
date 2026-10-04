@@ -1,3 +1,4 @@
+import { captureException, logger } from "@sentry/tanstackstart-react";
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 import admin from "firebase-admin";
@@ -356,6 +357,13 @@ export const claimGifts = createServerFn({ method: "POST" })
       return { claims };
     });
 
+    logger.info("Donor claimed gifts", {
+      donorId,
+      driveId: result.claims[0]?.driveId,
+      giftCount: result.claims.length,
+      giftIds: giftIds.join(","),
+    });
+
     const donorSnapshot = await db.users.doc(donorId).get();
     const donor = donorSnapshot.data();
 
@@ -375,16 +383,20 @@ export const claimGifts = createServerFn({ method: "POST" })
       const { subject, html } =
         await renderDonorPostClaimConfirmationEmail(payload);
 
-      await sendEmailNow({
+      const sent = await sendEmailNow({
         to: donor.email,
         subject,
         html,
       });
+      if (!sent.skipped) {
+        logger.info("Sent donor post-claim confirmation email", { donorId });
+      }
     } catch (error) {
       console.error(
         "Failed to send donor post-claim confirmation email",
         error,
       );
+      captureException(error, { extra: { donorId } });
     }
 
     return result;
@@ -396,7 +408,7 @@ export const markGiftPurchased = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const donorId = context.authUser.uid;
     const db = getServerDB();
-    return await db._instance.runTransaction(async (transaction) => {
+    const result = await db._instance.runTransaction(async (transaction) => {
       const giftRef = db.gifts.doc(data.giftId);
       const giftDoc = await transaction.get(giftRef);
       const gift = giftDoc.data();
@@ -445,6 +457,12 @@ export const markGiftPurchased = createServerFn({ method: "POST" })
         status: "PURCHASED" as const,
       };
     });
+
+    logger.info("Donor marked gift purchased", {
+      donorId,
+      giftId: data.giftId,
+    });
+    return result;
   });
 
 export const uploadPurchaseReceipt = createServerFn({ method: "POST" })
@@ -492,6 +510,11 @@ export const uploadPurchaseReceipt = createServerFn({ method: "POST" })
         verified: claim.purchaseConfirmation?.verified ?? false,
         ...(nextTrackingNumber ? { trackingNumber: nextTrackingNumber } : {}),
       },
+    });
+
+    logger.info("Donor uploaded purchase receipt", {
+      donorId,
+      giftId: gift.id,
     });
 
     return {
@@ -565,7 +588,7 @@ export const markGiftDelivered = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const donorId = context.authUser.uid;
     const db = getServerDB();
-    return await db._instance.runTransaction(async (transaction) => {
+    const result = await db._instance.runTransaction(async (transaction) => {
       const giftRef = db.gifts.doc(data.giftId);
       const giftDoc = await transaction.get(giftRef);
       const gift = giftDoc.data();
@@ -615,6 +638,12 @@ export const markGiftDelivered = createServerFn({ method: "POST" })
         status: "DELIVERED" as const,
       };
     });
+
+    logger.info("Donor marked gift delivered", {
+      donorId,
+      giftId: data.giftId,
+    });
+    return result;
   });
 
 export const uploadDeliveryReceipt = createServerFn({ method: "POST" })
@@ -658,6 +687,11 @@ export const uploadDeliveryReceipt = createServerFn({ method: "POST" })
         documentationUrl: data.documentationPath,
         verified: claim.deliveryConfirmed?.verified ?? false,
       },
+    });
+
+    logger.info("Donor uploaded delivery receipt", {
+      donorId,
+      giftId: gift.id,
     });
 
     return {
@@ -718,6 +752,12 @@ export const unclaimGifts = createServerFn({ method: "POST" })
           tx.update(doc.ref, { active: false });
         }
       }
+    });
+
+    logger.info("Donor unclaimed gifts", {
+      donorId,
+      giftCount: giftIds.length,
+      giftIds: giftIds.join(","),
     });
   });
 

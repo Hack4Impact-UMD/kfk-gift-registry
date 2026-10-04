@@ -1,3 +1,4 @@
+import { logger } from "@sentry/tanstackstart-react";
 import { createServerFn } from "@tanstack/react-start";
 import { getCookies, setCookie } from "@tanstack/react-start/server";
 import z from "zod";
@@ -106,18 +107,21 @@ export const loginWithToken = createServerFn({
         data: { token },
       });
 
+      const role = (result["role"] as UserRole) ?? UserRole.DONOR;
+      logger.info("User logged in", { userId: result.uid, role });
+
       return {
         uid: result.uid,
         displayName: result.name,
         phone,
         email: result.email,
         emailVerified: result.email_verified ?? false,
-        role: (result["role"] as UserRole) ?? UserRole.DONOR,
+        role,
       };
     } catch (err) {
       console.error("Login failed");
       console.error(err);
-      throw new Error("Failed to login");
+      throw new Error("Failed to login", { cause: err });
     }
   });
 
@@ -129,6 +133,7 @@ export const logoutSession = createServerFn({
   const auth = getServerAuth();
 
   await auth.revokeRefreshTokens(session.uid);
+  logger.info("User logged out", { userId: session.uid });
 
   setCookie(SESSION_COOKIE_NAME, "", {
     httpOnly: true,
