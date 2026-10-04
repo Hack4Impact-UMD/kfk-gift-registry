@@ -289,7 +289,7 @@ export function createCollections(queryClient: QueryClient) {
         productUrl: draft.productUrl,
         listedPrice: draft.listedPrice,
         familyPublicNotes: draft.familyPublicNotes,
-        active: draft.active,
+        active: !draft.backup,
       },
     });
   }

@@ -319,7 +319,8 @@ function ChildProfilePage() {
         familyPublicNotes: gift.familyPublicNotes,
         status: "AVAILABLE",
         createdAt: new Date().toISOString(),
-        active: true,
+        // createGift reads `active` as "add as a main gift" and derives backup.
+        active: gift.active,
         backup: !gift.active,
       };
       collections.gifts.utils.writeInsert(await createGift({ data: create }));

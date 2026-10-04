@@ -111,7 +111,8 @@ function RouteComponent() {
             Please check your email for confirmation and easy instructions.
             Additionally, click on “View More” for each child to access the
             family delivery address, and to confirm once you’ve purchased each
-            child’s gift and delivery.
+            child’s gift and once delivery. Confirm each gift after you purchase
+            it, and again after it is delivered.
           </p>
         </section>
 
