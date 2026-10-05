@@ -12,6 +12,7 @@ export function usePublishFamilies() {
 
     onSuccess: async () => {
       await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["children-coll"] }),
         queryClient.invalidateQueries({
           queryKey: queries.children.byFamilyId._def,
         }),
