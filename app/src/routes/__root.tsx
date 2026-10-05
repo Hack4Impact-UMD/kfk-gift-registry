@@ -13,12 +13,13 @@ import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { AuthContext } from "@/server/functions/auth";
 import { queries } from "@/queries";
 import { getClientAppCheck } from "@/lib/firebase";
 import { RecaptchaProvider } from "@/context/RecaptchaContext";
 import { useEffect } from "react";
+import { useAuthSessionSync } from "@/hooks/useAuthSessionSync";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -114,6 +115,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { isLoading } = useRouterState();
+  const session = useQuery(sessionQuery);
+  useAuthSessionSync(
+    session.isPending ? undefined : (session.data?.uid ?? null),
+  );
 
   useEffect(() => {
     getClientAppCheck().catch((error) => {

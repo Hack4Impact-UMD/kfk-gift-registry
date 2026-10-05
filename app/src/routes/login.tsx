@@ -215,6 +215,7 @@ function RouteComponent() {
                     <Input
                       type="email"
                       placeholder="Enter your email"
+                      data-testid="login-email"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
@@ -236,6 +237,7 @@ function RouteComponent() {
                     <Input
                       type="password"
                       placeholder="Enter your password"
+                      data-testid="login-password"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
@@ -271,6 +273,7 @@ function RouteComponent() {
 
               <Button
                 type="submit"
+                data-testid="login-submit"
                 disabled={isSubmitting}
                 className="w-full h-11 rounded-full text-white disabled:opacity-50 flex items-center justify-center bg-kfk-blue hover:bg-kfk-blue/90"
               >

@@ -92,6 +92,49 @@ jobs:
       - name: Test
         run: pnpm -r --if-present run test
 
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # the client only talks to the auth emulator, any key works
+      VITE_FIREBASE_API_KEY: fake-api-key
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      # the firestore emulator needs a JDK
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install firebase-tools
+        run: npm install -g firebase-tools@15.8.0
+
+      - name: Install Playwright browsers
+        run: pnpm -C app exec playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: pnpm test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: app/test-results
+          retention-days: 7
+
   build:
     name: Full Build
     runs-on: ubuntu-latest

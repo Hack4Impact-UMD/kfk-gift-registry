@@ -2,6 +2,7 @@ import { logger } from "@sentry/tanstackstart-react";
 import { createMiddleware } from "@tanstack/react-start";
 import type { UserRole } from "common";
 import { verifySession } from "@/server/functions/auth";
+import { UnauthenticatedError } from "@/lib/errors";
 
 export const authMiddleware = createMiddleware({ type: "function" }).server(
   async ({ next }) => {
@@ -14,7 +15,7 @@ export const authMiddleware = createMiddleware({ type: "function" }).server(
       });
     } else {
       logger.warn("Rejected unauthenticated server function call");
-      throw new Error("[auth middleware]: Not authenticated");
+      throw new UnauthenticatedError();
     }
   },
 );

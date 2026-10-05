@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "pretest": "pnpm -C ../common build",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "lint": "oxlint .",
     "typecheck": "tsc --noEmit -p ."
   },
@@ -75,6 +76,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tanstack/devtools-vite": "^0.3.11",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",

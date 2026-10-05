@@ -135,6 +135,18 @@ export const logoutSession = createServerFn({
   await auth.revokeRefreshTokens(session.uid);
   logger.info("User logged out", { userId: session.uid });
 
+  clearSessionCookie();
+});
+
+// clears the cookie without revoking refresh tokens, so other devices stay
+// signed in - used to drop a session the client no longer has a user for
+export const clearSession = createServerFn({
+  method: "POST",
+}).handler(() => {
+  clearSessionCookie();
+});
+
+function clearSessionCookie() {
   setCookie(SESSION_COOKIE_NAME, "", {
     httpOnly: true,
     sameSite: "lax",
@@ -142,4 +154,4 @@ export const logoutSession = createServerFn({
     path: "/",
     maxAge: 0,
   });
-});
+}
