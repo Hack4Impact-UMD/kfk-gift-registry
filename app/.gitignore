@@ -12,3 +12,5 @@ count.txt
 .vinxi
 todos.json
 .env.local
+test-results
+playwright-report

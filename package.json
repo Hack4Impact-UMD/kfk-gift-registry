@@ -10,6 +10,7 @@
     "seed": "bash scripts/run-seed.sh",
     "seed:generate": "pnpm exec tsx scripts/seed.ts",
     "test": "pnpm -r run test",
+    "test:e2e": "pnpm -C app test:e2e",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
     "lint": "pnpm -r run lint",
