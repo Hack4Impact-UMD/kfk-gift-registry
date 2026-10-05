@@ -94,6 +94,9 @@ jobs:
           HEREDOC
 
       - name: Deploy
+        env:
+          # Written to functions/isolate/.env by the functions predeploy hook in firebase.json.
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: firebase deploy
 
       - name: Create Sentry release

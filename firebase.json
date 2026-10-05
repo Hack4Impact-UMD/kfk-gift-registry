@@ -24,7 +24,7 @@
         "pnpm run build",
         "isolate",
         "pnpm --dir functions/isolate install --frozen-lockfile",
-        "[ -z \"$SENTRY_RELEASE\" ] || echo \"SENTRY_RELEASE=$SENTRY_RELEASE\" > functions/isolate/.env"
+        "{ [ -z \"$SENTRY_RELEASE\" ] || echo \"SENTRY_RELEASE=$SENTRY_RELEASE\"; [ -z \"$RESEND_API_KEY\" ] || echo \"RESEND_API_KEY=$RESEND_API_KEY\"; } > functions/isolate/.env"
       ]
     }
   ],
