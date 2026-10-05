@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import { publishFamilies } from "@/server/functions/family";
+import { usePublishFamilies } from "@/hooks/mutations/usePublishFamilies";
 import { toast } from "@/lib/toast";
 import { DateTime } from "luxon";
 import type { AuthUser } from "@/server/functions/auth";
@@ -36,6 +36,7 @@ const ADMIN_COMMENTS_PLACEHOLDER =
 interface ReviewActionPanelProps {
   family: Family;
   authUser: AuthUser;
+  hasUnpublishedChildren: boolean;
   onPreviousFamily?: () => void;
   onNextFamily?: () => void;
 }
@@ -43,10 +44,12 @@ interface ReviewActionPanelProps {
 export function ReviewActionPanel({
   family,
   authUser,
+  hasUnpublishedChildren,
   onPreviousFamily,
   onNextFamily,
 }: ReviewActionPanelProps) {
   const collections = useCollections();
+  const publishFamiliesMutation = usePublishFamilies();
   const [isPending, startStatusTransition] = useTransition();
   const savedAdminComments = family.reviewStatus.held
     ? (family.reviewStatus.holdNotes ?? "")
@@ -90,12 +93,21 @@ export function ReviewActionPanel({
         await familiesTx.isPersisted.promise;
         toast.success("Saved");
         if (publish) {
-          await publishFamilies({ data: [family.id] });
-          await collections.children.utils.refetch();
+          await publishFamiliesMutation.mutateAsync([family.id]);
         }
         onComplete?.();
       } catch {
-        // toast handled by collection onUpdate handler
+        // toast handled by collection onUpdate / usePublishFamilies onError
+      }
+    });
+  };
+
+  const runPublish = () => {
+    startStatusTransition(async () => {
+      try {
+        await publishFamiliesMutation.mutateAsync([family.id]);
+      } catch {
+        // toast handled by usePublishFamilies onError
       }
     });
   };
@@ -169,54 +181,65 @@ export function ReviewActionPanel({
       </section>
 
       <div className="flex flex-col gap-3">
-        <div className="flex items-center">
+        {family.reviewStatus.approved ? (
           <Button
             type="button"
-            disabled={isPending || family.reviewStatus.approved}
-            onClick={() =>
-              runReviewUpdate(
-                {
-                  ...family.reviewStatus,
-                  approved: true,
-                  held: false,
-                  lastReviewedAt: DateTime.now().toISO(),
-                  reviewedBy: authUser.uid,
-                },
-                true,
-              )
-            }
-            className="h-11 grow rounded-r-none rounded-l-md bg-green-600 text-base font-medium text-white hover:bg-green-700"
+            disabled={isPending || !hasUnpublishedChildren}
+            onClick={runPublish}
+            className="h-11 w-full rounded-md bg-green-600 text-base font-medium text-white hover:bg-green-700"
           >
-            Approve and Publish
+            {hasUnpublishedChildren ? "Publish to Storefront" : "Published"}
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                disabled={isPending || family.reviewStatus.approved}
-                className={
-                  "rounded-l-none border-l-2 rounded-r-md h-11 px-2 bg-green-600 text-base font-medium text-white hover:bg-green-700"
-                }
-              >
-                <ChevronDownIcon />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="top">
-              <DropdownMenuItem
-                onClick={() => {
-                  runReviewUpdate({
+        ) : (
+          <div className="flex items-center">
+            <Button
+              type="button"
+              disabled={isPending}
+              onClick={() =>
+                runReviewUpdate(
+                  {
                     ...family.reviewStatus,
                     approved: true,
                     held: false,
                     lastReviewedAt: DateTime.now().toISO(),
                     reviewedBy: authUser.uid,
-                  });
-                }}
-              >
-                Approve without publishing
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                  },
+                  true,
+                )
+              }
+              className="h-11 grow rounded-r-none rounded-l-md bg-green-600 text-base font-medium text-white hover:bg-green-700"
+            >
+              Approve and Publish
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  disabled={isPending}
+                  className={
+                    "rounded-l-none border-l-2 rounded-r-md h-11 px-2 bg-green-600 text-base font-medium text-white hover:bg-green-700"
+                  }
+                >
+                  <ChevronDownIcon />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top">
+                <DropdownMenuItem
+                  onClick={() => {
+                    runReviewUpdate({
+                      ...family.reviewStatus,
+                      approved: true,
+                      held: false,
+                      lastReviewedAt: DateTime.now().toISO(),
+                      reviewedBy: authUser.uid,
+                    });
+                  }}
+                >
+                  Approve without publishing
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
         <Button
           type="button"
           disabled={isPending || family.reviewStatus.held}

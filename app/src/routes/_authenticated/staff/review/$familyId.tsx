@@ -178,6 +178,7 @@ function RouteComponent() {
           key={family.id}
           family={family}
           authUser={auth.authUser}
+          hasUnpublishedChildren={children.some((c) => !c.published)}
           onPreviousFamily={
             previousFamilyId
               ? () => handleFamilyNavigation(previousFamilyId)
