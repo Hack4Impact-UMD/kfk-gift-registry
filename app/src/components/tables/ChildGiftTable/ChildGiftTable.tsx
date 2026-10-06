@@ -180,6 +180,7 @@ export function ChildGiftTable({
                   return (
                     <TableRow
                       key={row.id}
+                      data-testid={`gift-row-${row.original.id}`}
                       className={cn(
                         "transition-colors",
                         isClaimed

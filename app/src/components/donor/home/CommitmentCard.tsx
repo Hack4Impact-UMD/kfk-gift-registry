@@ -8,7 +8,10 @@ export function CommitmentCard({ child }: DonorHomeChildCardProps) {
   const visibleGifts = child.gifts.slice(0, 3);
 
   return (
-    <div className="rounded-none border-x-0 border-b border-t border-[#E5E7EB] bg-white px-4 py-4 shadow-none md:rounded-[24px] md:border md:px-5 md:py-5 md:shadow-sm">
+    <div
+      data-testid={`commitment-${child.id}`}
+      className="rounded-none border-x-0 border-b border-t border-[#E5E7EB] bg-white px-4 py-4 shadow-none md:rounded-[24px] md:border md:px-5 md:py-5 md:shadow-sm"
+    >
       <div className="flex items-start gap-3">
         <img
           src={child.photoUrl}

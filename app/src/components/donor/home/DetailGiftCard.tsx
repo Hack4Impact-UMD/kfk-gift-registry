@@ -175,7 +175,10 @@ export function DetailGiftCard({
   }
 
   return (
-    <Card className="gap-0 overflow-hidden rounded-[10px] border border-[#CFCFCF] bg-white px-4 py-0 shadow-none">
+    <Card
+      data-testid={`donor-gift-${gift.id}`}
+      className="gap-0 overflow-hidden rounded-[10px] border border-[#CFCFCF] bg-white px-4 py-0 shadow-none"
+    >
       <Collapsible
         open={cardOpen}
         onOpenChange={setCardOpen}

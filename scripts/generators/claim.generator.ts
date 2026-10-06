@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-import { v7 as uuidv7 } from "uuid";
 import type { Claim, GiftStatus } from "../../common/src/index.ts";
 
 type ClaimableGiftStatus = Exclude<GiftStatus, "AVAILABLE">;
@@ -35,8 +34,8 @@ export function generateClaim({
   createdAfter,
   createdBefore,
 }: GenerateClaimOptions): Claim {
-  const id = uuidv7();
-  const now = createdBefore ?? new Date();
+  const id = faker.string.uuid();
+  const now = createdBefore ?? faker.defaultRefDate();
   const claimedAt = createdAfter
     ? pickDateBetween(createdAfter, now)
     : faker.date.recent({ days: 14, refDate: now });

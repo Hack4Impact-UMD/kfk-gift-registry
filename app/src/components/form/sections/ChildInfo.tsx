@@ -61,6 +61,7 @@ export function ChildInfoForm({
               <div className="relative py-2">
                 <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-700" />
                 <input
+                  data-testid={field.name}
                   type="number"
                   min={1}
                   max={10}
@@ -209,6 +210,7 @@ export function ChildInfoForm({
 
                           <div className="relative py-2">
                             <input
+                              data-testid={field.name}
                               type="number"
                               min={1}
                               max={18}

@@ -69,7 +69,10 @@ export function StorefrontNavbar({
                 Cart
                 <ShoppingCartIcon className="ml-2" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
+                  <span
+                    data-testid="cart-count"
+                    className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center"
+                  >
                     {cartCount}
                   </span>
                 )}
@@ -172,7 +175,10 @@ export function StorefrontNavbar({
                 Your Cart
                 <ShoppingCartIcon className="ml-2" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
+                  <span
+                    data-testid="cart-count"
+                    className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center"
+                  >
                     {cartCount}
                   </span>
                 )}

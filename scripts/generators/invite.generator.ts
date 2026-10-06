@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-import { v7 as uuidv7 } from "uuid";
 import type { StaffInvite } from "../../common/src/index.ts";
 
 type GenerateInviteOptions = {
@@ -30,7 +29,7 @@ export function generateInvite({
   );
 
   return {
-    id: uuidv7(),
+    id: faker.string.uuid(),
     sentBy,
     name: `${firstName} ${lastName}`,
     email: `${normalizedFirstName}.${normalizedLastName}@example.com`,

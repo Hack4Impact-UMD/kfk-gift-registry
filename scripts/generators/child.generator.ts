@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-import { v7 as uuidv7 } from "uuid";
 import type { Child, ChildStatus } from "../../common/src/index.ts";
 
 type WarriorStatus = Exclude<
@@ -134,7 +133,7 @@ export function generateChild({
       : faker.helpers.arrayElement(siblingStatuses);
   const createdAt = (
     createdAfter
-      ? pickDateBetween(createdAfter, createdBefore ?? new Date())
+      ? pickDateBetween(createdAfter, createdBefore ?? faker.defaultRefDate())
       : faker.date.recent({ days: 30 })
   ).toISOString();
   const published =
@@ -147,7 +146,7 @@ export function generateChild({
     : undefined;
 
   return {
-    id: uuidv7(),
+    id: faker.string.uuid(),
     name: `${firstName} ${lastName}`,
     status,
     photoUrl,

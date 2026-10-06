@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-import { v7 as uuidv7 } from "uuid";
 import type { Family } from "../../common/src/index.ts";
 
 const familyPrivateNotes = [
@@ -34,7 +33,7 @@ export function generateFamily(
     ? pickDateBetween(createdBetween.from, createdBetween.to)
     : faker.date.recent({ days: 45 });
   const createdAt = createdAtDate.toISOString();
-  const reviewWindowEnd = createdBetween?.to ?? new Date();
+  const reviewWindowEnd = createdBetween?.to ?? faker.defaultRefDate();
   const approved = faker.datatype.boolean({ probability: 0.72 });
   const held = !approved && faker.datatype.boolean({ probability: 0.35 });
 
@@ -74,7 +73,7 @@ export function generateFamily(
         };
 
   return {
-    id: uuidv7(),
+    id: faker.string.uuid(),
     contactName: faker.person.fullName(),
     email: faker.internet.email().toLowerCase(),
     phone: faker.phone.number(),

@@ -55,6 +55,7 @@ export function FormInput({
       </Label>
       <Input
         id={field.name}
+        data-testid={field.name}
         type={type}
         inputMode={inputMode}
         autoComplete={autoComplete}
@@ -190,6 +191,7 @@ export const FormSelect = ({
         }}
       >
         <SelectTrigger
+          data-testid={field.name}
           className={`truncate py-6 w-full rounded-xl border ${
             errorMessage
               ? "border-red-500 [&>span]:text-red-500"
@@ -309,6 +311,7 @@ export const FormFieldInput = ({
             autoComplete={autoComplete}
             name={field.name}
             id={field.name}
+            data-testid={field.name}
             value={field.state.value || value || ""}
             placeholder={placeholder}
             onChange={(e) => field.handleChange(e.target.value)}
@@ -329,6 +332,7 @@ export const FormFieldInput = ({
             autoComplete={autoComplete}
             name={field.name}
             id={field.name}
+            data-testid={field.name}
             value={field.state.value || value || ""}
             placeholder={placeholder}
             onChange={(e) => field.handleChange(e.target.value)}
@@ -418,6 +422,7 @@ export function FormTextarea({
         </p>
       )}
       <Textarea
+        data-testid={field.name}
         placeholder={placeholder}
         value={field.state.value || ""}
         onChange={(e) => field.handleChange(e.target.value)}

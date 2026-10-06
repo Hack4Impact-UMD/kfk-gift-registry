@@ -52,7 +52,7 @@
     "driver.js": "^1.8.0",
     "embla-carousel-react": "^8.6.0",
     "firebase": "^12.9.0",
-    "firebase-admin": "^13.6.1",
+    "firebase-admin": "^13.10.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.561.0",
     "luxon": "^3.7.2",

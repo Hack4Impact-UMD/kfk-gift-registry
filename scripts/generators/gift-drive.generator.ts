@@ -1,3 +1,4 @@
+import { faker } from "@faker-js/faker";
 import type { GiftDrive } from "../../common/src/index.ts";
 
 const driveWindows = [
@@ -34,9 +35,8 @@ function getSeasonLabel(date: Date) {
 
   return "Fall";
 }
-
 export function generateGiftDrive(index: number): GiftDrive {
-  const now = new Date();
+  const now = faker.defaultRefDate();
   const window = driveWindows[index] ?? {
     startOffsetDays: -(index + 1) * 30,
     endOffsetDays: index * 30 + 30,
