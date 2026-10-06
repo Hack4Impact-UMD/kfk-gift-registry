@@ -103,16 +103,30 @@ function RouteComponent() {
       <div className="mx-auto flex w-full max-w-[430px] flex-col gap-6 md:max-w-[760px]">
         <WelcomeBanner displayName={displayName} />
 
-        <section>
+        <section className="bg-white px-4 p-2 rounded-md border">
           <h2 className="text-center font-gaegu text-[34px] font-bold text-[#173B8F] md:text-[42px]">
             Gift Commitments
           </h2>
-          <p className="font-bold mt-2 text-center text-[16px] text-[#4B5563] md:text-[18px]">
-            Please check your email for confirmation and easy instructions.
-            Additionally, click on “View More” for each child to access the
-            family delivery address, and to confirm once you’ve purchased each
-            child’s gift and once delivery. Confirm each gift after you purchase
-            it, and again after it is delivered.
+          <p className="font-bold mt-2 text-[16px] text-[#4B5563] md:text-[18px]">
+            Please save your emailed confirmation to easily return to this page.
+          </p>
+          <p className="font-bold mt-2 text-[16px] text-[#4B5563] md:text-[18px]">
+            Next you may click on “View More” for each child below to access the
+            family delivery address and link to each gift. You will return to
+            this page to confirm you’ve purchased each gift, and then again to
+            confirm a gift has been delivered.
+          </p>
+          <p className="font-bold mt-2 text-[16px] text-[#4B5563] md:text-[18px]">
+            If you have questions, you may reach out to us at:{" "}
+            <a
+              className="underline text-kfk-blue"
+              href="mailto:info@kissesforkyle.org"
+            >
+              info@kissesforkyle.org
+            </a>
+          </p>
+          <p className="font-bold mt-2 text-[16px] text-[#4B5563] md:text-[18px]">
+            Thank you!
           </p>
         </section>
 

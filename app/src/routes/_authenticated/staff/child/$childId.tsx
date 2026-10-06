@@ -440,7 +440,7 @@ function ChildProfilePage() {
         <ArrowLeftIcon className="size-4" aria-hidden />
         Back to Child Profiles
       </Button>
-      <div className="max-w-6xl w-full rounded-[28px] border border-border/70 bg-card/95 p-4 shadow-sm sm:p-6">
+      <div className="max-w-8xl w-full rounded-[28px] border border-border/70 bg-card/95 p-4 shadow-sm sm:p-6">
         <h1 className="mb-5 text-3xl font-semibold tracking-tight sm:text-4xl">
           Child Profile
         </h1>
@@ -467,7 +467,7 @@ function ChildProfilePage() {
 
             <div className="my-5 h-px w-full bg-border/70" />
 
-            <div className="grid w-full gap-6 2xl:grid-cols-[minmax(0,600px)_minmax(320px,1fr)]">
+            <div className="grid w-full gap-6 xl:grid-cols-[minmax(0,400px)_minmax(420px,1fr)]">
               <div className="w-full 2xl:max-w-[600px]">
                 <ChildInfo
                   child={child}

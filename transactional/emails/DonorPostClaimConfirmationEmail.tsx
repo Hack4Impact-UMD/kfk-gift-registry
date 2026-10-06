@@ -192,12 +192,12 @@ export default function DonorPostClaimConfirmationEmail({
                 Hi {payload.donorName},
               </Text>
               <Heading className="m-0 mb-2 text-2xl font-bold text-gray-900">
-                Thank you for claiming gifts to support our Kisses for Kyle
-                families facing a childhood cancer diagnosis!
+                Thank you for helping make the holidays brighter for our Kisses
+                for Kyle families facing a childhood cancer diagnosis.
               </Heading>
               <Text className="mt-0 text-base text-gray-500">
-                We appreciate your support. Below is a summary of the gifts you
-                claimed, grouped by the address each gift ships to.
+                We truly appreciate your generosity! Below is a summary of the
+                gifts you claimed, grouped by the address each gift ships to.
               </Text>
 
               <Section className="mt-4 rounded-lg border-0 border-l-4 border-solid border-kfk-yellow bg-kfk-yellow/20 px-5 py-4">
