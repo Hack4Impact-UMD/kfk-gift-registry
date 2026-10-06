@@ -1,4 +1,4 @@
-import { v7 as uuidv7 } from "uuid";
+import { faker } from "@faker-js/faker";
 import type { FormLink, GiftDrive } from "../../common/src/index.ts";
 
 export function generateFormLink(
@@ -6,7 +6,7 @@ export function generateFormLink(
   options: { showOnStorefront?: boolean } = {},
 ): FormLink {
   return {
-    id: uuidv7(),
+    id: faker.string.uuid(),
     name: `${giftDrive.cycle} Registration`,
     driveId: giftDrive.id,
     active: true,

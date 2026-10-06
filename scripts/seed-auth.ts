@@ -8,10 +8,10 @@
 
 import admin from "firebase-admin";
 import type { UserProfile } from "../common/src/index.ts";
+import { DEFAULT_PASSWORD, seedAuthUsers } from "./seed-auth-users.ts";
 
 const AUTH_EMULATOR_HOST = "localhost:9099";
 const PROJECT_ID = "kfk-gift-registry";
-const DEFAULT_PASSWORD = "Password123!";
 
 process.env.FIREBASE_AUTH_EMULATOR_HOST = AUTH_EMULATOR_HOST;
 
@@ -26,34 +26,6 @@ async function readStdin(): Promise<string> {
   return Buffer.concat(chunks).toString("utf-8");
 }
 
-async function upsertAuthUser(user: UserProfile): Promise<void> {
-  const record = {
-    uid: user.id,
-    email: user.email,
-    displayName: user.name,
-    phoneNumber: user.phone ?? undefined,
-    disabled: !user.enabled,
-    password: DEFAULT_PASSWORD,
-  };
-
-  try {
-    await auth.createUser(record);
-  } catch (err: unknown) {
-    if (
-      err instanceof Error &&
-      "errorInfo" in err &&
-      (err as { errorInfo: { code: string } }).errorInfo.code ===
-        "auth/uid-already-exists"
-    ) {
-      await auth.updateUser(user.id, record);
-    } else {
-      throw err;
-    }
-  }
-
-  await auth.setCustomUserClaims(user.id, { role: user.role });
-}
-
 async function main() {
   const raw = await readStdin();
   const data = JSON.parse(raw) as { users: Array<UserProfile> };
@@ -61,7 +33,7 @@ async function main() {
 
   console.log(`Creating/updating ${users.length} auth accounts...`);
 
-  await Promise.all(users.map(upsertAuthUser));
+  await seedAuthUsers(auth, users);
 
   console.log(`Auth accounts ready. Default password: ${DEFAULT_PASSWORD}`);
 }

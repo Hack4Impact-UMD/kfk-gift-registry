@@ -3,16 +3,24 @@ import admin from "firebase-admin";
 import { expect } from "@playwright/test";
 import type { BrowserContext, Page } from "@playwright/test";
 
-// only ever talk to the auth emulator
+// only ever talk to the emulators
 process.env.FIREBASE_AUTH_EMULATOR_HOST ??= "127.0.0.1:9099";
+process.env.FIRESTORE_EMULATOR_HOST ??= "127.0.0.1:8080";
+process.env.FIREBASE_STORAGE_EMULATOR_HOST ??= "127.0.0.1:9199";
 
-const PROJECT_ID = "kfk-gift-registry";
+export const PROJECT_ID = "kfk-gift-registry";
 const PASSWORD = "Password123!";
 export const SESSION_COOKIE_NAME = "__session";
 
-const app =
+export const app =
   admin.apps.find((a) => a?.name === "e2e") ??
-  admin.initializeApp({ projectId: PROJECT_ID }, "e2e");
+  admin.initializeApp(
+    {
+      projectId: PROJECT_ID,
+      storageBucket: "kfk-gift-registry.firebasestorage.app",
+    },
+    "e2e",
+  );
 
 export type TestUser = { uid: string; email: string; password: string };
 

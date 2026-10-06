@@ -23,7 +23,7 @@ export function generateUser(
       (faker.datatype.boolean({ probability: 0.7 })
         ? generateE164PhoneNumber()
         : undefined),
-    createdAt: new Date().toISOString(),
+    createdAt: faker.defaultRefDate().toISOString(),
     enabled: overrides.enabled ?? true,
   };
 }

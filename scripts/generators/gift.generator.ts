@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-import { v7 as uuidv7 } from "uuid";
 import type { Gift, GiftStatus } from "../../common/src/index.ts";
 
 const familyPublicNotes = [
@@ -52,7 +51,7 @@ export function generateGift({
   }
 
   return {
-    id: uuidv7(),
+    id: faker.string.uuid(),
     childId,
     familyId,
     giftDrive: giftDriveId,
@@ -62,7 +61,7 @@ export function generateGift({
     status,
     claimedByDonorId: status === "AVAILABLE" ? undefined : donorId,
     createdAt: (createdAfter
-      ? pickDateBetween(createdAfter, createdBefore ?? new Date())
+      ? pickDateBetween(createdAfter, createdBefore ?? faker.defaultRefDate())
       : faker.date.recent({ days: 21 })
     ).toISOString(),
     familyPublicNotes: faker.datatype.boolean({ probability: 0.2 })

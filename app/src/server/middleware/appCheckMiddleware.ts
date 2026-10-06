@@ -15,30 +15,37 @@ export const appCheckMiddleware = createMiddleware({ type: "function" })
     });
   })
   .server(async ({ next }) => {
-    const req = getRequest();
-    const appCheckToken = req.headers.get(APPCHECK_TOKEN_HEADER);
+    // there's no App Check emulator; the emulators set FIRESTORE_EMULATOR_HOST
+    const skipVerification =
+      import.meta.env.DEV && !!process.env.FIRESTORE_EMULATOR_HOST;
+    const appCheckClaims = skipVerification ? null : await verifyAppCheck();
 
-    if (!appCheckToken) {
-      logger.warn("Rejected request: missing App Check token");
-      throw new Error("[appcheck middleware]: Missing AppCheck token");
-    }
-
-    try {
-      const appCheckClaims = await admin.appCheck().verifyToken(appCheckToken);
-
-      return next({
-        context: {
-          appCheckClaims,
-        },
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      logger.warn("Rejected request: App Check verification failed", {
-        error: errorMessage,
-      });
-      throw new Error(
-        `[appcheck middleware]: Token verification failed - ${errorMessage}`,
-      );
-    }
+    return next({
+      context: {
+        appCheckClaims,
+      },
+    });
   });
+
+async function verifyAppCheck() {
+  const req = getRequest();
+  const appCheckToken = req.headers.get(APPCHECK_TOKEN_HEADER);
+
+  if (!appCheckToken) {
+    logger.warn("Rejected request: missing App Check token");
+    throw new Error("[appcheck middleware]: Missing AppCheck token");
+  }
+
+  try {
+    return await admin.appCheck().verifyToken(appCheckToken);
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    logger.warn("Rejected request: App Check verification failed", {
+      error: errorMessage,
+    });
+    throw new Error(
+      `[appcheck middleware]: Token verification failed - ${errorMessage}`,
+    );
+  }
+}
