@@ -60,14 +60,10 @@ export function StorefrontNavbar({
           <div className="flex flex-row w-full items-center">
             <Link
               to="/"
-              className="relative border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center"
+              className="relative border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center flex flex-row items-center"
             >
               {currentDrive?.cycle} Gift Drive
-              <TestDriveBadge
-                drive={currentDrive}
-                size="sm"
-                className="absolute -top-2.5 right-2"
-              />
+              <TestDriveBadge drive={currentDrive} size="sm" />
             </Link>
 
             <Button asChild className="ml-auto" data-tour="nav-cart-link">
