@@ -7,6 +7,7 @@ export const GiftDriveSchema = z.object({
   endDate: z.iso.datetime(),
   cycle: z.string(),
   formLinksDeactivatedAt: z.iso.datetime().optional(),
+  isTestDrive: z.boolean().optional(),
 });
 
 export type GiftDrive = z.infer<typeof GiftDriveSchema>;

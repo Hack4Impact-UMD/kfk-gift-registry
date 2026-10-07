@@ -5,6 +5,7 @@ import { Plus, SquarePen } from "lucide-react";
 import type { GiftDrive } from "common";
 import { CalendarIcon } from "@/components/icons";
 import { GiftDriveDialog } from "@/components/gift-drives/GiftDriveDialog";
+import { TestDriveBadge } from "@/components/gift-drives/TestDriveBadge";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -204,6 +205,7 @@ function RouteComponent() {
                           >
                             {status.label}
                           </span>
+                          <TestDriveBadge drive={drive} />
                         </div>
                         <CardDescription className="flex items-center gap-2">
                           <CalendarIcon className="size-4 shrink-0" />
