@@ -42,13 +42,28 @@ export async function deleteUser(user: TestUser) {
   await app.auth().deleteUser(user.uid);
 }
 
-export async function login(page: Page, user: TestUser) {
+export async function login(
+  page: Page,
+  user: TestUser,
+  landing = "**/donor/home",
+) {
   // filling the SSR'd form before hydration falls back to a native GET submit
   await page.goto("/login", { waitUntil: "networkidle" });
   await page.getByTestId("login-email").fill(user.email);
   await page.getByTestId("login-password").fill(user.password);
   await page.getByTestId("login-submit").click();
-  await page.waitForURL("**/donor/home");
+  await page.waitForURL(landing);
+}
+
+/**
+ * Seeded staff have no MFA factor, so login lands on /mfaEnroll (SMS
+ * enrollment needs reCAPTCHA, which can't run locally). The session cookie is
+ * already set by then, so tests go straight to the staff page they need.
+ */
+export async function loginStaff(page: Page, user: TestUser, path: string) {
+  await login(page, user, "**/mfaEnroll");
+  // clicks on SSR'd buttons before hydration are dropped
+  await page.goto(path, { waitUntil: "networkidle" });
 }
 
 export async function getSessionCookie(context: BrowserContext) {

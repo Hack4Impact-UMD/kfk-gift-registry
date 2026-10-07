@@ -8,6 +8,7 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { TestDriveBadge } from "@/components/gift-drives/TestDriveBadge";
 import { Menu } from "lucide-react";
 import type { GiftDrive } from "common";
 import type { AuthContext } from "@/server/functions/auth";
@@ -59,9 +60,10 @@ export function StorefrontNavbar({
           <div className="flex flex-row w-full items-center">
             <Link
               to="/"
-              className="border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center"
+              className="relative border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center flex flex-row items-center"
             >
               {currentDrive?.cycle} Gift Drive
+              <TestDriveBadge drive={currentDrive} size="sm" />
             </Link>
 
             <Button asChild className="ml-auto" data-tour="nav-cart-link">
@@ -94,12 +96,15 @@ export function StorefrontNavbar({
           </Link>
 
           {currentDrive && (
-            <Link
-              to="/"
-              className="inline-flex h-9 w-full max-w-58 items-center justify-center rounded-md border border-kfk-red px-4 text-center font-gaegu leading-none text-kfk-red"
-            >
-              {currentDrive.cycle} Gift Drive
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/"
+                className="inline-flex h-9 w-full max-w-58 items-center justify-center rounded-md border border-kfk-red px-4 text-center font-gaegu leading-none text-kfk-red"
+              >
+                {currentDrive.cycle} Gift Drive
+              </Link>
+              <TestDriveBadge drive={currentDrive} />
+            </div>
           )}
         </div>
 

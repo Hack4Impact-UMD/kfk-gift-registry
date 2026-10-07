@@ -25,13 +25,17 @@ export function closestDrive(drives: Array<GiftDrive>) {
   })[0];
 }
 
+/** Most recently ended drive, skipping test drives (used for public stats). */
 export function getLatestCompletedDrive(
   drives: Array<GiftDrive>,
 ): GiftDrive | undefined {
   const now = DateTime.utc().toMillis();
 
-  return [...drives]
-    .filter((drive) => DateTime.fromISO(drive.endDate).toMillis() < now)
+  return drives
+    .filter(
+      (drive) =>
+        !drive.isTestDrive && DateTime.fromISO(drive.endDate).toMillis() < now,
+    )
     .sort(
       (a, b) =>
         DateTime.fromISO(b.endDate).toMillis() -

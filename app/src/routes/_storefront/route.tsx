@@ -32,7 +32,7 @@ function RouteComponent() {
   ).length;
 
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider open={false}>
       <StorefrontMobileSidebar auth={auth} cartCount={cartCount} />
       <div className="w-full h-full">
         <StorefrontNavbar currentDrive={currentDrive} auth={auth} />

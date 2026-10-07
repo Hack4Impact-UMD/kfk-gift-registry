@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -37,6 +38,7 @@ interface GiftDriveDialogProps {
 interface FormState {
   cycle: string;
   dateRange: DateRange | undefined;
+  isTestDrive: boolean;
 }
 
 type DayPickerStyle = CSSProperties & Record<`--rdp-${string}`, string>;
@@ -135,12 +137,14 @@ function initialState(mode: "create" | "edit", initial?: GiftDrive): FormState {
     return {
       cycle: initial.cycle,
       dateRange: from && to ? { from, to } : undefined,
+      isTestDrive: initial.isTestDrive ?? false,
     };
   }
 
   return {
     cycle: "",
     dateRange: undefined,
+    isTestDrive: false,
   };
 }
 
@@ -199,10 +203,17 @@ export function GiftDriveDialog({
 
     setError(null);
 
+    const { isTestDrive } = form;
     if (mode === "create") {
-      await createDrive({ cycle, startDate, endDate });
+      await createDrive({ cycle, startDate, endDate, isTestDrive });
     } else if (initial) {
-      await updateDrive({ id: initial.id, cycle, startDate, endDate });
+      await updateDrive({
+        id: initial.id,
+        cycle,
+        startDate,
+        endDate,
+        isTestDrive,
+      });
     }
 
     onOpenChange(false);
@@ -269,6 +280,27 @@ export function GiftDriveDialog({
                 />
               </PopoverContent>
             </Popover>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="gift-drive-test"
+              className="mt-0.5"
+              checked={form.isTestDrive}
+              onCheckedChange={(checked) =>
+                setForm((current) => ({
+                  ...current,
+                  isTestDrive: checked === true,
+                }))
+              }
+            />
+            <div className="space-y-0.5">
+              <Label htmlFor="gift-drive-test">Test drive</Label>
+              <p className="text-xs text-muted-foreground">
+                Test drives are labeled everywhere they appear and are excluded
+                from storefront drive stats.
+              </p>
+            </div>
           </div>
 
           <p className="text-xs text-muted-foreground">

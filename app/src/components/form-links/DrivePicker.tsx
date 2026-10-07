@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TestDriveBadge } from "@/components/gift-drives/TestDriveBadge";
 import { driveLabel } from "./formLinkUtils";
 
 interface DrivePickerProps {
@@ -34,7 +35,7 @@ export function DrivePicker({
       <SelectContent>
         {drives.map((drive) => (
           <SelectItem key={drive.id} value={drive.id}>
-            {driveLabel(drive)}
+            {driveLabel(drive)} <TestDriveBadge drive={drive} size="sm" />
           </SelectItem>
         ))}
       </SelectContent>

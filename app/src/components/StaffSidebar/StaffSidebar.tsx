@@ -3,6 +3,7 @@ import { Link, useRouteContext } from "@tanstack/react-router";
 import { UserRole } from "common";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { useDrive } from "@/context/DriveContext";
+import { TestDriveBadge } from "@/components/gift-drives/TestDriveBadge";
 
 import {
   Sidebar,
@@ -154,7 +155,7 @@ export function StaffSidebar({ currentDrive }: { currentDrive?: GiftDrive }) {
                   <SelectContent>
                     {drives?.map((drive) => (
                       <SelectItem key={drive.id} value={drive.id}>
-                        {drive.cycle}
+                        {drive.cycle} <TestDriveBadge drive={drive} size="sm" />
                       </SelectItem>
                     ))}
                   </SelectContent>
