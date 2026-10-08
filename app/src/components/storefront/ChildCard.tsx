@@ -2,7 +2,7 @@ import type { Child } from "../../../../common/src/types";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
 import { GiftIcon } from "@/components/icons/";
 import { Button } from "@/components/ui/button";
-import { useCallback, useState } from "react";
+import { ChildPhoto } from "@/components/storefront/ChildPhoto";
 import type { CSSProperties } from "react";
 import blueStripedBackground from "@/assets/blue-striped-background.png";
 import greenStripedBackground from "@/assets/green-striped-background.png";
@@ -88,8 +88,6 @@ export const colorClasses: Record<
   },
 };
 
-const COVER_RATIO_TOLERANCE = 0.15;
-
 export function ChildCard({ child, color, className = "" }: Props) {
   const {
     name,
@@ -109,28 +107,6 @@ export function ChildCard({ child, color, className = "" }: Props) {
     bg: "",
   };
 
-  const [photoFit, setPhotoFit] = useState<"cover" | "contain">("cover");
-
-  const updatePhotoFit = useCallback((img: HTMLImageElement | null) => {
-    if (!img?.complete || !img.naturalWidth || !img.clientHeight) return;
-    const imageRatio = img.naturalWidth / img.naturalHeight;
-    const frameRatio = img.clientWidth / img.clientHeight;
-    const mismatch =
-      Math.max(imageRatio, frameRatio) / Math.min(imageRatio, frameRatio);
-    setPhotoFit(mismatch <= 1 + COVER_RATIO_TOLERANCE ? "cover" : "contain");
-  }, []);
-
-  const observePhotoFrame = useCallback(
-    (img: HTMLImageElement | null) => {
-      if (!img) return;
-      updatePhotoFit(img);
-      const observer = new ResizeObserver(() => updatePhotoFit(img));
-      observer.observe(img);
-      return () => observer.disconnect();
-    },
-    [updatePhotoFit],
-  );
-
   return (
     <div
       className={`flex flex-col items-center rounded-xl px-2 sm:px-4 py-3 sm:py-6 shadow-sm h-full ${className}`}
@@ -139,21 +115,10 @@ export function ChildCard({ child, color, className = "" }: Props) {
       <div
         className={`relative rounded-lg w-full overflow-hidden border-2 sm:border-4 ${styles.border}`}
       >
-        {photoFit === "contain" && (
-          // Blurred copy of the same (cached) image fills the letterbox space.
-          <img
-            src={photoUrl || ProfilePhoto}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 h-full w-full object-cover blur-md scale-110"
-          />
-        )}
-        <img
-          ref={observePhotoFrame}
-          onLoad={(e) => updatePhotoFit(e.currentTarget)}
+        <ChildPhoto
           src={photoUrl || ProfilePhoto}
           alt={name}
-          className={`relative h-40 w-full sm:h-52 lg:h-56 ${photoFit === "cover" ? "object-cover" : "object-contain"}`}
+          className="h-40 sm:h-52 lg:h-56"
         />
       </div>
 

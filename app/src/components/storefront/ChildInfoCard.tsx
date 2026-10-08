@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import type { StorefrontChild } from "@/types/storefront";
 import defaultProfilePhoto from "@/assets/default-profile-photo.png";
+import { ChildPhoto } from "@/components/storefront/ChildPhoto";
 
 interface ChildInfoCardProps {
   child: StorefrontChild;
@@ -21,11 +22,11 @@ export function ChildInfoCard({ child, className }: ChildInfoCardProps) {
       data-tour="child-info-card"
     >
       <CardContent className="flex flex-col items-center gap-1.5 sm:gap-2 pt-3 sm:pt-6 pb-4 sm:pb-6 px-3 sm:px-6">
-        <div className="w-full max-w-[280px] aspect-[4/3] bg-muted rounded-lg overflow-hidden border border-foreground">
-          <img
+        <div className="relative w-full max-w-[280px] aspect-[4/3] bg-muted rounded-lg overflow-hidden border border-foreground">
+          <ChildPhoto
             src={child.photoUrl || defaultProfilePhoto}
             alt={child.name}
-            className="w-full h-full object-cover"
+            className="h-full"
           />
         </div>
 
