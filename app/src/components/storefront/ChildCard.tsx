@@ -120,6 +120,17 @@ export function ChildCard({ child, color, className = "" }: Props) {
     setPhotoFit(mismatch <= 1 + COVER_RATIO_TOLERANCE ? "cover" : "contain");
   }, []);
 
+  const observePhotoFrame = useCallback(
+    (img: HTMLImageElement | null) => {
+      if (!img) return;
+      updatePhotoFit(img);
+      const observer = new ResizeObserver(() => updatePhotoFit(img));
+      observer.observe(img);
+      return () => observer.disconnect();
+    },
+    [updatePhotoFit],
+  );
+
   return (
     <div
       className={`flex flex-col items-center rounded-xl px-2 sm:px-4 py-3 sm:py-6 shadow-sm h-full ${className}`}
@@ -138,7 +149,7 @@ export function ChildCard({ child, color, className = "" }: Props) {
           />
         )}
         <img
-          ref={updatePhotoFit}
+          ref={observePhotoFrame}
           onLoad={(e) => updatePhotoFit(e.currentTarget)}
           src={photoUrl || ProfilePhoto}
           alt={name}
