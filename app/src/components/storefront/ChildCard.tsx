@@ -2,6 +2,7 @@ import type { Child } from "../../../../common/src/types";
 import ProfilePhoto from "@/assets/default-profile-photo.png";
 import { GiftIcon } from "@/components/icons/";
 import { Button } from "@/components/ui/button";
+import { useCallback, useState } from "react";
 import type { CSSProperties } from "react";
 import blueStripedBackground from "@/assets/blue-striped-background.png";
 import greenStripedBackground from "@/assets/green-striped-background.png";
@@ -87,6 +88,8 @@ export const colorClasses: Record<
   },
 };
 
+const COVER_RATIO_TOLERANCE = 0.15;
+
 export function ChildCard({ child, color, className = "" }: Props) {
   const {
     name,
@@ -103,7 +106,19 @@ export function ChildCard({ child, color, className = "" }: Props) {
     border: "",
     text: "",
     fill: "",
+    bg: "",
   };
+
+  const [photoFit, setPhotoFit] = useState<"cover" | "contain">("cover");
+
+  const updatePhotoFit = useCallback((img: HTMLImageElement | null) => {
+    if (!img?.complete || !img.naturalWidth || !img.clientHeight) return;
+    const imageRatio = img.naturalWidth / img.naturalHeight;
+    const frameRatio = img.clientWidth / img.clientHeight;
+    const mismatch =
+      Math.max(imageRatio, frameRatio) / Math.min(imageRatio, frameRatio);
+    setPhotoFit(mismatch <= 1 + COVER_RATIO_TOLERANCE ? "cover" : "contain");
+  }, []);
 
   return (
     <div
@@ -111,12 +126,23 @@ export function ChildCard({ child, color, className = "" }: Props) {
       style={getPatternStyle(color ?? "")}
     >
       <div
-        className={`rounded-lg w-full overflow-hidden border-2 sm:border-4 ${styles.border}`}
+        className={`relative rounded-lg w-full overflow-hidden border-2 sm:border-4 ${styles.border}`}
       >
+        {photoFit === "contain" && (
+          // Blurred copy of the same (cached) image fills the letterbox space.
+          <img
+            src={photoUrl || ProfilePhoto}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover blur-md scale-110"
+          />
+        )}
         <img
+          ref={updatePhotoFit}
+          onLoad={(e) => updatePhotoFit(e.currentTarget)}
           src={photoUrl || ProfilePhoto}
           alt={name}
-          className="h-40 w-full object-cover sm:h-52 lg:h-56"
+          className={`relative h-40 w-full sm:h-52 lg:h-56 ${photoFit === "cover" ? "object-cover" : "object-contain"}`}
         />
       </div>
 
@@ -130,11 +156,10 @@ export function ChildCard({ child, color, className = "" }: Props) {
         </h3>
 
         <span
-          className={`text-xs sm:text-s px-4 sm:px-10 py-0.5 rounded-sm font-semibold border ${
-            isWarrior
+          className={`text-xs sm:text-s px-4 sm:px-10 py-0.5 rounded-sm font-semibold border ${isWarrior
               ? "bg-kfk-muted-yellow/30 text-kfk-brown border-kfk-brown"
               : "bg-blue-100 text-kfk-blue border-kfk-blue"
-          }`}
+            }`}
         >
           {isWarrior ? "Warrior" : "Super Sib"}
         </span>
