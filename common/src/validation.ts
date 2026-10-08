@@ -12,6 +12,8 @@ export const GIFT_TITLE_REQUIRED_MESSAGE = "Gift name is required.";
 export const GIFT_PRICE_INVALID_MESSAGE = `Price must be a valid non-negative number no greater than $${MAX_GIFT_PRICE}.`;
 export const GIFT_LISTING_URL_WARNING_MESSAGE =
   "Double-check that the gift listing link works. If it does, you can continue despite this warning.";
+export const GIFT_URL_INVALID_MESSAGE =
+  "Please enter a valid link to the product, e.g. amazon.com/dp/B000000000";
 
 const AMAZON_ASIN_RE = /^[A-Z0-9]{10}$/i;
 const AMAZON_PRODUCT_PATH_RE =
@@ -124,6 +126,23 @@ export function normalizeGiftListingUrl(rawUrl: string) {
   }
 
   return trimmed;
+}
+
+// Loose structural check: parses as http(s) with a dotted hostname. Unlike
+// isValidGiftListingUrl, failing this blocks form progression.
+export function isValidUrl(rawUrl: string) {
+  const normalizedUrl = normalizeGiftListingUrl(rawUrl);
+  if (!normalizedUrl) return false;
+
+  try {
+    const url = new URL(normalizedUrl);
+    return (
+      (url.protocol === "https:" || url.protocol === "http:") &&
+      /^[^.]+(\.[^.]+)+$/.test(url.hostname)
+    );
+  } catch {
+    return false;
+  }
 }
 
 export function isValidGiftListingUrl(rawUrl: string) {

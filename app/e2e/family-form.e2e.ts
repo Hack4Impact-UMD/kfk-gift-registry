@@ -210,6 +210,26 @@ test("shows validation errors on each step", async ({ page }) => {
   await fillGifts(page, 0, { gifts: [], backups: warrior.backups });
   await page.getByRole("button", { name: "Done" }).click();
   await expect(page.getByRole("button", { name: "Next" })).toBeEnabled();
+
+  // a malformed url is an error, not a warning, and blocks progression
+  await page
+    .getByRole("button", { name: `${warrior.name}'s Gift Selection` })
+    .click();
+  await url.fill("not-a-url");
+  await url.blur();
+  await expect(page.getByText(/Please enter a valid link/)).toBeVisible();
+  await expect(
+    page.getByText(/Double-check that the gift listing link works/),
+  ).toBeHidden();
+  await page.getByRole("button", { name: "Done" }).click();
+  await expect(page.getByRole("button", { name: "Next" })).toBeDisabled();
+
+  await page
+    .getByRole("button", { name: `${warrior.name}'s Gift Selection` })
+    .click();
+  await url.fill("https://www.example.com/toy");
+  await page.getByRole("button", { name: "Done" }).click();
+  await expect(page.getByRole("button", { name: "Next" })).toBeEnabled();
 });
 
 test("submits the form and shows the family home page", async ({ page }) => {

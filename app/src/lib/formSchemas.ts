@@ -5,9 +5,11 @@ import {
   GiftFamilyPublicNotesSchema,
   GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
+  GIFT_URL_INVALID_MESSAGE,
   GiftTitleSchema,
   MAX_GIFT_PRICE,
   isValidGiftListingUrl,
+  isValidUrl,
 } from "common";
 import type { ChildStatus } from "common";
 
@@ -301,6 +303,12 @@ const optionalGiftSchema = baseGiftSchema.superRefine((data, ctx) => {
       path: ["giftUrl"],
       message: URL_REQUIRED_MESSAGE,
     });
+  } else if (!isValidUrl(data.giftUrl)) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["giftUrl"],
+      message: GIFT_URL_INVALID_MESSAGE,
+    });
   } else if (!isValidGiftListingUrl(data.giftUrl)) {
     ctx.addIssue({
       code: "custom",
@@ -345,6 +353,12 @@ const requiredGiftSchema = baseGiftSchema.superRefine((data, ctx) => {
       code: "custom",
       path: ["giftUrl"],
       message: URL_REQUIRED_MESSAGE,
+    });
+  } else if (!isValidUrl(data.giftUrl)) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["giftUrl"],
+      message: GIFT_URL_INVALID_MESSAGE,
     });
   } else if (!isValidGiftListingUrl(data.giftUrl)) {
     ctx.addIssue({
