@@ -19,6 +19,8 @@ import {
   GiftFamilyPublicNotesSchema,
   GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
+  GIFT_URL_INVALID_MESSAGE,
+  isValidUrl,
   MAX_GIFT_PRICE,
   NormalizedGiftTitleSchema,
   normalizeGiftListingUrl,
@@ -64,6 +66,7 @@ const baseGiftSelectionSchema = z.object({
   giftUrl: z
     .string()
     .trim()
+    .refine((value) => !value || isValidUrl(value), GIFT_URL_INVALID_MESSAGE)
     .transform((value) => (value ? normalizeGiftListingUrl(value) : value))
     .optional(),
   giftName: NormalizedGiftTitleSchema.optional(),

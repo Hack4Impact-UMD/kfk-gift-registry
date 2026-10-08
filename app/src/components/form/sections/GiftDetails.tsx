@@ -7,11 +7,13 @@ import {
   GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
   GIFT_TITLE_TOO_LONG_MESSAGE,
+  GIFT_URL_INVALID_MESSAGE,
   MAX_GIFT_FAMILY_PUBLIC_NOTES_LENGTH,
   MAX_GIFT_PRICE,
   MAX_GIFT_TITLE_LENGTH,
   getGiftTitleTooLongCounterMessage,
   isValidGiftListingUrl,
+  isValidUrl,
 } from "common";
 
 type GiftDetailsFormProps = {
@@ -107,6 +109,10 @@ export function GiftDetailsForm({
                           });
                         if (!trimmedValue) {
                           return urlIsRequired ? "URL is required" : undefined;
+                        }
+
+                        if (!isValidUrl(trimmedValue)) {
+                          return GIFT_URL_INVALID_MESSAGE;
                         }
 
                         if (!isValidGiftListingUrl(trimmedValue)) {
@@ -266,6 +272,9 @@ export function GiftDetailsForm({
                       onChange: ({ value }) => {
                         const trimmedValue = value.trim();
                         if (!trimmedValue) return "URL is required";
+                        if (!isValidUrl(trimmedValue)) {
+                          return GIFT_URL_INVALID_MESSAGE;
+                        }
                         if (!isValidGiftListingUrl(trimmedValue)) {
                           return GIFT_LISTING_URL_WARNING_MESSAGE;
                         }
