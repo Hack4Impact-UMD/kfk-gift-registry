@@ -156,10 +156,11 @@ export function ChildCard({ child, color, className = "" }: Props) {
         </h3>
 
         <span
-          className={`text-xs sm:text-s px-4 sm:px-10 py-0.5 rounded-sm font-semibold border ${isWarrior
+          className={`text-xs sm:text-s px-4 sm:px-10 py-0.5 rounded-sm font-semibold border ${
+            isWarrior
               ? "bg-kfk-muted-yellow/30 text-kfk-brown border-kfk-brown"
               : "bg-blue-100 text-kfk-blue border-kfk-blue"
-            }`}
+          }`}
         >
           {isWarrior ? "Warrior" : "Super Sib"}
         </span>
