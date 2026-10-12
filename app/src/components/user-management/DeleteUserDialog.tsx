@@ -1,4 +1,5 @@
 import type { UserProfile } from "common";
+import { UserRole } from "common";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,7 @@ export function DeleteUserDialog({
   onOpenChange,
   user,
 }: DeleteUserDialogProps) {
-  const { mutate: deleteUser, isPending } = useDeleteUserProfile();
+  const { mutate: deleteUser, isPending, error } = useDeleteUserProfile();
 
   function handleConfirm() {
     deleteUser({ userId: user.id }, { onSuccess: () => onOpenChange(false) });
@@ -38,6 +39,21 @@ export function DeleteUserDialog({
             &apos;s account. This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
+        {user.role === UserRole.DONOR && (
+          <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <p className="font-semibold">Check for active claims first</p>
+            <p className="mt-1">
+              Before deleting this donor, verify that they do not have any
+              active gift claims. Deleting a donor with active claims may leave
+              those gifts unfulfilled.
+            </p>
+          </div>
+        )}
+        {error && (
+          <p className="text-sm text-red-500">
+            Failed to delete user: {error.message}
+          </p>
+        )}
         <DialogFooter>
           <Button
             variant="outline"
