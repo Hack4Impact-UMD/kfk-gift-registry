@@ -187,12 +187,11 @@ export const CHILD_PHOTO_REQUIRED_MESSAGE = "Child photo is required";
 
 // Accepts an empty string, a data URL (local preview), or an https:// URL (after Firebase upload).
 // Whether a photo is required depends on photo consent, so that's enforced on childrenFormSchema.
-const photoUrlSchema = z
-  .union([
-    z.literal(""),
-    z.string().startsWith("data:", "Must be a valid image"),
-    z.string().url("Must be a valid URL"),
-  ]);
+const photoUrlSchema = z.union([
+  z.literal(""),
+  z.string().startsWith("data:", "Must be a valid image"),
+  z.string().url("Must be a valid URL"),
+]);
 
 const childAgeSchema = z
   .union([z.string(), z.number()])

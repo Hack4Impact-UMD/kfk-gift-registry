@@ -376,9 +376,8 @@ export function ChildInfoForm({
                                 <strong>publicly displayed</strong> on our
                                 Holiday Gift Drive website.
                                 <br></br>
-                                <br></br>
-                                A photo is <em>required</em> for each child. It
-                                helps{" "}
+                                <br></br>A photo is <em>required</em> for each
+                                child. It helps{" "}
                                 <strong>
                                   personalize your child's profile
                                 </strong>{" "}
@@ -394,8 +393,9 @@ export function ChildInfoForm({
                         validators={{
                           onChangeListenTo: ["consentPhotosPublic"],
                           onChange: ({ value, fieldApi }) =>
-                            fieldApi.form.getFieldValue("consentPhotosPublic") &&
-                            !value
+                            fieldApi.form.getFieldValue(
+                              "consentPhotosPublic",
+                            ) && !value
                               ? CHILD_PHOTO_REQUIRED_MESSAGE
                               : undefined,
                         }}
