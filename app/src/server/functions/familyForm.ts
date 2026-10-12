@@ -10,6 +10,7 @@ import {
   getFamilyLinkById,
 } from "@/server/services/familyLinkService.server";
 import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
+import { CHILD_PHOTO_REQUIRED_MESSAGE } from "@/lib/formSchemas";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
 import {
@@ -45,19 +46,32 @@ const childInfoSchema = z.object({
   diagnosis: z.string().optional(),
   hospitalTreatedAt: z.string().optional(),
   socialWorkerName: z.string().optional(),
-  photoUrl: z.string().optional(),
+  photoUrl: z.string(),
   status: ChildStatusSchema,
   treatmentLength: z.string().optional(),
   blurb: z.string().optional(),
   isSibling: z.boolean().optional(),
 });
 
-const childrenFormSchema = z.object({
-  numChildren: z.coerce.number(),
-  children: z.array(childInfoSchema),
-  additionalNotes: z.string().optional(),
-  consentPhotosPublic: z.boolean(),
-});
+const childrenFormSchema = z
+  .object({
+    numChildren: z.coerce.number(),
+    children: z.array(childInfoSchema),
+    additionalNotes: z.string().optional(),
+    consentPhotosPublic: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.consentPhotosPublic) return;
+    data.children.forEach((child, i) => {
+      if (!child.photoUrl) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["children", i, "photoUrl"],
+          message: CHILD_PHOTO_REQUIRED_MESSAGE,
+        });
+      }
+    });
+  });
 
 const PRICE_REQUIRED_MESSAGE = "Price is required";
 const URL_REQUIRED_MESSAGE = "URL is required";

@@ -2,6 +2,7 @@ import { Building2, Stethoscope, User, UserCog } from "lucide-react";
 import { PhotoUpload } from "../PhotoUpload";
 import type { useChildrenForm } from "@/hooks/family-form/formHooks";
 import {
+  CHILD_PHOTO_REQUIRED_MESSAGE,
   CHILD_STATUS_VALUES,
   CHILD_STATUS_LABELS,
   isSiblingChildStatus,
@@ -360,8 +361,12 @@ export function ChildInfoForm({
                         <>
                           <p className="text-sm font-medium text-kfk-blue">
                             Please upload a photo of your child.
+                            <span className="text-destructive">
+                              {" "}
+                              (Required)
+                            </span>
                           </p>
-                          {index === 0 ? (
+                          {index === 0 && (
                             <div className="border-2 border-kfk-yellow rounded-lg p-4 bg-yellow-50 space-y-3 text-sm">
                               <p className="font-bold">
                                 ✨ Help your child's profile stand out! ✨
@@ -372,27 +377,29 @@ export function ChildInfoForm({
                                 Holiday Gift Drive website.
                                 <br></br>
                                 <br></br>
-                                While uploading a picture is <em>optional</em>,
-                                adding one can help{" "}
+                                A photo is <em>required</em> for each child. It
+                                helps{" "}
                                 <strong>
                                   personalize your child's profile
                                 </strong>{" "}
-                                and help donors feel more connected as they
+                                and helps donors feel more connected as they
                                 choose gifts.
-                                <br></br>
-                                <br></br>
-                                If you choose not to upload a photo, the Kisses
-                                for Kyle logo will be displayed instead.
                               </p>
                             </div>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">
-                              (Optional but encouraged)
-                            </p>
                           )}
                         </>
                       )}
-                      <form.AppField name={`children[${index}].photoUrl`}>
+                      <form.AppField
+                        name={`children[${index}].photoUrl`}
+                        validators={{
+                          onChangeListenTo: ["consentPhotosPublic"],
+                          onChange: ({ value, fieldApi }) =>
+                            fieldApi.form.getFieldValue("consentPhotosPublic") &&
+                            !value
+                              ? CHILD_PHOTO_REQUIRED_MESSAGE
+                              : undefined,
+                        }}
+                      >
                         {() => (
                           <PhotoUpload
                             childName={

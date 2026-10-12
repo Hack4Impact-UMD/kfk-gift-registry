@@ -22,6 +22,7 @@ export function PhotoUpload({
     existingValue && existingValue.startsWith("data:") ? existingValue : null,
   );
   const [error, setError] = useState<string | null>(null);
+  const fieldError = field.state.meta.isTouched && field.state.meta.errors[0];
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -154,7 +155,9 @@ export function PhotoUpload({
         </>
       )}
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {(error || fieldError) && (
+        <p className="text-sm text-red-500">{error || fieldError}</p>
+      )}
     </div>
   );
 }

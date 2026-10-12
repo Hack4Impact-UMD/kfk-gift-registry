@@ -83,12 +83,21 @@ function RouteComponent() {
     giftValidationError === GIFT_LISTING_URL_WARNING_MESSAGE
       ? "text-yellow-600"
       : "text-red-600";
+  // photos aren't persisted to localStorage, so they're lost on reload
+  const childrenMissingPhotos = formState.children?.consentPhotosPublic
+    ? formState.children.children.filter((c) => !c.photoUrl).map((c) => c.name)
+    : [];
+  const missingPhotoError =
+    childrenMissingPhotos.length > 0
+      ? `Please re-upload a photo for ${childrenMissingPhotos.join(", ")} in the Child Information section.`
+      : null;
   const submitDisabled =
     submitMutation.isPending ||
     !formState.generalInfo ||
     !formState.children ||
     !formState.gifts ||
-    blockingGiftValidationIssues.length > 0;
+    blockingGiftValidationIssues.length > 0 ||
+    missingPhotoError !== null;
 
   return (
     <div className="flex flex-col gap-10">
@@ -143,6 +152,9 @@ function RouteComponent() {
       ))}
 
       <FormItem className="flex flex-col gap-2 pt-4 mt-6">
+        {missingPhotoError && (
+          <p className="text-sm text-red-600">{missingPhotoError}</p>
+        )}
         {giftValidationError && (
           <p className={`text-sm ${giftValidationErrorClassName}`}>
             {giftValidationError}
