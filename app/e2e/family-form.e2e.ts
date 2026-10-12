@@ -171,6 +171,25 @@ test("shows validation errors on each step", async ({ page }) => {
 
   await page.getByTestId("children[0].age").fill(warrior.age);
   await page.getByTestId("children[0].diagnosis").fill(warrior.diagnosis);
+
+  // a photo is required when consenting to public photos
+  const consent = page.getByLabel(/I consent to having all photos/);
+  const photoRequired = page.getByText("Child photo is required");
+  await consent.check();
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(photoRequired).toBeVisible();
+  await expect(page).toHaveURL(/\/children$/);
+
+  await page
+    .getByLabel(`Upload photo for ${warrior.name}`)
+    .setInputFiles(PHOTO);
+  await expect(photoRequired).toBeHidden();
+  await page.getByLabel(`Remove ${warrior.name} photo`).click();
+  await expect(photoRequired).toBeVisible();
+
+  // ...but not without consent, since photos aren't uploaded then
+  await consent.uncheck();
+  await expect(photoRequired).toBeHidden();
   await page.getByRole("button", { name: "Next" }).click();
   await expect(page).toHaveURL(/\/gift-details$/);
 
@@ -259,6 +278,9 @@ test("submits the form and shows the family home page", async ({ page }) => {
   await expect(page.getByTestId("children[1].diagnosis")).toBeHidden();
   await page.getByTestId("children[1].name").fill(sibling.name);
   await page.getByTestId("children[1].age").fill(sibling.age);
+  await page
+    .getByLabel(`Upload photo for ${sibling.name}`)
+    .setInputFiles(PHOTO);
   await page.getByLabel(/I consent to having all photos/).check();
   await page.getByRole("button", { name: "Next" }).click();
   await expect(page).toHaveURL(/\/gift-details$/);
@@ -361,6 +383,11 @@ test("submits the form and shows the family home page", async ({ page }) => {
   expect(await storageFileExists(`children/pfps/${savedWarrior.id}`)).toBe(
     true,
   );
+  await expect
+    .poll(
+      async () => (await getDoc<Child>("children", savedSibling.id))?.photoUrl,
+    )
+    .toBeTruthy();
 
   // portal email
   const emails = await getSentEmails(email);
@@ -388,4 +415,80 @@ test("submits the form and shows the family home page", async ({ page }) => {
   for (const g of warrior.backups) {
     await expect(page.getByText(g.name, { exact: true })).toBeHidden();
   }
+});
+
+async function fillToReviewWithPhoto(page: Page) {
+  await completeConsent(page);
+  await fillGeneralInfo(page);
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page).toHaveURL(/\/children$/);
+
+  await page.getByTestId("numChildren").fill("1");
+  await page.getByTestId("children[0].name").fill(warrior.name);
+  await page.getByTestId("children[0].age").fill(warrior.age);
+  await page.getByTestId("children[0].diagnosis").fill(warrior.diagnosis);
+  await page
+    .getByLabel(`Upload photo for ${warrior.name}`)
+    .setInputFiles(PHOTO);
+  await page.getByLabel(/I consent to having all photos/).check();
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page).toHaveURL(/\/gift-details$/);
+
+  await page
+    .getByRole("button", { name: `${warrior.name}'s Gift Selection` })
+    .click();
+  await fillGifts(page, 0, warrior);
+  await page.getByRole("button", { name: "Done" }).click();
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page).toHaveURL(/\/review$/);
+}
+
+test("review flags a photo lost on reload", async ({ page }) => {
+  test.setTimeout(90_000);
+  await fillToReviewWithPhoto(page);
+  await expect(page.getByRole("button", { name: "Submit!" })).toBeEnabled();
+
+  // photos aren't persisted to localStorage, so a reload drops them
+  await expect
+    .poll(() =>
+      page.evaluate(
+        (key) => localStorage.getItem(key)?.includes(`"giftSelections"`),
+        `family-form-${formLinkId}`,
+      ),
+    )
+    .toBe(true);
+  await page.reload({ waitUntil: "networkidle" });
+  await expect(page.getByTestId("children[0].name")).toHaveValue(warrior.name);
+
+  await expect(
+    page.getByText(`Please re-upload a photo for ${warrior.name}`),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Submit!" })).toBeDisabled();
+});
+
+test("the server rejects a submission without a child photo", async ({
+  page,
+}) => {
+  test.setTimeout(90_000);
+  await fillToReviewWithPhoto(page);
+
+  // strip the photo from the request, bypassing client-side validation
+  let strippedPhotos = 0;
+  await page.route("**/_serverFn/**", async (route) => {
+    const body = route.request().postData() ?? "";
+    const stripped = body.replace(/data:image\/[^"\\]+/g, () => {
+      strippedPhotos++;
+      return "";
+    });
+    await route.continue({ postData: stripped });
+  });
+
+  await page.getByRole("button", { name: "Submit!" }).click();
+
+  await expect(page.getByText("Child photo is required")).toBeVisible();
+  expect(strippedPhotos).toBeGreaterThan(0);
+  await expect(page).toHaveURL(/\/review$/);
+  expect(
+    await queryDocs<Family>("families", "email", family.email.toLowerCase()),
+  ).toHaveLength(0);
 });

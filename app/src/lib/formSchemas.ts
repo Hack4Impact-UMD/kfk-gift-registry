@@ -183,14 +183,15 @@ export const generalInfoFormDefaults: GeneralInfoFormData = {
   phoneNumberConfirm: "",
 };
 
-// Accepts an empty string, a data URL (local preview), or an https:// URL (after Firebase upload)
-const photoUrlSchema = z
-  .union([
-    z.literal(""),
-    z.string().startsWith("data:", "Must be a valid image"),
-    z.string().url("Must be a valid URL"),
-  ])
-  .optional();
+export const CHILD_PHOTO_REQUIRED_MESSAGE = "Child photo is required";
+
+// Accepts an empty string, a data URL (local preview), or an https:// URL (after Firebase upload).
+// Whether a photo is required depends on photo consent, so that's enforced on childrenFormSchema.
+export const photoUrlSchema = z.union([
+  z.literal(""),
+  z.string().startsWith("data:", "Must be a valid image"),
+  z.string().url("Must be a valid URL"),
+]);
 
 const childAgeSchema = z
   .union([z.string(), z.number()])
@@ -262,6 +263,19 @@ export const childrenFormSchema = z
   .refine((data) => data.children.length === data.numChildren, {
     message: "Number of children must match the count field",
     path: ["children"],
+  })
+  .superRefine((data, ctx) => {
+    // photos are only uploaded with consent, so they're only required then
+    if (!data.consentPhotosPublic) return;
+    data.children.forEach((child, i) => {
+      if (!child.photoUrl) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["children", i, "photoUrl"],
+          message: CHILD_PHOTO_REQUIRED_MESSAGE,
+        });
+      }
+    });
   });
 
 const PRICE_REQUIRED_MESSAGE = "Price is required";
