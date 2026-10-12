@@ -10,7 +10,10 @@ import {
   getFamilyLinkById,
 } from "@/server/services/familyLinkService.server";
 import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
-import { CHILD_PHOTO_REQUIRED_MESSAGE } from "@/lib/formSchemas";
+import {
+  CHILD_PHOTO_REQUIRED_MESSAGE,
+  photoUrlSchema,
+} from "@/lib/formSchemas";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
 import {
@@ -46,7 +49,7 @@ const childInfoSchema = z.object({
   diagnosis: z.string().optional(),
   hospitalTreatedAt: z.string().optional(),
   socialWorkerName: z.string().optional(),
-  photoUrl: z.string(),
+  photoUrl: photoUrlSchema,
   status: ChildStatusSchema,
   treatmentLength: z.string().optional(),
   blurb: z.string().optional(),
