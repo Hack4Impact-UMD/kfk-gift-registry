@@ -423,7 +423,13 @@ export const getProfileTableRows = createServerFn({ method: "GET" })
   });
 
 export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
-  .middleware([requireRolesMiddleware([UserRole.ADMIN, UserRole.DIRECTOR])])
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.VOLUNTEER,
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+    ]),
+  ])
   .inputValidator(updateFamilyReviewStatusSchema)
   .handler(async ({ data, context }) => {
     const { familyId, updates } = data;
@@ -464,7 +470,13 @@ export const updateFamilyReviewStatus = createServerFn({ method: "POST" })
 const approveFamiliesSchema = z.array(z.string().nonempty());
 
 export const approveFamilies = createServerFn({ method: "POST" })
-  .middleware([requireRolesMiddleware([UserRole.ADMIN, UserRole.DIRECTOR])])
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.VOLUNTEER,
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+    ]),
+  ])
   .inputValidator(approveFamiliesSchema)
   .handler(async ({ data: familyIds, context }) => {
     const db = getServerDB();
