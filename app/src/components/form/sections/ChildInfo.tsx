@@ -2,13 +2,18 @@ import { Building2, Stethoscope, User, UserCog } from "lucide-react";
 import { PhotoUpload } from "../PhotoUpload";
 import type { useChildrenForm } from "@/hooks/family-form/formHooks";
 import {
+  CHILD_AGE_MAX,
+  CHILD_AGE_MIN,
+  CHILD_BLURB_MAX_CHARACTERS,
   CHILD_PHOTO_REQUIRED_MESSAGE,
   CHILD_STATUS_VALUES,
   CHILD_STATUS_LABELS,
+  MAX_CHILDREN,
+  childInfoSchema,
+  childrenFormSchema,
   isSiblingChildStatus,
+  validateWith,
 } from "@/lib/formSchemas";
-
-const PERSONAL_BLURB_MAX_CHARACTERS = 150;
 
 const CHILD_STATUS_OPTIONS = CHILD_STATUS_VALUES.map((value) => ({
   value,
@@ -44,13 +49,7 @@ export function ChildInfoForm({
         <form.AppField
           name="numChildren"
           validators={{
-            onChange: ({ value }) => {
-              if (!value || value === 0)
-                return "Please enter number of children";
-              if (Number(value) < 1 || Number(value) > 10)
-                return "Please enter a number between 1 and 10";
-              return undefined;
-            },
+            onChange: validateWith(childrenFormSchema.shape.numChildren),
           }}
         >
           {(field) => (
@@ -65,7 +64,7 @@ export function ChildInfoForm({
                   data-testid={field.name}
                   type="number"
                   min={1}
-                  max={10}
+                  max={MAX_CHILDREN}
                   placeholder="e.g. 2"
                   value={(field.state.value as number | undefined) ?? ""}
                   onChange={(e) => {
@@ -185,10 +184,7 @@ export function ChildInfoFields({
         <form.AppField
           name={`children[${index}].status`}
           validators={{
-            onChange: ({ value }) => {
-              if (!value) return "Please select an option";
-              return undefined;
-            },
+            onChange: validateWith(childInfoSchema.shape.status),
           }}
         >
           {(field) => (
@@ -213,11 +209,7 @@ export function ChildInfoFields({
         <form.AppField
           name={`children[${index}].name`}
           validators={{
-            onChange: ({ value }: { value: string }) => {
-              if (!value) return "Child's name is required";
-              if (value.length > 100) return "Name is too long";
-              return undefined;
-            },
+            onChange: validateWith(childInfoSchema.shape.name),
           }}
         >
           {(field) => (
@@ -240,32 +232,8 @@ export function ChildInfoFields({
         <form.AppField
           name={`children[${index}].age`}
           validators={{
-            onChange: ({ value }) => {
-              if (value === "" || value === undefined) return "Age is required";
-              const n = Number(value);
-              if (
-                !Number.isFinite(n) ||
-                !Number.isInteger(n) ||
-                n < 1 ||
-                n > 21
-              ) {
-                return "Age must be between 1 and 21";
-              }
-              return undefined;
-            },
-            onBlur: ({ value }) => {
-              if (value === "" || value === undefined) return "Age is required";
-              const n = Number(value);
-              if (
-                !Number.isFinite(n) ||
-                !Number.isInteger(n) ||
-                n < 1 ||
-                n > 21
-              ) {
-                return "Age must be between 1 and 21";
-              }
-              return undefined;
-            },
+            onChange: validateWith(childInfoSchema.shape.age),
+            onBlur: validateWith(childInfoSchema.shape.age),
           }}
         >
           {(field) => (
@@ -279,8 +247,8 @@ export function ChildInfoFields({
                 <input
                   data-testid={field.name}
                   type="number"
-                  min={1}
-                  max={18}
+                  min={CHILD_AGE_MIN}
+                  max={CHILD_AGE_MAX}
                   step={1}
                   placeholder="e.g. 8"
                   value={field.state.value ?? ""}
@@ -373,11 +341,9 @@ export function ChildInfoFields({
                 <form.AppField
                   name={`children[${index}].hospitalTreatedAt`}
                   validators={{
-                    onChange: ({ value }) => {
-                      const v = (value ?? "").trim();
-                      if (v.length > 200) return "Hospital name is too long";
-                      return undefined;
-                    },
+                    onChange: validateWith(
+                      childInfoSchema.shape.hospitalTreatedAt,
+                    ),
                   }}
                 >
                   {(field) => (
@@ -394,11 +360,9 @@ export function ChildInfoFields({
                 <form.AppField
                   name={`children[${index}].socialWorkerName`}
                   validators={{
-                    onChange: ({ value }) => {
-                      const v = (value ?? "").trim();
-                      if (v.length > 100) return "Name is too long";
-                      return undefined;
-                    },
+                    onChange: validateWith(
+                      childInfoSchema.shape.socialWorkerName,
+                    ),
                   }}
                 >
                   {(field) => (
@@ -470,19 +434,14 @@ export function ChildInfoFields({
         <form.AppField
           name={`children[${index}].blurb`}
           validators={{
-            onChange: ({ value }) => {
-              if (!value) return undefined;
-              if (value.length > PERSONAL_BLURB_MAX_CHARACTERS)
-                return `Please keep your blurb to ${PERSONAL_BLURB_MAX_CHARACTERS} characters or less`;
-              return undefined;
-            },
+            onChange: validateWith(childInfoSchema.shape.blurb),
           }}
         >
           {(field) => (
             <field.FormTextarea
-              label={`You may write a blurb about your child to be displayed on the gift drive website (${PERSONAL_BLURB_MAX_CHARACTERS} characters or less)`}
+              label={`You may write a blurb about your child to be displayed on the gift drive website (${CHILD_BLURB_MAX_CHARACTERS} characters or less)`}
               placeholder="You can share details like your child's activities, interests, favorite color, or anything else you'd like to include."
-              maxLength={PERSONAL_BLURB_MAX_CHARACTERS}
+              maxLength={CHILD_BLURB_MAX_CHARACTERS}
               disabled={disabled}
             />
           )}

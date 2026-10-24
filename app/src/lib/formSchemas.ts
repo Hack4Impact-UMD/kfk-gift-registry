@@ -13,6 +13,13 @@ import {
 } from "common";
 import type { ChildStatus } from "common";
 
+// Field-level validator that reuses a schema's rules and messages, so the
+// field and the section-level safeParse can't drift apart.
+export function validateWith(schema: z.ZodType) {
+  return ({ value }: { value: unknown }) =>
+    schema.safeParse(value).error?.issues[0]?.message;
+}
+
 // Ordered to match display order in the form.
 export const CHILD_STATUS_VALUES = ChildStatusSchema.options;
 
@@ -114,16 +121,20 @@ export const generalInfoSchema = z
       .max(100, "Name is too long"),
     email: z
       .string()
+      .trim()
+      .toLowerCase()
       .min(1, "Email is required")
       .email("Please enter a valid email address"),
     emailConfirm: z
       .string()
+      .trim()
+      .toLowerCase()
       .min(1, "Please confirm your email")
       .email("Please enter a valid email address"),
     phoneNumber: z
       .string()
       .trim()
-      .min(1, "Phone number is required")
+      .min(1, "Phone number required")
       .regex(/^[\d\s\-()]+$/, "Please enter a valid phone number")
       .refine((value) => value.replace(/\D/g, "").length === 10, {
         message: "Please enter a valid phone number",
@@ -193,6 +204,11 @@ export const photoUrlSchema = z.union([
   z.string().url("Must be a valid URL"),
 ]);
 
+export const CHILD_AGE_MIN = 1;
+export const CHILD_AGE_MAX = 21;
+export const MAX_CHILDREN = 10;
+export const CHILD_BLURB_MAX_CHARACTERS = 150;
+
 const childAgeSchema = z
   .union([z.string(), z.number()])
   .transform((value) => String(value).trim())
@@ -201,8 +217,10 @@ const childAgeSchema = z
   })
   .refine((value) => {
     const age = Number(value);
-    return Number.isInteger(age) && age >= 1 && age <= 21;
-  }, "Age must be between 1 and 21");
+    return (
+      Number.isInteger(age) && age >= CHILD_AGE_MIN && age <= CHILD_AGE_MAX
+    );
+  }, `Age must be between ${CHILD_AGE_MIN} and ${CHILD_AGE_MAX}`);
 
 export const childInfoSchema = z.object({
   name: z
@@ -210,7 +228,7 @@ export const childInfoSchema = z.object({
     .min(1, "Child's name is required")
     .max(100, "Name is too long"),
   age: childAgeSchema,
-  status: z.enum(CHILD_STATUS_VALUES),
+  status: z.enum(CHILD_STATUS_VALUES, { error: "Please select an option" }),
   isSibling: z.boolean(),
   // Not required for siblings
   diagnosis: z
@@ -230,7 +248,13 @@ export const childInfoSchema = z.object({
     .or(z.literal("")),
   treatmentLength: z.string().optional().or(z.literal("")),
   photoUrl: photoUrlSchema,
-  blurb: z.string().max(150, "Blurb must be at most 150 characters").optional(),
+  blurb: z
+    .string()
+    .max(
+      CHILD_BLURB_MAX_CHARACTERS,
+      `Please keep your blurb to ${CHILD_BLURB_MAX_CHARACTERS} characters or less`,
+    )
+    .optional(),
 });
 
 export const defaultChild = (): ChildInfo => ({
@@ -255,7 +279,15 @@ export const childrenFormDefaults: ChildrenFormData = {
 
 export const childrenFormSchema = z
   .object({
-    numChildren: z.coerce.number().min(1).max(10),
+    numChildren: z.coerce
+      .number()
+      // an empty input coerces to 0
+      .refine((n) => n !== 0, {
+        message: "Please enter number of children",
+        abort: true,
+      })
+      .min(1, `Please enter a number between 1 and ${MAX_CHILDREN}`)
+      .max(MAX_CHILDREN, `Please enter a number between 1 and ${MAX_CHILDREN}`),
     children: z.array(childInfoSchema).min(1, "At least one child is required"),
     additionalNotes: z.string().optional().or(z.literal("")),
     consentPhotosPublic: z.boolean(),
