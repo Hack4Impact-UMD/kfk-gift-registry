@@ -28,17 +28,6 @@ export function buildFamilyFormSubmitPayload(
     throw new Error("Please complete all form sections before submitting.");
   }
 
-  const giftsResult = giftsFormSchema.safeParse(gifts);
-  const blockingGiftIssue = !giftsResult.success
-    ? giftsResult.error.issues.find(
-        (issue) => issue.message !== GIFT_LISTING_URL_WARNING_MESSAGE,
-      )
-    : null;
-  if (blockingGiftIssue) {
-    throw new Error(blockingGiftIssue.message);
-  }
-  const validatedGifts = giftsResult.success ? giftsResult.data : gifts;
-
   return {
     formLinkId,
     generalInfo: {
@@ -54,8 +43,24 @@ export function buildFamilyFormSubmitPayload(
       },
     },
     children: cleanChildrenObjects(children),
-    gifts: cleanGiftsObjects(validatedGifts),
+    gifts: normalizeGiftsForSubmit(gifts),
   };
+}
+
+// Listing URL warnings don't block submission.
+export function normalizeGiftsForSubmit(
+  gifts: GiftsFormData,
+): NonNullable<FamilyFormInput["gifts"]> {
+  const giftsResult = giftsFormSchema.safeParse(gifts);
+  const blockingGiftIssue = !giftsResult.success
+    ? giftsResult.error.issues.find(
+        (issue) => issue.message !== GIFT_LISTING_URL_WARNING_MESSAGE,
+      )
+    : null;
+  if (blockingGiftIssue) {
+    throw new Error(blockingGiftIssue.message);
+  }
+  return cleanGiftsObjects(giftsResult.success ? giftsResult.data : gifts);
 }
 
 function cleanChildrenObjects(

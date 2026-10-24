@@ -18,6 +18,9 @@ import type { Family, Gift, Child, Claim, UserProfile } from "common";
 import type { StorefrontChild, StorefrontGift } from "@/types/storefront";
 import { requireRolesMiddleware } from "../middleware/authMiddleware";
 import { chunk, isDonorClaim, getFirstNameLastInitial } from "@/lib/utils";
+import { childInfoSchema } from "@/lib/formSchemas";
+import { childGiftSelectionSchema } from "./familyForm";
+import { buildChildDoc, buildGiftDocs } from "../services/childService.server";
 
 export type FamilyGiftClaim = {
   giftId: string;
@@ -129,6 +132,16 @@ const createGiftSchema = z.object({
   familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
   active: z.boolean().default(true),
 });
+
+const createChildWithGiftsSchema = z.object({
+  familyId: z.string().min(1),
+  child: childInfoSchema.omit({ photoUrl: true, isSibling: true }),
+  gifts: childGiftSelectionSchema,
+});
+
+export type CreateChildWithGiftsInput = z.infer<
+  typeof createChildWithGiftsSchema
+>;
 
 export const getAllChildProfilesForDrive = createServerFn({
   method: "GET",
@@ -1059,6 +1072,53 @@ export const updateChild = createServerFn({ method: "POST" })
     const updatedChildData = updatedChild.data();
     if (!updatedChildData) throw new Error("Child not found");
     return updatedChildData;
+  });
+
+export const createChildWithGifts = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(createChildWithGiftsSchema)
+  .handler(async ({ data, context }) => {
+    const db = getServerDB();
+    const family = (await db.families.doc(data.familyId).get()).data();
+    if (!family) {
+      throw new Error("Family not found");
+    }
+
+    const docContext = {
+      familyId: family.id,
+      giftDriveId: family.giftDrive,
+      now: new Date().toISOString(),
+    };
+    const child = buildChildDoc({
+      ...docContext,
+      id: uuidv7(),
+      child: data.child,
+    });
+    const gifts = buildGiftDocs({
+      ...docContext,
+      selection: data.gifts,
+      childId: child.id,
+    });
+
+    const batch = db._instance.batch();
+    batch.set(db.children.doc(child.id), child);
+    gifts.forEach((gift) => batch.set(db.gifts.doc(gift.id), gift));
+    await batch.commit();
+
+    logger.info("Staff created child", {
+      staffId: context.authUser.uid,
+      childId: child.id,
+      familyId: family.id,
+      giftCount: gifts.length,
+    });
+
+    return { child, gifts };
   });
 
 const MAX_MAIN_GIFTS = 3;

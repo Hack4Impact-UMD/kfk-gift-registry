@@ -123,7 +123,7 @@ export function ReviewActionPanel({
   };
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-3 lg:w-80 xl:w-96">
+    <aside className="flex flex-col w-full gap-3 lg:w-80 xl:w-96">
       <section>
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold tracking-tight text-foreground">

@@ -97,344 +97,13 @@ export function ChildInfoForm({
           return (
             <div className="space-y-8">
               {Array.from({ length: displayCount }).map((__, index) => (
-                <div
+                <ChildInfoFields
                   key={index}
-                  className={index > 0 ? "border-t pt-8 mt-8" : ""}
-                >
-                  <h3 className="font-semibold text-lg mb-4 text-kfk-blue flex items-center gap-2">
-                    <User className="w-5 h-5" />
-                    Child {displayCount > 1 ? `#${index + 1}` : ""} Information
-                  </h3>
-
-                  <div className="space-y-4">
-                    {/* Child Status Dropdown */}
-                    <form.AppField
-                      name={`children[${index}].status`}
-                      validators={{
-                        onChange: ({ value }) => {
-                          if (!value) return "Please select an option";
-                          return undefined;
-                        },
-                      }}
-                    >
-                      {(field) => (
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">
-                            Please indicate which option best applies to your
-                            child.
-                          </label>
-                          <div className="-mt-2 w-full [&>div]:max-w-full [&>div]:w-full">
-                            <field.FormSelect
-                              label="Select"
-                              placeholder="Select"
-                              values={CHILD_STATUS_OPTIONS}
-                              required
-                              disabled={disabled}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </form.AppField>
-
-                    {/* Child Name */}
-                    <form.AppField
-                      name={`children[${index}].name`}
-                      validators={{
-                        onChange: ({ value }: { value: string }) => {
-                          if (!value) return "Child's name is required";
-                          if (value.length > 100) return "Name is too long";
-                          return undefined;
-                        },
-                      }}
-                    >
-                      {(field) => (
-                        <field.FormFieldInput
-                          label={
-                            displayCount > 1
-                              ? `Child #${index + 1} Full Name`
-                              : "Child's Full Name"
-                          }
-                          placeholder="e.g. Jake Doe"
-                          required
-                          disabled={disabled}
-                          Icon={User}
-                          helperText="Only your child's first name and last initial will be displayed."
-                        />
-                      )}
-                    </form.AppField>
-
-                    {/* Child Age */}
-                    <form.AppField
-                      name={`children[${index}].age`}
-                      validators={{
-                        onChange: ({ value }) => {
-                          if (value === "" || value === undefined)
-                            return "Age is required";
-                          const n = Number(value);
-                          if (
-                            !Number.isFinite(n) ||
-                            !Number.isInteger(n) ||
-                            n < 1 ||
-                            n > 18
-                          ) {
-                            return "Age must be a whole number between 1 and 18";
-                          }
-                          return undefined;
-                        },
-                        onBlur: ({ value }) => {
-                          if (value === "" || value === undefined)
-                            return "Age is required";
-                          const n = Number(value);
-                          if (
-                            !Number.isFinite(n) ||
-                            !Number.isInteger(n) ||
-                            n < 1 ||
-                            n > 18
-                          ) {
-                            return "Age must be a whole number between 1 and 18";
-                          }
-                          return undefined;
-                        },
-                      }}
-                    >
-                      {(field) => (
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">
-                            {displayCount > 1
-                              ? `Child #${index + 1} Age`
-                              : "Age"}
-                            <span className="text-destructive">
-                              {" "}
-                              (Required)
-                            </span>
-                          </label>
-
-                          <div className="relative py-2">
-                            <input
-                              data-testid={field.name}
-                              type="number"
-                              min={1}
-                              max={18}
-                              step={1}
-                              placeholder="e.g. 8"
-                              value={field.state.value ?? ""}
-                              onChange={(e) => {
-                                field.handleChange(e.target.value);
-                              }}
-                              onBlur={field.handleBlur}
-                              disabled={disabled}
-                              className={`w-32 h-11 pl-4 pr-4 rounded-xl border text-sm focus:outline-none focus:border-kfk-blue truncate disabled:opacity-50 ${
-                                field.state.meta.isTouched &&
-                                field.state.meta.errors[0]
-                                  ? "border-red-500"
-                                  : "border-slate-700"
-                              }`}
-                            />
-                          </div>
-
-                          {field.state.meta.isTouched &&
-                            field.state.meta.errors[0] && (
-                              <span className="text-sm text-red-500">
-                                {field.state.meta.errors[0]}
-                              </span>
-                            )}
-                        </div>
-                      )}
-                    </form.AppField>
-
-                    {/* Diagnosis, Treatment, Hospital, Social Worker - hidden for siblings */}
-                    <form.Subscribe
-                      selector={(state) => state.values.children[index]?.status}
-                      children={(status) => {
-                        const isSibling = isSiblingChildStatus(status);
-
-                        if (isSibling) return null;
-
-                        return (
-                          <div className="space-y-4">
-                            {/* Diagnosis */}
-                            <form.AppField
-                              name={`children[${index}].diagnosis`}
-                              validators={{
-                                onChange: ({ value }) => {
-                                  if (!value) return "Diagnosis is required";
-                                  if (value.length > 200)
-                                    return "Diagnosis is too long";
-                                  return undefined;
-                                },
-                              }}
-                            >
-                              {(field) => (
-                                <field.FormFieldInput
-                                  label="Diagnosis"
-                                  placeholder="e.g. Leukemia"
-                                  required
-                                  disabled={disabled}
-                                  Icon={Stethoscope}
-                                />
-                              )}
-                            </form.AppField>
-
-                            {/* Length of Treatment */}
-                            {(status === "recently_off_treatment" ||
-                              status === "off_treatment_5yr+") && (
-                              <form.AppField
-                                name={`children[${index}].treatmentLength`}
-                                validators={{
-                                  onChange: ({ value }) => {
-                                    if (!value)
-                                      return "Please select treatment length";
-                                    return undefined;
-                                  },
-                                }}
-                              >
-                                {(field) => (
-                                  <div className="space-y-1">
-                                    <label className="text-sm font-medium">
-                                      How long has your child been off of
-                                      treatment?
-                                    </label>
-                                    <div className="-mt-2">
-                                      <field.FormSelect
-                                        label="Select"
-                                        placeholder="Select"
-                                        values={TREATMENT_LENGTH_OPTIONS}
-                                        required
-                                        disabled={disabled}
-                                      />
-                                    </div>
-                                  </div>
-                                )}
-                              </form.AppField>
-                            )}
-
-                            {/* Hospital */}
-                            <form.AppField
-                              name={`children[${index}].hospitalTreatedAt`}
-                              validators={{
-                                onChange: ({ value }) => {
-                                  const v = (value ?? "").trim();
-                                  if (v.length > 200)
-                                    return "Hospital name is too long";
-                                  return undefined;
-                                },
-                              }}
-                            >
-                              {(field) => (
-                                <field.FormFieldInput
-                                  label="Hospital Treated At"
-                                  placeholder="e.g. Johns Hopkins"
-                                  disabled={disabled}
-                                  Icon={Building2}
-                                />
-                              )}
-                            </form.AppField>
-
-                            {/* Social Worker */}
-                            <form.AppField
-                              name={`children[${index}].socialWorkerName`}
-                              validators={{
-                                onChange: ({ value }) => {
-                                  const v = (value ?? "").trim();
-                                  if (v.length > 100) return "Name is too long";
-                                  return undefined;
-                                },
-                              }}
-                            >
-                              {(field) => (
-                                <field.FormFieldInput
-                                  label="Social Worker Name"
-                                  placeholder="e.g. Sarah Smith"
-                                  disabled={disabled}
-                                  Icon={UserCog}
-                                />
-                              )}
-                            </form.AppField>
-                          </div>
-                        );
-                      }}
-                    />
-
-                    {/* Child Photo + Note */}
-                    <div className="space-y-3">
-                      {!disabled && (
-                        <>
-                          <p className="text-sm font-medium text-kfk-blue">
-                            Please upload a photo of your child.
-                            <span className="text-destructive">
-                              {" "}
-                              (Required)
-                            </span>
-                          </p>
-                          {index === 0 && (
-                            <div className="border-2 border-kfk-yellow rounded-lg p-4 bg-yellow-50 space-y-3 text-sm">
-                              <p className="font-bold">
-                                ✨ Help your child's profile stand out! ✨
-                              </p>
-                              <p>
-                                Photos will be{" "}
-                                <strong>publicly displayed</strong> on our
-                                Holiday Gift Drive website.
-                                <br></br>
-                                <br></br>A photo is <em>required</em> for each
-                                child. It helps{" "}
-                                <strong>
-                                  personalize your child's profile
-                                </strong>{" "}
-                                and helps donors feel more connected as they
-                                choose gifts.
-                              </p>
-                            </div>
-                          )}
-                        </>
-                      )}
-                      <form.AppField
-                        name={`children[${index}].photoUrl`}
-                        validators={{
-                          onChangeListenTo: ["consentPhotosPublic"],
-                          onChange: ({ value, fieldApi }) =>
-                            fieldApi.form.getFieldValue(
-                              "consentPhotosPublic",
-                            ) && !value
-                              ? CHILD_PHOTO_REQUIRED_MESSAGE
-                              : undefined,
-                        }}
-                      >
-                        {() => (
-                          <PhotoUpload
-                            childName={
-                              form.state.values.children[index]?.name ||
-                              `Child ${index + 1}`
-                            }
-                            disabled={disabled}
-                          />
-                        )}
-                      </form.AppField>
-                    </div>
-
-                    {/* Child Blurb */}
-                    <form.AppField
-                      name={`children[${index}].blurb`}
-                      validators={{
-                        onChange: ({ value }) => {
-                          if (!value) return undefined;
-                          if (value.length > PERSONAL_BLURB_MAX_CHARACTERS)
-                            return `Please keep your blurb to ${PERSONAL_BLURB_MAX_CHARACTERS} characters or less`;
-                          return undefined;
-                        },
-                      }}
-                    >
-                      {(field) => (
-                        <field.FormTextarea
-                          label={`You may write a blurb about your child to be displayed on the gift drive website (${PERSONAL_BLURB_MAX_CHARACTERS} characters or less)`}
-                          placeholder="You can share details like your child's activities, interests, favorite color, or anything else you'd like to include."
-                          maxLength={PERSONAL_BLURB_MAX_CHARACTERS}
-                          disabled={disabled}
-                        />
-                      )}
-                    </form.AppField>
-                  </div>
-                </div>
+                  form={form}
+                  index={index}
+                  displayCount={displayCount}
+                  disabled={disabled}
+                />
               ))}
             </div>
           );
@@ -483,6 +152,341 @@ export function ChildInfoForm({
             info@kissesforkyle.org
           </a>
         </p>
+      </div>
+    </div>
+  );
+}
+
+type ChildInfoFieldsProps = {
+  form: ReturnType<typeof useChildrenForm>["form"];
+  index: number;
+  displayCount: number;
+  disabled?: boolean;
+  // the photo promo copy is written for families
+  showPhotoNotice?: boolean;
+};
+
+export function ChildInfoFields({
+  form,
+  index,
+  displayCount,
+  disabled = false,
+  showPhotoNotice = true,
+}: ChildInfoFieldsProps) {
+  return (
+    <div className={index > 0 ? "border-t pt-8 mt-8" : ""}>
+      <h3 className="font-semibold text-lg mb-4 text-kfk-blue flex items-center gap-2">
+        <User className="w-5 h-5" />
+        Child {displayCount > 1 ? `#${index + 1}` : ""} Information
+      </h3>
+
+      <div className="space-y-4">
+        {/* Child Status Dropdown */}
+        <form.AppField
+          name={`children[${index}].status`}
+          validators={{
+            onChange: ({ value }) => {
+              if (!value) return "Please select an option";
+              return undefined;
+            },
+          }}
+        >
+          {(field) => (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Please indicate which option best applies to your child.
+              </label>
+              <div className="-mt-2 w-full [&>div]:max-w-full [&>div]:w-full">
+                <field.FormSelect
+                  label="Select"
+                  placeholder="Select"
+                  values={CHILD_STATUS_OPTIONS}
+                  required
+                  disabled={disabled}
+                />
+              </div>
+            </div>
+          )}
+        </form.AppField>
+
+        {/* Child Name */}
+        <form.AppField
+          name={`children[${index}].name`}
+          validators={{
+            onChange: ({ value }: { value: string }) => {
+              if (!value) return "Child's name is required";
+              if (value.length > 100) return "Name is too long";
+              return undefined;
+            },
+          }}
+        >
+          {(field) => (
+            <field.FormFieldInput
+              label={
+                displayCount > 1
+                  ? `Child #${index + 1} Full Name`
+                  : "Child's Full Name"
+              }
+              placeholder="e.g. Jake Doe"
+              required
+              disabled={disabled}
+              Icon={User}
+              helperText="Only your child's first name and last initial will be displayed."
+            />
+          )}
+        </form.AppField>
+
+        {/* Child Age */}
+        <form.AppField
+          name={`children[${index}].age`}
+          validators={{
+            onChange: ({ value }) => {
+              if (value === "" || value === undefined) return "Age is required";
+              const n = Number(value);
+              if (
+                !Number.isFinite(n) ||
+                !Number.isInteger(n) ||
+                n < 1 ||
+                n > 18
+              ) {
+                return "Age must be a whole number between 1 and 18";
+              }
+              return undefined;
+            },
+            onBlur: ({ value }) => {
+              if (value === "" || value === undefined) return "Age is required";
+              const n = Number(value);
+              if (
+                !Number.isFinite(n) ||
+                !Number.isInteger(n) ||
+                n < 1 ||
+                n > 18
+              ) {
+                return "Age must be a whole number between 1 and 18";
+              }
+              return undefined;
+            },
+          }}
+        >
+          {(field) => (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {displayCount > 1 ? `Child #${index + 1} Age` : "Age"}
+                <span className="text-destructive"> (Required)</span>
+              </label>
+
+              <div className="relative py-2">
+                <input
+                  data-testid={field.name}
+                  type="number"
+                  min={1}
+                  max={18}
+                  step={1}
+                  placeholder="e.g. 8"
+                  value={field.state.value ?? ""}
+                  onChange={(e) => {
+                    field.handleChange(e.target.value);
+                  }}
+                  onBlur={field.handleBlur}
+                  disabled={disabled}
+                  className={`w-32 h-11 pl-4 pr-4 rounded-xl border text-sm focus:outline-none focus:border-kfk-blue truncate disabled:opacity-50 ${
+                    field.state.meta.isTouched && field.state.meta.errors[0]
+                      ? "border-red-500"
+                      : "border-slate-700"
+                  }`}
+                />
+              </div>
+
+              {field.state.meta.isTouched && field.state.meta.errors[0] && (
+                <span className="text-sm text-red-500">
+                  {field.state.meta.errors[0]}
+                </span>
+              )}
+            </div>
+          )}
+        </form.AppField>
+
+        {/* Diagnosis, Treatment, Hospital, Social Worker - hidden for siblings */}
+        <form.Subscribe
+          selector={(state) => state.values.children[index]?.status}
+          children={(status) => {
+            const isSibling = isSiblingChildStatus(status);
+
+            if (isSibling) return null;
+
+            return (
+              <div className="space-y-4">
+                {/* Diagnosis */}
+                <form.AppField
+                  name={`children[${index}].diagnosis`}
+                  validators={{
+                    onChange: ({ value }) => {
+                      if (!value) return "Diagnosis is required";
+                      if (value.length > 200) return "Diagnosis is too long";
+                      return undefined;
+                    },
+                  }}
+                >
+                  {(field) => (
+                    <field.FormFieldInput
+                      label="Diagnosis"
+                      placeholder="e.g. Leukemia"
+                      required
+                      disabled={disabled}
+                      Icon={Stethoscope}
+                    />
+                  )}
+                </form.AppField>
+
+                {/* Length of Treatment */}
+                {(status === "recently_off_treatment" ||
+                  status === "off_treatment_5yr+") && (
+                  <form.AppField
+                    name={`children[${index}].treatmentLength`}
+                    validators={{
+                      onChange: ({ value }) => {
+                        if (!value) return "Please select treatment length";
+                        return undefined;
+                      },
+                    }}
+                  >
+                    {(field) => (
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium">
+                          How long has your child been off of treatment?
+                        </label>
+                        <div className="-mt-2">
+                          <field.FormSelect
+                            label="Select"
+                            placeholder="Select"
+                            values={TREATMENT_LENGTH_OPTIONS}
+                            required
+                            disabled={disabled}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </form.AppField>
+                )}
+
+                {/* Hospital */}
+                <form.AppField
+                  name={`children[${index}].hospitalTreatedAt`}
+                  validators={{
+                    onChange: ({ value }) => {
+                      const v = (value ?? "").trim();
+                      if (v.length > 200) return "Hospital name is too long";
+                      return undefined;
+                    },
+                  }}
+                >
+                  {(field) => (
+                    <field.FormFieldInput
+                      label="Hospital Treated At"
+                      placeholder="e.g. Johns Hopkins"
+                      disabled={disabled}
+                      Icon={Building2}
+                    />
+                  )}
+                </form.AppField>
+
+                {/* Social Worker */}
+                <form.AppField
+                  name={`children[${index}].socialWorkerName`}
+                  validators={{
+                    onChange: ({ value }) => {
+                      const v = (value ?? "").trim();
+                      if (v.length > 100) return "Name is too long";
+                      return undefined;
+                    },
+                  }}
+                >
+                  {(field) => (
+                    <field.FormFieldInput
+                      label="Social Worker Name"
+                      placeholder="e.g. Sarah Smith"
+                      disabled={disabled}
+                      Icon={UserCog}
+                    />
+                  )}
+                </form.AppField>
+              </div>
+            );
+          }}
+        />
+
+        {/* Child Photo + Note */}
+        <div className="space-y-3">
+          {!disabled && (
+            <>
+              <p className="text-sm font-medium text-kfk-blue">
+                Please upload a photo of your child.
+                {showPhotoNotice && (
+                  <span className="text-destructive"> (Required)</span>
+                )}
+              </p>
+              {showPhotoNotice && index === 0 && (
+                <div className="border-2 border-kfk-yellow rounded-lg p-4 bg-yellow-50 space-y-3 text-sm">
+                  <p className="font-bold">
+                    ✨ Help your child's profile stand out! ✨
+                  </p>
+                  <p>
+                    Photos will be <strong>publicly displayed</strong> on our
+                    Holiday Gift Drive website.
+                    <br></br>
+                    <br></br>A photo is <em>required</em> for each child. It
+                    helps <strong>personalize your child's profile</strong> and
+                    helps donors feel more connected as they choose gifts.
+                  </p>
+                </div>
+              )}
+            </>
+          )}
+          <form.AppField
+            name={`children[${index}].photoUrl`}
+            validators={{
+              onChangeListenTo: ["consentPhotosPublic"],
+              onChange: ({ value, fieldApi }) =>
+                fieldApi.form.getFieldValue("consentPhotosPublic") && !value
+                  ? CHILD_PHOTO_REQUIRED_MESSAGE
+                  : undefined,
+            }}
+          >
+            {() => (
+              <form.Subscribe
+                selector={(state) => state.values.children[index]?.name}
+                children={(name) => (
+                  <PhotoUpload
+                    childName={name || `Child ${index + 1}`}
+                    disabled={disabled}
+                  />
+                )}
+              />
+            )}
+          </form.AppField>
+        </div>
+
+        {/* Child Blurb */}
+        <form.AppField
+          name={`children[${index}].blurb`}
+          validators={{
+            onChange: ({ value }) => {
+              if (!value) return undefined;
+              if (value.length > PERSONAL_BLURB_MAX_CHARACTERS)
+                return `Please keep your blurb to ${PERSONAL_BLURB_MAX_CHARACTERS} characters or less`;
+              return undefined;
+            },
+          }}
+        >
+          {(field) => (
+            <field.FormTextarea
+              label={`You may write a blurb about your child to be displayed on the gift drive website (${PERSONAL_BLURB_MAX_CHARACTERS} characters or less)`}
+              placeholder="You can share details like your child's activities, interests, favorite color, or anything else you'd like to include."
+              maxLength={PERSONAL_BLURB_MAX_CHARACTERS}
+              disabled={disabled}
+            />
+          )}
+        </form.AppField>
       </div>
     </div>
   );

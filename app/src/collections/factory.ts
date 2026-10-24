@@ -525,6 +525,7 @@ export function createCollections(queryClient: QueryClient) {
     createChildTransaction,
     createFamilyTransaction,
     createGiftsTransaction,
+    invalidateChildDerivedCaches,
     invalidateGiftDerivedCaches,
   };
 }
