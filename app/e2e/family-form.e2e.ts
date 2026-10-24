@@ -154,7 +154,14 @@ test("shows validation errors on each step", async ({ page }) => {
   await expect(next).toBeDisabled();
 
   await fillGeneralInfo(page);
+  // surrounding whitespace and case differences are normalized, not rejected
+  await page.getByTestId("email").fill(` ${family.email} `);
+  await page.getByTestId("emailConfirm").fill(`${family.email.toLowerCase()} `);
+  await page.getByTestId("emailConfirm").blur();
   await expect(page.getByText("Emails do not match")).toBeHidden();
+  await expect(
+    page.getByText("Please enter a valid email address"),
+  ).toBeHidden();
   await next.click();
   await expect(page).toHaveURL(/\/children$/);
 
