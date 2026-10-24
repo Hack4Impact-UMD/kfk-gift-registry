@@ -5,7 +5,7 @@ import {
   UsersIcon,
 } from "@heroicons/react/24/solid";
 import type { useGeneralInfoForm } from "@/hooks/family-form/formHooks";
-import { US_STATES } from "@/lib/formSchemas";
+import { US_STATES, generalInfoSchema, validateWith } from "@/lib/formSchemas";
 
 type GeneralInfoFormProps = {
   disabled?: boolean;
@@ -28,12 +28,7 @@ export function GeneralInfoForm({
         <form.AppField
           name="parentName"
           validators={{
-            onChange: ({ value }) =>
-              !value
-                ? "Parent/Guardian name is required"
-                : value.length > 100
-                  ? "Name is too long"
-                  : undefined,
+            onChange: validateWith(generalInfoSchema.shape.parentName),
           }}
         >
           {(field) => (
@@ -50,13 +45,7 @@ export function GeneralInfoForm({
         <form.AppField
           name="email"
           validators={{
-            onChange: ({ value }) => {
-              const normalizedValue = value.trim().toLowerCase();
-              if (!normalizedValue) return "Email is required";
-              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedValue))
-                return "Please enter a valid email address";
-              return undefined;
-            },
+            onChange: validateWith(generalInfoSchema.shape.email),
             onChangeAsyncDebounceMs: 400,
           }}
         >
@@ -79,15 +68,15 @@ export function GeneralInfoForm({
           validators={{
             onChangeListenTo: ["email"],
             onChange: ({ value, fieldApi }) => {
-              const normalizedValue = value.trim().toLowerCase();
+              const formatError = validateWith(
+                generalInfoSchema.shape.emailConfirm,
+              )({ value });
+              if (formatError) return formatError;
               const normalizedEmail = fieldApi.form
                 .getFieldValue("email")
                 .trim()
                 .toLowerCase();
-              if (!normalizedValue) return "Please confirm your email";
-              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedValue))
-                return "Please enter a valid email address";
-              if (normalizedValue !== normalizedEmail)
+              if (value.trim().toLowerCase() !== normalizedEmail)
                 return "Emails do not match";
               return undefined;
             },
@@ -110,12 +99,7 @@ export function GeneralInfoForm({
         <form.AppField
           name="phoneNumber"
           validators={{
-            onChange: ({ value }) => {
-              if (!value || value === "") return "Phone number required";
-              if (!/^[\d\s\-()]+$/.test(value))
-                return "Please enter a valid phone number";
-              return undefined;
-            },
+            onChange: validateWith(generalInfoSchema.shape.phoneNumber),
           }}
         >
           {(field) => (
@@ -170,12 +154,7 @@ export function GeneralInfoForm({
         <form.AppField
           name="streetAddress"
           validators={{
-            onChange: ({ value }) =>
-              !value
-                ? "Street address is required"
-                : value.length > 200
-                  ? "Address is too long"
-                  : undefined,
+            onChange: validateWith(generalInfoSchema.shape.streetAddress),
           }}
         >
           {(field) => (
@@ -193,8 +172,7 @@ export function GeneralInfoForm({
         <form.AppField
           name="addressLine2"
           validators={{
-            onChange: ({ value }) =>
-              value && value.length > 200 ? "Address is too long" : undefined,
+            onChange: validateWith(generalInfoSchema.shape.addressLine2),
           }}
         >
           {(field) => (
@@ -211,12 +189,7 @@ export function GeneralInfoForm({
         <form.AppField
           name="city"
           validators={{
-            onChange: ({ value }) =>
-              !value
-                ? "City is required"
-                : value.length > 100
-                  ? "City name is too long"
-                  : undefined,
+            onChange: validateWith(generalInfoSchema.shape.city),
           }}
         >
           {(field) => (
@@ -234,7 +207,7 @@ export function GeneralInfoForm({
         <form.AppField
           name="state"
           validators={{
-            onChange: ({ value }) => (!value ? "State is required" : undefined),
+            onChange: validateWith(generalInfoSchema.shape.state),
           }}
         >
           {(field) => (
@@ -251,12 +224,7 @@ export function GeneralInfoForm({
         <form.AppField
           name="zipCode"
           validators={{
-            onChange: ({ value }) => {
-              if (!value) return "Zip code is required";
-              if (!/^\d{5}(-\d{4})?$/.test(value))
-                return "Please enter a valid zip code (e.g., 12345 or 12345-6789)";
-              return undefined;
-            },
+            onChange: validateWith(generalInfoSchema.shape.zipCode),
           }}
         >
           {(field) => (
