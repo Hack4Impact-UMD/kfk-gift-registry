@@ -10,6 +10,12 @@ on:
     branches:
       - main
 
+# One deploy at a time; a push during a deploy waits for it instead of cancelling it.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+  queue: max
+
 jobs:
   deploy:
     name: Deploy
