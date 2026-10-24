@@ -247,9 +247,9 @@ export function ChildInfoFields({
                 !Number.isFinite(n) ||
                 !Number.isInteger(n) ||
                 n < 1 ||
-                n > 18
+                n > 21
               ) {
-                return "Age must be a whole number between 1 and 18";
+                return "Age must be between 1 and 21";
               }
               return undefined;
             },
@@ -260,9 +260,9 @@ export function ChildInfoFields({
                 !Number.isFinite(n) ||
                 !Number.isInteger(n) ||
                 n < 1 ||
-                n > 18
+                n > 21
               ) {
-                return "Age must be a whole number between 1 and 18";
+                return "Age must be between 1 and 21";
               }
               return undefined;
             },
