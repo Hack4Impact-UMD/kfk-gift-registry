@@ -139,6 +139,10 @@ const createChildWithGiftsSchema = z.object({
   gifts: childGiftSelectionSchema,
 });
 
+export type CreateChildWithGiftsInput = z.infer<
+  typeof createChildWithGiftsSchema
+>;
+
 export const getAllChildProfilesForDrive = createServerFn({
   method: "GET",
 })

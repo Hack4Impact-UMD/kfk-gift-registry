@@ -215,6 +215,7 @@ const setChildPhotoUrlsSchema = z.object({
 });
 
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
+export type ChildGiftSelectionInput = z.infer<typeof childGiftSelectionSchema>;
 
 function normalizeFamilyEmail(email: string) {
   return email.trim().toLowerCase();

@@ -1,11 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { useCollections } from "@/collections/context";
 import { createChildWithGifts } from "@/server/functions/child";
+import type { CreateChildWithGiftsInput } from "@/server/functions/child";
 import { toast } from "@/lib/toast";
 
-type CreateChildWithGiftsInput = Parameters<
-  typeof createChildWithGifts
->[0]["data"] & {
+type CreateChildWithGiftsVariables = CreateChildWithGiftsInput & {
   // data URL from PhotoUpload; uploaded once the child exists
   photo?: string;
 };
@@ -14,7 +13,7 @@ export function useCreateChildWithGifts() {
   const collections = useCollections();
 
   return useMutation({
-    mutationFn: async ({ photo, ...data }: CreateChildWithGiftsInput) => {
+    mutationFn: async ({ photo, ...data }: CreateChildWithGiftsVariables) => {
       const { child, gifts } = await createChildWithGifts({ data });
       collections.children.utils.writeInsert(child);
       collections.gifts.utils.writeInsert(gifts);

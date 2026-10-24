@@ -1,29 +1,22 @@
 import { v7 as uuidv7 } from "uuid";
 import { deriveDefaultTreatmentLevel } from "common";
-import type { Child, ChildStatus, Gift } from "common";
+import type { Child, Gift } from "common";
 import { isSiblingChildStatus } from "@/lib/formSchemas";
+import type { ChildInfo } from "@/lib/formSchemas";
+import type { ChildGiftSelectionInput } from "@/server/functions/familyForm";
 
-type ChildDocInput = {
-  name: string;
-  age: string;
-  status: ChildStatus;
-  diagnosis?: string;
-  hospitalTreatedAt?: string;
-  socialWorkerName?: string;
-  blurb?: string;
-};
+type ChildDocInput = Pick<
+  ChildInfo,
+  | "name"
+  | "age"
+  | "status"
+  | "diagnosis"
+  | "hospitalTreatedAt"
+  | "socialWorkerName"
+  | "blurb"
+>;
 
-type GiftInput = {
-  giftName?: string;
-  giftUrl?: string;
-  listedPrice?: number;
-  familyPublicNotes?: string;
-};
-
-type GiftSelectionInput = {
-  gifts: ReadonlyArray<GiftInput>;
-  backupGifts: ReadonlyArray<GiftInput>;
-};
+type GiftInput = ChildGiftSelectionInput["gifts"][number];
 
 type DocContext = {
   familyId: string;
@@ -71,7 +64,7 @@ export function buildGiftDocs({
   giftDriveId,
   now,
 }: DocContext & {
-  selection: GiftSelectionInput;
+  selection: ChildGiftSelectionInput;
   childId: string;
 }): Array<Gift> {
   const toGift = (

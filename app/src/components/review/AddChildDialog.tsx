@@ -77,11 +77,11 @@ function AddChildForm({
       normalizeChildInfo(childForm.state.values.children[0]),
     );
 
-    let gifts: ReturnType<typeof normalizeGiftsForSubmit> | null = null;
+    let gifts = null;
     try {
       gifts = normalizeGiftsForSubmit(giftForm.state.values);
     } catch {
-      gifts = null;
+      // the gift fields show their own errors below
     }
 
     if (!childResult.success || !gifts) {

@@ -421,7 +421,9 @@ export function ChildInfoFields({
             <>
               <p className="text-sm font-medium text-kfk-blue">
                 Please upload a photo of your child.
-                <span className="text-destructive"> (Required)</span>
+                {showPhotoNotice && (
+                  <span className="text-destructive"> (Required)</span>
+                )}
               </p>
               {showPhotoNotice && index === 0 && (
                 <div className="border-2 border-kfk-yellow rounded-lg p-4 bg-yellow-50 space-y-3 text-sm">
