@@ -163,9 +163,7 @@ test("shows validation errors on each step", async ({ page }) => {
   await page.getByTestId("children[0].name").fill(warrior.name);
   await page.getByTestId("children[0].age").fill("25");
   await page.getByTestId("children[0].age").blur();
-  await expect(
-    page.getByText("Age must be a whole number between 1 and 18"),
-  ).toBeVisible();
+  await expect(page.getByText("Age must be between 1 and 21")).toBeVisible();
   await page.getByRole("button", { name: "Next" }).click();
   await expect(page).toHaveURL(/\/children$/);
 

@@ -201,8 +201,8 @@ const childAgeSchema = z
   })
   .refine((value) => {
     const age = Number(value);
-    return Number.isInteger(age) && age >= 1 && age <= 18;
-  }, "Age must be between 1 and 18");
+    return Number.isInteger(age) && age >= 1 && age <= 21;
+  }, "Age must be between 1 and 21");
 
 export const childInfoSchema = z.object({
   name: z
