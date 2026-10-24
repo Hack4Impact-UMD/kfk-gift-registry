@@ -144,29 +144,31 @@ function RouteComponent() {
   });
 
   return (
-    <div className="flex h-full flex-col p-4 ">
-      <div className="flex min-h-0 w-full flex-1 flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
+    <div className="h-full p-4 ">
+      <div className="flex w-full h-full flex-1 flex-col gap-8 lg:flex-row justify-center items-start lg:gap-10">
         <section
-          className="w-full max-w-3xl min-w-0 lg:self-stretch"
+          className="w-full max-w-3xl min-w-0 lg:self-stretch flex flex-col"
           aria-label="Family information"
         >
-          <Button
-            type="button"
-            variant="default"
-            onClick={handleBackToList}
-            className="mb-4 h-10 rounded-md bg-kfk-blue text-white hover:bg-kfk-blue/90"
-          >
-            <ArrowLeftIcon className="size-4" aria-hidden />
-            Back to {backLabel}
-          </Button>
-          <div className="mb-2 flex items-center gap-3">
-            <h1 className="text-4xl font-bold">{lastName}'s Family</h1>
-            <span className="rounded-xl bg-muted px-4 py-2 text-2xl font-semibold text-foreground">
-              {sortedChildren.length}{" "}
-              {sortedChildren.length === 1 ? "child" : "children"}
-            </span>
+          <div>
+            <Button
+              type="button"
+              variant="default"
+              onClick={handleBackToList}
+              className="mb-4 h-10 rounded-md bg-kfk-blue text-white hover:bg-kfk-blue/90"
+            >
+              <ArrowLeftIcon className="size-4" aria-hidden />
+              Back to {backLabel}
+            </Button>
+            <div className="mb-2 flex items-center gap-3">
+              <h1 className="text-4xl font-bold">{lastName}'s Family</h1>
+              <span className="rounded-xl bg-muted px-4 py-2 text-2xl font-semibold text-foreground">
+                {sortedChildren.length}{" "}
+                {sortedChildren.length === 1 ? "child" : "children"}
+              </span>
+            </div>
           </div>
-          <ScrollArea className="h-full min-h-[40rem] w-full rounded-md border p-4 shadow-xl">
+          <ScrollArea className="flex-1 min-h-[40rem] w-full rounded-md border p-4 shadow-xl">
             <div className="flex flex-col gap-7 pr-4">
               <GuardianInfoCard family={family} />
               {sortedChildren.map((childData) => (

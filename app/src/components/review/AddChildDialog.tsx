@@ -35,7 +35,7 @@ export function AddChildDialog({ familyId }: AddChildDialogProps) {
       <DialogTrigger asChild>
         <Button
           type="button"
-          className="h-12 self-center rounded-md bg-kfk-blue px-6 text-white hover:bg-kfk-blue/90"
+          className="h-12 w-full self-center rounded-md bg-kfk-blue px-6 text-white hover:bg-kfk-blue/90"
         >
           <PlusIcon className="size-5" aria-hidden />
           Add Child

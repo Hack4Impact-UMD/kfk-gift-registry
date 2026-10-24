@@ -319,7 +319,7 @@ export function ChildCard({ child }: ChildCardProps) {
   );
 
   return (
-    <Card className="w-full max-w-2xl bg-kfk-blue/5 border border-foreground pb-0">
+    <Card className="w-full max-w-2xl bg-kfk-blue/5 border border-foreground pb-0 rounded-md overflow-clip">
       <CardContent className="flex flex-col py-0">
         <div className="flex flex-col items-start justify-between gap-2 mb-4">
           <div className="flex gap-5">
