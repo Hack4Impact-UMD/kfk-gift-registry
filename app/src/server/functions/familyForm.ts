@@ -19,7 +19,6 @@ import type { Family, Child, Gift } from "common";
 import {
   AddressSchema,
   ChildStatusSchema,
-  deriveDefaultTreatmentLevel,
   GiftFamilyPublicNotesSchema,
   GIFT_PRICE_INVALID_MESSAGE,
   GIFT_TITLE_REQUIRED_MESSAGE,
@@ -29,6 +28,10 @@ import {
   NormalizedGiftTitleSchema,
   normalizeGiftListingUrl,
 } from "common";
+import {
+  buildChildDoc,
+  buildGiftDocs,
+} from "@/server/services/childService.server";
 import { getDownloadURL } from "firebase-admin/storage";
 import admin from "firebase-admin";
 
@@ -174,7 +177,7 @@ const requiredGiftSelectionSchema = baseGiftSelectionSchema.superRefine(
   },
 );
 
-const childGiftSelectionSchema = z.object({
+export const childGiftSelectionSchema = z.object({
   childName: z.string(),
   gifts: z.tuple([
     requiredGiftSelectionSchema,
@@ -212,12 +215,6 @@ const setChildPhotoUrlsSchema = z.object({
 });
 
 export type FamilyFormInput = z.infer<typeof familyFormStateSchema>;
-
-function hasGiftIdentity<T extends { giftName?: string; giftUrl?: string }>(
-  gift: T,
-): gift is T & { giftName: string; giftUrl: string } {
-  return Boolean(gift.giftName && gift.giftUrl);
-}
 
 function normalizeFamilyEmail(email: string) {
   return email.trim().toLowerCase();
@@ -390,26 +387,8 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
       reviewStatus: { approved: false, held: false },
     };
 
-    // childForm.status is typed as ChildStatus here — the Zod transform above
-    // maps display strings to enum values during validation.
-    const childDocs: Array<Child> = data.children.children.map(
-      (childForm, i) => ({
-        id: childIds[i],
-        name: childForm.name,
-        age: parseInt(childForm.age, 10),
-        status: childForm.status,
-        category: childForm.isSibling ? "super_sib" : ("warrior" as const),
-        treatmentLevel: deriveDefaultTreatmentLevel(childForm.status),
-        familyId,
-        diagnosis: childForm.diagnosis ?? "",
-        hospital: childForm.hospitalTreatedAt ?? "",
-        childSocialWorker: childForm.socialWorkerName ?? "",
-        giftDrive: giftDriveId,
-        livesAtHome: true,
-        publicBlurb: childForm.blurb,
-        createdAt: now,
-        published: false,
-      }),
+    const childDocs: Array<Child> = data.children.children.map((child, i) =>
+      buildChildDoc({ id: childIds[i], child, familyId, giftDriveId, now }),
     );
 
     if (childDocs.length !== data.gifts.giftSelections.length) {
@@ -419,59 +398,14 @@ export const submitFamilyForm = createServerFn({ method: "POST" })
     }
 
     const giftDocs: Array<Gift> = data.gifts.giftSelections.flatMap(
-      (selection, idx) => {
-        const childId = childIds[idx];
-
-        const regular = selection.gifts
-          .filter(hasGiftIdentity)
-          .map((g): Gift => {
-            const { giftName, giftUrl } = g;
-            if (!giftName || !giftUrl) {
-              throw new Error("Gift selections must include both name and URL");
-            }
-
-            return {
-              id: uuidv7(),
-              childId,
-              familyId,
-              giftDrive: giftDriveId,
-              title: giftName,
-              productUrl: giftUrl,
-              listedPrice: g.listedPrice,
-              status: "AVAILABLE",
-              backup: false,
-              active: true,
-              createdAt: now,
-              familyPublicNotes: g.familyPublicNotes,
-            };
-          });
-
-        const backup = selection.backupGifts
-          .filter(hasGiftIdentity)
-          .map((g): Gift => {
-            const { giftName, giftUrl } = g;
-            if (!giftName || !giftUrl) {
-              throw new Error("Gift selections must include both name and URL");
-            }
-
-            return {
-              id: uuidv7(),
-              childId,
-              familyId,
-              giftDrive: giftDriveId,
-              title: giftName,
-              productUrl: giftUrl,
-              listedPrice: g.listedPrice,
-              status: "AVAILABLE",
-              backup: true,
-              active: true,
-              createdAt: now,
-              familyPublicNotes: g.familyPublicNotes,
-            };
-          });
-
-        return [...regular, ...backup];
-      },
+      (selection, idx) =>
+        buildGiftDocs({
+          selection,
+          childId: childIds[idx],
+          familyId,
+          giftDriveId,
+          now,
+        }),
     );
 
     // Single atomic Firestore transaction — all documents created together.

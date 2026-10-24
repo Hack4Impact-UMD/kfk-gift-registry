@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { fieldContext, formContext } from "./fieldContext";
 import { useFormContext } from "@/components/providers/FormProvider";
-import type { ChildGiftSelections } from "@/lib/formSchemas";
+import type { ChildGiftSelections, ChildInfo } from "@/lib/formSchemas";
 import {
   childrenFormDefaults,
   childrenFormSchema,
@@ -37,6 +37,38 @@ export const { useAppForm } = createFormHook({
     FormTextarea,
   },
   formComponents: {},
+});
+
+// Clears fields that don't apply to the child's status.
+export function normalizeChildInfo(child: ChildInfo): ChildInfo {
+  const isSibling = isSiblingChildStatus(child.status);
+
+  const requiresTreatmentLength =
+    child.status === "recently_off_treatment" ||
+    child.status === "off_treatment_5yr+";
+
+  return {
+    ...child,
+    isSibling,
+    diagnosis: isSibling ? "" : child.diagnosis,
+    hospitalTreatedAt: isSibling ? "" : child.hospitalTreatedAt,
+    socialWorkerName: isSibling ? "" : child.socialWorkerName,
+    treatmentLength:
+      isSibling || !requiresTreatmentLength ? "" : child.treatmentLength,
+  };
+}
+
+export const emptyGiftSelection = (childName: string): ChildGiftSelections => ({
+  childName,
+  gifts: [
+    { giftName: "", giftUrl: "", listedPrice: "" },
+    { giftName: "", giftUrl: "", listedPrice: "" },
+    { giftName: "", giftUrl: "", listedPrice: "" },
+  ],
+  backupGifts: [
+    { giftName: "", giftUrl: "", listedPrice: "" },
+    { giftName: "", giftUrl: "", listedPrice: "" },
+  ],
 });
 
 export function useConsentForm() {
@@ -149,23 +181,7 @@ export function useChildrenForm() {
 
     const normalizedChildren = values.children
       .slice(0, numChildren)
-      .map((child) => {
-        const isSibling = isSiblingChildStatus(child.status);
-
-        const requiresTreatmentLength =
-          child.status === "recently_off_treatment" ||
-          child.status === "off_treatment_5yr+";
-
-        return {
-          ...child,
-          isSibling,
-          diagnosis: isSibling ? "" : child.diagnosis,
-          hospitalTreatedAt: isSibling ? "" : child.hospitalTreatedAt,
-          socialWorkerName: isSibling ? "" : child.socialWorkerName,
-          treatmentLength:
-            isSibling || !requiresTreatmentLength ? "" : child.treatmentLength,
-        };
-      });
+      .map(normalizeChildInfo);
 
     const normalized = {
       ...values,
@@ -214,18 +230,7 @@ export function useGiftsForm() {
         })) as ChildGiftSelections["backupGifts"],
       };
     }
-    return {
-      childName: child.name,
-      gifts: [
-        { giftName: "", giftUrl: "", listedPrice: "" },
-        { giftName: "", giftUrl: "", listedPrice: "" },
-        { giftName: "", giftUrl: "", listedPrice: "" },
-      ],
-      backupGifts: [
-        { giftName: "", giftUrl: "", listedPrice: "" },
-        { giftName: "", giftUrl: "", listedPrice: "" },
-      ],
-    } satisfies ChildGiftSelections;
+    return emptyGiftSelection(child.name);
   });
 
   const form = useAppForm({

@@ -7,6 +7,7 @@ import {
 } from "@/collections/preload";
 import { GuardianInfoCard } from "@/components/review/GuardianInfoCard";
 import { ChildCard } from "@/components/review/ChildCard";
+import { AddChildDialog } from "@/components/review/AddChildDialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReviewActionPanel } from "@/components/review/ReviewActionPanel";
 import { Spinner } from "@/components/ui/spinner";
@@ -171,6 +172,7 @@ function RouteComponent() {
               {sortedChildren.map((childData) => (
                 <ChildCard key={childData.id} child={childData} />
               ))}
+              <AddChildDialog familyId={family.id} />
             </div>
           </ScrollArea>
         </section>
