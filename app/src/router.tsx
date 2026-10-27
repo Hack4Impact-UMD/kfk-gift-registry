@@ -9,6 +9,7 @@ import {
   SENTRY_DSN,
   SENTRY_ENVIRONMENT,
   SENTRY_TRACES_SAMPLE_RATE,
+  isInjectedScriptStackOverflow,
 } from "@/lib/sentry";
 
 // Import the generated route tree
@@ -63,6 +64,8 @@ export const getRouter = () => {
         Sentry.consoleLoggingIntegration({ levels: ["warn", "error"] }),
       ],
       tracesSampleRate: SENTRY_TRACES_SAMPLE_RATE,
+      beforeSend: (event) =>
+        isInjectedScriptStackOverflow(event) ? null : event,
     });
   }
 
