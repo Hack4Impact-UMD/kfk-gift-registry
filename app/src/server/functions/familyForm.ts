@@ -10,10 +10,7 @@ import {
   getFamilyLinkById,
 } from "@/server/services/familyLinkService.server";
 import { appCheckMiddleware } from "@/server/middleware/appCheckMiddleware";
-import {
-  CHILD_PHOTO_REQUIRED_MESSAGE,
-  photoUrlSchema,
-} from "@/lib/formSchemas";
+import { CHILD_PHOTO_REQUIRED_MESSAGE } from "@/lib/formSchemas";
 import { DateTime } from "luxon";
 import type { Family, Child, Gift } from "common";
 import {
@@ -52,7 +49,8 @@ const childInfoSchema = z.object({
   diagnosis: z.string().optional(),
   hospitalTreatedAt: z.string().optional(),
   socialWorkerName: z.string().optional(),
-  photoUrl: photoUrlSchema,
+  // photos upload from the client after submit, so only their presence is sent
+  hasPhoto: z.boolean(),
   status: ChildStatusSchema,
   treatmentLength: z.string().optional(),
   blurb: z.string().optional(),
@@ -69,10 +67,10 @@ const childrenFormSchema = z
   .superRefine((data, ctx) => {
     if (!data.consentPhotosPublic) return;
     data.children.forEach((child, i) => {
-      if (!child.photoUrl) {
+      if (!child.hasPhoto) {
         ctx.addIssue({
           code: "custom",
-          path: ["children", i, "photoUrl"],
+          path: ["children", i, "hasPhoto"],
           message: CHILD_PHOTO_REQUIRED_MESSAGE,
         });
       }
