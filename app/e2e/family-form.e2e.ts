@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { clearSentEmails, getSentEmails } from "./helpers/emails";
@@ -9,7 +10,7 @@ import {
   seed,
   storageFileExists,
 } from "./helpers/seed";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import type { Child, Family, FamilyLink, Gift } from "common";
 import type { SeedData } from "./helpers/seed";
 
@@ -422,7 +423,10 @@ test("submits the form and shows the family home page", async ({ page }) => {
   }
 });
 
-async function fillToReviewWithPhoto(page: Page) {
+async function fillToReviewWithPhoto(
+  page: Page,
+  photo: Parameters<Locator["setInputFiles"]>[0] = PHOTO,
+) {
   await completeConsent(page);
   await fillGeneralInfo(page);
   await page.getByRole("button", { name: "Next" }).click();
@@ -434,7 +438,7 @@ async function fillToReviewWithPhoto(page: Page) {
   await page.getByTestId("children[0].diagnosis").fill(warrior.diagnosis);
   await page
     .getByLabel(`Upload photo for ${warrior.name}`)
-    .setInputFiles(PHOTO);
+    .setInputFiles(photo);
   await page.getByLabel(/I consent to having all photos/).check();
   await page.getByRole("button", { name: "Next" }).click();
   await expect(page).toHaveURL(/\/gift-details$/);
@@ -477,15 +481,24 @@ test("the server rejects a submission without a child photo", async ({
   test.setTimeout(90_000);
   await fillToReviewWithPhoto(page);
 
-  // strip the photo from the request, bypassing client-side validation
+  // mark the photo missing in the request, bypassing client-side validation
   let strippedPhotos = 0;
   await page.route("**/_serverFn/**", async (route) => {
-    const body = route.request().postData() ?? "";
-    const stripped = body.replace(/data:image\/[^"\\]+/g, () => {
-      strippedPhotos++;
-      return "";
-    });
-    await route.continue({ postData: stripped });
+    const body = route.request().postDataJSON() as unknown;
+    // seroval encodes objects as { p: { k: keys, v: values } } and false as
+    // { t: 2, s: 3 }
+    const clearHasPhoto = (node: unknown) => {
+      if (!node || typeof node !== "object") return;
+      const { p } = node as { p?: { k?: Array<string>; v?: Array<unknown> } };
+      const i = p?.k?.indexOf("hasPhoto") ?? -1;
+      if (p?.v && i !== -1) {
+        p.v[i] = { t: 2, s: 3 };
+        strippedPhotos++;
+      }
+      Object.values(node).forEach(clearHasPhoto);
+    };
+    clearHasPhoto(body);
+    await route.continue({ postData: JSON.stringify(body) });
   });
 
   await page.getByRole("button", { name: "Submit!" }).click();
@@ -496,4 +509,49 @@ test("the server rejects a submission without a child photo", async ({
   expect(
     await queryDocs<Family>("families", "email", family.email.toLowerCase()),
   ).toHaveLength(0);
+});
+
+test("a large photo isn't sent to the server with the form", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  // phone photos are several MB; trailing bytes after the PNG end are ignored
+  // by decoders, so this stays a valid image
+  const largePhoto = Buffer.concat([
+    readFileSync(PHOTO),
+    Buffer.alloc(8 * 1024 * 1024),
+  ]);
+  await fillToReviewWithPhoto(page, {
+    name: "large-photo.png",
+    mimeType: "image/png",
+    buffer: largePhoto,
+  });
+
+  const submitRequest = page.waitForRequest(
+    (req) =>
+      req.url().includes("/_serverFn/") &&
+      (req.postData() ?? "").includes(formLinkId),
+  );
+  await page.getByRole("button", { name: "Submit!" }).click();
+  const body = defined((await submitRequest).postData(), "a submit body");
+  expect(body).not.toContain("data:image");
+  expect(body.length).toBeLessThan(64 * 1024);
+
+  await expect(page.getByText("Thank you for submitting!")).toBeVisible();
+  const [savedFamily] = await queryDocs<Family>(
+    "families",
+    "email",
+    family.email.toLowerCase(),
+  );
+  const [savedChild] = await queryDocs<Child>(
+    "children",
+    "familyId",
+    savedFamily.id,
+  );
+  await expect
+    .poll(
+      async () => (await getDoc<Child>("children", savedChild.id))?.photoUrl,
+    )
+    .toBeTruthy();
+  expect(await storageFileExists(`children/pfps/${savedChild.id}`)).toBe(true);
 });

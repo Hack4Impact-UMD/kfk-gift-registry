@@ -71,13 +71,13 @@ function cleanChildrenObjects(
   return {
     ...children,
     additionalNotes: children.additionalNotes?.trim() ?? "",
-    children: children.children.map((child) => ({
+    children: children.children.map(({ photoUrl, ...child }) => ({
       ...child,
       diagnosis: child.diagnosis?.trim() ?? "",
       hospitalTreatedAt: child.hospitalTreatedAt?.trim() ?? "",
       socialWorkerName: child.socialWorkerName?.trim() ?? "",
       treatmentLength: child.treatmentLength?.trim() ?? "",
-      photoUrl: shouldIncludePhotos ? child.photoUrl : "",
+      hasPhoto: shouldIncludePhotos && Boolean(photoUrl),
       blurb: child.blurb?.trim() ?? "",
     })),
   };
