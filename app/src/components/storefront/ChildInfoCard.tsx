@@ -47,11 +47,13 @@ export function ChildInfoCard({ child, className }: ChildInfoCardProps) {
           {child.age} Years Old
         </p>
 
-        <div className="w-full text-center">
-          <p className="font-semibold text-lg sm:text-xl mb-1 font-gaegu">
-            {child.diagnosis}
-          </p>
-        </div>
+        {child.category == "warrior" && (
+          <div className="w-full text-center">
+            <p className="font-semibold text-lg sm:text-xl mb-1 font-gaegu">
+              {child.diagnosis}
+            </p>
+          </div>
+        )}
 
         {child.publicBlurb && (
           <div className="w-full text-sm sm:text-base text-muted-foreground leading-relaxed px-1 sm:px-2 font-gaegu">

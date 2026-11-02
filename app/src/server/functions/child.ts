@@ -98,7 +98,6 @@ const updateChildSchema = z.object({
     familyId: true,
     giftDrive: true,
     createdAt: true,
-    category: true,
     status: true,
     livesAtHome: true,
   })

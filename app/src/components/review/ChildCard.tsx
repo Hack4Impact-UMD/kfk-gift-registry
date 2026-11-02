@@ -5,9 +5,16 @@ import { ReviewGift } from "./ReviewGift";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import ProfileHeader from "@/assets/default-profile-photo.png";
 import { PencilIcon, PhotoIcon, TrashIcon } from "@heroicons/react/24/solid";
-import type { Child, Gift, TimePeriod } from "common";
+import type { Child, ChildCategory, Gift, TimePeriod } from "common";
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import type { Transaction } from "@tanstack/react-db";
 import { useCollections } from "@/collections/context";
@@ -38,6 +45,15 @@ const timePeriodOptions: Array<TimePeriod> = [
   "3-4y",
   "5+y",
 ];
+const CATEGORY_LABELS: Record<ChildCategory, string> = {
+  warrior: "Warrior",
+  super_sib: "SuperSib",
+};
+const CHILD_CATEGORIES = Object.keys(CATEGORY_LABELS) as Array<ChildCategory>;
+const CATEGORY_PILL_CLASSES: Record<ChildCategory, string> = {
+  warrior: "bg-[#FFF8C2] text-kfk-brown",
+  super_sib: "bg-kfk-light-blue text-kfk-blue",
+};
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -380,15 +396,42 @@ export function ChildCard({ child }: ChildCardProps) {
                 <h2 className="text-xl sm:text-3xl font-bold my-auto">
                   {child.name}
                 </h2>
-                <span
-                  className={`my-auto rounded-full border border-gray-200 px-5 py-1 ${
-                    child.category == "warrior"
-                      ? "bg-[#FFF8C2] text-kfk-brown"
-                      : "bg-kfk-light-blue text-kfk-blue"
-                  }`}
-                >
-                  {child.category == "warrior" ? "Warrior" : "SuperSib"}
-                </span>
+                {editing ? (
+                  <Select
+                    value={child.category}
+                    onValueChange={(value) =>
+                      editChild((draft) => {
+                        draft.category = value as ChildCategory;
+                      })
+                    }
+                  >
+                    <SelectTrigger
+                      aria-label={`Category for ${child.name}`}
+                      className={cn(
+                        "my-auto rounded-full border border-gray-200 px-5",
+                        CATEGORY_PILL_CLASSES[child.category],
+                      )}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CHILD_CATEGORIES.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {CATEGORY_LABELS[category]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <span
+                    className={cn(
+                      "my-auto rounded-full border border-gray-200 px-5 py-1",
+                      CATEGORY_PILL_CLASSES[child.category],
+                    )}
+                  >
+                    {CATEGORY_LABELS[child.category]}
+                  </span>
+                )}
               </div>
               {editing && photoError && (
                 <p className="w-fit rounded-md border border-kfk-red/20 bg-kfk-muted-red/30 px-2 py-1 text-sm text-kfk-red">

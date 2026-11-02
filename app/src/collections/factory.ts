@@ -37,6 +37,7 @@ import { getDownloadURL } from "firebase/storage";
 const UPDATABLE_CHILD_FIELDS = [
   "name",
   "status",
+  "category",
   "photoUrl",
   "treatmentLevel",
   "diagnosis",
@@ -212,7 +213,9 @@ export function createCollections(queryClient: QueryClient) {
       ...(Object.fromEntries(
         UPDATABLE_CHILD_FIELDS.filter(
           (k): k is Exclude<UpdatableChildField, "photoUrl"> =>
-            !(k === "photoUrl"),
+            !(k === "photoUrl") &&
+            (k !== "category" ||
+              modified.category !== mutation.original.category),
         ).map((k) => [k, modified[k]]),
       ) as Pick<Child, Exclude<UpdatableChildField, "photoUrl">>),
       ...(photoUrl !== undefined ? { photoUrl } : {}),
