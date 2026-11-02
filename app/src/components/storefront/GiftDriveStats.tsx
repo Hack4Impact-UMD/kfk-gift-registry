@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
 import type { GiftDrive } from "common";
+import type { StorefrontStats } from "@/server/functions/storefront";
 import { Spinner } from "@/components/ui/spinner";
 
 interface StatProps {
@@ -19,6 +20,17 @@ function StatLabel({ children, startIcon }: StatProps) {
       <span>{children}</span>
     </div>
   );
+}
+
+function StatValue({
+  value,
+  pending,
+}: {
+  value: number | undefined;
+  pending: boolean;
+}) {
+  if (pending) return <Spinner className="inline" />;
+  return <>{value ?? "—"}</>;
 }
 
 function useTimeRemaining(endDate: string) {
@@ -44,20 +56,14 @@ function useTimeRemaining(endDate: string) {
 
 interface GiftDriveStatsProps {
   drive: GiftDrive;
-  giftsClaimed: number;
-  totalGifts: number;
-  childrenWithGifts: number;
-  totalDonated: number | undefined;
-  totalDonatedPending: boolean;
+  stats: StorefrontStats | undefined;
+  statsPending: boolean;
 }
 
 export function GiftDriveStats({
   drive,
-  giftsClaimed,
-  totalGifts,
-  childrenWithGifts,
-  totalDonated,
-  totalDonatedPending,
+  stats,
+  statsPending,
 }: GiftDriveStatsProps) {
   const remaining = useTimeRemaining(drive.endDate);
   const isExpired = remaining.toMillis() <= 0;
@@ -82,7 +88,9 @@ export function GiftDriveStats({
       : `${hours}:${minutes}:${seconds} Left to Donate!`;
 
   const progressPercentage =
-    totalGifts > 0 ? Math.floor((giftsClaimed / totalGifts) * 100) : 0;
+    stats && stats.totalGifts > 0
+      ? Math.floor((stats.giftsClaimed / stats.totalGifts) * 100)
+      : 0;
   const ladybugClampedPosition = Math.min(Math.max(progressPercentage, 3), 97);
 
   return (
@@ -108,7 +116,8 @@ export function GiftDriveStats({
           <div className="flex items-end gap-3 text-[1.45rem] font-bold leading-none md:text-[1.7rem]">
             <span className="text-white">Gifts Purchased</span>
             <span className="text-[1rem] font-normal text-white/45 md:text-[1.15rem]">
-              {giftsClaimed} of {totalGifts}
+              <StatValue value={stats?.giftsClaimed} pending={statsPending} />{" "}
+              of <StatValue value={stats?.totalGifts} pending={statsPending} />
             </span>
           </div>
 
@@ -121,22 +130,25 @@ export function GiftDriveStats({
 
         <div className="flex justify-around gap-2 text-[1.15rem] md:text-[1.35rem]">
           <StatLabel startIcon={<GiftIcon className="h-5 w-5" />}>
-            <span className="text-kfk-yellow">{giftsClaimed}</span> out of{" "}
-            {totalGifts} Gifts Purchased
+            <span className="text-kfk-yellow">
+              <StatValue value={stats?.giftsClaimed} pending={statsPending} />
+            </span>{" "}
+            out of{" "}
+            <StatValue value={stats?.totalGifts} pending={statsPending} /> Gifts
+            Purchased
           </StatLabel>
           <StatLabel startIcon={<UserGroupIcon className="h-5 w-5" />}>
-            <span className="text-kfk-yellow">{childrenWithGifts}</span>{" "}
+            <span className="text-kfk-yellow">
+              <StatValue
+                value={stats?.childrenWithGifts}
+                pending={statsPending}
+              />
+            </span>{" "}
             Children Received Gifts
           </StatLabel>
           <StatLabel startIcon={<UserIcon className="h-5 w-5" />}>
             <span className="text-kfk-yellow">
-              {totalDonatedPending ? (
-                <Spinner className="inline" />
-              ) : totalDonated !== undefined ? (
-                totalDonated
-              ) : (
-                "—"
-              )}
+              <StatValue value={stats?.uniqueDonors} pending={statsPending} />
             </span>{" "}
             People Donated
           </StatLabel>

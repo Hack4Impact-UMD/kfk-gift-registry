@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { queries } from "@/queries";
 
-export function useStorefrontUniqueDonors(driveId?: string) {
+export function useStorefrontStats(driveId?: string) {
   return useQuery({
-    ...queries.storefront.uniqueDonorsForDrive(driveId ?? ""),
+    ...queries.storefront.statsForDrive(driveId ?? ""),
     enabled: !!driveId,
   });
 }
