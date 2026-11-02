@@ -37,6 +37,7 @@ import { getDownloadURL } from "firebase/storage";
 const UPDATABLE_CHILD_FIELDS = [
   "name",
   "status",
+  "category",
   "photoUrl",
   "treatmentLevel",
   "diagnosis",
