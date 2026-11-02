@@ -865,7 +865,7 @@ export const getStorefrontChildById = createServerFn({ method: "GET" })
         status: g.status,
         familyPublicNotes: g.familyPublicNotes,
         childId: g.childId,
-        childName: child.name.split(" ")[0],
+        childName: getFirstNameLastInitial(child.name),
         familyId: g.familyId,
         backup: g.backup,
       }) satisfies StorefrontGift;
@@ -923,7 +923,7 @@ export const getStorefrontGiftsForChild = createServerFn({ method: "GET" })
         status: giftData.status,
         familyPublicNotes: giftData.familyPublicNotes,
         childId: giftData.childId,
-        childName: child.name.split(" ")[0],
+        childName: getFirstNameLastInitial(child.name),
         familyId: giftData.familyId,
         backup: giftData.backup,
       } satisfies StorefrontGift;
@@ -978,7 +978,7 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
         const giftData = giftsBySiblingId.get(sibling.id) || [];
         return {
           id: sibling.id,
-          name: sibling.name,
+          name: getFirstNameLastInitial(sibling.name),
           age: sibling.age,
           status: sibling.status,
           diagnosis: sibling.diagnosis,
@@ -999,7 +999,7 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
                   status: g.status,
                   familyPublicNotes: g.familyPublicNotes,
                   childId: g.childId,
-                  childName: sibling.name.split(" ")[0],
+                  childName: getFirstNameLastInitial(sibling.name),
                   familyId: g.familyId,
                   backup: g.backup,
                 }) satisfies StorefrontGift,
@@ -1016,7 +1016,7 @@ export const getStorefrontSiblingsForChild = createServerFn({ method: "GET" })
                   status: g.status,
                   familyPublicNotes: g.familyPublicNotes,
                   childId: g.childId,
-                  childName: sibling.name.split(" ")[0],
+                  childName: getFirstNameLastInitial(sibling.name),
                   familyId: g.familyId,
                   backup: g.backup,
                 }) satisfies StorefrontGift,
