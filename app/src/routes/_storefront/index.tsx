@@ -10,7 +10,7 @@ import { StorefrontSearchFilters } from "@/components/storefront/StorefrontSearc
 import type { StorefrontSortOption } from "@/components/storefront/StorefrontSearchFilters";
 import { queries } from "@/queries";
 import { useStorefrontChildProfiles } from "@/hooks/queries/useStorefrontChildProfiles";
-import { useStorefrontUniqueDonors } from "@/hooks/queries/useStorefrontUniqueDonors";
+import { useStorefrontStats } from "@/hooks/queries/useStorefrontStats";
 import { Spinner } from "@/components/ui/spinner";
 import { getLatestCompletedDrive } from "@/lib/utils";
 import { getColorName } from "@/lib/childColors";
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_storefront/")({
           queries.storefront.profilesForDrive(driveId),
         ),
         context.queryClient.ensureQueryData(
-          queries.storefront.uniqueDonorsForDrive(driveId),
+          queries.storefront.statsForDrive(driveId),
         ),
       ]).catch(() => undefined);
       return;
@@ -78,10 +78,10 @@ function App() {
   } = useStorefrontChildProfiles(context.currentDrive?.id);
 
   const {
-    data: uniqueDonors,
-    isPending: isUniqueDonorsPending,
-    isError: isUniqueDonorsError,
-  } = useStorefrontUniqueDonors(context.currentDrive?.id);
+    data: stats,
+    isPending: isStatsPending,
+    isError: isStatsError,
+  } = useStorefrontStats(context.currentDrive?.id);
 
   const [childrenPerPage] = useState<number>(25);
   const navigate = useNavigate();
@@ -120,23 +120,6 @@ function App() {
         familyId: child.familyId,
       }));
     }, [allChildren]);
-
-  const { totalGifts, claimedGifts, childrenWithGifts } = useMemo(() => {
-    let totalGiftsCount = 0;
-    let claimedGiftsCount = 0;
-    let childrenWithGiftsCount = 0;
-    for (const child of childrenWithMetrics) {
-      totalGiftsCount += child.giftsRequested;
-      claimedGiftsCount += child.giftsClaimed;
-      if (child.giftsClaimed > 0) childrenWithGiftsCount++;
-    }
-
-    return {
-      totalGifts: totalGiftsCount,
-      claimedGifts: claimedGiftsCount,
-      childrenWithGifts: childrenWithGiftsCount,
-    };
-  }, [childrenWithMetrics]);
 
   const filteredChildren = useMemo(
     () =>
@@ -197,11 +180,8 @@ function App() {
       <div>
         <GiftDriveStats
           drive={context.currentDrive}
-          giftsClaimed={claimedGifts}
-          totalGifts={totalGifts}
-          childrenWithGifts={childrenWithGifts}
-          totalDonated={isUniqueDonorsError ? undefined : uniqueDonors}
-          totalDonatedPending={isUniqueDonorsPending}
+          stats={isStatsError ? undefined : stats}
+          statsPending={isStatsPending}
         />
         <StorefrontSearchFilters
           searchValue={searchValue}

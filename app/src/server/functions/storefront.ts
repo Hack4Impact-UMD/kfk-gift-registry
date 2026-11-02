@@ -182,26 +182,61 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
     return results;
   });
 
-export const getUniqueStorefrontDonorsForDrive = createServerFn({
-  method: "GET",
-})
+const claimedGiftStatuses = new Set<GiftStatus>([
+  "CLAIMED",
+  "PURCHASED",
+  "DELIVERED",
+  "RECEIVED",
+]);
+
+// Header stats for the live storefront. Computed from every gift in the drive
+// rather than from getProfilesForStorefront, which drops children once all of
+// their gifts are claimed.
+export const getStorefrontStatsForDrive = createServerFn({ method: "GET" })
   .inputValidator(driveIdSchema)
   .handler(async ({ data }) => {
     const db = getServerDB();
-    const gifts = (
-      await db.gifts
+    const [giftsSnapshot, publishedChildrenSnapshot] = await Promise.all([
+      db.gifts
         .where("giftDrive", "==", data.driveId)
         .where("active", "==", true)
-        .get()
-    ).docs.map((d) => d.data());
+        .get(),
+      db.children
+        .where("giftDrive", "==", data.driveId)
+        .where("published", "==", true)
+        .get(),
+    ]);
+    const publishedChildIds = new Set(
+      publishedChildrenSnapshot.docs.map((d) => d.id),
+    );
 
-    const donorIDs = new Set<string>();
-    gifts.forEach((gift) => {
-      if (gift.claimedByDonorId) donorIDs.add(gift.claimedByDonorId);
-    });
+    const donorIds = new Set<string>();
+    const childrenWithGiftsIds = new Set<string>();
+    let totalGifts = 0;
+    let giftsClaimed = 0;
 
-    return donorIDs.size;
+    for (const gift of giftsSnapshot.docs.map((d) => d.data())) {
+      if (gift.claimedByDonorId) donorIds.add(gift.claimedByDonorId);
+      if (gift.backup || !publishedChildIds.has(gift.childId)) continue;
+
+      totalGifts += 1;
+      if (!claimedGiftStatuses.has(gift.status)) continue;
+
+      giftsClaimed += 1;
+      childrenWithGiftsIds.add(gift.childId);
+    }
+
+    return {
+      giftsClaimed,
+      totalGifts,
+      childrenWithGifts: childrenWithGiftsIds.size,
+      uniqueDonors: donorIds.size,
+    };
   });
+
+export type StorefrontStats = Awaited<
+  ReturnType<typeof getStorefrontStatsForDrive>
+>;
 
 const purchasedGiftStatuses = new Set<GiftStatus>([
   "PURCHASED",

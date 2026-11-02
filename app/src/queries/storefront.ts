@@ -2,7 +2,7 @@ import { createQueryKeys } from "@lukemorales/query-key-factory";
 import {
   getProfilesForStorefront,
   getOffSeasonStatsForDrive,
-  getUniqueStorefrontDonorsForDrive,
+  getStorefrontStatsForDrive,
 } from "@/server/functions/storefront";
 import {
   getStorefrontChildById,
@@ -27,9 +27,9 @@ export const storefrontQueries = createQueryKeys("storefront", {
     queryKey: ["siblingsForChild", childId],
     queryFn: () => getStorefrontSiblingsForChild({ data: { childId } }),
   }),
-  uniqueDonorsForDrive: (driveId: string) => ({
-    queryKey: ["uniqueDonorsForDrive", driveId],
-    queryFn: () => getUniqueStorefrontDonorsForDrive({ data: { driveId } }),
+  statsForDrive: (driveId: string) => ({
+    queryKey: ["statsForDrive", driveId],
+    queryFn: () => getStorefrontStatsForDrive({ data: { driveId } }),
   }),
   offSeasonStatsForDrive: (driveId: string) => ({
     queryKey: ["offSeasonStatsForDrive", driveId],
