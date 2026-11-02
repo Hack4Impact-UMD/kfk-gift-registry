@@ -171,7 +171,7 @@ export const getProfilesForStorefront = createServerFn({ method: "GET" })
           photoUrl: child.photoUrl,
           category: child.category,
           age: child.age,
-          diagnosis: child.diagnosis,
+          diagnosis: child.category == "warrior" ? child.diagnosis : "",
           publicBlurb: child.publicBlurb,
           published: child.published,
           familyId: child.familyId,
