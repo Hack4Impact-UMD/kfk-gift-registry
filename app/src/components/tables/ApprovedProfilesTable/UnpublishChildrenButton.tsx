@@ -54,7 +54,7 @@ export function UnpublishChildrenButton({
       >
         {unpublishMutation.isPending ? "Unpublishing..." : "Unpublish"}
       </Button>
-      <AlertDialog open={confirmOpen}>
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Unpublish {subject}?</AlertDialogTitle>
