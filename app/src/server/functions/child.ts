@@ -1321,3 +1321,36 @@ export const updateClaimTrackingNumber = createServerFn({ method: "POST" })
       claimId,
     });
   });
+
+const unpublishChildrenSchema = z.array(z.string().nonempty()).nonempty();
+
+export const unpublishChildren = createServerFn({ method: "POST" })
+  .middleware([
+    requireRolesMiddleware([
+      UserRole.ADMIN,
+      UserRole.DIRECTOR,
+      UserRole.VOLUNTEER,
+    ]),
+  ])
+  .inputValidator(unpublishChildrenSchema)
+  .handler(async ({ data: childIds, context }) => {
+    const db = getServerDB();
+
+    await db._instance.runTransaction(async (tx) => {
+      const snaps = await Promise.all(
+        childIds.map((id) => tx.get(db.children.doc(id))),
+      );
+      if (snaps.some((snap) => !snap.exists)) {
+        throw new Error("Child not found");
+      }
+      snaps.forEach((snap) =>
+        tx.update(snap.ref, { published: false } satisfies Partial<Child>),
+      );
+    });
+
+    logger.info("Staff unpublished children", {
+      staffId: context.authUser.uid,
+      childCount: childIds.length,
+      childIds: childIds.join(","),
+    });
+  });

@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { DataTable } from "../DataTable";
 import { columns } from "./columns";
+import { UnpublishChildrenButton } from "./UnpublishChildrenButton";
 import type { ApprovedProfileTableRow, ChildProfileVisibility } from "./types";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +24,10 @@ export function ApprovedProfilesTable({
   paginated = true,
 }: ApprovedProfilesTableProps) {
   const [globalSearch, setGlobalSearch] = useState("");
+  const [selectedRows, setSelectedRows] = useState<
+    Array<ApprovedProfileTableRow>
+  >([]);
+  const [selectionVersion, setSelectionVersion] = useState(0);
   const navigate = useNavigate();
   const filteredData = statusFilter
     ? data.filter((row) =>
@@ -31,6 +35,17 @@ export function ApprovedProfilesTable({
       )
     : data;
   const tableKey = statusFilter ?? "all";
+  // Only published children can be unpublished; ignore any unpublished rows
+  // that happen to be selected.
+  const selectedPublishedChildIds = useMemo(
+    () => selectedRows.filter((row) => row.published).map((row) => row.id),
+    [selectedRows],
+  );
+
+  const handleUnpublishSuccess = useCallback(() => {
+    setSelectedRows([]);
+    setSelectionVersion((current) => current + 1);
+  }, []);
 
   return (
     <div className={cn("flex flex-col gap-4 pt-6 w-full", className)}>
@@ -45,11 +60,14 @@ export function ApprovedProfilesTable({
               className="pl-8 border-gray-300 text-gray-700 focus-visible:ring-1"
             />
           </div>
-          <Button className="sm:ml-auto">Unpublish</Button>
+          <UnpublishChildrenButton
+            childIds={selectedPublishedChildIds}
+            onSuccess={handleUnpublishSuccess}
+          />
         </div>
       </div>
       <DataTable
-        key={tableKey}
+        key={`${tableKey}-${selectionVersion}`}
         className="w-full"
         columns={columns}
         data={filteredData}
@@ -57,6 +75,7 @@ export function ApprovedProfilesTable({
         onGlobalSearchChange={setGlobalSearch}
         rowsPerPage={rowsPerPage}
         paginated={paginated}
+        onSelectedRowsChange={setSelectedRows}
         onRowClick={(row) => {
           navigate({
             to: "/staff/child/$childId",
