@@ -104,7 +104,7 @@ export function PublishedGiftsTable({
       { header: "Price", value: (row) => row.listedPrice?.toFixed(2) },
       { header: "Gift Status", value: (row) => row.giftStatus },
       { header: "Sponsor Type", value: (row) => row.sponsorType },
-      { header: "Donor Name", value: (row) => row.sponsorName },
+      { header: "Donor Name", value: (row) => row.sponsorName?.trim() },
       { header: "Sponsor Email", value: (row) => row.sponsorEmail },
       { header: "Child Name", value: (row) => row.childName },
       { header: "Parent Name", value: (row) => row.parentName },
