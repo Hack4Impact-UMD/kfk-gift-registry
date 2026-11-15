@@ -8,6 +8,7 @@ export type PublishedGiftsTableRow = {
   listedPrice?: number;
   giftStatus: GiftStatus;
   sponsorType: GiftClaimStatus;
+  price?: number;
   sponsorName?: string;
   sponsorEmail?: string;
   childName?: string;

@@ -155,6 +155,7 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
           claim?.deliveryConfirmed?.date ??
           claim?.purchaseConfirmation?.date,
         productUrl: gift.productUrl,
+        price: gift.listedPrice,
       } satisfies PublishedGiftsTableRow;
     });
   });
