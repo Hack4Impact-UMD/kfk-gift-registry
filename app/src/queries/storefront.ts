@@ -10,6 +10,10 @@ import {
   getStorefrontSiblingsForChild,
 } from "@/server/functions/child";
 
+// Matches the server-side storefront cache TTL; refetching sooner would only
+// return the same cached data.
+export const STOREFRONT_STALE_TIME_MS = 60 * 1000;
+
 export const storefrontQueries = createQueryKeys("storefront", {
   profilesForDrive: (driveId: string) => ({
     queryKey: ["profilesForDrive", driveId],

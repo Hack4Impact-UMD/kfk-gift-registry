@@ -74,114 +74,6 @@ export const getStorefrontGift = createServerFn({ method: "GET" })
     } satisfies StorefrontGift;
   });
 
-export const getProfilesForStorefront = createServerFn({ method: "GET" })
-  .inputValidator(driveIdSchema)
-  .handler(async ({ data }) => {
-    const { driveId } = data;
-    const db = getServerDB();
-
-    const childrenQuery = db.children
-      .where("giftDrive", "==", driveId)
-      .where("published", "==", true);
-
-    const childrenSnapshot = await childrenQuery.get();
-
-    if (childrenSnapshot.empty) {
-      return [];
-    }
-
-    const allChildren = childrenSnapshot.docs.map((doc) => doc.data());
-    const childIds = allChildren.map((c) => c.id);
-
-    const allGifts: Array<Gift> = [];
-    for (let i = 0; i < childIds.length; i += 10) {
-      const batch = childIds.slice(i, i + 10);
-      const giftsQuery = await db.gifts
-        .where("childId", "in", batch)
-        .where("active", "==", true)
-        .where("backup", "==", false)
-        .get();
-      allGifts.push(...giftsQuery.docs.map((doc) => doc.data()));
-    }
-    allGifts.sort(compareGiftOrder);
-
-    const giftsByChildId = new Map<string, Array<Gift>>();
-    for (const gift of allGifts) {
-      const childGifts = giftsByChildId.get(gift.childId) ?? [];
-      childGifts.push(gift);
-      giftsByChildId.set(gift.childId, childGifts);
-    }
-
-    const familyTreatmentLevels = new Map<string, number>();
-    for (const child of allChildren) {
-      const childLevel = getTreatmentLevelSortValue(child.treatmentLevel);
-      const currentFamilyLevel = familyTreatmentLevels.get(child.familyId);
-
-      familyTreatmentLevels.set(
-        child.familyId,
-        currentFamilyLevel === undefined
-          ? childLevel
-          : Math.min(currentFamilyLevel, childLevel),
-      );
-    }
-
-    const sortedChildren = [...allChildren].sort((a, b) => {
-      const aFamilyLevel = familyTreatmentLevels.get(a.familyId) ?? 0;
-      const bFamilyLevel = familyTreatmentLevels.get(b.familyId) ?? 0;
-
-      if (aFamilyLevel !== bFamilyLevel) {
-        return aFamilyLevel - bFamilyLevel;
-      }
-
-      if (a.familyId !== b.familyId) {
-        return a.familyId.localeCompare(b.familyId);
-      }
-
-      return (
-        getTreatmentLevelSortValue(a.treatmentLevel) -
-        getTreatmentLevelSortValue(b.treatmentLevel)
-      );
-    });
-
-    const results: Array<StorefrontChildWithGifts> = sortedChildren
-      .filter((child) =>
-        (giftsByChildId.get(child.id) ?? []).some(
-          (gift) => gift.status === "AVAILABLE",
-        ),
-      )
-      .map((child) => {
-        const childGifts = giftsByChildId.get(child.id) ?? [];
-
-        const gifts: Array<StorefrontGift> = childGifts.map((gift) => ({
-          id: gift.id,
-          title: gift.title,
-          productUrl: gift.productUrl,
-          listedPrice: gift.listedPrice,
-          status: gift.status,
-          childId: gift.childId,
-          childName: getFirstNameLastInitial(child.name),
-          familyId: gift.familyId,
-          backup: gift.backup,
-        }));
-
-        return {
-          id: child.id,
-          name: getFirstNameLastInitial(child.name),
-          status: child.status,
-          photoUrl: child.photoUrl,
-          category: child.category,
-          age: child.age,
-          diagnosis: child.category == "warrior" ? child.diagnosis : "",
-          publicBlurb: child.publicBlurb,
-          published: child.published,
-          familyId: child.familyId,
-          gifts,
-        };
-      });
-
-    return results;
-  });
-
 const claimedGiftStatuses = new Set<GiftStatus>([
   "CLAIMED",
   "PURCHASED",
@@ -189,50 +81,193 @@ const claimedGiftStatuses = new Set<GiftStatus>([
   "RECEIVED",
 ]);
 
-// Header stats for the live storefront. Computed from every gift in the drive
-// rather than from getProfilesForStorefront, which drops children once all of
-// their gifts are claimed.
-export const getStorefrontStatsForDrive = createServerFn({ method: "GET" })
-  .inputValidator(driveIdSchema)
-  .handler(async ({ data }) => {
-    const db = getServerDB();
-    const [giftsSnapshot, publishedChildrenSnapshot] = await Promise.all([
-      db.gifts
-        .where("giftDrive", "==", data.driveId)
-        .where("active", "==", true)
-        .get(),
-      db.children
-        .where("giftDrive", "==", data.driveId)
-        .where("published", "==", true)
-        .get(),
-    ]);
-    const publishedChildIds = new Set(
-      publishedChildrenSnapshot.docs.map((d) => d.id),
+type StorefrontData = {
+  profiles: Array<StorefrontChildWithGifts>;
+  stats: {
+    giftsClaimed: number;
+    totalGifts: number;
+    childrenWithGifts: number;
+    uniqueDonors: number;
+  };
+};
+
+// Every visitor sees the same storefront, so it is cached per server instance
+// for a short window instead of being re-read from Firestore on each visit.
+// Slightly stale availability is safe: claiming re-checks gift status in a
+// transaction.
+const STOREFRONT_CACHE_TTL_MS = 60 * 1000;
+const storefrontCache = new Map<
+  string,
+  { expiresAt: number; data: Promise<StorefrontData> }
+>();
+
+function getStorefrontData(driveId: string): Promise<StorefrontData> {
+  const cached = storefrontCache.get(driveId);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+
+  const data = loadStorefrontData(driveId);
+  storefrontCache.set(driveId, {
+    expiresAt: Date.now() + STOREFRONT_CACHE_TTL_MS,
+    data,
+  });
+  data.catch(() => {
+    if (storefrontCache.get(driveId)?.data === data) {
+      storefrontCache.delete(driveId);
+    }
+  });
+  return data;
+}
+
+async function loadStorefrontData(driveId: string): Promise<StorefrontData> {
+  const db = getServerDB();
+  const [giftsSnapshot, childrenSnapshot] = await Promise.all([
+    db.gifts
+      .where("giftDrive", "==", driveId)
+      .where("active", "==", true)
+      .get(),
+    db.children
+      .where("giftDrive", "==", driveId)
+      .where("published", "==", true)
+      .get(),
+  ]);
+
+  const allChildren = childrenSnapshot.docs.map((doc) => doc.data());
+  const allGifts = giftsSnapshot.docs.map((doc) => doc.data());
+  const publishedChildIds = new Set(allChildren.map((c) => c.id));
+
+  return {
+    profiles: buildProfiles(
+      allChildren,
+      allGifts.filter(
+        (gift) => !gift.backup && publishedChildIds.has(gift.childId),
+      ),
+    ),
+    stats: buildStats(allGifts, publishedChildIds),
+  };
+}
+
+function buildProfiles(
+  allChildren: Array<Child>,
+  storefrontGifts: Array<Gift>,
+): Array<StorefrontChildWithGifts> {
+  storefrontGifts.sort(compareGiftOrder);
+
+  const giftsByChildId = new Map<string, Array<Gift>>();
+  for (const gift of storefrontGifts) {
+    const childGifts = giftsByChildId.get(gift.childId) ?? [];
+    childGifts.push(gift);
+    giftsByChildId.set(gift.childId, childGifts);
+  }
+
+  const familyTreatmentLevels = new Map<string, number>();
+  for (const child of allChildren) {
+    const childLevel = getTreatmentLevelSortValue(child.treatmentLevel);
+    const currentFamilyLevel = familyTreatmentLevels.get(child.familyId);
+
+    familyTreatmentLevels.set(
+      child.familyId,
+      currentFamilyLevel === undefined
+        ? childLevel
+        : Math.min(currentFamilyLevel, childLevel),
     );
+  }
 
-    const donorIds = new Set<string>();
-    const childrenWithGiftsIds = new Set<string>();
-    let totalGifts = 0;
-    let giftsClaimed = 0;
+  const sortedChildren = [...allChildren].sort((a, b) => {
+    const aFamilyLevel = familyTreatmentLevels.get(a.familyId) ?? 0;
+    const bFamilyLevel = familyTreatmentLevels.get(b.familyId) ?? 0;
 
-    for (const gift of giftsSnapshot.docs.map((d) => d.data())) {
-      if (gift.claimedByDonorId) donorIds.add(gift.claimedByDonorId);
-      if (gift.backup || !publishedChildIds.has(gift.childId)) continue;
-
-      totalGifts += 1;
-      if (!claimedGiftStatuses.has(gift.status)) continue;
-
-      giftsClaimed += 1;
-      childrenWithGiftsIds.add(gift.childId);
+    if (aFamilyLevel !== bFamilyLevel) {
+      return aFamilyLevel - bFamilyLevel;
     }
 
-    return {
-      giftsClaimed,
-      totalGifts,
-      childrenWithGifts: childrenWithGiftsIds.size,
-      uniqueDonors: donorIds.size,
-    };
+    if (a.familyId !== b.familyId) {
+      return a.familyId.localeCompare(b.familyId);
+    }
+
+    return (
+      getTreatmentLevelSortValue(a.treatmentLevel) -
+      getTreatmentLevelSortValue(b.treatmentLevel)
+    );
   });
+
+  return sortedChildren
+    .filter((child) =>
+      (giftsByChildId.get(child.id) ?? []).some(
+        (gift) => gift.status === "AVAILABLE",
+      ),
+    )
+    .map((child) => {
+      const childGifts = giftsByChildId.get(child.id) ?? [];
+
+      const gifts: Array<StorefrontGift> = childGifts.map((gift) => ({
+        id: gift.id,
+        title: gift.title,
+        productUrl: gift.productUrl,
+        listedPrice: gift.listedPrice,
+        status: gift.status,
+        childId: gift.childId,
+        childName: getFirstNameLastInitial(child.name),
+        familyId: gift.familyId,
+        backup: gift.backup,
+      }));
+
+      return {
+        id: child.id,
+        name: getFirstNameLastInitial(child.name),
+        status: child.status,
+        photoUrl: child.photoUrl,
+        category: child.category,
+        age: child.age,
+        diagnosis: child.category == "warrior" ? child.diagnosis : "",
+        publicBlurb: child.publicBlurb,
+        published: child.published,
+        familyId: child.familyId,
+        gifts,
+      };
+    });
+}
+
+// Header stats are computed from every gift in the drive rather than from the
+// profiles, which drop children once all of their gifts are claimed.
+function buildStats(
+  allGifts: Array<Gift>,
+  publishedChildIds: Set<string>,
+): StorefrontData["stats"] {
+  const donorIds = new Set<string>();
+  const childrenWithGiftsIds = new Set<string>();
+  let totalGifts = 0;
+  let giftsClaimed = 0;
+
+  for (const gift of allGifts) {
+    if (gift.claimedByDonorId) donorIds.add(gift.claimedByDonorId);
+    if (gift.backup || !publishedChildIds.has(gift.childId)) continue;
+
+    totalGifts += 1;
+    if (!claimedGiftStatuses.has(gift.status)) continue;
+
+    giftsClaimed += 1;
+    childrenWithGiftsIds.add(gift.childId);
+  }
+
+  return {
+    giftsClaimed,
+    totalGifts,
+    childrenWithGifts: childrenWithGiftsIds.size,
+    uniqueDonors: donorIds.size,
+  };
+}
+
+export const getProfilesForStorefront = createServerFn({ method: "GET" })
+  .inputValidator(driveIdSchema)
+  .handler(
+    async ({ data }) => (await getStorefrontData(data.driveId)).profiles,
+  );
+
+export const getStorefrontStatsForDrive = createServerFn({ method: "GET" })
+  .inputValidator(driveIdSchema)
+  .handler(async ({ data }) => (await getStorefrontData(data.driveId)).stats);
 
 export type StorefrontStats = Awaited<
   ReturnType<typeof getStorefrontStatsForDrive>
