@@ -5,8 +5,10 @@ export type GiftClaimStatus = "unclaimed" | "claimed_kfk" | "claimed_donor";
 export type PublishedGiftsTableRow = {
   id: string;
   giftName: string;
+  listedPrice?: number;
   giftStatus: GiftStatus;
   sponsorType: GiftClaimStatus;
+  sponsorName?: string;
   sponsorEmail?: string;
   childName?: string;
   parentName?: string;

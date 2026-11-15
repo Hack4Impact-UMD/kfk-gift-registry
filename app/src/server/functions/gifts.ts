@@ -123,6 +123,7 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
       const claim = claimByGiftId.get(gift.id);
 
       let sponsorType: GiftClaimStatus = "unclaimed";
+      let sponsorName: string | undefined;
       let sponsorEmail: string | undefined;
 
       if (claim?.claimType === "kfk") {
@@ -132,6 +133,7 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
       if (claim?.claimType === "donor") {
         sponsorType = "claimed_donor";
         const donorProfile = profileByDonorId.get(claim.donorId);
+        sponsorName = donorProfile?.name;
         sponsorEmail = donorProfile?.email;
       }
 
@@ -140,8 +142,10 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
       return {
         id: gift.id,
         giftName: gift.title,
+        listedPrice: gift.listedPrice,
         giftStatus: gift.status,
         sponsorType,
+        sponsorName,
         sponsorEmail,
         childName: childById.get(gift.childId)?.name,
         parentName: family?.contactName,
