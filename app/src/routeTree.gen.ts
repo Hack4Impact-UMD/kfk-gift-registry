@@ -14,6 +14,7 @@ import { Route as ResetPasswordRouteImport } from './routes/resetPassword'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as MfaEnrollRouteImport } from './routes/mfaEnroll'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HealthRouteImport } from './routes/health'
 import { Route as ForgotPasswordRouteImport } from './routes/forgotPassword'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as StorefrontRouteRouteImport } from './routes/_storefront/route'
@@ -77,6 +78,11 @@ const MfaEnrollRoute = MfaEnrollRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HealthRoute = HealthRouteImport.update({
+  id: '/health',
+  path: '/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -295,6 +301,7 @@ const AuthenticatedStaffAdminDrivesRoute =
 export interface FileRoutesByFullPath {
   '/': typeof StorefrontIndexRoute
   '/forgotPassword': typeof ForgotPasswordRoute
+  '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/mfaEnroll': typeof MfaEnrollRoute
   '/register': typeof RegisterRoute
@@ -339,6 +346,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof StorefrontIndexRoute
   '/forgotPassword': typeof ForgotPasswordRoute
+  '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/mfaEnroll': typeof MfaEnrollRoute
   '/register': typeof RegisterRoute
@@ -382,6 +390,7 @@ export interface FileRoutesById {
   '/_storefront': typeof StorefrontRouteRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/forgotPassword': typeof ForgotPasswordRoute
+  '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/mfaEnroll': typeof MfaEnrollRoute
   '/register': typeof RegisterRoute
@@ -429,6 +438,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/forgotPassword'
+    | '/health'
     | '/login'
     | '/mfaEnroll'
     | '/register'
@@ -473,6 +483,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/forgotPassword'
+    | '/health'
     | '/login'
     | '/mfaEnroll'
     | '/register'
@@ -515,6 +526,7 @@ export interface FileRouteTypes {
     | '/_storefront'
     | '/_authenticated'
     | '/forgotPassword'
+    | '/health'
     | '/login'
     | '/mfaEnroll'
     | '/register'
@@ -562,6 +574,7 @@ export interface RootRouteChildren {
   StorefrontRouteRoute: typeof StorefrontRouteRouteWithChildren
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  HealthRoute: typeof HealthRoute
   LoginRoute: typeof LoginRoute
   MfaEnrollRoute: typeof MfaEnrollRoute
   RegisterRoute: typeof RegisterRoute
@@ -608,6 +621,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgotPassword': {
@@ -1033,6 +1053,7 @@ const rootRouteChildren: RootRouteChildren = {
   StorefrontRouteRoute: StorefrontRouteRouteWithChildren,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  HealthRoute: HealthRoute,
   LoginRoute: LoginRoute,
   MfaEnrollRoute: MfaEnrollRoute,
   RegisterRoute: RegisterRoute,
