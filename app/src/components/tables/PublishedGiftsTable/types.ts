@@ -14,6 +14,7 @@ export type PublishedGiftsTableRow = {
   childName?: string;
   parentName?: string;
   parentEmail?: string;
+  dateClaimed?: string;
   dateOfFulfillment?: string;
   productUrl?: string;
 };
