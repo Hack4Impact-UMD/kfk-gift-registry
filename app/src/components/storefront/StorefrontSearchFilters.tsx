@@ -116,7 +116,7 @@ export function StorefrontSearchFilters({
     sortValue !== "none" ? sortLabel[sortValue] : undefined;
 
   return (
-    <>
+    <div className="border-b pb-3">
       <div className="hidden justify-center p-3 pb-0 md:flex">
         <div
           className="flex w-full max-w-7xl items-center gap-3"
@@ -193,6 +193,6 @@ export function StorefrontSearchFilters({
           </Button>
         </Link>
       </div>
-    </>
+    </div>
   );
 }

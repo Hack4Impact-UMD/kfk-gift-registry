@@ -18,7 +18,6 @@ import {
 import {
   HomeIcon,
   UsersIcon,
-  ShoppingCartIcon,
   UserCircleIcon,
   ChevronDoubleLeftIcon,
   ArrowTopRightOnSquareIcon,
@@ -161,14 +160,14 @@ export function StorefrontMobileSidebar({
                 asChild
                 size="lg"
                 isActive={isCheckoutPage}
+                className="bg-kfk-yellow text-black hover:bg-kfk-yellow/80 hover:text-black data-[active=true]:bg-kfk-yellow data-[active=true]:text-black"
                 data-tour="nav-cart-link"
               >
                 <Link
                   to="/checkout"
                   className="relative flex items-center gap-3 w-full text-left"
                 >
-                  <ShoppingCartIcon className="size-6" />
-                  <span className="text-base">Your Cart</span>
+                  <span className="text-base">Claimed Gifts</span>
                   {cartCount > 0 && (
                     <span className="absolute-top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center">
                       {cartCount}
