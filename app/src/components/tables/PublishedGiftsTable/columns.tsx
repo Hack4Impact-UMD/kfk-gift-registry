@@ -96,9 +96,8 @@ export const columns = [
   helper.accessor("privateNotes", {
     size: 180,
     enableGlobalFilter: true,
-    enableSorting: false,
     header: ({ column }) => (
-      <ColumnSortButton column={column}>Gift Status</ColumnSortButton>
+      <ColumnSortButton column={column}>Notes</ColumnSortButton>
     ),
     cell: ({ getValue, row }) => (
       <GiftNotesCell

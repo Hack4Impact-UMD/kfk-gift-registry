@@ -63,6 +63,13 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    getColumnCanGlobalFilter: (column) => {
+      if (column.columnDef.enableGlobalFilter === true) return true;
+      const first = data[0];
+      const value =
+        first === undefined ? undefined : column.accessorFn?.(first, 0);
+      return typeof value === "string" || typeof value === "number";
+    },
     ...restOptions,
     state: {
       ...optionsState,
@@ -80,14 +87,14 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     ...(paginated
       ? {
-          getPaginationRowModel: getPaginationRowModel(),
-          initialState: {
-            pagination: {
-              pageSize: rowsPerPage,
-              pageIndex: 0,
-            },
+        getPaginationRowModel: getPaginationRowModel(),
+        initialState: {
+          pagination: {
+            pageSize: rowsPerPage,
+            pageIndex: 0,
           },
-        }
+        },
+      }
       : {}),
   });
 
@@ -154,9 +161,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
