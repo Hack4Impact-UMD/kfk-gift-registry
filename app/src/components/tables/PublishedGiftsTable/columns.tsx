@@ -177,6 +177,22 @@ export const columns = [
     cell: ({ getValue }) => <EmailCell email={getValue()} />,
   }),
 
+  helper.accessor("dateClaimed", {
+    size: 140,
+    enableGlobalFilter: false,
+    header: ({ column }) => (
+      <ColumnSortButton column={column}>Date Claimed</ColumnSortButton>
+    ),
+    cell: ({ getValue }) => {
+      const date = getValue();
+      return (
+        <span className="text-sm text-gray-600 font-sans">
+          {date ? formatDate(date) : ""}
+        </span>
+      );
+    },
+  }),
+
   helper.accessor("dateOfFulfillment", {
     size: 140,
     enableGlobalFilter: false,

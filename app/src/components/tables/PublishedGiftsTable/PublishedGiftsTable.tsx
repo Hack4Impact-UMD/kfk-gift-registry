@@ -86,6 +86,7 @@ export function PublishedGiftsTable({
         row.childName,
         row.parentName,
         row.parentEmail,
+        row.dateClaimed,
         row.dateOfFulfillment,
         row.productUrl,
       ].some((value) =>
@@ -109,11 +110,13 @@ export function PublishedGiftsTable({
       { header: "Child Name", value: (row) => row.childName },
       { header: "Parent Name", value: (row) => row.parentName },
       { header: "Parent Email", value: (row) => row.parentEmail },
+      { header: "Date Claimed", value: (row) => row.dateClaimed },
       {
         header: "Date of Fulfillment",
         value: (row) => row.dateOfFulfillment,
       },
       { header: "Product URL", value: (row) => row.productUrl },
+      { header: "Notes", value: () => "" },
     ]);
 
     downloadCsv("published-gifts.csv", csv);

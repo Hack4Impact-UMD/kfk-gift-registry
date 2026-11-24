@@ -78,7 +78,10 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
   ])
   .inputValidator(driveIdSchema)
   .handler(async ({ data }) => {
-    const gifts = await getPublishedGifts({ data });
+    // Backup gifts aren't offered to donors, so they're hidden from the table.
+    const gifts = (await getPublishedGifts({ data })).filter(
+      (gift) => !gift.backup,
+    );
     const db = getServerDB();
 
     const giftIds = gifts.map((gift) => gift.id);
@@ -150,6 +153,7 @@ export const getPublishedGiftsTableRows = createServerFn({ method: "GET" })
         childName: childById.get(gift.childId)?.name,
         parentName: family?.contactName,
         parentEmail: family?.email,
+        dateClaimed: claim?.claimedAt,
         dateOfFulfillment:
           claim?.receivedAt ??
           claim?.deliveryConfirmed?.date ??
@@ -227,7 +231,8 @@ export const getAdminDashboardMetrics = createServerFn({ method: "GET" })
       );
 
       if (gift.status === "AVAILABLE") {
-        statusBreakdown.unclaimed += 1;
+        // Backup gifts aren't offered to donors, so they aren't "unclaimed".
+        if (!gift.backup) statusBreakdown.unclaimed += 1;
       } else if (gift.status === "CLAIMED") {
         statusBreakdown.unordered += 1;
       } else if (gift.status === "PURCHASED") {
@@ -238,7 +243,10 @@ export const getAdminDashboardMetrics = createServerFn({ method: "GET" })
         statusBreakdown.received += 1;
       }
 
-      if (gift.status === "AVAILABLE" || gift.status === "CLAIMED") {
+      if (
+        !gift.backup &&
+        (gift.status === "AVAILABLE" || gift.status === "CLAIMED")
+      ) {
         giftBreakdown.unpurchased += 1;
       }
 
