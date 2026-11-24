@@ -8,6 +8,7 @@ import { CopyButton } from "@/components/ui/copybutton";
 import ColumnSortButton from "../ColumnSortButton";
 import { SponsorTypeBadge } from "./SponsorTypeBadge";
 import { GiftStatusBadge } from "./GiftStatusBadge";
+import { GiftNotesCell } from "./GiftNotesCell";
 import type { PublishedGiftsTableMeta, PublishedGiftsTableRow } from "./types";
 
 const helper = createColumnHelper<PublishedGiftsTableRow>();
@@ -91,6 +92,21 @@ export const columns = [
         </a>
       );
     },
+  }),
+  helper.accessor("privateNotes", {
+    size: 180,
+    enableGlobalFilter: true,
+    enableSorting: false,
+    header: ({ column }) => (
+      <ColumnSortButton column={column}>Gift Status</ColumnSortButton>
+    ),
+    cell: ({ getValue, row }) => (
+      <GiftNotesCell
+        giftId={row.original.id}
+        giftName={row.original.giftName}
+        notes={getValue()}
+      />
+    ),
   }),
 
   helper.accessor("giftStatus", {
