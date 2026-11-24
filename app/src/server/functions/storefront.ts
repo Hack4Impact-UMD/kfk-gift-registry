@@ -87,6 +87,7 @@ type StorefrontData = {
     giftsClaimed: number;
     totalGifts: number;
     childrenWithGifts: number;
+    childrenRequestingGifts: number;
     uniqueDonors: number;
   };
 };
@@ -237,6 +238,7 @@ function buildStats(
 ): StorefrontData["stats"] {
   const donorIds = new Set<string>();
   const childrenWithGiftsIds = new Set<string>();
+  const childrenRequestingGiftsIds = new Set<string>();
   let totalGifts = 0;
   let giftsClaimed = 0;
 
@@ -245,6 +247,7 @@ function buildStats(
     if (gift.backup || !publishedChildIds.has(gift.childId)) continue;
 
     totalGifts += 1;
+    childrenRequestingGiftsIds.add(gift.childId);
     if (!claimedGiftStatuses.has(gift.status)) continue;
 
     giftsClaimed += 1;
@@ -255,6 +258,7 @@ function buildStats(
     giftsClaimed,
     totalGifts,
     childrenWithGifts: childrenWithGiftsIds.size,
+    childrenRequestingGifts: childrenRequestingGiftsIds.size,
     uniqueDonors: donorIds.size,
   };
 }

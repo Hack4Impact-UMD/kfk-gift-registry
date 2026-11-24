@@ -1,12 +1,7 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import KFKLogo from "@/assets/kfk-logo.png";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowTopRightOnSquareIcon,
-  HomeIcon,
-  ShoppingCartIcon,
-  UserCircleIcon,
-} from "../icons";
+import { ArrowTopRightOnSquareIcon, HomeIcon, UserCircleIcon } from "../icons";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { TestDriveBadge } from "@/components/gift-drives/TestDriveBadge";
 import { Menu } from "lucide-react";
@@ -66,10 +61,13 @@ export function StorefrontNavbar({
               <TestDriveBadge drive={currentDrive} size="sm" />
             </Link>
 
-            <Button asChild className="ml-auto" data-tour="nav-cart-link">
+            <Button
+              asChild
+              className="ml-auto bg-kfk-yellow text-black hover:bg-kfk-yellow/80"
+              data-tour="nav-cart-link"
+            >
               <Link to="/checkout">
                 Cart
-                <ShoppingCartIcon className="ml-2" />
                 {cartCount > 0 && (
                   <span
                     data-testid="cart-count"
@@ -172,13 +170,11 @@ export function StorefrontNavbar({
 
             <Button
               asChild
-              variant="outline"
-              className="relative"
+              className="relative bg-kfk-yellow text-black hover:bg-kfk-yellow/80"
               data-tour="nav-cart-link"
             >
               <Link to="/checkout">
-                Your Cart
-                <ShoppingCartIcon className="ml-2" />
+                Claimed Gifts
                 {cartCount > 0 && (
                   <span
                     data-testid="cart-count"

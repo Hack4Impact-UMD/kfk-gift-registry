@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { GiftDriveStats } from "@/components/storefront/GiftDriveStats";
+import { DonorInstructions } from "@/components/storefront/DonorInstructions";
 import { OffSeasonScreen } from "@/components/storefront/OffSeasonScreen";
 import type { ChildCardData } from "@/components/storefront/ChildCard";
 import { ChildCard } from "@/components/storefront/ChildCard";
@@ -183,6 +184,7 @@ function App() {
           stats={isStatsError ? undefined : stats}
           statsPending={isStatsPending}
         />
+        <DonorInstructions />
         <StorefrontSearchFilters
           searchValue={searchValue}
           sortValue={sortValue}
