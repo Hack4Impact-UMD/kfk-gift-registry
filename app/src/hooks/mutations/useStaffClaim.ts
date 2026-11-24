@@ -8,6 +8,7 @@ import {
   unclaimKFKGift,
   adminSetGiftStatus,
 } from "@/server/functions/staffClaim";
+import { updateGift } from "@/server/functions/child";
 import publishedGiftsQueries from "@/queries/publishedGifts";
 import { queries } from "@/queries";
 import { toast } from "@/lib/toast";
@@ -117,6 +118,27 @@ export function useUnclaimKFKGift() {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to unclaim gift");
+    },
+  });
+}
+
+export function useUpdateGiftPrivateNotes() {
+  const invalidate = useInvalidateStaffClaim();
+
+  return useMutation({
+    mutationFn: (params: { giftId: string; privateNotes: string }) =>
+      updateGift({
+        data: {
+          giftId: params.giftId,
+          updates: { privateNotes: params.privateNotes },
+        },
+      }),
+    onSuccess: async () => {
+      await invalidate();
+      toast.success("Notes saved");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to save notes");
     },
   });
 }

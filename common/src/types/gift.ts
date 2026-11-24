@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   GiftFamilyPublicNotesSchema,
+  GiftPrivateNotesSchema,
   RequiredGiftTitleSchema,
 } from "../validation.js";
 
@@ -30,7 +31,7 @@ export const GiftSchema = z.object({
   claimedByDonorId: z.string().optional(),
   createdAt: z.iso.datetime(),
   familyPublicNotes: GiftFamilyPublicNotesSchema.optional(),
-  privateNotes: z.string().optional(),
+  privateNotes: GiftPrivateNotesSchema.optional(),
   backup: z.boolean(),
   active: z.boolean(),
   sortOrder: z.number().int().optional(),

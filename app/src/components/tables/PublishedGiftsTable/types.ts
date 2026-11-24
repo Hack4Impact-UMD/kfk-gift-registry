@@ -17,6 +17,7 @@ export type PublishedGiftsTableRow = {
   dateClaimed?: string;
   dateOfFulfillment?: string;
   productUrl?: string;
+  privateNotes?: string;
 };
 
 /** Handlers passed to the table via `table.options.meta` for the action column. */

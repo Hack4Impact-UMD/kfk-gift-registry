@@ -63,6 +63,13 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    getColumnCanGlobalFilter: (column) => {
+      if (column.columnDef.enableGlobalFilter === true) return true;
+      const first = data[0];
+      const value =
+        first === undefined ? undefined : column.accessorFn?.(first, 0);
+      return typeof value === "string" || typeof value === "number";
+    },
     ...restOptions,
     state: {
       ...optionsState,

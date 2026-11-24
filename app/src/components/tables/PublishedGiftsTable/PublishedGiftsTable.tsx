@@ -89,6 +89,7 @@ export function PublishedGiftsTable({
         row.dateClaimed,
         row.dateOfFulfillment,
         row.productUrl,
+        row.privateNotes,
       ].some((value) =>
         String(value ?? "")
           .toLowerCase()
@@ -116,7 +117,7 @@ export function PublishedGiftsTable({
         value: (row) => row.dateOfFulfillment,
       },
       { header: "Product URL", value: (row) => row.productUrl },
-      { header: "Notes", value: () => "" },
+      { header: "Notes", value: (row) => row.privateNotes },
     ]);
 
     downloadCsv("published-gifts.csv", csv);
