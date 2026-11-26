@@ -188,6 +188,17 @@ export function StorefrontMobileSidebar({
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild size="lg">
+                <a
+                  href="https://kissesforkyle.org/donations/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Donate!
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

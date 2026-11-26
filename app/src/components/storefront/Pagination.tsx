@@ -74,7 +74,7 @@ export const Pagination = ({
   );
 
   return (
-    <div className="mx-auto mt-10 flex justify-center gap-2 text-xl">
+    <div className="mx-auto max-w-full overflow-x-scroll mt-10 flex justify-center gap-2 text-xl">
       <Button
         onClick={() => setCurrentPage(Math.max(1, boundedCurrentPage - 1))}
         type="button"

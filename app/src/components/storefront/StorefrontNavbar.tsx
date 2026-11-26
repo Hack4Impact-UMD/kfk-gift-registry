@@ -52,7 +52,7 @@ export function StorefrontNavbar({
         </div>
 
         {currentDrive && (
-          <div className="flex flex-row w-full items-center">
+          <div className="flex items-start gap-2 flex-col md:flex-row w-full items-center">
             <Link
               to="/"
               className="relative border-2 border-kfk-red text-kfk-red py-1 px-8 rounded-md font-gaegu text-medium w-62.5 text-center flex flex-row items-center"
@@ -60,24 +60,38 @@ export function StorefrontNavbar({
               {currentDrive?.cycle} Gift Drive
               <TestDriveBadge drive={currentDrive} size="sm" />
             </Link>
+            <div className="flex flex-row gap-2 w-full">
+              <Button
+                asChild
+                className="text-white bg-green-500 hover:bg-green-400 grow"
+              >
+                <a
+                  href="https://kissesforkyle.org/donations/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Donate!
+                </a>
+              </Button>
 
-            <Button
-              asChild
-              className="ml-auto bg-kfk-yellow text-black hover:bg-kfk-yellow/80"
-              data-tour="nav-cart-link"
-            >
-              <Link to="/checkout">
-                Cart
-                {cartCount > 0 && (
-                  <span
-                    data-testid="cart-count"
-                    className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center"
-                  >
-                    {cartCount}
-                  </span>
-                )}
-              </Link>
-            </Button>
+              <Button
+                asChild
+                className="grow ml-auto bg-kfk-yellow text-black hover:bg-kfk-yellow/80"
+                data-tour="nav-cart-link"
+              >
+                <Link to="/checkout">
+                  Claimed Gifts
+                  {cartCount > 0 && (
+                    <span
+                      data-testid="cart-count"
+                      className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center"
+                    >
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+              </Button>
+            </div>
           </div>
         )}
       </div>
